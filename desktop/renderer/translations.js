@@ -700,6 +700,10 @@ Gozero 全节点|Gozero full node|Gozeroフルノード|Полный узел Go
 安装、选卡、挖矿、收益、性能预算与托盘操作统一按当前版本说明|Updated installation, GPU selection, mining, income, performance and tray instructions|導入・GPU選択・採掘・収益・性能・トレイ操作を現行版に統一|Инструкции установки, выбора GPU, майнинга, дохода, нагрузки и трея обновлены
 `;
  const catalog=Object.create(null);
+ catalog['租赁市场']=['Rentals','レンタル市場','Аренда'];
+ catalog['新增GPU / CPU租赁市场，实时价格与详细参数、租金试算']=['New GPU / CPU rental market with current quotes, specifications and cost estimates','GPU / CPUレンタル市場、現在価格・詳細仕様・料金試算を追加','Новый рынок аренды GPU / CPU: цены, характеристики и расчёт стоимости'];
+ catalog['新增4090、5090、3090、RTX PRO 6000快捷筛选']=['Added quick filters for 4090, 5090, 3090 and RTX PRO 6000','4090・5090・3090・RTX PRO 6000のクイックフィルターを追加','Добавлены фильтры 4090, 5090, 3090 и RTX PRO 6000'];
+ catalog['Clore / Vast.ai跳转使用官方推荐链接；版本更新为Beta 1.01']=['Clore / Vast.ai use official referral links; updated to Beta 1.01','Clore / Vast.aiは公式紹介リンクを使用。Beta 1.01に更新','Clore / Vast.ai используют официальные реферальные ссылки; версия Beta 1.01'];
  for(const line of rows.trim().split('\n')){const [key,...values]=line.split('|');if(values.length!==3||values.some(v=>!v))throw Error('Invalid translation: '+key);if(catalog[key])throw Error('Duplicate translation: '+key);catalog[key]=values}
  return Object.freeze(catalog);
 });

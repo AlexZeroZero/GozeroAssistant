@@ -1,7 +1,7 @@
 {
   "name": "gozer-assistant",
   "productName": "Gozero助手",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "description": "Gozero compact Windows mining workstation",
   "main": "src/main.cjs",
@@ -12,7 +12,7 @@
   "engines": {
     "node": ">=22"
   },
-  "displayVersion": "1.0 Beta",
+  "displayVersion": "Beta 1.01",
   "releaseChannel": "beta",
   "license": "MIT",
   "repository": {

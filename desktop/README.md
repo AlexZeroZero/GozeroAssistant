@@ -1,6 +1,6 @@
 # 桌面助手构建与测试
 
-当前显示版本：1.0 Beta；包修订号：1.0.2。
+当前显示版本：Beta 1.01；包修订号：1.0.3（用于保持自动更新版本单调递增）。
 
 ## 构建
 
@@ -35,6 +35,7 @@ python desktop/scripts/package.py
 ```powershell
 node --test desktop/tests/*.test.cjs
 python desktop/scripts/language-smoke.py
+python desktop/scripts/rental-smoke.py
 python desktop/scripts/verify-package.py
 ```
 
@@ -58,6 +59,7 @@ python desktop/scripts/verify-package.py
 - `src/pool-account.cjs`：Kryptex公开地址余额与支付查询。
 - `src/floating.cjs` / `renderer/mini.*`：悬浮卡片。
 - `src/updates.cjs`：签名更新校验。
+- `src/rentals.cjs` / `renderer/rental*`：GPU / CPU 租赁报价、型号快捷筛选、每页六台、60秒缓存与可见页刷新、四语参数详情和租金试算。官网聚合 Clore 与 Vast.ai；所有跳转使用固定推荐链接。
 - `renderer/i18n.js` / `renderer/translations.js`：中英日俄界面语言、动态文本绑定与完整词典。切换语言时保留原始文本和已有节点；常规数值刷新只处理变更节点。
 - `tests/language-smoke.cjs`：四语界面、悬浮停止状态、语言持久化与布局检查，不启动矿工。
 

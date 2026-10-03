@@ -1,18 +1,23 @@
-# Gozero助手 · 1.0 Beta
+# Gozero助手 · Beta 1.01
 
 Windows GPU 挖矿助手，提供紧凑的硬件监测、PRL / QTC 挖矿工作台、参考收益与桌面悬浮卡片。
 
-[软件下载](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.2-beta) · [使用指南](desktop/QUICKSTART.txt) · [构建说明](desktop/README.md) · [官网](https://gozero.trade/)
+[软件下载](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/beta-1.01) · [使用指南](desktop/QUICKSTART.txt) · [构建说明](desktop/README.md) · [官网](https://gozero.trade/)
 
 ## 下载与使用
 
-在 Releases 下载 `GozerAssistant-1.0.2-win-x64.zip`，完整解压后运行 `GozerAssistant.exe`。SHA256 校验文件与安装包同时提供。
+在 Releases 下载 `GozerAssistant-1.0.3-win-x64.zip`，完整解压后运行 `GozerAssistant.exe`。SHA256 校验文件与安装包同时提供。
 
 请保留整个解压文件夹。升级前从托盘退出旧版，再解压新版运行；钱包和配置保存在本机并会继续保留。
+
+显示版本 **Beta 1.01**；内部更新版本为 `1.0.3`，确保旧版能正常识别升级。
 
 ## 功能
 
 - GPU、CPU、内存、主板和 BIOS 参数读取；显示已支持的传感器数据。
+- 新增 GPU / CPU 租赁市场：Clore + Vast.ai 实时报价、每页六台、平台/地区/规格筛选及按需/竞价排序。
+- 4090、5090、3090、RTX PRO 6000 快捷筛选；可拖动参数窗、租期试算，跳转使用指定推荐链接。
+- 租赁页面可见时每60秒刷新，保留缓存与卡片位置；失败和过期状态明确标注。
 - PRL / QTC 挖矿、主备矿池、多卡选择与逐卡日志。
 - 5分钟或10分钟算力均值、参考收益、60秒实际挖矿测试与 Kryptex 地址账本。
 - 节能、均衡、高性能预算；默认90°C GPU温度保护。
@@ -24,9 +29,17 @@ Windows GPU 挖矿助手，提供紧凑的硬件监测、PRL / QTC 挖矿工作�
 
 当前 TSC 挖矿入口未开放。QTC 实验计算核用于离线自检；实际 PRL/QTC 挖矿使用 KRig。
 
+## 租赁市场
+
+![Beta 1.01 GPU 租赁市场实测界面](docs/screenshots/rental-market.png)
+
+[Clore 推荐链接](https://clore.ai/register?ref_id=ebgzlv4d) · [Vast.ai 推荐链接](https://cloud.vast.ai/?ref_id=133254)
+
+截图报价仅代表截取时状态。Clore 另加5%基础费；Vast 存储与流量另计。程序只提供查询与跳转，不自动租赁或支付。
+
 ## 测试截图
 
-以下为用户提供的 v0.3.12 开发版实测截图，用于展示设备参数、挖矿工作台和悬浮监控等界面；当前发行版为 **1.0 Beta**。截图中的算力、价格和收益仅代表截图时的设备与采样状态，实际数据以当前运行结果为准。点击图片可查看原图。
+以下为用户提供的 v0.3.12 开发版实测截图，用于展示设备参数、挖矿工作台和悬浮监控等界面；当前发行版为 **Beta 1.01**。截图中的算力、价格和收益仅代表截图时的设备与采样状态，实际数据以当前运行结果为准。点击图片可查看原图。
 
 <table>
   <tr>
