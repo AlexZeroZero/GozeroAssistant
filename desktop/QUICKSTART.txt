@@ -5,6 +5,9 @@ Gozero助手 1.0 Beta · 使用指南
 将压缩包完整解压到一个新文件夹，双击 GozerAssistant.exe 启动。
 请保留 DLL、resources、locales 等文件，不要只复制 EXE。
 日常使用无需安装 Node.js 或 Python。程序不会自动开始挖矿。
+顶部语言菜单或“偏好与保护 → 界面语言”可切换中文、English、日本語、Русский。
+切换即时生效并自动保存，同步主窗口、悬浮卡片和托盘菜单；不会启动或停止挖矿。
+矿工原始输出和设备原始识别信息保留来源内容，便于排查问题。
 
 二、选择设备
 打开“设备总览”，等待自动扫描 GPU、CPU、内存、主板和 BIOS。
@@ -81,4 +84,4 @@ KRig内核费、矿池费和电费另计。KRig在Kryptex池内核费0%，其他
 设置中的QTC实验计算核仅供离线自检，当前实际挖矿仍使用KRig。
 第三方组件、来源及许可证见 THIRD-PARTY.md。
 
-官网：https://pro.gozero.trade/
+官网：https://gozero.trade/

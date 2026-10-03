@@ -1,6 +1,6 @@
 # 桌面助手构建与测试
 
-当前显示版本：1.0 Beta；包修订号：1.0.1。
+当前显示版本：1.0 Beta；包修订号：1.0.2。
 
 ## 构建
 
@@ -34,6 +34,7 @@ python desktop/scripts/package.py
 
 ```powershell
 node --test desktop/tests/*.test.cjs
+python desktop/scripts/language-smoke.py
 python desktop/scripts/verify-package.py
 ```
 
@@ -57,5 +58,7 @@ python desktop/scripts/verify-package.py
 - `src/pool-account.cjs`：Kryptex公开地址余额与支付查询。
 - `src/floating.cjs` / `renderer/mini.*`：悬浮卡片。
 - `src/updates.cjs`：签名更新校验。
+- `renderer/i18n.js` / `renderer/translations.js`：中英日俄界面语言、动态文本绑定与完整词典。切换语言时保留原始文本和已有节点；常规数值刷新只处理变更节点。
+- `tests/language-smoke.cjs`：四语界面、悬浮停止状态、语言持久化与布局检查，不启动矿工。
 
 实际挖矿使用 KRig；`native/` 为独立实验计算模块，尚未接入矿池。

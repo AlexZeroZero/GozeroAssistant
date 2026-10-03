@@ -2,11 +2,11 @@
 
 Windows GPU 挖矿助手，提供紧凑的硬件监测、PRL / QTC 挖矿工作台、参考收益与桌面悬浮卡片。
 
-[软件下载](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.1-beta) · [使用指南](desktop/QUICKSTART.txt) · [构建说明](desktop/README.md) · [官网](https://pro.gozero.trade/)
+[软件下载](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.2-beta) · [使用指南](desktop/QUICKSTART.txt) · [构建说明](desktop/README.md) · [官网](https://gozero.trade/)
 
 ## 下载与使用
 
-在 Releases 下载 `GozerAssistant-1.0.1-win-x64.zip`，完整解压后运行 `GozerAssistant.exe`。SHA256 校验文件与安装包同时提供。
+在 Releases 下载 `GozerAssistant-1.0.2-win-x64.zip`，完整解压后运行 `GozerAssistant.exe`。SHA256 校验文件与安装包同时提供。
 
 请保留整个解压文件夹。升级前从托盘退出旧版，再解压新版运行；钱包和配置保存在本机并会继续保留。
 
@@ -17,6 +17,8 @@ Windows GPU 挖矿助手，提供紧凑的硬件监测、PRL / QTC 挖矿工作�
 - 5分钟或10分钟算力均值、参考收益、60秒实际挖矿测试与 Kryptex 地址账本。
 - 节能、均衡、高性能预算；默认90°C GPU温度保护。
 - 可拖动悬浮卡片及系统托盘；显示设备算力、当前模式、负载和收益。
+- 中文、English、日本語、Русский 即时切换并记忆，同步主窗口、悬浮卡片和托盘菜单。
+- 挖矿停止后，悬浮卡片突出显示“已停止”，保留历史算力供参考。
 
 官方发行版的软件服务费为0.5%，挖矿和收益测试均适用，按有效GPU运行时间分时累计；不是按币量精确扣款。矿工内核费、矿池费及电费另计，详细规则见使用指南和程序底部。
 

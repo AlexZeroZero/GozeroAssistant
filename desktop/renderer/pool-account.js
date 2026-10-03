@@ -22,7 +22,7 @@
    paymentsKey=key;const body=$('#payout-body');body.replaceChildren();body.append(node('p','note',(a?.source||'Kryptex')+' · '+(a?.coin||'')+' · '+(a?.address||'')+' · '+(p?.stale?'缓存数据 · ':'')+(p?.at?'查询 '+time(p.at):'等待来源')));
    if(!p?.value)body.append(node('p','note',p?.error||'正在读取支付记录…'));
    else if(!p.value.rows.length)body.append(node('p','note','矿池未返回支付记录。余额达到门槛后，支付时间以矿池规则为准。'));
-   else{const table=node('table'),head=node('thead'),tr=node('tr');['时间','金额 / '+a.coin,'状态','交易ID'].forEach(x=>tr.append(node('th','',x)));head.append(tr);table.append(head);const rows=node('tbody');for(const r of p.value.rows){const tr=node('tr');for(const value of [r.at?new Date(r.at).toLocaleString('zh-CN'):'—',amount(r.amount),r.status,r.txid?r.txid.slice(0,8)+'…'+r.txid.slice(-6):'—'])tr.append(node('td','',value));tr.lastChild.title=r.txid||'';rows.append(tr)}table.append(rows);body.append(table)}
+   else{const table=node('table'),head=node('thead'),tr=node('tr');['时间','金额 / '+a.coin,'状态','交易ID'].forEach(x=>tr.append(node('th','',x)));head.append(tr);table.append(head);const rows=node('tbody');for(const r of p.value.rows){const tr=node('tr');for(const value of [r.at?new Date(r.at).toLocaleString(GozerI18n.locale):'—',amount(r.amount),r.status,r.txid?r.txid.slice(0,8)+'…'+r.txid.slice(-6):'—'])tr.append(node('td','',value));tr.lastChild.title=r.txid||'';rows.append(tr)}table.append(rows);body.append(table)}
    if(p?.value)body.append(node('p','note','矿池共 '+p.value.count+' 笔，展示接口第一页最近最多10笔。完整记录请查看矿池账单。'));
    const link=node('button','link','查看矿池完整账单 ↗');link.disabled=!a?.supported;link.onclick=()=>action(()=>api.poolAccountOpen(),link);body.append(link);
   }
