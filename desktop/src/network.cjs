@@ -1,0 +1,27 @@
+'use strict';
+const fs=require('node:fs/promises'),path=require('node:path');
+const COINS={PRL:{name:'Pearl',unit:'H/s',interval:30000},QTC:{name:'Quantus',unit:'H/s',interval:20000},TSC:{name:'TensorCash',unit:'N/s',interval:60000}};
+const number=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))?Number(v):null;
+const timestamp=v=>typeof v==='number'?v*1000:Date.parse(v||'');
+function normalize(coin,raw,overview,previous=null,now=Date.now()){
+ const c=raw?.coins?.[coin];if(raw?.coin!==coin||!c||c.name!==COINS[coin].name||overview?.coin!==coin)throw Error('币种身份不匹配');
+ const metrics=overview.network_metrics,networkAt=metrics?timestamp(metrics.source_updated_at):timestamp(overview.updated_at);const networkHash=number(metrics?.hashrate??overview.hashrate),difficulty=number(metrics?.difficulty??overview.difficulty);const price=number(c.price),priceAt=timestamp(c.priceTime);
+ const rows=(c.items||[]).filter(r=>r.unit===COINS[coin].unit&&number(r.hashrate_min)>0&&number(r.hashrate_max)>0&&number(r.coins_min)>=0&&number(r.coins_max)>=0);
+ const rates=rows.map(r=>(r.coins_min/r.hashrate_min+r.coins_max/r.hashrate_max)/2).sort((a,b)=>a-b);let rate=rates.length?rates[Math.floor(rates.length/2)]:null;
+ let referenceAt=number(c.incomeTime)?c.incomeTime*1000:Math.max(0,...rows.map(r=>number(r.updated_at)*1000));let basis=coin==='TSC'?'Tiger Pool 单位 N/s 近24H有效奖励':'Kryptex 同币种同算法单位算力日产出';
+ if(coin==='TSC'&&raw.tiger){const t=raw.tiger;if(t.window_seconds===86400&&number(t.pool_hashrate_mean)>0&&number(t.reward_tsc)>=0&&number(t.source_factor)>0&&t.source_factor<=1){rate=t.reward_tsc/t.pool_hashrate_mean*t.source_factor;referenceAt=timestamp(t.source_updated_at)}}
+ const networkStale=c.networkReady===false||overview.initial_block_download===true||!networkAt||now-networkAt>180000||networkAt>now+60000||!!metrics?.stale;
+ const sameReference=previous&&previous.referenceAt===referenceAt&&previous.baseRate===rate;const anchorHash=sameReference?previous.anchorHash:(!networkStale&&networkHash>0?networkHash:null);
+ let coinsPerUnitDay=rate;if(coin!=='TSC'&&rate!==null&&anchorHash>0&&networkHash>0&&!networkStale){coinsPerUnitDay=rate*anchorHash/networkHash;basis+=' × 基准全网算力 / 当前全网算力（奖励机制不变假设）'}
+ return{coin,name:c.name,algorithm:c.algorithm,unit:COINS[coin].unit,height:number(overview.height),difficulty,networkHash,networkUnit:metrics?.unit||'H/s',networkAt,networkStale,networkSource:metrics?.source_name||'Gozero 全节点',price,priceAt,priceSource:c.priceSource,priceStale:!!c.priceStale||!priceAt||now-priceAt>180000||priceAt>now+60000,baseRate:rate,anchorHash,coinsPerUnitDay,referenceAt,basis,referenceStale:!referenceAt||now-referenceAt>900000||referenceAt>now+60000,reward:number(c.reward),blockSeconds:number(c.blockSeconds),models:rows.map(r=>({name:r.model,hash:(r.hashrate_min+r.hashrate_max)/2,watts:number(r.power),powerBasis:r.power_basis||'unknown'})),fetchedAt:now,sourceUrl:'https://gozero.trade/'+coin.toLowerCase(),error:null};
+}
+class Network{
+ constructor(dir,request,onUpdate){this.file=path.join(dir,'network-cache.json');this.request=request;this.onUpdate=onUpdate;this.coins={};this.pending=new Map();this.timers=new Map();this.closed=false}
+ async load(){try{const d=JSON.parse(await fs.readFile(this.file,'utf8'));if(d.version===1)for(const c of Object.keys(COINS))if(d.coins?.[c]?.coin===c)this.coins[c]={...d.coins[c],networkStale:true,priceStale:true,referenceStale:true}}catch{}}
+ snapshot(){const now=Date.now();return Object.keys(COINS).map(coin=>{const c=this.coins[coin];return c?{...c,networkStale:c.networkStale||now-c.networkAt>180000,priceStale:c.priceStale||now-c.priceAt>180000,referenceStale:c.referenceStale||now-c.referenceAt>900000,refreshing:this.pending.has(coin)}:{coin,name:COINS[coin].name,unit:COINS[coin].unit,networkStale:true,priceStale:true,referenceStale:true,refreshing:this.pending.has(coin)}})}
+ async refresh(coin,force=false){if(!COINS[coin])throw Error('未知币种');if(this.pending.has(coin))return this.pending.get(coin);if(!force&&Date.now()-(this.coins[coin]?.checkedAt||0)<COINS[coin].interval)return this.coins[coin];const job=(async()=>{try{const [raw,overview]=await Promise.all(['income-data','overview'].map(endpoint=>this.request('https://gozero.trade/api/'+endpoint+'?coin='+coin).then(b=>JSON.parse(b.toString('utf8')))));this.coins[coin]={...normalize(coin,raw,overview,this.coins[coin]),checkedAt:Date.now()};return this.coins[coin]}catch(e){this.coins[coin]={...this.coins[coin],coin,name:COINS[coin].name,unit:COINS[coin].unit,error:e.message,checkedAt:Date.now(),networkStale:true,priceStale:true,referenceStale:true};return this.coins[coin]}finally{this.pending.delete(coin);this.onUpdate?.(this.snapshot());this.save().catch(()=>{})}})();this.pending.set(coin,job);return job}
+ save(){const data=JSON.stringify({version:1,coins:this.coins});this.queue=(this.queue||Promise.resolve()).catch(()=>{}).then(async()=>{await fs.mkdir(path.dirname(this.file),{recursive:true});await fs.writeFile(this.file+'.tmp',data);await fs.rename(this.file+'.tmp',this.file)});return this.queue}
+ start(coins=Object.keys(COINS)){this.closed=false;coins.filter(coin=>COINS[coin]).forEach((coin,i)=>{const tick=async()=>{if(this.closed)return;await this.refresh(coin);if(!this.closed)this.timers.set(coin,setTimeout(tick,COINS[coin].interval))};this.timers.set(coin,setTimeout(tick,i*1200))})}
+ stop(){this.closed=true;this.timers.forEach(t=>clearTimeout(t));this.timers.clear()}
+}
+module.exports={Network,normalize,COINS};

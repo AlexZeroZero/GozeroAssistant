@@ -1,0 +1,15 @@
+/.local/
+**/dist/
+**/artifacts/
+**/node_modules/
+**/__pycache__/
+*.pyc
+*.log
+.env
+.env.*
+private.pem
+*.key
+settings.json
+service-fee-ledger.json
+desktop/vendor/*.exe
+desktop/native/*.exe

@@ -1,0 +1,8 @@
+{
+  "source": "https://github.com/Quantus-Network/quantus-miner",
+  "commit": "c7838cbc86f7d74477da1771139f377a8e438072",
+  "license": "Apache-2.0",
+  "protocol": "QTC Poseidon2 GPU compute only; no pool transport",
+  "compiler": "NVIDIA NVRTC 13.0.88",
+  "compilerArchiveSha256": "8c50a52467826167e0dbe99936140c52d62272bfc5849fe2d6587d050c8c5d29"
+}

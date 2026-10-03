@@ -1,0 +1,2 @@
+const{contextBridge,ipcRenderer}=require('electron');
+contextBridge.exposeInMainWorld('mini',Object.freeze({hide:()=>ipcRenderer.invoke('mini:hide'),quit:()=>ipcRenderer.invoke('mini:quit'),get:()=>ipcRenderer.invoke('mini:get'),restore:()=>ipcRenderer.invoke('mini:restore'),stop:()=>ipcRenderer.invoke('mini:stop'),subscribe:fn=>{const listener=(_e,v)=>fn(v);ipcRenderer.on('mini-state',listener);return()=>ipcRenderer.removeListener('mini-state',listener)}}));

@@ -1,0 +1,27 @@
+{
+  "name": "gozer-assistant",
+  "productName": "Gozero助手",
+  "version": "1.0.1",
+  "private": true,
+  "description": "Gozero compact Windows mining workstation",
+  "main": "src/main.cjs",
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "build": "python scripts/package.py"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "displayVersion": "1.0 Beta",
+  "releaseChannel": "beta",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AlexZeroZero/GozeroAssistant.git",
+    "directory": "desktop"
+  },
+  "homepage": "https://github.com/AlexZeroZero/GozeroAssistant",
+  "bugs": {
+    "url": "https://github.com/AlexZeroZero/GozeroAssistant/issues"
+  }
+}

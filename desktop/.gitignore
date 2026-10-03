@@ -1,0 +1,7 @@
+dist/
+node_modules/
+artifacts/
+vendor/*.exe
+native/*.exe
+__pycache__/
+*.pyc
