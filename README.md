@@ -22,6 +22,25 @@ Windows GPU 挖矿助手，提供紧凑的硬件监测、PRL / QTC 挖矿工作�
 
 当前 TSC 挖矿入口未开放。QTC 实验计算核用于离线自检；实际 PRL/QTC 挖矿使用 KRig。
 
+## 测试截图
+
+以下为用户提供的 v0.3.12 开发版实测截图，用于展示设备参数、挖矿工作台和悬浮监控等界面；当前发行版为 **1.0 Beta**。截图中的算力、价格和收益仅代表截图时的设备与采样状态，实际数据以当前运行结果为准。点击图片可查看原图。
+
+<table>
+  <tr>
+    <td width="50%" valign="top"><strong>设备总览</strong><br>GPU、CPU、内存及 PCIe 参数<br><a href="docs/screenshots/hardware-overview.png"><img src="docs/screenshots/hardware-overview.png" alt="设备总览测试截图：GPU、CPU、内存及 PCIe 参数" width="520"></a></td>
+    <td width="50%" valign="top"><strong>偏好与保护</strong><br>温度保护、监测周期与设备记录设置<br><a href="docs/screenshots/preferences-protection.png"><img src="docs/screenshots/preferences-protection.png" alt="偏好与保护测试截图：90°C GPU温度保护及监测设置" width="520"></a></td>
+  </tr>
+  <tr>
+    <td valign="top"><strong>PRL 挖矿工作台</strong><br>矿池配置、设备状态与矿池账本<br><a href="docs/screenshots/prl-workbench.png"><img src="docs/screenshots/prl-workbench.png" alt="PRL工作台测试截图：矿池配置与已停止的算力采样" width="520"></a></td>
+    <td valign="top"><strong>QTC 挖矿工作台</strong><br>运行算力、功耗、温度与参考收益<br><a href="docs/screenshots/qtc-workbench.png"><img src="docs/screenshots/qtc-workbench.png" alt="QTC工作台测试截图：运行状态、设备算力与矿池收益" width="520"></a></td>
+  </tr>
+  <tr>
+    <td valign="top"><strong>桌面悬浮监控</strong><br>设备算力、性能模式与系统负载<br><a href="docs/screenshots/floating-monitor.png"><img src="docs/screenshots/floating-monitor.png" alt="悬浮卡片测试截图：算力均值、均衡模式与设备负载" width="414"></a></td>
+    <td valign="top"><strong>信息窗口</strong><br>币种动态、收益变动与价格异动<br><a href="docs/screenshots/information-feed.png"><img src="docs/screenshots/information-feed.png" alt="信息窗口测试截图：币种价格异动及数据来源" width="520"></a></td>
+  </tr>
+</table>
+
 ## 从源码构建
 
 需要 Windows 10/11 x64、Python 3.11+，以及 Windows 自带的 .NET Framework 4 C# 编译器。运行测试另需 Node.js 22+。
