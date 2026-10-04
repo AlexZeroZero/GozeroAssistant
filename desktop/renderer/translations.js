@@ -2,6 +2,60 @@
  'use strict';
  // Source phrase | English | Japanese | Russian. Technical IDs, input values and miner output are preserved.
  const rows=`
+NOID 已启用自动连接：原始连接失败后尝试兼容 TCP（非加密）|NOID auto connection enabled: try unencrypted TCP if the original connection fails.|NOID 自動接続を有効化：元の接続失敗時は暗号化なし TCP を試行。|NOID: включено автоподключение с резервным TCP без шифрования.
+自研 NOID 内核已移除，默认使用 Suprminer|Custom NOID engine removed; Suprminer is the default.|自製 NOID カーネルを削除。標準は Suprminer。|Собственное ядро NOID удалено; по умолчанию Suprminer.
+软件费与内核费、矿池费分开：Suprminer 0%，Fl4shMiner 3%；KRig在Kryptex池0%，其他池最低3%；电费另算。停止任务或明确退出程序会结束用户与服务时段的所有任务；关闭X收起窗口后任务继续。|App, engine and pool fees are separate: Suprminer 0%, Fl4shMiner 3%; KRig 0% on Kryptex, at least 3% elsewhere. Electricity is additional. Stop or Quit ends all tasks; closing the window keeps tasks running.|ソフト・カーネル・プール料金は別です。Suprminer 0%、Fl4shMiner 3%、KRig は Kryptex 0%、他は最低3%。電気代は別。停止・終了で全タスク終了、Xで収納した場合は継続。|Комиссии приложения, ядра и пула раздельны: Suprminer 0%, Fl4shMiner 3%; KRig 0% на Kryptex, минимум 3% на других пулах. Электричество отдельно. Стоп и Выход завершают задачи; закрытие окна оставляет их работать.
+原始连接未通过，自动尝试兼容 TCP（非加密）|Original connections failed; trying compatible TCP (unencrypted).|元の接続失敗。互換 TCP（暗号化なし）を自動試行。|Исходное подключение не удалось; пробуем TCP без шифрования.
+正在检测原始矿池连接，不更改协议|Testing original pool connection; preserving protocol.|元のプロトコルで接続を確認中。|Проверка исходного подключения без смены протокола.
+NOID 协议响应通过；尚未验证登录/有效份额|NOID protocol OK; login and accepted shares not yet verified.|NOID 応答確認済み。ログイン・有効シェアは未検証。|Протокол NOID доступен; вход и принятые шары ещё не проверены.
+连接/协议响应超时|Connection/protocol response timed out|接続・プロトコル応答のタイムアウト|Тайм-аут подключения/ответа протокола
+备用矿池 · 按顺序检测|Backup pools · Check in order|予備プール・順番に確認|Резервные пулы · Проверка по очереди
+默认推荐 · Suprminer 1.9.27|Recommended · Suprminer 1.9.27|推奨 · Suprminer 1.9.27|Рекомендуется · Suprminer 1.9.27
+自动适配（失败转 TCP）|Auto (TCP fallback)|自動（失敗時 TCP）|Авто (резерв TCP)
+原始连接失败后自动转 TCP（非加密）|On failure, try TCP (unencrypted)|失敗時は TCP（暗号化なし）|При сбое — TCP (без шифрования)
+启动前检测主/备用节点；运行中不切换|Check primary/backups before start; no live failover|起動前に主・予備を確認、稼働中は切替なし|Проверка узлов до запуска; без смены при работе
+Suprminer：驱动需 ≥ 610；启动前检测主/备用节点，运行中不切换。|Suprminer: driver ≥ 610; primary/backups tested before start, no live failover.|Suprminer：ドライバー ≥ 610。起動前に主・予備を確認、稼働中は切替なし。|Suprminer: драйвер ≥ 610; проверка узлов до запуска, без смены при работе.
+不使用备用节点|No backup|予備なし|Без резерва
+备用 1地址|Backup 1 address|予備1のアドレス|Адрес резерва 1
+备用 2地址|Backup 2 address|予備2のアドレス|Адрес резерва 2
+启动前按主节点、备用1、备用2检测；NOID 自动模式在原始连接失败后尝试兼容 TCP（非加密）。运行中切换能力取决于内核。所有节点使用同一收款钱包。|Before start, check primary, backup 1 and backup 2. NOID auto mode falls back to unencrypted TCP. Live failover depends on the engine. All nodes use the same wallet.|起動前に主・予備1・予備2を確認。NOID 自動モードは失敗時に暗号化なし TCP を試行。稼働中の切替はカーネル次第。同じウォレットを使用。|До запуска проверяются основной и два резервных узла. NOID авто использует TCP без шифрования при сбое. Смена во время работы зависит от ядра. Кошелёк одинаковый.
+内置内核自行连接；选择第三方内核后可设置|Built-in engine connects itself; select a third-party engine to configure|内蔵カーネルは独自に接続。外部カーネル選択後に設定可|Встроенное ядро подключается само; настройка для сторонних ядер
+连接模式|Connection mode|接続モード|Режим подключения
+原始连接（保留协议）|Original protocol|元のプロトコル|Исходный протокол
+兼容 TCP（非加密）|Compatible TCP (unencrypted)|互換 TCP（暗号化なし）|TCP (без шифрования)
+检测连接|Test connection|接続テスト|Проверить связь
+兼容模式检测主/备用节点；运行中不切换|Check primary/backups before start; no live failover|起動前に主・予備を確認、稼働中は切替なし|Проверка узлов до запуска; без смены при работе
+NOID 协议响应通过；登录与份额待验证|NOID protocol OK; login and shares unverified|NOID 応答確認済み、ログイン・シェア未検証|Протокол NOID доступен; вход и шары не проверены
+Suprminer：驱动需 ≥ 610；兼容模式启动前检测备用节点，运行中不切换。|Suprminer: driver ≥ 610; compatible mode checks backups before start, not during mining.|Suprminer：ドライバー ≥ 610。互換モードは起動前に予備を確認、稼働中は切替なし。|Suprminer: драйвер ≥ 610; проверка резервов до запуска, без смены при работе.
+兼容模式在启动前检测主/备用节点，选用可连通节点；运行中不切换。原始模式下 Suprminer 仅使用主节点。所有节点使用同一收款钱包。|Compatible mode tests primary/backups before start; no live failover. Original mode uses only the primary for Suprminer. All nodes use the same wallet.|互換モードは起動前に主・予備を確認し接続先を選択。稼働中は切替なし。元の接続では Suprminer は主ノードのみ。同じウォレットを使用。|Совместимый режим выбирает доступный узел до запуска. Без смены при работе. В исходном режиме Suprminer использует основной узел. Кошелёк одинаковый.
+Suprminer 1.9.27 · 官方下载|Suprminer 1.9.27 · Official download|Suprminer 1.9.27 · 公式ダウンロード|Suprminer 1.9.27 · Официальная загрузка
+Fl4shMiner 1.5.0 · 官方下载|Fl4shMiner 1.5.0 · Official download|Fl4shMiner 1.5.0 · 公式ダウンロード|Fl4shMiner 1.5.0 · Официальная загрузка
+下载并安装|Download and install|ダウンロード・インストール|Скачать и установить
+内核费 0% · 软件服务费 0.5%|Kernel fee 0%; app fee 0.5%|カーネル 0%、ソフト利用料 0.5%|Комиссия ядра 0%; приложения 0.5%
+内核费 3% · 软件服务费 0.5%|Kernel fee 3%; app fee 0.5%|カーネル 3%、ソフト利用料 0.5%|Комиссия ядра 3%; приложения 0.5%
+Suprminer：驱动需 ≥ 610；仅使用主矿池，不自动切换备用节点。|Suprminer: driver ≥ 610; primary pool only, no backup failover.|Suprminer：ドライバー ≥ 610。メインプールのみ、予備へ自動切替なし。|Suprminer: драйвер ≥ 610; только основной пул, без автоматического резерва.
+Fl4shMiner：可能要求关闭 AI / 调试应用；拒绝启动时请查看日志。|Fl4shMiner may require closing AI / debugging apps; check logs if startup is refused.|Fl4shMiner：AI・デバッグアプリの終了が必要な場合があります。起動拒否はログを確認。|Fl4shMiner может потребовать закрыть ИИ / отладчики; при отказе проверьте журнал.
+NVIDIA 驱动 ≥ 610；Suprminer NOID 要求|NVIDIA driver ≥ 610; required by Suprminer NOID|NVIDIA ドライバー ≥ 610、Suprminer NOID の要件|Драйвер NVIDIA ≥ 610; требование Suprminer NOID
+Windows x64 CPU；GPU 模式，CPU 用于调度|Windows x64 CPU; GPU mode, CPU handles scheduling|Windows x64 CPU。GPU モード、CPU は制御用|CPU Windows x64; режим GPU, CPU управляет заданиями
+官方第三方内核；按 GPU UUID 独立启动，单币挖矿。算力以实际日志为准。|Official third-party kernel; separate GPU UUID processes, single-coin mining. Hashrate comes from logs.|公式カーネル。GPU UUID ごとに単一コイン採掘を起動。ハッシュレートは実ログから取得。|Официальное стороннее ядро; отдельный процесс по UUID GPU, одна монета. Хешрейт из журнала.
+内核正在安装，请稍候|Kernel installation in progress; please wait|カーネル導入中です。お待ちください|Идёт установка ядра; подождите
+显卡温度读数不可用，保护停机|GPU temperature unavailable; stopped for protection|GPU 温度を取得できないため保護停止|Температура GPU недоступна; защитная остановка
+支持备用节点的内核会按配置尝试切换；Suprminer 仅使用主节点。所有节点使用当前币种和同一收款钱包。|Compatible kernels try configured backups; Suprminer uses the primary only. All nodes use the same coin and wallet.|対応カーネルは予備に切替。Suprminer はメインのみ。同じコインとウォレットを使用。|Совместимые ядра используют резерв; Suprminer — только основной узел. Монета и кошелёк одинаковы.
+可选择预设节点或填写同币种的自定义矿池；内核费以当前内核说明为准。|Choose a preset or a custom pool for this coin; see the selected kernel fee.|プリセットか同一コインのプールを指定。手数料は選択中のカーネル説明を参照。|Выберите готовый или свой пул этой монеты; комиссия указана для выбранного ядра.
+NOID 硬件要求|NOID hardware requirements|NOID ハードウェア要件|Требования NOID
+Windows x64 CPU；仅通信与调度，无 AVX2 指令要求|Windows x64 CPU; communication and scheduling; AVX2 not required|Windows x64 CPU。通信・制御用、AVX2 不要|CPU Windows x64; связь и управление, AVX2 не требуется
+NVIDIA Compute Capability ≥ 8.0；RTX 30 / 40 / 50 系列|NVIDIA compute capability ≥ 8.0; RTX 30 / 40 / 50 series|NVIDIA Compute Capability ≥ 8.0、RTX 30 / 40 / 50|NVIDIA Compute Capability ≥ 8.0; серии RTX 30 / 40 / 50
+建议系统内存 ≥ 8 GB；矿池挖矿无需运行全节点|8 GB system RAM recommended; pool mining needs no local node|システムメモリ 8 GB 以上を推奨。プール採掘にノード不要|Рекомендуется 8 ГБ ОЗУ; локальный узел не нужен
+需支持 CUDA 13 的 NVIDIA 驱动，启动时检查|NVIDIA driver supporting CUDA 13; checked at startup|CUDA 13 対応 NVIDIA ドライバー。起動時に確認|Драйвер NVIDIA с CUDA 13; проверка при запуске
+启动时校验 CUDA 兼容性|CUDA compatibility checked at startup|起動時に CUDA 互換性を確認|Совместимость CUDA проверяется при запуске
+不支持：当前内核仅支持 NVIDIA|Unsupported: this kernel supports NVIDIA only|非対応：このカーネルは NVIDIA 専用|Не поддерживается: ядро только для NVIDIA
+不支持：需要 Ampere 或更新架构|Unsupported: Ampere or newer required|非対応：Ampere 以降が必要|Не поддерживается: требуется Ampere или новее
+矿池挖矿，无需本地全节点；每张显卡独立分配 nonce。启动先执行算法自检。|Pool mining; no local node. Independent GPU nonce namespaces; startup algorithm self-test.|プール採掘、ローカルノード不要。GPU ごとに nonce を分離し、起動時に自己テスト。|Майнинг в пуле без локального узла. Отдельные nonce для GPU; самотест при запуске.
+NOID 原生 Windows CUDA · 严格校验地址、任务期限与难度；合并挖矿暂未开放。|Native Windows NOID CUDA; validates address, job expiry and target. Merged mining unavailable.|Windows ネイティブ NOID CUDA。アドレス・期限・難易度を検証。マージマイニング未対応。|NOID CUDA для Windows: проверка адреса, срока задания и цели. Объединённый майнинг недоступен.
+自有内核费 0% · 软件服务费 0.5%|Own kernel fee 0%; application fee 0.5%|独自カーネル手数料 0%、ソフト利用料 0.5%|Комиссия ядра 0%; комиссия приложения 0.5%
+默认推荐 · Gozero NOID CUDA 0.2.2|Recommended · Gozero NOID CUDA 0.2.2|推奨 · Gozero NOID CUDA 0.2.2|Рекомендуется · Gozero NOID CUDA 0.2.2
+Gozero NOID CUDA 0.2.2 · 自编译|Gozero NOID CUDA 0.2.2 · Own build|Gozero NOID CUDA 0.2.2 · 独自ビルド|Gozero NOID CUDA 0.2.2 · Своя сборка
+校验通过 · NOID|Verified · NOID|検証済み · NOID|Проверено · NOID
 Gozero助手 · 悬浮监控|Gozero Assistant · Monitor|Gozeroアシスタント · モニター|Gozero Ассистент · Монитор
 Gozero助手|Gozero Assistant|Gozeroアシスタント|Gozero Ассистент
 设备总览|Hardware|デバイス一覧|Оборудование

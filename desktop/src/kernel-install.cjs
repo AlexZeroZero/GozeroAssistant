@@ -11,12 +11,12 @@ function extractionError(e){
  try{const result=JSON.parse(String(e.stdout).trim());if(Object.hasOwn(ERRORS,result.code))return Error(ERRORS[result.code])}catch{}
  return Error('内核解压组件运行失败，请重新解压完整安装包后重试');
 }
-async function extract(zip,dir,expectedHash){try{const {stdout}=await promisify(execFile)(EXTRACTOR,[zip,dir,expectedHash],{windowsHide:true,timeout:60000,maxBuffer:65536,encoding:'utf8'});if(JSON.parse(stdout.trim()).ok!==true)throw Error('Invalid result')}catch(e){throw extractionError(e)}}
+async function extract(zip,dir,expectedHash,metadata){try{const bundle=metadata?.files;const {stdout}=await promisify(execFile)(bundle?path.join(__dirname,'../vendor/ExtractBundle.exe'):EXTRACTOR,bundle?[zip,dir,JSON.stringify({root:metadata.archiveRoot,files:bundle})]:[zip,dir,expectedHash],{windowsHide:true,timeout:60000,maxBuffer:65536,encoding:'utf8'});if(JSON.parse(stdout.trim()).ok!==true)throw Error('Invalid result')}catch(e){throw extractionError(e)}}
 async function installKernel({dir,exe,metadata,request,update,log,extractArchive=extract}){
  const zip=path.join(dir,'download.zip');let received=0,total=null,lastBucket=-1,lastLog=0;
  const stage=(name,message,error=null)=>{update({stage:name,received,total,error,version:metadata.version});log('安装',message)};
  try{
-  await fs.mkdir(dir,{recursive:true});stage('connecting','连接 KRig '+metadata.version+' 官方下载源');
+  await fs.mkdir(dir,{recursive:true});stage('connecting','连接 '+(metadata.name||'KRig')+' '+metadata.version+' 官方下载源');
   const body=await request(metadata.url,{maxBytes:100*1024*1024,timeout:120000,onProgress:p=>{
    received=p.received;total=p.total;update({stage:'downloading',received,total,error:null,version:metadata.version});
    const bucket=total?Math.floor(received/total*10):0;
@@ -24,10 +24,11 @@ async function installKernel({dir,exe,metadata,request,update,log,extractArchive
   }});
   received=body.length;stage('verifying','下载完成，校验压缩包 SHA256');
   if(hash(body)!==metadata.sha256)throw Error('内核下载 SHA256 不匹配，未安装');
-  await fs.writeFile(zip,body);stage('extracting','完整性通过，正在使用内置组件解压内核');await extractArchive(zip,dir,metadata.exeSha256);
+  await fs.writeFile(zip,body);stage('extracting','完整性通过，正在使用内置组件解压内核');await extractArchive(zip,dir,metadata.exeSha256,metadata);
   stage('checking','解压完成，校验可执行内核 SHA256');
   if(hash(await fs.readFile(exe))!==metadata.exeSha256)throw Error('内核文件校验失败');
-  stage('ready','可用内核：KRig '+metadata.version+' · PRL / QTC；尚未启动挖矿');return true;
+  if(metadata.files)for(const [name,expected] of Object.entries(metadata.files))if(hash(await fs.readFile(path.join(dir,name)))!==expected)throw Error('内核依赖文件校验失败：'+name);
+  stage('ready','可用内核：'+(metadata.name||'KRig')+' '+metadata.version+'；尚未启动挖矿');return true;
  }catch(e){stage('error','安装失败：'+e.message,e.message);throw e}
  finally{await fs.unlink(zip).catch(()=>{})}
 }

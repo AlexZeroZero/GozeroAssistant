@@ -1,6 +1,7 @@
 'use strict';
 // Official Kryptex pool pages /prl and /qtc; TLS ports are coin-specific.
 function poolChoices(coin){
+ if(coin==='NOID')return[['stratum-apac.suprnova.cc','香港 / APAC'],['noid.suprnova.cc','欧洲'],['stratum-us.suprnova.cc','美国']].map(([host,label])=>({label:'Suprnova · '+label,url:'stratum+ssl://'+host+':3341'}));
  if(!['PRL','QTC'].includes(coin))return [];
  const base=coin.toLowerCase(),port=coin==='PRL'?8048:8049;
  return [['sg','新加坡'],['hk','香港'],['us','美国'],['eu','欧洲'],['','全球']].map(([region,label])=>({label:'Kryptex · '+label,url:`stratum+ssl://${base}${region?'-'+region:''}.kryptex.network:${port}`}));

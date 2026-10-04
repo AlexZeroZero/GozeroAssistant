@@ -9,7 +9,7 @@
 
 - Network metrics and same-algorithm income: https://gozero.trade/api/overview?coin=PRL and https://gozero.trade/api/income-data?coin=PRL (also QTC, TSC). Full-node and upstream timestamps/stale flags preserved. Chain difficulty is displayed; no unverified universal difficulty-to-income conversion is used.
 - Observed asset catalog and market prices: https://pro.gozero.trade/api/state. Public sources only; new catalog membership is not described as confirmed project launch.
-- The Gozer 0.5% software fee is independent of third-party miner and pool fees. Addresses are disclosed in the app; QUICKSTART explains the fee and where to view them. No miner binaries or payout BAT scripts are bundled.
+- The Gozer 0.5% software fee is independent of third-party miner and pool fees. Addresses are disclosed in the app; QUICKSTART explains the fee and where to view them. No proprietary third-party miner binaries or payout BAT scripts are bundled. The project-authored NOID core is no longer included or selectable.
 
 Research and implementation date: 2026-10-02 (Asia/Shanghai).
 
@@ -17,3 +17,12 @@ Research and implementation date: 2026-10-02 (Asia/Shanghai).
 - KRig supplies release binaries and redistribution permission, but no miner source was available for self-compilation. The examined open-pearl-miner license requires retaining its 2% developer fee; it was not repackaged or used. TSC Racer source/Windows support was not obtained.
 
 Gozero-authored application code is licensed under MIT (see LICENSE). Quantus-derived files in native/ retain Apache-2.0 and the included provenance/modification notices; the MIT grant does not replace third-party licenses or license the proprietary KRig miner.
+
+
+
+- Suprminer 1.9.27 (NOID adapter): https://github.com/ocminer/suprminer/releases/tag/v1.9.27. Official Windows NVIDIA ZIP, downloaded only on user request. Runtime files and notices are unmodified and SHA256-pinned in src/noid-kernels.json; launch scripts are not extracted or executed. This does not grant a license to third-party software. See upstream terms and the installed archive notices. Suprminer NOID driver requirement: 610+. Upstream states Windows GPU mining was not hardware-tested.
+- Fl4shMiner 1.5.0 (NOID adapter): https://github.com/Fl4sh9174/Fl4shMiner/releases/tag/v1.5.0. Proprietary official Windows EXE and README, downloaded only on user request; SHA256-pinned, no binary modifications. NOID developer fee 3% is additional to the application's 0.5% and any pool fees. Environment checks are left intact; some AI/debugging applications can prevent startup.
+- Both external adapters launch one process per selected GPU UUID and preserve the selected miner's own protocol, work validation and developer fee behavior. Neither is claimed to have passed local accepted-share mining validation in this build. Both NOID engines currently expose single-coin NOID, not merged mining.
+
+
+The former project-authored NOID implementation is retained only as development source, with its provenance and license notices. Its executable, PTX and test vectors are excluded from this application distribution.

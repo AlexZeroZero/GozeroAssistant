@@ -1,16 +1,28 @@
-# Gozero助手 · Beta 1.01
+# Gozero助手 · Beta 1.02
 
-Windows GPU 挖矿助手，提供紧凑的硬件监测、PRL / QTC 挖矿工作台、参考收益与桌面悬浮卡片。
+Windows GPU 挖矿助手，提供紧凑的硬件监测、PRL / QTC / NOID 挖矿工作台、参考收益与桌面悬浮卡片。
 
-[软件下载](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/beta-1.01) · [使用指南](desktop/QUICKSTART.txt) · [构建说明](desktop/README.md) · [官网](https://gozero.trade/)
+[软件下载](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/beta-1.02) · [使用指南](desktop/QUICKSTART.txt) · [构建说明](desktop/README.md) · [官网](https://gozero.trade/)
 
 ## 下载与使用
 
-在 Releases 下载 `GozerAssistant-1.0.3-win-x64.zip`，完整解压后运行 `GozerAssistant.exe`。SHA256 校验文件与安装包同时提供。
+在 Releases 下载 `GozerAssistant-1.0.11-win-x64.zip`，完整解压后运行 `GozerAssistant.exe`。SHA256 校验文件与安装包同时提供。
 
 请保留整个解压文件夹。升级前从托盘退出旧版，再解压新版运行；钱包和配置保存在本机并会继续保留。
 
-显示版本 **Beta 1.01**；内部更新版本为 `1.0.3`，确保旧版能正常识别升级。
+显示版本 **Beta 1.02**；内部更新版本为 `1.0.11`，确保旧版能正常识别升级。
+
+## 本版更新（1.0.11）
+
+- NOID 使用官方 Suprminer / Fl4shMiner，默认推荐 Suprminer；移除自研 NOID 内核选项及随包运行文件。
+- 自动检测主、备用矿池的原始连接；失败后尝试官方 Suprnova 节点的兼容 TCP（非加密），并显示实际节点。
+- 备用矿池支持下拉选择地区、停用和自定义地址；全局字体放大约8%，矿池设置进一步加大。
+- 旧配置迁移至自动连接模式，钱包和矿池配置保留；不会自动开始挖矿。
+
+连接检测仅验证 NOID 协议响应，不等于已提交有效份额。软件0.5%服务费的调度和地址切换测试已通过，但完整的服务地址有效份额与实收链路尚未验收。
+
+![NOID 自动连接工作台](docs/screenshots/noid-workbench.png)
+![备用矿池下拉选择](docs/screenshots/noid-pool-settings.png)
 
 ## 功能
 
@@ -18,7 +30,7 @@ Windows GPU 挖矿助手，提供紧凑的硬件监测、PRL / QTC 挖矿工作�
 - 新增 GPU / CPU 租赁市场：Clore + Vast.ai 实时报价、每页六台、平台/地区/规格筛选及按需/竞价排序。
 - 4090、5090、3090、RTX PRO 6000 快捷筛选；可拖动参数窗、租期试算，跳转使用指定推荐链接。
 - 租赁页面可见时每60秒刷新，保留缓存与卡片位置；失败和过期状态明确标注。
-- PRL / QTC 挖矿、主备矿池、多卡选择与逐卡日志。
+- PRL / QTC / NOID 挖矿、主备矿池、多卡选择与逐卡日志。
 - 5分钟或10分钟算力均值、参考收益、60秒实际挖矿测试与 Kryptex 地址账本。
 - 节能、均衡、高性能预算；默认90°C GPU温度保护。
 - 可拖动悬浮卡片及系统托盘；显示设备算力、当前模式、负载和收益。
@@ -31,7 +43,7 @@ Windows GPU 挖矿助手，提供紧凑的硬件监测、PRL / QTC 挖矿工作�
 
 ## 租赁市场
 
-![Beta 1.01 GPU 租赁市场实测界面](docs/screenshots/rental-market.png)
+![Beta 1.02 GPU 租赁市场实测界面](docs/screenshots/rental-market.png)
 
 [Clore 推荐链接](https://clore.ai/register?ref_id=ebgzlv4d) · [Vast.ai 推荐链接](https://cloud.vast.ai/?ref_id=133254)
 
@@ -39,7 +51,7 @@ Windows GPU 挖矿助手，提供紧凑的硬件监测、PRL / QTC 挖矿工作�
 
 ## 测试截图
 
-以下为用户提供的 v0.3.12 开发版实测截图，用于展示设备参数、挖矿工作台和悬浮监控等界面；当前发行版为 **Beta 1.01**。截图中的算力、价格和收益仅代表截图时的设备与采样状态，实际数据以当前运行结果为准。点击图片可查看原图。
+以下为用户提供的 v0.3.12 开发版实测截图，用于展示设备参数、挖矿工作台和悬浮监控等界面；当前发行版为 **Beta 1.02**。截图中的算力、价格和收益仅代表截图时的设备与采样状态，实际数据以当前运行结果为准。点击图片可查看原图。
 
 <table>
   <tr>
@@ -83,6 +95,6 @@ python desktop/scripts/package.py
 
 Gozero 自有代码采用 [MIT](LICENSE)。Quantus 派生计算代码保留 [Apache-2.0](desktop/native/LICENSE-Quantus.txt)。第三方组件沿用各自许可证，详见 [THIRD-PARTY.md](desktop/THIRD-PARTY.md)。
 
-KRig 是闭源第三方矿工，不包含在本仓库或发行包中；用户通过程序单独下载安装。公开助手源码不代表 KRig 已开源。
+KRig、Suprminer、Fl4shMiner 是第三方矿工，不包含在本仓库或发行包中；用户通过程序从官方来源单独下载安装。助手源码开源不代表这些矿工开源。Suprminer NOID 要求 NVIDIA 驱动610或更新；Fl4shMiner有独立3%内核费，且可能拒绝在AI/调试应用运行时启动。
 
 本版本为 Beta 测试版，尚未完成全部设备、混卡及长期挖矿验证。参考收益不代表实际到账；未知传感器值显示为缺失。

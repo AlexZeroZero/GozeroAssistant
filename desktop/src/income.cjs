@@ -6,7 +6,7 @@ const finite=v=>typeof v==='number'&&Number.isFinite(v)&&v>=0;
 function matchDevice(device,rows){const key=canonical(device.name);const matches=rows.filter(r=>r.kind==='GPU'&&canonical(r.name)===key);return matches.length===1?matches[0]:null}
 function evaluate(data,hardware,config,benchmark=null,networks=[]){
  const {RATE,kernelFee}=require('./service-fee.cjs');const devices=hardware.gpus.filter(d=>config.selected.includes(d.id));
- return{at:data?.receivedAt||null,sources:data?.sources||[],fx:data?.fx||null,coins:['PRL','QTC','TSC'].map(coin=>{
+ return{at:data?.receivedAt||null,sources:data?.sources||[],fx:data?.fx||null,coins:['PRL','QTC','TSC','NOID'].map(coin=>{
   const n=networks.find(n=>n.coin===coin),rows=devices.map(d=>{
    const ref=matchDevice(d,data?.devices||[]),p=ref?.profiles?.find(p=>p.coin===coin),m=benchmark?.coin===coin?benchmark.devices.find(x=>x.id===d.id):null,manual=config.manualInputs?.[coin]?.[d.id];
    const unit=coin==='TSC'?'N/s':'H/s',measured=!!(m&&finite(m.hash)&&(m.unit||'H/s')===unit),typed=!measured&&!!manual;

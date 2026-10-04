@@ -39,6 +39,33 @@ test('early test stop persists fractions and failed starts or thermal stop never
  m.start=async()=>{throw Error('fixture start failure')};await assert.rejects(f.start(config(),hw(),true),/fixture/);assert.equal(f.active,false);assert.equal(f.reserved,0);
 });
 test('fee switches exact recipient, reserves before launch, restores original wallet and persists',async t=>{const {f,m,dir}=await setup(t),c=config();await f.start(c,hw());clearInterval(f.timer);f.tick();assert.equal(m.starts.length,1);f.ledger.credit(f.key,199*60);await f.transition('service');assert.equal(m.starts.at(-1).c.wallets.PRL,ADDRESSES.PRL);assert.equal(c.wallets.PRL,'prl1fakewalletneverusedfornetwork');assert.equal(f.phase,'service');const saved=JSON.parse(await fs.readFile(f.file,'utf8'));assert.ok(saved.entries[f.key].feeGpuSeconds>=59.99);f.tick();assert.equal(f.phase,'service','reserved budget must not immediately finish');f.account(f.last+10000);await f.transition('user');assert.equal(m.starts.at(-1).c.wallets.PRL,c.wallets.PRL);assert.equal(f.reserved,0);assert.ok(f.ledger.entry(f.key).feeGpuSeconds>=10);assert.ok(f.ledger.entry(f.key).feeGpuSeconds<11);await f.stop();const next=new FeeController(m,dir,()=>{},()=>{});await next.load();assert.ok(Math.abs(next.ledger.entry(f.key).balance-f.ledger.entry(f.key).balance)<1e-8);assert.equal(next.ledger.entry(f.key).feeGpuSeconds,f.ledger.entry(f.key).feeGpuSeconds)});
+test('NOID fee phase uses confirmed recipient and restores user wallet without mutating saved config',async t=>{
+ const {f,m}=await setup(t),c={...config(),coin:'NOID'};
+ c.wallets.NOID='o1666egg8r9aeedd0p6fgdn0mjhqg3wk33ages082pky567u65dslq7k03qa';
+ const original=structuredClone(c),recipient='o1g87q6yrrsnay5czqzggvdy9lyvxjtjzkycp0kzz3z9wx45u2m6uqwd8yjg';
+ assert.equal(require('../src/noid.cjs').validWallet(recipient),true);
+ await f.start(c,hw());clearInterval(f.timer);
+ assert.equal(m.starts.at(-1).c.wallets.NOID,original.wallets.NOID);
+ assert.equal(f.snapshot().rate,.005);
+ f.ledger.credit(f.key,199*60);await f.transition('service');
+ assert.equal(m.starts.at(-1).c.wallets.NOID,recipient);
+ assert.equal(f.snapshot().recipient,recipient);
+ assert.equal(m.starts.at(-1).c.worker,'GozerService');
+ await f.transition('user');assert.equal(m.starts.at(-1).c.wallets.NOID,original.wallets.NOID);
+ assert.deepEqual(c,original);assert.equal(kernelFee(c),0);
+});
+test('NOID benchmark settles accrued fee to confirmed address then returns to timed user test',async t=>{
+ for(const choice of ['auto','suprminer-noid-1.9.27','fl4shminer-noid-1.5.0']){
+ const {f,m}=await setup(t),c={...config(),coin:'NOID',kernels:{NOID:choice}};
+ c.wallets.NOID='o1666egg8r9aeedd0p6fgdn0mjhqg3wk33ages082pky567u65dslq7k03qa';
+ f.ledger.credit(f.ledger.key(c.coin,c.wallets.NOID),199*60);
+ await f.start(c,hw(),true);clearInterval(f.timer);
+ assert.equal(f.phase,'service');assert.equal(m.starts.at(-1).benchmark,false);
+ assert.equal(m.starts.at(-1).c.wallets.NOID,ADDRESSES.NOID);
+ await f.transition('user');assert.equal(m.starts.at(-1).benchmark,true);
+ assert.equal(m.starts.at(-1).c.wallets.NOID,c.wallets.NOID);assert.equal(m.starts.at(-1).c.kernels.NOID,choice);await f.stop();
+ }
+});
 test('crash recovery cannot replay an already reserved service minute',async t=>{const {f,m,dir}=await setup(t);await f.start(config(),hw());clearInterval(f.timer);f.ledger.credit(f.key,199*60);await f.transition('service');const recovered=new FeeController(m,dir,()=>{},()=>{});await recovered.load();assert.ok(recovered.ledger.budget(f.key,1)<.1)});
 test('missing/frozen telemetry and long sleeps do not earn user-time fee credit',async t=>{const {f,m}=await setup(t);await f.start(config(),hw());clearInterval(f.timer);m.jobs.get(id).telemetry.at=Date.now()-30000;f.account(f.last+1000);assert.equal(f.ledger.entry(f.key).balance,0);m.jobs.get(id).telemetry.at=Date.now();f.account(f.last+60000);assert.equal(f.ledger.entry(f.key).balance,0)});
 test('user stop and thermal protection during a fee transition never relaunch a miner',async t=>{for(const thermal of [false,true]){const {f,m}=await setup(t);await f.start(config(),hw());clearInterval(f.timer);f.ledger.credit(f.key,199*60);let release;const original=m.stop.bind(m);let first=true;m.stop=async reason=>{if(first){first=false;await new Promise(r=>release=r)}await original(reason)};const changing=f.transition('service');await new Promise(r=>setImmediate(r));if(thermal){f.checkHardware({gpus:[{id,sensors:{at:Date.now(),temp:90}}]});await f.stopping}else await f.stop();release();await changing;assert.equal(m.starts.length,1);assert.equal(f.active,false);assert.equal(m.status,'idle')}});

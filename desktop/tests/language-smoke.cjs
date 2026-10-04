@@ -34,12 +34,13 @@ async function run(win,getState,floating){
   await js("showDetails('cpu')");await sleep(70);await fs.writeFile(path.join(out,`${language}-cpu-dialog.png`),(await win.webContents.capturePage()).toPNG());await js("document.querySelector('#details-close').click()");
   await js("document.querySelector('#fee-details').click()");await sleep(70);await fs.writeFile(path.join(out,`${language}-fee-dialog.png`),(await win.webContents.capturePage()).toPNG());await js("document.querySelector('#details-close').click()");
   await floating.create();
+  const liveSend=floating.send;floating.send=()=>{}; // Keep live telemetry from replacing the stopped-state fixture.
   const snapshot={...compactState(getState()),language,hash:116.53e6,coin:'QTC',status:'idle',stopped:true,hashAverage:{hash:116.53e6,minutes:5,complete:true,running:false,coverage:.97},performance:75,deviceLabel:'1 GPU · RTX 5060 Laptop GPU'};
   await floating.win.webContents.executeJavaScript(`render(${JSON.stringify(snapshot)})`);await sleep(80);
   const mini=await floating.win.webContents.executeJavaScript(`({phase:document.querySelector('#phase').textContent,font:parseFloat(getComputedStyle(document.querySelector('#phase')).fontSize),phaseFits:document.querySelector('#phase').scrollWidth<=document.querySelector('#phase').clientWidth,hash:document.querySelector('#hash').textContent,overflow:document.querySelector('.monitor-card').scrollWidth-document.querySelector('.monitor-card').clientWidth,language:document.documentElement.lang})`);
   assert.equal(mini.phase,'■ '+t('已停止',language));assert.ok(mini.font>=12);assert.ok(mini.phaseFits);assert.equal(mini.hash,'116.53 MH/s');
   report.push({language,mini});await fs.writeFile(path.join(out,`${language}-stopped.png`),(await floating.win.webContents.capturePage()).toPNG());
-  await floating.win.webContents.executeJavaScript(`render({...${JSON.stringify(snapshot)},status:'running',stopped:false})`);assert.equal(await floating.win.webContents.executeJavaScript("document.body.classList.contains('stopped')"),false);
+  await floating.win.webContents.executeJavaScript(`render({...${JSON.stringify(snapshot)},status:'running',stopped:false})`);assert.equal(await floating.win.webContents.executeJavaScript("document.body.classList.contains('stopped')"),false);floating.send=liveSend;
  }
  // Repeated numeric updates must not replace DOM rows or translate user inputs.
  await js("GozerI18n.setLocale('en');window.languageProbe.rate=document.querySelector('#total-hash').firstChild;text('#total-hash','123.45 MH/s');window.languageProbe.rate=document.querySelector('#total-hash').firstChild;for(let i=0;i<100;i++)text('#total-hash','123.45 MH/s')");

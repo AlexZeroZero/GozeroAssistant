@@ -1,0 +1,22 @@
+{
+  "version": "1.0.11",
+  "manifestFiles": 137,
+  "archiveSha256": "ade3d9095f4e6d33d9e9619ce82021fc320b693a7d6c417c34b628a0729c629a",
+  "bytes": 158619017,
+  "selfNoidRemoved": true,
+  "feeAddressPreserved": true,
+  "unitTests": 104,
+  "uiLanguages": [
+    "zh-CN",
+    "en",
+    "ja",
+    "ru"
+  ],
+  "liveAutoFallback": {
+    "original": "stratum+ssl://stratum-apac.suprnova.cc:3341",
+    "compatible": true,
+    "protocol": "parano1d-stratum-v1",
+    "miningExecuted": false
+  },
+  "gpuMiningTestExecuted": false
+}

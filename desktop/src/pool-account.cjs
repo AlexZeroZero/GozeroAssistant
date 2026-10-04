@@ -3,6 +3,7 @@ const {poolChoices,poolUrls}=require('./pool-catalog.cjs');
 const ORIGIN='https://pool.kryptex.com',INTERVAL=60000;
 function accountFor(config){
  const coin=config.coin,wallet=config.wallets?.[coin]||'';
+ if(coin==='NOID'){if(!require('./noid.cjs').validWallet(wallet))return{coin,reason:'保存有效 NOID 地址后查询 Suprnova 账本'};const urls=poolUrls(config),supported=urls.some(url=>{const h=new URL(url).hostname;return h==='noid.suprnova.cc'||/^stratum-(apac|us|eu2)\.suprnova\.cc$/.test(h)});if(!supported)return{coin,reason:'当前矿池尚未适配地址账本接口'};return{coin,wallet,key:coin+':'+wallet,source:'Suprnova',mixed:urls.some(url=>!new URL(url).hostname.endsWith('.suprnova.cc')),page:'https://noid.suprnova.cc/YourStats#noid/dashboard?address='+encodeURIComponent(wallet)}}
  if(!['PRL','QTC'].includes(coin))return{coin,reason:'此币种矿池账本接口尚未适配'};
  if(!wallet)return{coin,reason:'保存收款地址后自动查询矿池账本'};
  if(!/^[A-Za-z0-9]{20,140}$/.test(wallet))return{coin,reason:'收款地址格式不正确'};
@@ -31,7 +32,7 @@ class PoolAccount{
  configure(config){this.current=accountFor(config);this.refresh().catch(()=>{});this.changed()}
  snapshot(){
   const a=this.current,c=this.cache.get(a.key),now=this.clock();
-  return{coin:a.coin,source:'Kryptex',supported:!!a.key,reason:a.reason||null,address:a.wallet?`${a.wallet.slice(0,8)}…${a.wallet.slice(-6)}`:null,mixed:!!a.mixed,loading:!!c?.pending,sections:Object.fromEntries(['balance','stats','payouts'].map(k=>{const d=c?.[k];return[k,d?{...d,stale:!!d.error||!d.at||now-d.at>180000}:null]}))};
+  return{coin:a.coin,source:a.source||'Kryptex',supported:!!a.key,reason:a.reason||null,address:a.wallet?`${a.wallet.slice(0,8)}…${a.wallet.slice(-6)}`:null,mixed:!!a.mixed,loading:!!c?.pending,sections:Object.fromEntries(['balance','stats','payouts'].map(k=>{const d=c?.[k];return[k,d?{...d,stale:!!d.error||!d.at||now-d.at>180000}:null]}))};
  }
  async refresh(){
   const a=this.current;if(!a.key||this.stopped)return this.snapshot();
@@ -40,6 +41,7 @@ class PoolAccount{
   if(c.attempt!==null&&this.clock()-c.attempt<INTERVAL)return this.snapshot();
   c.attempt=this.clock();
   const work=async()=>{
+   if(a.coin==='NOID'){const base='https://noid.suprnova.cc/api/pools/noid/miners/'+encodeURIComponent(a.wallet);await Promise.all([['balance','stats'],['payouts']].map(async kinds=>{try{const raw=JSON.parse((await this.request(base+(kinds[0]==='payouts'?'/payments':''),{maxBytes:512*1024,timeout:12000})).toString('utf8'));if(this.stopped)return;for(const kind of kinds)c[kind]={value:require('./noid.cjs').account(kind,raw),at:this.clock(),error:null}}catch{if(!this.stopped)for(const kind of kinds)c[kind]={...c[kind],error:'NOID 矿池接口暂不可用'}}}));return}
    await Promise.all(['balance','stats','payouts'].map(async kind=>{
     const address=encodeURIComponent(a.wallet),route=kind==='balance'?`balance/${address}`:kind==='stats'?`payouts/${address}/stats`:`payouts/${address}?page=1`;
     try{const raw=await this.request(`${ORIGIN}/${a.coin.toLowerCase()}/api/v1/miner/${route}`,{maxBytes:512*1024,timeout:12000});if(this.stopped)return;c[kind]={value:normalize(kind,JSON.parse(raw.toString())),at:this.clock(),error:null}}

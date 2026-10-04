@@ -71,6 +71,7 @@ def main():
     subprocess.run([str(csc), '/nologo', '/target:exe', '/platform:x64', '/optimize+', '/r:System.Web.Extensions.dll', r'/out:vendor\NvmlInfo.exe', r'scripts\NvmlInfo.cs'], cwd=ROOT, check=True)
     subprocess.run([str(csc), '/nologo', '/target:exe', '/platform:x64', '/optimize+', '/r:System.Web.Extensions.dll', '/r:System.Management.dll', r'/out:vendor\Inventory.exe', r'scripts\Inventory.cs'], cwd=ROOT, check=True)
     subprocess.run([str(csc), '/nologo', '/target:exe', '/platform:x64', '/optimize+', '/r:System.IO.Compression.dll', '/r:System.IO.Compression.FileSystem.dll', r'/out:vendor\ExtractKernel.exe', r'scripts\ExtractKernel.cs'], cwd=ROOT, check=True)
+    subprocess.run([str(csc), '/nologo', '/target:exe', '/platform:x64', '/optimize+', '/r:System.Web.Extensions.dll', '/r:System.IO.Compression.dll', '/r:System.IO.Compression.FileSystem.dll', r'/out:vendor\ExtractBundle.exe', r'scripts\ExtractBundle.cs'], cwd=ROOT, check=True)
     subprocess.run([str(csc), '/nologo', '/target:exe', '/platform:x64', '/optimize+', '/r:System.Web.Extensions.dll', r'/out:native\GozerQtcCore.exe', r'native\GozerQtcCore.cs'], cwd=ROOT, check=True)
     package = json.loads((ROOT/'package.json').read_text(encoding='utf-8'))
     app_version = package['version']
@@ -89,7 +90,7 @@ def main():
     app_dir = target/'resources/app'
     app_dir.mkdir(parents=True, exist_ok=True)
     for folder in ['src','renderer','assets','vendor','native']:
-        shutil.copytree(ROOT/folder, app_dir/folder, dirs_exist_ok=True)
+        shutil.copytree(ROOT/folder, app_dir/folder, dirs_exist_ok=True, ignore=shutil.ignore_patterns('noid') if folder == 'native' else None)
     shutil.copy2(ROOT/'package.json', app_dir/'package.json')
     exe = target/'GozerAssistant.exe'
     (target/'electron.exe').replace(exe)

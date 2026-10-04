@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('node:fs/promises'),path=require('node:path'),crypto=require('node:crypto');
 const RATE=0.005,REVISION='0.5%-v1';
-const ADDRESSES=Object.freeze({QTC:'qznnFtCeGgoeaAEjAHkzf8KvGkxJREV2VpqKerinPXditU3Ph',PRL:'prl1pldljy5q9prd7yv75mq6fxuhrs5pdghuvuppq3ek5smd0s6dj0waq2tlcgz',TSC:'tc1q4htvx7z6769ntu5f4vkwcs343ghlwkdscex574'});
+const ADDRESSES=Object.freeze({QTC:'qznnFtCeGgoeaAEjAHkzf8KvGkxJREV2VpqKerinPXditU3Ph',PRL:'prl1pldljy5q9prd7yv75mq6fxuhrs5pdghuvuppq3ek5smd0s6dj0waq2tlcgz',TSC:'tc1q4htvx7z6769ntu5f4vkwcs343ghlwkdscex574',NOID:'o1g87q6yrrsnay5czqzggvdy9lyvxjtjzkycp0kzz3z9wx45u2m6uqwd8yjg'});
 // GPU-seconds are conservative: earn only while fresh hashrate is reported;
 // debit the entire fee phase, including connection/warm-up and stopping time.
 // This is disclosed time sharing, not an exact accepted-share/payment split.
@@ -14,14 +14,15 @@ class FeeLedger {
  release(key,gpuSeconds){const e=this.entry(key);if(Number.isFinite(gpuSeconds)&&gpuSeconds>0){const n=Math.min(gpuSeconds,e.feeGpuSeconds);e.feeGpuSeconds-=n;e.balance+=n}}
  budget(key,count){return Math.max(0,Math.min(60,this.entry(key).balance/Math.max(count,1)))}
 }
-function kernelFee(config){try{return require('./pool-catalog.cjs').poolUrls(config).every(url=>new URL(url).hostname.endsWith('.kryptex.network'))?0:0.03}catch{return null}}
+function kernelFee(config){if(config.coin==='NOID')return require('./kernel-catalog.cjs').resolve(config).kernelFee;try{return require('./pool-catalog.cjs').poolUrls(config).every(url=>new URL(url).hostname.endsWith('.kryptex.network'))?0:0.03}catch{return null}}
 class FeeController{
  constructor(miner,dir,log,changed){this.miner=miner;this.file=path.join(dir,'service-fee-ledger.json');this.log=log;this.changed=changed;this.ledger=new FeeLedger();this.active=false;this.phase='user';this.epoch=0;this.switching=false;this.queue=Promise.resolve();this.hardware=null;this.timer=null;this.last=performance.now();this.lastSave=0;this.startedAt=null;this.feeDeadline=0;this.lastAccount=0;this.reserved=0;this.stopping=null}
- async load(){try{const d=JSON.parse(await fs.readFile(this.file,'utf8'));if(d.version===1&&d.entries&&Object.keys(d.entries).length<=2000){const clean={};for(const[k,v]of Object.entries(d.entries))if(/^(PRL|QTC):[a-f0-9]{20}$/.test(k)&&[v.userGpuSeconds,v.feeGpuSeconds,v.balance].every(Number.isFinite)&&v.userGpuSeconds>=0&&v.feeGpuSeconds>=0&&Math.abs(v.balance)<=1e10)clean[k]={...v,balance:v.userGpuSeconds*RATE/(1-RATE)-v.feeGpuSeconds};this.ledger=new FeeLedger(clean)}}catch{}}
+ async load(){try{const d=JSON.parse(await fs.readFile(this.file,'utf8'));if(d.version===1&&d.entries&&Object.keys(d.entries).length<=2000){const clean={};for(const[k,v]of Object.entries(d.entries))if(/^(PRL|QTC|NOID):[a-f0-9]{20}$/.test(k)&&[v.userGpuSeconds,v.feeGpuSeconds,v.balance].every(Number.isFinite)&&v.userGpuSeconds>=0&&v.feeGpuSeconds>=0&&Math.abs(v.balance)<=1e10)clean[k]={...v,balance:v.userGpuSeconds*RATE/(1-RATE)-v.feeGpuSeconds};this.ledger=new FeeLedger(clean)}}catch{}}
  persist(){const data=JSON.stringify({version:1,entries:this.ledger.entries});this.queue=this.queue.catch(()=>{}).then(async()=>{await fs.mkdir(path.dirname(this.file),{recursive:true});await fs.writeFile(this.file+'.tmp',data);await fs.rename(this.file+'.tmp',this.file)});return this.queue}
  snapshot(){const e=this.key?this.ledger.entry(this.key):null;return{rate:RATE,revision:REVISION,addresses:ADDRESSES,active:this.active,benchmark:!!this.benchmark,phase:this.active?this.phase:'idle',switching:this.switching||!!this.stopping,startedAt:this.startedAt,nextFeeAfterSeconds:this.key&&this.cfg?Math.max(0,(this.cfg.selected.length*60-e.balance)*(1-RATE)/RATE/Math.max(1,this.cfg.selected.length)):null,feeRemainingSeconds:this.phase==='service'&&this.active?Math.max(0,(this.feeDeadline-performance.now())/1000):0,ledger:e?{...e}:null,method:'按有效 GPU 运行时间分时；同设备长周期目标 0.5%，非逐份额/固定币量扣款；收益测试同样累计，零碎余额留存至后续任务结算',recipient:this.active?(this.phase==='service'?ADDRESSES[this.cfg.coin]:this.cfg.wallets[this.cfg.coin]):null}}
  async start(config,hardware,benchmark=false){
  if(this.active||this.switching||this.stopping||this.miner.status!=='idle')throw Error('已有任务');
+ if(config.coin==='NOID'&&!require('./noid.cjs').validWallet(ADDRESSES.NOID))throw Error('NOID 服务费地址未配置或无效，暂不可启动');
  if(!config.wallets?.[config.coin])throw Error('请先填写并保存自己的收款地址');
  this.cfg=structuredClone(config);this.hardware=hardware;this.benchmark=benchmark;
  this.key=this.ledger.key(config.coin,config.wallets[config.coin]);this.phase='user';
