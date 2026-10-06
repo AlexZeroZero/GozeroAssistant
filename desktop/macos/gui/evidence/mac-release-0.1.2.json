@@ -1,0 +1,92 @@
+{
+  "passed": true,
+  "layout": {
+    "title": "Gozero\u52a9\u624b Mac",
+    "node": "undefined",
+    "bodyWidth": 920,
+    "navWidth": 918,
+    "views": 6
+  },
+  "small": {
+    "width": 780,
+    "nav": 778,
+    "main": 778,
+    "scroll": 778
+  },
+  "hardware": {
+    "chip": "Apple M3",
+    "model": "MacBook Air",
+    "gpu": "Apple M3",
+    "memoryBytes": 17179869184,
+    "cpuCores": 8,
+    "performanceCores": 4,
+    "efficiencyCores": 4,
+    "os": "25.5.0",
+    "gpuLoad": 99,
+    "cpuLoad": 45.600113316570535,
+    "perCore": [
+      12,
+      8.040201005025127,
+      5.527638190954775,
+      2.0000000000000018,
+      84.5,
+      84.65346534653465,
+      84.07960199004975,
+      84
+    ],
+    "freeMemory": 616251392,
+    "thermalState": 1,
+    "temperatureC": null,
+    "powerWatts": null,
+    "gpus": [
+      {
+        "id": "apple-metal",
+        "name": "Apple M3",
+        "vendor": "Apple",
+        "sensors": {
+          "at": 1791283272022,
+          "load": 99,
+          "temp": null,
+          "power": null
+        }
+      }
+    ],
+    "modelId": "Mac15,12",
+    "gpuCores": 10,
+    "scannedAt": 1791283060882,
+    "at": 1791283271987
+  },
+  "live": {
+    "accepted": 2,
+    "rejected": 0,
+    "submitted": 2,
+    "rate": {
+      "total": 1697000,
+      "cpu": 130000,
+      "gpu": 1567000
+    },
+    "elapsedSeconds": 90.309,
+    "cpuThreads": 4,
+    "finalTotals": {
+      "accepted": 31,
+      "rejected": 0,
+      "submitted": 31
+    },
+    "automaticDurationStop": true,
+    "cpuHashes": 24886140,
+    "gpuHashes": 246563972
+  },
+  "benchmark": {
+    "total": 1341780.2343130552,
+    "cpu": 123482.96901386346,
+    "gpu": 1218297.2652991917
+  },
+  "rendererErrors": [],
+  "settingsPersisted": true,
+  "stopReturnedIdle": true,
+  "screenshotRedactions": [
+    "wallet input rendered as password; performance values unchanged"
+  ],
+  "applicationVersion": "0.1.2",
+  "zipSha256": "972b37164811eb129c58331d47e3545fbb41e5a04d65cc5897c82b3b14527889"
+}

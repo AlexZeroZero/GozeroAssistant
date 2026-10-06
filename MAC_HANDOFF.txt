@@ -488,3 +488,33 @@ SIX-BIT BASIS KERNEL / GUI BETA 0.1.1 — 2026-10-06
   Full reports/source variants/old package backups: session/mac-kernel-next and
   local ignored .local/mac-kernel-next. Original GUI baseline differs only by
   CRLF/LF from the benchmark baseline; normalized source equality was verified.
+
+PUBLIC MAC RELEASE 0.1.2 — 2026-10-06
+- User explicitly authorized formal GitHub publication plus real screenshots.
+  Target: AlexZeroZero/GozeroAssistant, tag mac-v0.1.2, Mac branch only. Do not
+  change main/Windows releases or make Mac the Windows updater's latest release.
+- Version labels changed to Mac 0.1.2. Existing validated native kernel unchanged.
+  Release docs explicitly disclose NOID-only, 1–10-minute bounded runs, M3-only
+  validation, optional CPU collaboration and ad-hoc signing without notarization.
+- Final package GUI acceptance: 180-second CPU4+GPU task automatically stopped;
+  31 submitted / 31 accepted / 0 rejected; CPU 24,886,140 hashes and GPU
+  246,563,972 hashes. Screenshot at 90.309 seconds: total 1.697, CPU 0.130,
+  GPU 1.567 MH/s. Following warm 30-second offline rate 1.341780 MH/s. Do not
+  present the earlier 2.073 M cold short sample as sustained performance.
+- Three actual application screenshots are in docs/screenshots/mac-0.1.2.
+  Only the wallet input was rendered as a password. Numerical values untouched.
+  Initial screenshot assertions raced with mining.pause; those runs retained
+  accepted shares, but failed screenshot QA. Fixed the harness to compare actual
+  rendered values before/after capture and verify CPU contribution from final
+  report hash counts. Final QA passed, including layout and settings persistence.
+- Release ZIP SHA256:
+  972b37164811eb129c58331d47e3545fbb41e5a04d65cc5897c82b3b14527889.
+  Assets: versioned ZIP, SHA256SUMS, BUILD-MANIFEST, VALIDATION, README and 3 PNGs.
+  Source evidence: desktop/macos/gui/evidence/mac-release-0.1.2.json.
+- Desktop app updated to 0.1.2, signature and every payload hash verified;
+  existing settings (including user's CPU4 preference) preserved; opened idle.
+  Old GUI moved to Trash/Gozero-GUI-0.1.1-20261006-184156. No extra desktop copy.
+- GitHub release URL: https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/mac-v0.1.2
+  Full private diagnostics stay in session/release-mac-0.1.2 and ignored
+  .local/github-release. Git credential helper is used in memory only; no token
+  or SSH credentials are included in tracked files or release assets.

@@ -71,3 +71,11 @@ Long sequential tests drifted and did not prove a benefit; preserve that result.
 Full selftests and short GUI pool acceptance passed; desktop app updated idle,
 user settings preserved, old GUI moved to Trash. See basis-six evidence and
 research/ARITHMETIC-20261006.txt. No large hashrate gain or hardware-counter proof.
+
+The user subsequently explicitly authorized a formal GitHub Mac release and
+real test screenshots. This supersedes the earlier no-publishing scope for Mac
+only. Release target: mac-v0.1.2 in AlexZeroZero/GozeroAssistant, using this Mac
+branch; preserve main and existing Windows releases. Disclose NOID-only, bounded
+1–10-minute runs, M3-only validation and lack of Apple notarization. Screenshots
+must contain actual measurements; mask only the test wallet. User's local GUI
+preference is GPU plus 4 CPU threads; preserve settings during app replacement.

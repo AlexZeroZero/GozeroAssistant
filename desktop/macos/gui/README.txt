@@ -1,4 +1,4 @@
-Gozero助手 Mac Beta 0.1.1
+Gozero助手 Mac 0.1.2
 
 运行要求
 Apple Silicon（arm64），macOS 13.5 或更新。当前只在 Apple M3 实机验证。
@@ -21,7 +21,7 @@ Apple Silicon（arm64），macOS 13.5 或更新。当前只在 Apple M3 实机�
 可以从界面打开目录或导出日志。没有默认收款地址。
 
 范围
-这是 NOID 有界测试版 GUI，每次最多10分钟。PRL、QTC 尚未适配。
+当前版本提供 NOID 挖矿 GUI，每次运行最多10分钟。PRL、QTC 尚未适配。
 浮窗、托盘、租赁、自动更新等 Windows 功能尚未移植。
 原版 0.5% 软件服务费控制器及累计账本保留；内核费0%。
 温度与功耗未接入时显示“—”；系统热状态不等于摄氏温度。

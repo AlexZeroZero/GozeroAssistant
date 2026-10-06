@@ -39,7 +39,7 @@ def main():
     run('/usr/bin/ditto','-x','-k',args.electron_archive,build/'runtime')
     app=build/'Gozero助手.app';shutil.move(str(build/'runtime/Electron.app'),str(app))
     contents=app/'Contents';resources=contents/'Resources';target=resources/'app'
-    target.mkdir();(target/'package.json').write_text(json.dumps({'name':'gozero-assistant-mac','version':'0.1.1','productName':'Gozero助手 Mac','main':'desktop/macos/gui/main.cjs'},ensure_ascii=False))
+    target.mkdir();(target/'package.json').write_text(json.dumps({'name':'gozero-assistant-mac','version':'0.1.2','productName':'Gozero助手 Mac','main':'desktop/macos/gui/main.cjs'},ensure_ascii=False))
     licenses=target/'licenses';licenses.mkdir()
     shutil.copy2(build/'runtime/LICENSE',licenses/'ELECTRON-LICENSE.txt')
     shutil.copy2(build/'runtime/LICENSES.chromium.html',licenses/'LICENSES.chromium.html')
@@ -64,7 +64,7 @@ def main():
             run('/usr/bin/sips','-z',size*scale,size*scale,DESKTOP/'assets/icon.png','--out',iconset/name)
     run('/usr/bin/iconutil','-c','icns',iconset,'-o',resources/'gozero.icns')
     info_path=contents/'Info.plist';info=plistlib.loads(info_path.read_bytes())
-    info.update(CFBundleDisplayName='Gozero助手 Mac',CFBundleName='Gozero助手',CFBundleIdentifier='trade.gozero.assistant.mac',CFBundleShortVersionString='0.1.1',CFBundleVersion='2',CFBundleIconFile='gozero.icns',LSMinimumSystemVersion='13.5',NSHighResolutionCapable=True)
+    info.update(CFBundleDisplayName='Gozero助手 Mac',CFBundleName='Gozero助手',CFBundleIdentifier='trade.gozero.assistant.mac',CFBundleShortVersionString='0.1.2',CFBundleVersion='3',CFBundleIconFile='gozero.icns',LSMinimumSystemVersion='13.5',NSHighResolutionCapable=True)
     info_path.write_bytes(plistlib.dumps(info))
     # Re-seal Electron helper bundles after ZIP extraction (empty resources
     # directories may be omitted upstream). Do not re-sign the proven miner.
@@ -78,7 +78,7 @@ def main():
     run('/usr/bin/codesign','--verify','--deep','--strict',app)
     for name in ('noid-apple-check','noid-runtime.metal'):
         if sha(native_dir/name)!=m['files'][name]:raise RuntimeError('Native artifact changed while packaging')
-    manifest={'type':'mac-noid-gui-test','electron':runtime,'nativePackageSha256':sha(args.miner_package),
+    manifest={'type':'mac-noid-gui','electron':runtime,'nativePackageSha256':sha(args.miner_package),
               'files':{str(p.relative_to(target)):sha(p) for p in target.rglob('*') if p.is_file()}}
     (build/'BUILD-MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n')
     out=DESKTOP/'dist/Gozero-Assistant-Mac-arm64.zip'
