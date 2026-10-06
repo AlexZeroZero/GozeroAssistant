@@ -1,0 +1,7 @@
+{
+  "version": "44.5.1",
+  "architecture": "darwin-arm64",
+  "url": "https://github.com/electron/electron/releases/download/v44.5.1/electron-v44.5.1-darwin-arm64.zip",
+  "checksumsUrl": "https://github.com/electron/electron/releases/download/v44.5.1/SHASUMS256.txt",
+  "sha256": "1d75703019bb16461ae65f3081d7e6f5c0b11e901d0ccb5c343bcf7bcdd6435c"
+}

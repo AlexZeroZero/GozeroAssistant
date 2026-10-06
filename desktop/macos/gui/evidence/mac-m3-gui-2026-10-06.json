@@ -1,0 +1,126 @@
+{
+  "date": "2026-10-06",
+  "scope": "Native M3 GUI short acceptance tests; not long-term pool-side performance",
+  "zipSha256": "d4555a2fe51e80ddce057b782eab191458926fd182c4887f6cef10042199058c",
+  "platform": "darwin-arm64",
+  "live": {
+    "passed": true,
+    "layout": {
+      "title": "Gozero助手 Mac",
+      "node": "undefined",
+      "bodyWidth": 920,
+      "navWidth": 918,
+      "views": 6
+    },
+    "live": {
+      "accepted": 1,
+      "rejected": 0,
+      "submitted": 1,
+      "rate": {
+        "total": 1755903.2682007481,
+        "cpu": 0,
+        "gpu": 1755903.2682007481
+      }
+    },
+    "benchmark": {
+      "total": 1756497.5271157129,
+      "cpu": 0,
+      "gpu": 1756497.5271157129
+    },
+    "rendererErrors": [],
+    "settingsPersisted": true,
+    "stopReturnedIdle": true
+  },
+  "finalOffline": {
+    "total": 1755953.8506709249,
+    "cpu": 0,
+    "gpu": 1755953.8506709249
+  },
+  "smallLayout": {
+    "width": 780,
+    "nav": 778,
+    "main": 778,
+    "scroll": 778
+  },
+  "hardware": {
+    "chip": "Apple M3",
+    "model": "MacBook Air",
+    "gpu": "Apple M3",
+    "memoryBytes": 17179869184,
+    "cpuCores": 8,
+    "performanceCores": 4,
+    "efficiencyCores": 4,
+    "os": "25.5.0",
+    "gpuLoad": 99,
+    "cpuLoad": 6.136045635989384,
+    "perCore": [
+      14.070351758793976,
+      10.552763819095478,
+      7.499999999999996,
+      4.0000000000000036,
+      5.970149253731338,
+      4.5000000000000036,
+      0.5050505050505083,
+      1.9900497512437831
+    ],
+    "freeMemory": 506675200,
+    "thermalState": 0,
+    "temperatureC": null,
+    "powerWatts": null,
+    "gpus": [
+      {
+        "id": "apple-metal",
+        "name": "Apple M3",
+        "vendor": "Apple",
+        "sensors": {
+          "at": 1791280218666,
+          "load": 99,
+          "temp": null,
+          "power": null
+        }
+      }
+    ],
+    "modelId": "Mac15,12",
+    "gpuCores": 10,
+    "scannedAt": 1791280187825,
+    "at": 1791280218652
+  },
+  "shutdownWithActiveWorker": true,
+  "shutdownLeftNoWorker": true,
+  "windowsAdapterTests": 7,
+  "macAdapterTests": 7,
+  "signature": "ad-hoc; deep strict verify passed; not notarized",
+  "desktopPayloadVerified": true,
+  "desktopOpenedIdle": true,
+  "emptyDefaultWallet": true,
+  "sourceAndPayloadHashes": {
+    "package.json": "f4cd1d9a5da6214d3f0a552bbb52b185455f478a7fd6fd9c9b87524c85e73163",
+    "README.txt": "9827ea9cdcf05bdfe4236936e32f37bc70cc7484e4e83d92089e5598361a6cc7",
+    "native/noid-apple-check": "5fdfd0fddf2f62fd6789dc18a76f73ba7b809cb32a68b18c5a7ab625cf5423a4",
+    "native/mac-telemetry": "a323361cccb2c317f07c1337e766e94d5cc44aa62843c4ff2d175ca82f2cc668",
+    "native/NOTICE": "3b1e8d20ee3de76d1dce49094b7980aab851ef51f2920707785828925b5ac372",
+    "native/build-selftest.json": "54062a2a77e794da2330043b6386caf3495e7eb1c3346da64c5898e491ee2a7c",
+    "native/noid-runtime.metal": "6ad079f64cfbe3ccd956be9ba90fe82099f1a9bc0cb445c0431b2760f29f7143",
+    "native/LICENSE-Apache-2.0.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "native/NODE-LICENSE.txt": "5888dbb9a1d2b18f2c3e6c5f6af1b39de658372b402a0577b002777f14c62ace",
+    "native/node": "e4b5a3af0e05c75de2eae013904145f40fe7fc2a6e6f17510128bf45cca4e79b",
+    "licenses/LICENSES.chromium.html": "a62dabd1c6ef1327365b2a3fdffb806222684a746dcb8f4afd1c1f690eba5535",
+    "licenses/ELECTRON-LICENSE.txt": "5154e165bd6c2cc0cfbcd8916498c7abab0497923bafcd5cb07673fe8480087d",
+    "desktop/renderer/app.css": "d69a38cbe2932cce92c2be5d758376d96899c4ee5d432b2f029387ab3512a39f",
+    "desktop/renderer/logo.svg": "2d709f6e628dc88d6f54e9681d4f20648170c97df7f75ff644627a2874a78342",
+    "desktop/src/noid.cjs": "52168031b297d2f797b0b5763c6fec8da38a9bbb3fb72d5afc320fe989f1ac61",
+    "desktop/src/service-fee.cjs": "35617430285f17e30845c06703b3607f9c3f47636bfc2b5bb46415e78008ce81",
+    "desktop/macos/gui/preload.cjs": "6d6a0ea0c8fc358205432f659a63cd4b41838955119b39017409da3dec9aeea2",
+    "desktop/macos/gui/smoke.cjs": "0d260d61fd9fa927d5bac56e0e700834d011c65e06312bcac46a89f95f827cd0",
+    "desktop/macos/gui/hardware.cjs": "9129132d27375c45694e833e2dece5550bec695120138a7c36540eff0f4db9c0",
+    "desktop/macos/gui/miner.cjs": "5f9d2f997b5949e4f43819dca515b74785d17786a48fd651e53ba8bc04b2101c",
+    "desktop/macos/gui/main.cjs": "2b3ea48ffed7d84898080993dbf8a5b989caa6da8b0a98ccbe9794aa467dd92a",
+    "desktop/macos/gui/config.cjs": "bcd7bfdbf89b436075de30db3d22601f67b6eb202e5af31c8f53b556864d9bfd",
+    "desktop/macos/gui/renderer/ui.js": "eb3861212c815b7f3b2373d59a50f17faa1610f29c8d5f13df67f92f1e8695dc",
+    "desktop/macos/gui/renderer/index.html": "49722c6d43c484bcc6c545f9df30731e021c49d47fc54a82aefde51ef6ed7218",
+    "desktop/macos/gui/renderer/mac.css": "cb836d375ba2a6a41a15432a036309ecf8e14b5d767da134e30b0fbcf59b3f8e",
+    "desktop/experiments/noid-apple/miner_cli.cjs": "f9716b3b8656a72c2fc5157433d8b9d6f10b3779f1ebcce68f2c6d1095e82e7c",
+    "desktop/experiments/noid-apple/pool_runner.cjs": "fd03122a975b1c7c3d4260d96785458647ab2bcea3af0df64a1b3bcae3a0a4fc",
+    "desktop/experiments/noid-apple/pool_session.cjs": "c7df8a27b5b739ab2af2334f5f8c33ec23fc6b9582edc509b5aa491663c693c6"
+  }
+}

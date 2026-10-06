@@ -33,8 +33,12 @@ PMULL CPU+GPU search now exists, with disjoint adaptive ranges and CPU/GPU
 rate reporting. Final warm nine-sample comparison: four CPU threads +2.17%
 median, eight -2.18%, with substantial decline over time. This does NOT prove
 a stable gain. A 180-second cooperative package test accepted 24/24 shares,
-zero rejects, ~1.562 MH/s local average. Preserve GPU-only CLI default and
-the old desktop package. CPU-GPU ZIP is a comparison experiment, not a
+zero rejects, ~1.562 MH/s local average. Preserve GPU-only CLI default.
+The user subsequently requested desktop cleanup: both old GPU folders and
+their ZIP were moved to Mac Trash; only the newest CPU-GPU folder/ZIP remain.
+Old test results were separately backed up in the authorized test session.
+Do not restore old desktop copies without a new request.
+CPU-GPU ZIP is a comparison experiment, not a
 recommended faster replacement. See cpu-gpu-utilization evidence and handoff.
 
 The original handoff describes an uncompiled draft; later checkpoints supersede
@@ -46,3 +50,15 @@ basis. Do not bypass third-party miner protections or remove their fees.
 
 Continue Mac development locally; publishing, signing and replacing released
 Windows artifacts are not part of this branch-creation request.
+
+Latest checkpoint: Mac Beta 0.1 GUI is built and tested on M3 and delivered as
+/Users/apple/Desktop/Gozero助手.app. This supersedes the earlier no-GUI status.
+Independent source: desktop/macos/gui; reuses original branding/CSS and the
+unchanged 0.5% FeeController. GPU default, optional CPU collaboration, NOID only,
+1/3/5/10-minute bounded tests, no auto-mining. Windows files remain untouched.
+7 adapter tests pass on Windows and Mac. Actual GUI pool smoke accepted 1/1,
+zero rejects, ~1.756 MH/s; offline ~1.756 MH/s. Small-window layout and exit
+with active worker passed; no child worker remained. No long-term claim.
+Desktop contains the new GUI only among our delivered versions; superseded
+CPU-GPU CLI folder/ZIP are in Trash with results backed up in the test session.
+The app is ad-hoc signed, not Developer ID signed/notarized or a public release.
