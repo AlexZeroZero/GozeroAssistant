@@ -1,0 +1,73 @@
+{
+  "baseline": "0.1.8",
+  "candidate": "0.1.9",
+  "hardware": "Apple M3, 16 GB, 10 GPU cores",
+  "method": "Separate persistent processes and matching resource bundles; 60-second alternating warmup; 8 ABBA blocks per shape; 2 seconds per sample; two slots; no external pool",
+  "rates": {
+    "2048": {
+      "baselineMedianTOPS": 2.179312747279043,
+      "candidateMedianTOPS": 2.2842027820190376,
+      "medianRatioPercent": 4.812986794619256,
+      "pairedMeanGainPercent": 4.997845489782183,
+      "pairedBlockGains": [
+        5.600042392595195,
+        5.021538777204837,
+        4.4796979288252325,
+        4.609358406110253,
+        4.714148942302643,
+        4.22507893705919,
+        4.484853959312396,
+        6.8480445748477115
+      ]
+    },
+    "4096": {
+      "baselineMedianTOPS": 1.7084232176474687,
+      "candidateMedianTOPS": 1.9248830113432158,
+      "medianRatioPercent": 12.670150549336157,
+      "pairedMeanGainPercent": 14.589793396517688,
+      "pairedBlockGains": [
+        14.517190209398967,
+        12.682495179166175,
+        10.959366353027832,
+        15.209664350273911,
+        15.622941253500034,
+        15.553640896602117,
+        15.544179997180763,
+        16.628868932991715
+      ]
+    }
+  },
+  "correctness": {
+    "g3HalfCases": 94,
+    "g3FP32FallbackCases": 94,
+    "g3Mismatches": 0,
+    "productionShape": [
+      8192,
+      8192,
+      4096
+    ],
+    "officialRustVerifiedProofs": 1,
+    "localMockVerifiedProofs": 2,
+    "corruptProofGate": true,
+    "mismatchedJobGate": true
+  },
+  "qtcRejectedVariantsGainPercent": {
+    "alternateGoldilocksReduction": -34.775,
+    "combaProducts": -2.579,
+    "reducePlusComba": -34.64,
+    "squareViaMultiply": 0.1,
+    "simplifiedAddCarry": -0.039
+  },
+  "limitations": [
+    "Only one base M3 tested",
+    "No hardware clock/power/temperature counter attribution",
+    "Absolute rates declined across blocks; raw samples retained",
+    "Final QTC GUI QA: 1 real Kryptex accepted, 0 rejected. PRL external acceptance remains unverified.",
+    "No multi-day stability or efficiency claim"
+  ],
+  "sourceHashes": {
+    "Host.swift": "f75c9ab56d8cfd67dd53e1a89d03d04a812f4e3b55346a051b4dd6712d866e84",
+    "k3sg.metal": "26d0b42784508a620497074e5927d253390f766167aa0ac95e60b919ebb36806"
+  },
+  "patchReproduction": "Applying published patch to packaged 0.1.8 sources matches tested Host.swift and shader byte-for-byte; second application is idempotent"
+}

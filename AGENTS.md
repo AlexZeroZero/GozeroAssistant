@@ -117,3 +117,10 @@ CPU verification, G3 identity/gates, original fee ledger and continuous mining.
 One M3 tested; negative/background-load samples retained. External QTC/PRL pool
 acceptance still unverified. Desktop 0.1.7 moved to Trash, settings preserved;
 GitHub/main/Windows and retained README unchanged by this optimization task.
+
+Latest checkpoint: Mac 0.1.9 adds exact half-input/FP32-accumulator PRL on base
+Apple M3, with 94-case G3, Rust proof and local mock validation. See handoff
+and RESULTS.txt: paired full-pipeline gains ~5% / ~14.6% at tested sizes,
+absolute rates still decline. QTC unchanged in this pass, but now one real
+Kryptex accepted share observed. PRL external acceptance remains unverified.
+Preserve all original fee, admission, proof and continuous-mining behavior.

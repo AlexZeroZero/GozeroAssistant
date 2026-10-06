@@ -22,7 +22,7 @@ function render(){if(!state?.config)return;document.body.classList.toggle('light
  text('#session-status',status);text('#overview-status',state.ready?'本机设备已连接 · '+status:'正在读取本机设备');text('#footer-state',state.ready?(h.chip+' · '+status):'正在读取本机设备');text('#footer-thermal','系统热状态：'+(thermal[h.thermalState]||'—'));text('#mining-device',h.gpu||'Apple GPU');
  const coin=state.config.coin,cap=state.coins[coin];
  document.querySelectorAll('[data-coin]').forEach(e=>{e.disabled=busy;e.classList.toggle('active',e.dataset.coin===coin);});
- text('#kernel-name',cap.kernel);text('#core-status',coin==='NOID'?'NOID：已验证矿池接受份额':coin==='QTC'?'QTC：本地校验通过；外部矿池接受份额待验证':'PRL v3：本地校验通过；外部矿池接受份额待验证。电池供电时暂停；TMAC/s 为本地矩阵吞吐。');
+ text('#kernel-name',cap.kernel);text('#core-status',coin==='NOID'?'NOID：已验证矿池接受份额':coin==='QTC'?'QTC：短测已收到实池接受份额；长期表现待验证':'PRL v3：本地校验通过；外部矿池接受份额待验证。电池供电时暂停；TMAC/s 为本地矩阵吞吐。');
  $('#wallet').placeholder=gozeroI18n.t('填写对应币种的公开收款地址',state.config.language)+' · '+coin;
  text('#fee-rule','内核费 0% · 软件服务费 0.5%');text('#cpu-label',cap.cpu?'CPU · PMULL':'CPU');text('#cpu-note',cap.cpu?'未启用协同时为 0':'此内核不支持 CPU 协同');
  const r=m.rate||{};text('#total-hash',hash(r.total));text('#gpu-hash',hash(r.gpu));text('#cpu-hash',hash(r.cpu));text('#rate-label',m.status==='idle'?'最后一次采样 / 待机':'真实本地算力 · 非矿池结算');

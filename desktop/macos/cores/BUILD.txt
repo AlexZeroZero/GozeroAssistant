@@ -72,3 +72,15 @@ workers/contexts and writes raw JSON. Pass --quantus, --pearl and --output;
 PRL needs output/pmk-state and output/baseline-admission containing real G3
 results. Run with the bundled PRL Python environment. No external pool traffic.
 Preserve warm/thermal decline samples when reporting speed. See RESULTS.txt.
+
+PRL half-input optimization (Mac GUI 0.1.9)
+After patch_kernels.py prl, run optimization/patch_half.py PATH_TO_PMK.
+Rebuild libpmk and G3 from the identical modified source; force admission.
+Only base Apple M3 uses half staging/operands; accumulators remain FP32.
+GZ_PRL_FP32=1 selects 0.1.8 representation (new real admission required).
+GZ_PRL_BASELINE=1 still selects the older upstream geometry, NOT 0.1.8.
+To compare separate builds use optimization/bench_prl_builds.py with
+--baseline-root, --candidate-root (each PRL tree), --baseline-admission,
+--candidate-admission (real JSON files), and --output (raw JSON filename).
+Run with the PRL Python environment; library/bundle pairs stay in separate
+persistent processes. No overlapping GPU work or external pool connection.

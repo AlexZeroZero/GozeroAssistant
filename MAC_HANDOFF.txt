@@ -758,3 +758,59 @@ APPLE M3 CORE OPTIMIZATION 0.1.8 - 2026-10-06
   0.1.8, with an actual GUI assertion. Re-signed/rebuilt ZIP+DMG and repeated
   GUI acceptance before final desktop replacement. Final private QA is in
   gui-accept-final.log; fix-version.py records this small packaging repair.
+
+
+DEEP PRL MATRIX OPTIMIZATION 0.1.9 - 2026-10-06
+- User requested deeper algorithm/core hashrate work. Exact base M3 PRL now
+  stages int8 inputs as half and uses half simdgroup operands with FP32 C.
+  Rank chunks/int32 accumulation/transcript/BLAKE3/proof gates unchanged.
+  Half represents all integer inputs exactly; rank bound 128*127^2 < 2^24.
+- Apply optimization/patch_half.py AFTER patch_kernels.py prl. Modified sources
+  and effective GOZERO_HALF_INPUT change the real admission identity. Rebuild
+  libpmk AND G3 helper. Published patch reproduces tested source byte-for-byte
+  and is idempotent. GZ_PRL_FP32=1 retains 0.1.8 representation; original
+  GZ_PRL_BASELINE=1 still means pre-0.1.8 geometry, NOT the new baseline.
+  Other GPU names keep prior profile; cert-v4/NA restrictions are intact.
+- New half path and FP32 fallback each passed 94 G3 cases, zero mismatches.
+  8192-square K4096 production proof passed official Rust verification;
+  local mock pool verified two proofs and rejected corruption/job mismatch.
+- Full-pipeline comparison against immutable packaged 0.1.8: two separate
+  persistent processes with matching bundles/admission, two slots, 60-second
+  alternating warmup then 8 ABBA blocks per size, 2 seconds per sample.
+  2048: median 2.179 -> 2.284 TOPS; paired mean +4.998%.
+  4096: median 1.708 -> 1.925 TOPS (0.854 -> 0.962 TMAC/s);
+  paired mean +14.590%; median ratio +12.670%. All 16 block pairs positive.
+  Absolute rates still declined; no clock/power/temperature counters explain
+  why full-pipeline gains exceed the ~7% short shader-only gain. Preserve raw
+  samples. One base M3 only; no indefinite stability/efficiency guarantee.
+- QTC rejected five arithmetic rewrites: alternate reduction -34.775%, Comba
+  -2.579%, combined -34.640%, square via multiply +0.100%, simpler add carry
+  -0.039%. Keep 0.1.8 QTC unchanged. No claimed new QTC performance gain.
+- Final GUI mining QA: NOID 30s 1 accepted/0 rejected. QTC 30s 1 accepted /
+  0 rejected from real qtc-hk.kryptex.network, local average ~21.348 MH/s.
+  This SUPERSEDES previous QTC external-acceptance-unverified status, but is
+  only one share, not a long-term claim. PRL ~28.37s 2.437 TOPS local average,
+  zero submitted/accepted/rejected, zero gate failures. PRL real external pool
+  acceptance STILL UNVERIFIED. GUI About and QTC status bilingual text updated.
+- 19 GUI/config/fee tests and 7 QTC adapter tests pass. Full three-coin GUI QA,
+  hidden mining/menu rate/Stop, active PRL Quit and no orphan workers passed.
+  Final text-only update additionally passed six-view bilingual/layout smoke
+  and QTC status translation assertion; mining core bytes were unchanged.
+- Research: ignored .local/m-series-deep, same remote session/m-series-deep.
+  Remote research pearl-apple now contains applied 0.1.9 source/build. Original
+  0.1.8 package remains m-series-opt/package/Gozero-Mac-QTC-PRL-Cores-arm64.
+  0.1.9 payload is m-series-deep/package/Gozero-Mac-QTC-PRL-Cores-arm64.
+  Remote GUI artifacts: optimized-gui-0.1.9. No GitHub publication requested.
+- Public evidence: optimization/evidence/m3-half-tuning.json and
+  prl-half-production-abba.json; reproduction bench_prl_builds.py. Existing
+  README preserved; OPTIMIZATION.txt includes full results and limitations.
+- Desktop /Users/apple/Desktop/Gozero助手.app is now 0.1.9, opened idle.
+  Signature, full payload manifest and read-only mounted DMG verified. Original
+  settings bytes/fee ledger unchanged; old 0.1.8 moved to Trash. A same-version
+  text correction updated QTC acceptance wording, then re-signed/repacked.
+  Final evidence is gui/evidence/mac-optimized-0.1.9.json.
+- Final ZIP SHA256 434e885fae50e995e8f5c62f769f75bc52de0d96806b39286b2abaa6dbe69c29.
+  Final DMG SHA256 bb31bc7275cfd6a0e8ecbc21b08f3c0a17bee47b03e4bc71a9702006e6a86653.
+  Local installer is .local/m-series-deep/Gozero-Assistant-Mac-0.1.9-arm64.dmg.
+  Research workers stopped. GitHub release, retained README, main and Windows
+  checkout untouched. App still ad-hoc signed, without Apple notarization.

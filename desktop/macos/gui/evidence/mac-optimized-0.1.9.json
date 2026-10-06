@@ -1,0 +1,101 @@
+{
+  "version": "0.1.9",
+  "hardware": "Apple M3, 16 GB, macOS 26.5.1",
+  "checks": {
+    "multicoinGuiPassed": true,
+    "rendererErrors": [],
+    "activeQuitCoin": "PRL",
+    "guiUnitTests": 19,
+    "qtcUnitTests": 7,
+    "halfG3Cases": 94,
+    "fp32FallbackG3Cases": 94,
+    "g3Mismatches": 0,
+    "officialRustProductionProof": true,
+    "localMockVerifiedProofs": 2,
+    "noOrphanWorkers": true,
+    "finalBilingualTextUiSmoke": true
+  },
+  "coins": {
+    "NOID": {
+      "seconds": 30.156,
+      "rate": {
+        "total": 1766359.7483105876,
+        "cpu": 0,
+        "gpu": 1766359.7483105876
+      },
+      "totals": {
+        "accepted": 1,
+        "rejected": 0,
+        "submitted": 1
+      },
+      "hiddenWindowContinued": true,
+      "menuTitle": "1.77 MH/s",
+      "summary": {}
+    },
+    "QTC": {
+      "seconds": 30.121,
+      "rate": {
+        "total": 21573641.378138144,
+        "gpu": 21573641.378138144,
+        "cpu": null
+      },
+      "totals": {
+        "accepted": 1,
+        "rejected": 0,
+        "submitted": 1
+      },
+      "hiddenWindowContinued": true,
+      "menuTitle": "21.57 MH/s",
+      "summary": {
+        "local_average_hps": 21347607.439218484,
+        "elapsed_seconds": 30.048630499994033,
+        "submitted": 1,
+        "accepted": 1,
+        "rejected": 0,
+        "error": null
+      }
+    },
+    "PRL": {
+      "seconds": 30.173,
+      "rate": {
+        "total": 1261158665774.5935,
+        "gpu": 1261158665774.5935,
+        "cpu": null
+      },
+      "totals": {
+        "accepted": 0,
+        "rejected": 0,
+        "submitted": 0
+      },
+      "hiddenWindowContinued": true,
+      "menuTitle": "1.26 TMAC/s",
+      "summary": {
+        "elapsed_seconds": 28.371496457999456,
+        "ops_per_second": 2436663631710.6924,
+        "submitted": 0,
+        "accepted": 0,
+        "rejected": 0,
+        "gate_failures": 0,
+        "failed": false
+      }
+    }
+  },
+  "delivery": {
+    "version": "0.1.9",
+    "dmgSha256": "bb31bc7275cfd6a0e8ecbc21b08f3c0a17bee47b03e4bc71a9702006e6a86653",
+    "zipSha256": "434e885fae50e995e8f5c62f769f75bc52de0d96806b39286b2abaa6dbe69c29",
+    "signatureAndManifestVerified": true,
+    "dmgMountedVerified": true,
+    "settingsUnchanged": true,
+    "feeLedgerUnchanged": true,
+    "openedIdle": true,
+    "qtcExternalAcceptedShares": 1,
+    "prlExternalAcceptance": "unverified"
+  },
+  "limitations": [
+    "One base M3 only",
+    "PRL external pool acceptance still unverified",
+    "No multi-day stability or energy-efficiency claim",
+    "Ad-hoc signed, not notarized"
+  ]
+}

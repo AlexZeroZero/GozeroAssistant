@@ -1,3 +1,52 @@
+Gozero Mac 0.1.9 — exact half-input PRL core / PRL 精确半精度输入内核
+
+The new PRL path keeps int8 global inputs, stages them as half, and uses
+simdgroup_half8x8 operands with simdgroup_float8x8 accumulators. Shared-memory
+operand staging drops from 32 to 16 bits. Every integer in [-127,127] is exact
+in half; each rank sums at most 128*127^2 = 2,064,512, below FP32's exact integer
+limit. Integer accumulation, transcript, BLAKE3, candidate checks and proofs
+are unchanged. This is not approximate mining or half-precision accumulation.
+Only exact base Apple M3 opts in. Other devices keep their existing profile.
+GZ_PRL_FP32=1 keeps the 0.1.8 representation with separate real G3 admission.
+Original GZ_PRL_BASELINE=1 still means the older upstream profile, NOT 0.1.8.
+
+2026-10-06 comparison against delivered 0.1.8, one M3:
+2048 square, K4096: median 2.179 -> 2.284 TOPS; paired mean gain +5.00%.
+4096 square, K4096: median 1.708 -> 1.925 TOPS; paired mean gain +14.59%.
+The 4096 medians correspond to 0.854 -> 0.962 TMAC/s (+12.67% median ratio).
+Distinct statistics must not be conflated. Eight ABBA blocks per shape,
+separate persistent processes/bundles, 60-second alternating warmup, two
+inflight slots. All 16 paired blocks were positive. Raw absolute rates decline
+with time; this is not a claim of indefinitely sustained absolute throughput.
+The short K3-only screen was approximately +7%; larger full-pipeline gains
+may depend on operating state. No power/clock/temperature causation proven.
+
+94 G3 cases passed for both the new half path and FP32 fallback, zero mismatch.
+8192x8192x4096 production proof passed official Rust verification. Local mock
+pool verified two proofs; corrupted proofs and mismatched existing jobs were
+rejected. The original v4 admission restrictions and fastMath=false remain.
+
+QTC: tested alternate Goldilocks reduction, wider Comba carries, their
+combination, square-via-multiply, and a simpler carry condition. Gains were
+-34.775%, -2.579%, -34.640%, +0.100%, -0.039%. No useful new improvement;
+0.1.8 QTC is retained. Input/header midstate precomputation already exists.
+PRL profiling points to matrix K3 as the dominant GPU stage; CPU allocation
+is comparatively small. Raising CPU utilization alone is not the objective.
+
+Reproduction: BUILD.txt, patch_half.py, bench_prl_builds.py.
+Evidence: evidence/m3-half-tuning.json and prl-half-production-abba.json.
+All rates above are local. Final 0.1.9 GUI QA: QTC received one real Kryptex
+accepted share, zero rejected in 30 seconds. PRL submitted none in its short
+run, so PRL external pool acceptance remains unverified.
+No promise for other M-series models, long-term pool rate or power efficiency.
+
+中文：相对 0.1.8，本次实测 PRL 完整流水线配对平均提升约 5%～14.6%，
+取决于任务尺寸和运行状态。使用精确半精度输入与单精度累加，保留完整
+证明验证。QTC 新尝试未获得有效提升，继续使用 0.1.8 内核。仅验证这台
+基础款 M3，持续运行绝对算力仍有下降，不能把短测读数当作长期收益。
+
+Previous 0.1.8 research and evidence follow:
+
 Gozero Mac 0.1.8 — Apple Silicon core tuning / 苹果芯片内核优化
 
 QTC uses the exact Goldilocks Poseidon2 algorithm. External/internal rounds
