@@ -1,0 +1,56 @@
+Apple Silicon QTC / PRL core research
+
+Source identities and licenses: sources.json. Work stays outside the NOID GUI.
+Build prerequisites used: macOS arm64, Command Line Tools, Rust 1.93.0,
+Python 3.12.15. Never silently substitute another upstream commit.
+
+QTC
+1. Check out quantus-miner and Quantus chain at the exact listed commits.
+2. If Git downloads are unavailable on the Mac, transfer git archives of the
+   pinned source. Set the workspace qpow-math dependency to the local
+   chain/qpow-math directory; regenerate the lock only for that source change.
+   All registry versions/checksums remain pinned.
+3. Copy qtc/gozero_worker.rs into quantus-miner/crates/engine-gpu/examples/.
+4. cargo build --release -p engine-gpu --examples
+5. Run target/release/examples/gpu_cpu_parity 25, arithmetic_edges, and
+   dispatch_coverage on an otherwise idle GPU.
+6. Use qtc/pool_miner.py with --core and --wallet. TLS certificate validation
+   stays enabled. Kryptex QTC is login/job/submit, not mining.subscribe.
+   --seconds 0 (the default) is continuous. Ctrl+C stops and closes the core.
+7. python -m unittest discover -s desktop/macos/cores/qtc -p test_pool_miner.py
+
+PRL
+1. Check out pearl-apple-miner plus both pinned Pearl vendor repositories.
+2. Normalize CRLF in shell scripts, patch inputs and Rust source before the
+   upstream pool-binding patch. Run python3 patch_pearl.py PATH_TO_PMK.
+   This restricts NA to its supported Apple10+ family and retains all SG
+   known-answer/layout/overflow/canary comparisons on M1-M4. It also includes
+   Kryptex's authorized worker field in mining.submit.
+3. Follow the pinned scripts/install.sh build stages: pmkcore, pmkcore/v4,
+   Swift libpmk, and the patched py-pearl-mining extension. Use --locked.
+4. Python dependencies are hash-locked. Separate the torch requirement as in
+   install.sh and fetch it from https://download.pytorch.org/whl/cpu;
+   the PyPI torch wheel has a different hash. Do not disable hash verification.
+5. Generate bench/k3sg/make_vectors.py, compile the G3 admission helper with
+   scripts/studio_b4/build_g3_helper.py, then run pmk_quickstart.py admission
+   --force. Use an isolated PMK_HOME. Never fabricate admission files.
+6. pmk_production_smoke.py verifies the full cert-v3 path against Pearl's
+   Rust proof verifier. Run before connecting any pool.
+7. scripts/pmk_mine.py --wallet PUBLIC_ADDRESS --pool stratum+ssl://HOST:PORT
+   runs continuously. The test harness may stop it after a measured interval;
+   no fixed mining duration is built into the delivered launcher.
+
+Packaging
+Bundle a relocatable Python runtime, installed wheel dependencies, QTC worker
+and check binaries, PRL native libraries + Metal resource bundle, G3 helper
+and vectors, Python host scripts, source archives, licenses and sources.json.
+Place launch_core.py/check_cores.py at package root. Config.json holds only
+public payout addresses. Keep it private to the user's test package; published
+packages should ship blank wallet fields. Validate after copying to a new path.
+Apple Developer ID signing/notarization and GUI integration are separate work.
+
+Scope of evidence
+Offline correctness, a short local rate and pool authorization are different
+claims. Only an actual accepted pool response counts as an accepted share.
+Different algorithms' MH/s or matrix-operation rates cannot be compared.
+Only one Apple M3 has been tested; other Apple Silicon models remain untested.

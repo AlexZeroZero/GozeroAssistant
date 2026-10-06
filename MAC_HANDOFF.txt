@@ -622,3 +622,42 @@ CONTINUOUS MINING 0.1.6 - 2026-10-06
   all asset hashes pass. Retain original ZIP filename/download URL, the user's
   two JPGs and their screenshot section. Update duration-related notes only;
   other retained historical notes are explained by CURRENT-VERSION.txt.
+
+
+QTC / PRL NATIVE CORES - 2026-10-06
+- User requested compiling Quantus and Pearl Apple Silicon mining cores and
+  supplied public payout addresses (kept in ignored local diagnostics / private
+  desktop config; do not publish those wallet defaults).
+- Built pinned Apache-2.0 Quantus 4.2.0 wgpu/Metal core, plus independent TLS
+  Kryptex login/job/submit adapter. Each candidate is checked against CPU hash.
+  25/25 GPU/CPU parity, 65920 arithmetic pairs, 15 coverage + 15 exhausted cases
+  passed. Five adapter tests passed on Windows and Mac.
+- QTC 300.077s real Kryptex HK run: 15.696 MH/s local average, 32 jobs, 0
+  reconnects, 0 submitted / 0 accepted. This does NOT establish pool acceptance.
+- Built Apache-2.0 pearl-apple-miner with pinned ISC Pearl v3/v4 references.
+  Fixed upstream admission trying Apple10+ NA on the M3 Apple9 GPU; only
+  supported kernels are tested and explicit NA overrides are refused. All 94 SG
+  cases passed unchanged; production-shaped GPU -> proof -> Rust verification
+  passed. Kryptex submit now includes authorized worker field.
+- PRL cert-v3 live Kryptex EU run: 299.717s, 11762 completed jobs, 0 submitted /
+  0 accepted / 0 rejected / 0 verifier failures, measured GPU busy 99.38%.
+  Local throughput 1.834 TOPS (0.917 TMAC/s); this is NOT NOID/QTC MH/s or
+  pool-observed revenue. Shape adapted 4096 -> 2048 for GPU latency. Official
+  accepted-share compatibility is still unconfirmed. Low difficulty request was
+  ignored by both Kryptex pools; LuckyPool CPU endpoint probe timed out.
+- Separate LOCAL mock PRL pool verified 2 real proofs, 0 stale / rejected;
+  corrupt proof and mismatched job checks passed. Do not call these live shares.
+- PRL v4 library compiled but has not passed v4 device admission; it is not
+  advertised as supported. Only M3/macOS26.5.1 tested. Other M models untested.
+- Delivered /Users/apple/Desktop/Gozero-QTC-PRL-Mac-Core-0.1 (20301 payload
+  files hash-verified, ~741 MB). Check-Cores.command, Start-QTC.command and
+  Start-PRL.command; bundled relocatable Python/native libraries, sources,
+  licenses, config.json with user's payout addresses, VALIDATION and SHA256SUMS.
+  Launchers are continuous (no 10-minute cap), Ctrl+C / terminal SIGHUP clean
+  up children. No miner remains running after tests. Research CLI package only;
+  existing NOID GUI, fee controller, README and GitHub releases unchanged.
+- Tracked implementation under desktop/macos/cores; source pins and BUILD.txt
+  describe reproduction. Compact evidence in cores/evidence. Full private build
+  scripts/logs under .local/prl-qtc-research and remote session/prl-qtc-research.
+  Remote isolated Rust toolchain/cache remain reusable. Temporary loopback
+  build proxy + SSH reverse tunnel were stopped after compiling.

@@ -1,0 +1,135 @@
+{
+  "date": "2026-10-06",
+  "hardware": {
+    "chip": "Apple M3",
+    "gpuCores": 10,
+    "memoryGiB": 16,
+    "os": "macOS 26.5.1 arm64"
+  },
+  "qtc": {
+    "correctness": {
+      "gpuCpuParityJobs": 25,
+      "arithmeticOperandPairs": 65920,
+      "minimumHashCoverageCases": 15,
+      "exhaustedRangeCases": 15
+    },
+    "live": {
+      "hashes": 4709941248,
+      "submitted": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "stale_local": 0,
+      "reconnects": 0,
+      "jobs": 32,
+      "elapsed_seconds": 300.07683120800357,
+      "awaiting_verdict": 0,
+      "error": null,
+      "pool": "qtc-hk.kryptex.network",
+      "core_exit_code": 0,
+      "local_average_hps": 15695784.406411638
+    },
+    "lifecycle": {
+      "coin": "QTC",
+      "seconds": 16.519613291005953,
+      "exit_code": 0,
+      "stopped_by_harness": true,
+      "residual_processes": []
+    }
+  },
+  "prl": {
+    "certVersion": 3,
+    "kernel": "sg",
+    "correctnessCases": 94,
+    "mismatches": 0,
+    "unsupportedNA": "refused on Apple9; requires Apple10+",
+    "live": {
+      "time": 1791292620.552406,
+      "event": "pool_summary",
+      "accepted": 0,
+      "stale": 0,
+      "rejected": 0,
+      "duplicate": 0,
+      "low_difficulty": 0,
+      "invalid": 0,
+      "transport": 0,
+      "timeout": 0,
+      "submitted": 0,
+      "gate_failures": 0,
+      "completed_ops": 549687094411264,
+      "completed_macs": 274843547205632,
+      "completed_jobs": 11762,
+      "max_jobs": 0,
+      "observed": 0,
+      "expected": 0.030513763427734375,
+      "compact_expected": 0.03051370522734942,
+      "lower": 0,
+      "upper": 1,
+      "poisson_ok": true,
+      "elapsed_seconds": 299.71685774999787,
+      "ops_per_second": 1834021277741.318,
+      "pool_hashrate": 917010638870.659,
+      "block_candidates": 0,
+      "failed": false,
+      "shape": {
+        "m": 2048,
+        "n": 2048,
+        "k": 4096,
+        "slots": 2
+      },
+      "throttled": true,
+      "kernel": "sg",
+      "gpu_busy_fraction": 0.9938226386451313,
+      "gpu_busy_pct": 99.38226386451313,
+      "gpu_busy_seconds": 298.1722795833484,
+      "intensity": 100,
+      "power_source": "ac",
+      "paused": false
+    },
+    "localMockPool": {
+      "accepted": 2,
+      "stale": 0,
+      "rejected": 0,
+      "corruptedProofRefused": true,
+      "MismatchedJobRefused": true,
+      "scope": "Local mock server using the real Rust proof verifier; not an external mining-pool acceptance."
+    },
+    "lifecycle": {
+      "coin": "PRL",
+      "seconds": 301.4693355000054,
+      "exit_code": 0,
+      "stopped_by_harness": true,
+      "residual_processes": []
+    }
+  },
+  "scope": "Experimental native CLI cores. Not integrated into the released NOID GUI; no external accepted share has been confirmed unless explicitly counted here.",
+  "knownLimitations": [
+    "One M3 tested, not all Apple Silicon models",
+    "PRL cert-v4 library compiled but not admitted for mining",
+    "Short local hashrate is not pool-side revenue or a thermal steady-state benchmark",
+    "No Developer ID notarization"
+  ],
+  "package": {
+    "qtc/gozero_worker": {
+      "sha256": "dd59fb8e5fd226840342ee8281f3bba11797a2c01eb53ea7ea1e7f8b85d66f12",
+      "bytes": 4550256
+    },
+    "prl/pmkcore/target/release/libpmkcore.dylib": {
+      "sha256": "01b0ed26490af73bdba32bbfe51e6cd9ff3dc2649f155ddec0cd616c358daf18",
+      "bytes": 780192
+    },
+    "prl/libpmk/.build/release/libpmk.dylib": {
+      "sha256": "4f8eb3ca1831159e809861ec38326d337d336fc0aecaeb841022a2d3ad780f2e",
+      "bytes": 568912
+    }
+  },
+  "delivery": {
+    "directoryName": "Gozero-QTC-PRL-Mac-Core-0.1",
+    "verifiedFiles": 20301,
+    "bytes": 740568873
+  },
+  "metricDefinitions": {
+    "prl.live.pool_hashrate": "Locally calculated matrix multiply-accumulate operations per second, not a pool-side hashrate measurement.",
+    "prl.live.ops_per_second": "Local multiply-plus-add operations per second (2 operations per MAC).",
+    "qtc.live.local_average_hps": "Engine work count divided by elapsed wall time, including connection/setup and job changes."
+  }
+}

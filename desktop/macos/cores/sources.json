@@ -1,0 +1,32 @@
+{
+  "status": "research; validation recorded separately",
+  "quantus": {
+    "repository": "https://github.com/Quantus-Network/quantus-miner",
+    "commit": "c7838cbc86f7d74477da1771139f377a8e438072",
+    "version": "4.2.0",
+    "license": "Apache-2.0",
+    "chainRepository": "https://github.com/Quantus-Network/chain",
+    "chainCommit": "5ea94cb1e5347b12d091b6fa9f9234ceb897ec42",
+    "changes": ["Gozero stdin/stdout bridge with CPU candidate verification", "Pinned qpow-math resolved from a local copy of the identical chain commit"]
+  },
+  "pearl": {
+    "repository": "https://github.com/Augustas11/pearl-apple-miner",
+    "commit": "2c5af555d0d4651cd822763756220f5638e49fc6",
+    "license": "Apache-2.0",
+    "referenceRepository": "https://github.com/pearl-research-labs/pearl",
+    "referenceV3Commit": "7039e66f3c44f1541cb0e85328061e619ec5904d",
+    "referenceV4Commit": "f696760b259500ecb608469ea3953aeabbe78948",
+    "referenceLicense": "ISC",
+    "changes": ["CRLF normalized to LF for shell scripts and patch inputs", "Upstream pool-binding helper patch applied in its isolated build copy", "NA admission is restricted to supported Apple10+ devices; all SG comparisons are retained", "Explicit NA overrides obey the same hardware capability check", "Kryptex submit includes the authorized worker name"]
+  },
+  "testedHardwareTarget": "Apple M3, arm64, macOS 26.5.1",
+  "otherMSeries": "not tested",
+  "toolchain": {"rust": "1.93.0", "python": "3.12.15"},
+  "notes": [
+    "QTC uses Goldilocks Poseidon2; it is different from NOID Poseidon2b.",
+    "QTC pool adapter is independently implemented and uses observed Kryptex login/job/submit framing.",
+    "No code from the restricted-license KanQ miner is included.",
+    "PRL cert-v3 jobs were observed on Kryptex; a successful build alone does not prove pool acceptance.",
+    "Existing NOID GUI and its service fee controller are unchanged."
+  ]
+}
