@@ -36,7 +36,18 @@ function harness({badDigest=false,authorized=true,continuous=false,tcp=false,acc
  return {transport,spawnWorker,requests};
 }
 test('bounded input validation',()=>{
- for(const changed of [{seconds:0},{seconds:601},{batch:65537},{wallet:'private-key'},{port:0},{worker:'bad worker'}])assert.throws(()=>validatedConfig({...config,...changed}));
+ for(const changed of [{seconds:-1},{seconds:601},{batch:65537},{wallet:'private-key'},{port:0},{worker:'bad worker'}])assert.throws(()=>validatedConfig({...config,...changed}));
+});
+
+test('continuous pool run has no zero-duration timeout and stops on explicit signal',async()=>{
+ const h=harness({continuous:true});let ended=false;
+ const promise=run({...config,seconds:0},h).then(result=>{ended=true;return result;});
+ try{
+  await new Promise(resolve=>setTimeout(resolve,1200));
+  assert.equal(ended,false);assert.ok(h.requests.filter(r=>r.method==='mining.submit').length>5);
+ }finally{process.emit('SIGTERM');}
+ const result=await promise;
+ assert.equal(result.reason,'user-stop');assert.equal(result.error,null);assert.equal(result.durationLimitSeconds,0);
 });
 
 test('explicit Suprnova TCP completes shares without claiming TLS verification',async()=>{

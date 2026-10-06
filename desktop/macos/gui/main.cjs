@@ -12,7 +12,7 @@ const profile=process.argv.find(a=>a.startsWith('--profile-dir='));if(profile){c
 let win,store,hardware,miner,fee,timer,awake,menubar,ready=false,starting=false,quitting=false,shutdownPromise,logId=0,runEpoch=0,logs=[];
 function redact(s){s=String(s).slice(0,1200);const wallet=store?.value.wallet;return wallet?s.split(wallet).join('[收款地址]'):s;}
 function log(type,text){logs.push({id:++logId,at:Date.now(),type,text:redact(text)});if(logs.length>300)logs.shift();push();}
-function state(){return{version:'Mac 0.1.5',pools:PRESETS,ready,starting,config:store?.value,hardware:hardware?.value,miner:miner?.snapshot(),fee:fee?.snapshot(),logs};}
+function state(){return{version:'Mac 0.1.6',pools:PRESETS,ready,starting,config:store?.value,hardware:hardware?.value,miner:miner?.snapshot(),fee:fee?.snapshot(),logs};}
 function push(){const s=state();menubar?.update(s);if(win&&!win.isDestroyed())win.webContents.send('state',s);}
 function showMain(){if(win&&!win.isDestroyed()){if(win.isMinimized())win.restore();win.show();win.focus();}}
 function hideMain(){if(menubar?.available()){win.hide();log('窗口','主窗口已收起，任务继续；顶部菜单栏可查看算力、停止或退出');}else return shutdown();}
@@ -27,8 +27,9 @@ async function start(benchmark=false){
   if(epoch!==runEpoch)throw Error('启动已取消');
   if(store.value.stopOnThermal&&hardware.value.thermalState>=2)throw Error('系统处于严重热状态，请冷却后再试');
   awake=powerSaveBlocker.start('prevent-app-suspension');
-  const duration=benchmark?45:store.value.seconds;miner.bound=Date.now()+duration*1000;
-  timer=setTimeout(()=>stop('本次运行时限已到').catch(e=>log('错误',e.message)),duration*1000);
+  // Mining has no session deadline. Only the offline benchmark has a watchdog.
+  clearTimeout(timer);
+  if(benchmark)timer=setTimeout(()=>stop('离线测速超时').catch(e=>log('错误',e.message)),45000);
   if(benchmark)await miner.start({...store.value,wallets:{NOID:store.value.wallet}},hardware.value,true);
   else await fee.start(miningConfig(store.value),hardware.value,false);
  }catch(e){await stop('启动失败');throw e;}finally{starting=false;push();}

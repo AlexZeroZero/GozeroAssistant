@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Selftests and bounded stdio worker. Network/session policy belongs to the host.
+// Selftests and stdio worker. Network/session policy belongs to the host.
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 #include <sys/sysctl.h>
@@ -339,7 +339,7 @@ static void workerLoop(GPU& gpu, bool accelerated, unsigned lifetime, unsigned c
     HybridSearch search(gpu,cpuThreads,accelerated);
     emitJSON(@{@"event":@"ready",@"cpuSelftest":@"passed",@"metalSelftest":@"passed",@"gpu":gpu.device.name,@"maxBatch":@65536,@"cpuThreads":@(cpuThreads)});
     std::string pending, previousHeader; Prepared prepared;
-    while(seconds()<deadline) {
+    while(lifetime==0 || seconds()<deadline) {
         pollfd descriptor={STDIN_FILENO,POLLIN,0};
         int result=poll(&descriptor,1,500);
         if(result<0 && errno==EINTR) continue;
@@ -354,7 +354,7 @@ static void workerLoop(GPU& gpu, bool accelerated, unsigned lifetime, unsigned c
             @autoreleasepool {
                 std::string line=pending.substr(0,newline); pending.erase(0,newline+1);
                 if(line.empty()) continue;
-                require(seconds()<deadline,"worker lifetime expired");
+                require(lifetime==0 || seconds()<deadline,"worker lifetime expired");
                 NSData* bytes=[NSData dataWithBytes:line.data() length:line.size()];
                 id parsed=[NSJSONSerialization JSONObjectWithData:bytes options:0 error:nil];
                 require([parsed isKindOfClass:NSDictionary.class],"worker request must be an object");
@@ -393,7 +393,7 @@ int main(int argc, char** argv) {
         try {
             bool pmull = pmullAvailable();
             if (argc == 2 && std::string(argv[1]) == "--pmull-available") { puts(pmull ? "true" : "false"); return 0; }
-            bool cpuOnly = false, benchmark = false, runtimeSource = false; W count = 32; NSString* library = nil; unsigned workerSeconds=0;
+            bool cpuOnly = false, benchmark = false, runtimeSource = false, workerMode = false; W count = 32; NSString* library = nil; unsigned workerSeconds=0;
             unsigned searchSeconds=0, searchBatch=65536, groupWidth=0, cpuThreads=0;
             for (int i = 1; i < argc; ++i) {
                 std::string arg(argv[i]);
@@ -413,19 +413,19 @@ int main(int argc, char** argv) {
                 }
                 else if (arg == "--worker-seconds" && i + 1 < argc) {
                     std::string value(argv[++i]); size_t used=0; unsigned long parsed=std::stoul(value,&used);
-                    require(used==value.size() && parsed>=1 && parsed<=900,"worker lifetime must be 1..900 seconds");
-                    workerSeconds=static_cast<unsigned>(parsed);
+                    require(used==value.size() && parsed<=900,"worker lifetime must be 0 (continuous) or 1..900 seconds");
+                    workerSeconds=static_cast<unsigned>(parsed); workerMode=true;
                 }
                 else if (arg == "--metallib" && i + 1 < argc) library = [NSString stringWithUTF8String:argv[++i]];
                 else if (arg == "--metal-source" && i + 1 < argc) { runtimeSource = true; library = [NSString stringWithUTF8String:argv[++i]]; }
                 else if (arg == "--count" && i + 1 < argc) {
                     std::string value(argv[++i]); size_t consumed = 0; unsigned long parsed = std::stoul(value,&consumed);
                     require(consumed == value.size() && parsed >= 4 && parsed <= 4096 && parsed % 4 == 0, "count must be a multiple of 4 in [4,4096]"); count = static_cast<W>(parsed);
-                } else throw std::runtime_error("Usage: noid-apple-check [--cpu-only | --metallib FILE | --metal-source FILE] [--benchmark --count 32] [--search-seconds 1..60 --search-batch 1..65536 --threadgroup N] [--worker-seconds 1..900] [--cpu-threads 0..8]");
+                } else throw std::runtime_error("Usage: noid-apple-check [--cpu-only | --metallib FILE | --metal-source FILE] [--benchmark --count 32] [--search-seconds 1..60 --search-batch 1..65536 --threadgroup N] [--worker-seconds 0..900; 0=continuous] [--cpu-threads 0..8]");
             }
             require(!cpuOnly || (!searchSeconds && !groupWidth && !cpuThreads),"search/threadgroup/CPU mining options require Metal");
             cpuSelftest(pmull);
-            if(workerSeconds) {
+            if(workerMode) {
                 require(!cpuOnly && !benchmark && !searchSeconds && library!=nil,"worker requires Metal and no benchmark flag");
                 GPU gpu(library,runtimeSource); gpu.groupWidth=groupWidth; gpuSelftest(gpu,pmull);
                 workerLoop(gpu,pmull,workerSeconds,cpuThreads); return 0;

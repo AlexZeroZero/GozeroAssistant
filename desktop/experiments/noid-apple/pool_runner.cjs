@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Bounded validation runner. Explicit config required; never starts on import.
+// Pool runner. seconds=0 explicitly selects continuous mining; never starts on import.
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),tls=require('node:tls'),net=require('node:net');
 const {spawn}=require('node:child_process');
@@ -12,7 +12,7 @@ function validatedConfig(c){
  check(typeof c.worker==='string'&&/^[A-Za-z0-9_-]{1,32}$/.test(c.worker),'invalid worker name');
  check(typeof c.host==='string'&&/^[a-zA-Z0-9.-]+$/.test(c.host),'invalid TLS hostname');
  check(Number.isInteger(c.port)&&c.port>0&&c.port<65536,'invalid port');
- check(Number.isInteger(c.seconds)&&c.seconds>=1&&c.seconds<=600,'test duration must be 1..600 seconds');
+ check(Number.isInteger(c.seconds)&&c.seconds>=0&&c.seconds<=600,'duration must be 0 (continuous) or 1..600 seconds');
  check(Number.isInteger(c.batch)&&c.batch>=1&&c.batch<=65536,'batch must be 1..65536');
  check(Array.isArray(c.command)&&c.command.length>0&&c.command.every(x=>typeof x==='string'),'explicit worker command required');
  return c;
@@ -48,7 +48,7 @@ async function run(input,{event=()=>{},reportFile,transport,spawnWorker=spawn}={
    summary.accepted=session.accepted;summary.rejected=session.rejected;
    summary.localHashesPerSecond=summary.hashes/summary.elapsedSeconds;summary.finishedAt=new Date().toISOString();
    log('stopped',{reason,error:summary.error,accepted:summary.accepted,rejected:summary.rejected});
-   // Child has a separate hard lifetime as well as EOF handling.
+   // EOF stops both continuous and bounded workers; kill an unresponsive child.
    stopTimer=setTimeout(()=>{worker?.kill();finalize()},3000);
    const finalize=()=>{if(!stopTimer)return;clearTimeout(stopTimer);stopTimer=null;
     if(reportFile){fs.mkdirSync(path.dirname(reportFile),{recursive:true});fs.writeFileSync(reportFile,JSON.stringify(summary,null,2)+'\n')}
@@ -121,7 +121,7 @@ async function run(input,{event=()=>{},reportFile,transport,spawnWorker=spawn}={
     pump();
    }catch(e){finish('session-error',e)}},50);
    lastStats=performance.now();statsTimer=setInterval(()=>{const now=performance.now(),elapsed=(now-lastStats)/1000;log('stats',{localHashesPerSecond:(summary.hashes-lastHashes)/elapsed,cpuHashesPerSecond:(summary.cpuHashes-lastCPUHashes)/elapsed,gpuHashesPerSecond:(summary.gpuHashes-lastGPUHashes)/elapsed,hashes:summary.hashes,accepted:session.accepted,rejected:session.rejected});lastHashes=summary.hashes;lastCPUHashes=summary.cpuHashes;lastGPUHashes=summary.gpuHashes;lastStats=now},1000);
-   deadlineTimer=setTimeout(()=>finish('duration-limit'),config.seconds*1000);
+   if(config.seconds>0)deadlineTimer=setTimeout(()=>finish('duration-limit'),config.seconds*1000);
   }catch(e){finish('startup-error',e)}
  });
 }

@@ -28,6 +28,7 @@ function verifyNative(directory){
 function makeConfig(options,environment=process){
  check(environment.platform==='darwin'&&environment.arch==='arm64','Run this core natively on an Apple Silicon Mac');
  const seconds=Number(options.seconds??180),batch=Number(options.batch??65536);
+ check(Number.isInteger(seconds)&&seconds>=1&&seconds<=600,'test duration must be 1..600 seconds');
  const cpuThreads=Number(options['cpu-threads']??0);
  check(Number.isInteger(cpuThreads)&&cpuThreads>=0&&cpuThreads<=8,'CPU threads must be 0..8');
  // Validate the user values before reading artifacts or starting any process.

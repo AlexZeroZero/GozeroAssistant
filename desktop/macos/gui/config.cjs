@@ -2,7 +2,7 @@
 const fs=require('node:fs/promises'),path=require('node:path');
 const {validWallet}=require('../../src/noid.cjs');
 const GPU_ID='apple-metal';
-const DEFAULT={wallet:'',worker:'GozeroMac',pool:'innovlab',host:'hk2.innovlab.cc',port:19601,transport:'tls',cpuThreads:0,seconds:180,language:'zh',theme:'dark',interval:2000,stopOnThermal:true};
+const DEFAULT={wallet:'',worker:'GozeroMac',pool:'innovlab',host:'hk2.innovlab.cc',port:19601,transport:'tls',cpuThreads:0,seconds:0,language:'zh',theme:'dark',interval:2000,stopOnThermal:true};
 function validate(input){
  if(!input||typeof input!=='object'||Array.isArray(input))throw Error('配置格式无效');
  const c={...DEFAULT,...Object.fromEntries(Object.keys(DEFAULT).filter(k=>Object.hasOwn(input,k)).map(k=>[k,input[k]]))};
@@ -13,7 +13,9 @@ function validate(input){
  if(typeof c.host!=='string'||c.host.length>253||!/^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/.test(c.host))throw Error('矿池主机名无效，不要填写协议或路径');
  if(!Number.isInteger(c.port)||c.port<1||c.port>65535)throw Error('矿池端口无效');
  if(![0,2,4,8].includes(c.cpuThreads))throw Error('CPU 线程数无效');
- if(![60,180,300,600].includes(c.seconds))throw Error('本次时长需要 1、3、5 或 10 分钟');
+ if(![0,60,180,300,600].includes(c.seconds))throw Error('运行时长配置无效');
+ // Migrate prior test profiles to continuous mining without changing other preferences.
+ c.seconds=0;
  if(!['zh','en'].includes(c.language))throw Error('语言设置无效');
  if(!['dark','light'].includes(c.theme)||![1000,2000,5000].includes(c.interval)||typeof c.stopOnThermal!=='boolean')throw Error('偏好设置无效');
  return c;

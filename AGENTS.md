@@ -95,3 +95,15 @@ URL/tag and ZIP filename; disclose actual version/new hash in CURRENT-VERSION.
 Keep an actual version source tag (mac-v0.1.5), validate all assets before old
 release deletion, and preserve Windows/main. This is explicit replacement
 permission; no additional approval is needed.
+
+
+Latest user request supersedes every prior GUI session-bound requirement:
+Mac 0.1.6 is continuous mining, with no 10-minute limit. GUI profiles migrate
+legacy duration values to zero; the pool controller and native worker interpret
+zero as continuous. Offline benchmarks and the research CLI remain bounded.
+Keep Stop, Quit, thermal protection, EOF cleanup and the original fee ledger.
+M3 same-session hidden run passed 660.453 seconds, 33 accepted / 0 rejected;
+this verifies removal of the time limit, not multi-day stability. Desktop is
+0.1.6, settings preserved, old 0.1.5 in Trash. Publication retains the original
+release/download URL and user JPG section; only duration-related body/README
+wording changes. Current package metadata is in CURRENT-VERSION and SHA256SUMS.

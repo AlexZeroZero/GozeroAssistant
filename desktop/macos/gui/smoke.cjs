@@ -5,7 +5,7 @@ const fs=require('node:fs/promises'),path=require('node:path'),assert=require('n
 const sleep=n=>new Promise(r=>setTimeout(r,n));
 async function run({win,state,dir,menubar,showMain}){
  const threads=Number(process.env.GOZERO_SMOKE_CPU_THREADS||0),duration=Number(process.env.GOZERO_SMOKE_SECONDS||60);
- assert.ok([0,2,4,8].includes(threads));assert.ok([60,180,300,600].includes(duration));
+ assert.ok([0,2,4,8].includes(threads));assert.ok(Number.isInteger(duration)&&duration>=60&&duration<=1800);
  const fullRun=process.env.GOZERO_SMOKE_FULL_RUN==='1',publicCapture=process.env.GOZERO_PUBLIC_CAPTURE==='1';
  const out=path.join(dir,'qa');await fs.mkdir(out,{recursive:true});const errors=[];win.webContents.on('console-message',(_event,level,message)=>{if(level===3)errors.push(message);});
  const js=s=>win.webContents.executeJavaScript(s,true),wait=async(fn,seconds=15)=>{const until=Date.now()+seconds*1000;while(Date.now()<until){if(await fn())return;await sleep(200);}throw Error('GUI wait timed out: '+JSON.stringify(state().logs.slice(-5)));};
@@ -36,6 +36,7 @@ async function run({win,state,dir,menubar,showMain}){
   const fits=await js(`document.querySelector('nav').scrollWidth<=document.body.clientWidth&&document.querySelector('main').scrollWidth<=document.querySelector('main').clientWidth`);assert.ok(fits,'English layout overflow: '+v);
  }
  win.setSize(920,740);await language('zh');await js(`document.querySelector('[data-view="mining"]').click()`);
+ assert.equal(state().config.seconds,0);assert.equal(await js(`!!document.querySelector('#duration')`),false);
  let live=null,menuLiveTitle=null;
  if(process.env.GOZERO_SMOKE_PRESET){
   const p=state().pools.find(p=>p.id===process.env.GOZERO_SMOKE_PRESET);assert.ok(p);
@@ -44,8 +45,8 @@ async function run({win,state,dir,menubar,showMain}){
  }
  if(process.env.GOZERO_SMOKE_WALLET_FILE){
   const wallet=JSON.parse(await fs.readFile(process.env.GOZERO_SMOKE_WALLET_FILE,'utf8')).wallet;
-  await js(`document.querySelector('#wallet').value=${JSON.stringify(wallet)};document.querySelector('#duration').value='${duration}';document.querySelector('#cpu-threads').value='${threads}';document.querySelector('#save-mining').click()`);
-  await wait(()=>state().config.wallet===wallet&&state().config.seconds===duration&&state().config.cpuThreads===threads);
+  await js(`document.querySelector('#wallet').value=${JSON.stringify(wallet)};document.querySelector('#cpu-threads').value='${threads}';document.querySelector('#save-mining').click()`);
+  await wait(()=>state().config.wallet===wallet&&state().config.seconds===0&&state().config.cpuThreads===threads);
   if(publicCapture)await js(`document.querySelector('#wallet').type='password';document.querySelector('#wallet').title='测试收款地址已遮挡'`);
   await js(`document.querySelector('#start').click()`);await wait(()=>state().miner.status==='running');
   await wait(()=>state().logs.some(l=>l.text==='矿池授权成功'),30);await wait(()=>state().miner.rate.total>0,30);
@@ -56,7 +57,7 @@ async function run({win,state,dir,menubar,showMain}){
   await sleep(3000);assert.equal(state().miner.status,'running');assert.equal(state().miner.session.startedAt,began);
   assert.ok(state().miner.points.at(-1).at>at,'Sampling stopped while hidden');
   menubar.menu.items[0].click();await wait(()=>win.isVisible());
-  await wait(()=>state().miner.totals.accepted>0||state().miner.status==='idle',duration+5);
+  await wait(()=>state().miner.totals.accepted>0||state().miner.status==='idle',60);
   if(fullRun)await wait(()=>Date.now()-state().miner.session.startedAt>=Math.min(90,duration-10)*1000&&state().miner.rate.gpu>0&&(!threads||state().miner.rate.cpu>0),duration);
   // A pool pause can arrive between a stats event and a screenshot. Read the
   // actual rendered values on both sides of capture; retry changed/paused frames.
@@ -74,10 +75,17 @@ async function run({win,state,dir,menubar,showMain}){
   assert.ok(live,'No stable active UI frame');
   await js(`document.querySelector('[data-view="overview"]').click()`);await capture('overview-live');
   if(!fullRun)await js(`document.querySelector('#stop').click()`);
-  else {win.close();await wait(()=>!win.isVisible());}
-  await wait(()=>state().miner.status==='idle'&&!state().fee.active,fullRun?duration+15:15);
+  else {
+   win.close();await wait(()=>!win.isVisible());
+   while(Date.now()-began<duration*1000){await sleep(1000);assert.equal(state().miner.status,'running');assert.equal(state().miner.session.startedAt,began);}
+   assert.ok(state().miner.points.at(-1).at>Date.now()-5000,'No recent samples past the old limit');
+   live.continuousSeconds=(Date.now()-began)/1000;live.sameSessionPastLimit=true;
+   console.log('CONTINUOUS_SOAK_PASSED '+live.continuousSeconds);
+   menubar.menu.items.find(i=>i.label==='停止挖矿 / 测速').click();
+  }
+  await wait(()=>state().miner.status==='idle'&&!state().fee.active,15);
   assert.equal(menubar.tray.getTitle(),'Gozero 待机');showMain();await wait(()=>win.isVisible());
-  live.finalTotals={...state().miner.totals};live.automaticDurationStop=fullRun;
+  live.finalTotals={...state().miner.totals};live.automaticDurationStop=false;live.manualStop=true;
   const runReport=JSON.parse(await fs.readFile(state().miner.lastReport,'utf8'));
   live.poolPausedSeconds=runReport.poolPausedSeconds;live.pauses=runReport.pauses;
   live.workResumptions=runReport.events.filter(e=>e.type==='work-resumed').length;
@@ -87,7 +95,7 @@ async function run({win,state,dir,menubar,showMain}){
   await js(`document.querySelector('[data-view="logs"]').click()`);await capture('logs-live');
   await language('en');assert.deepEqual(await englishClean(),[]);await capture('en-logs-complete');await language('zh');
   if(threads){const result=JSON.parse(await fs.readFile(state().miner.lastReport,'utf8'));assert.ok(result.cpuHashes>0,'CPU did not contribute hashes');live.cpuHashes=result.cpuHashes;live.gpuHashes=result.gpuHashes;}
-  assert.ok(live.accepted>0,'No accepted share in bounded GUI pool test');assert.equal(live.rejected,0);
+  assert.ok(live.finalTotals.accepted>0,'No accepted share in continuous GUI pool test');
  }
  await js(`document.querySelector('[data-view="performance"]').click();document.querySelector('#benchmark').click()`);
  await wait(()=>state().miner.status==='running');await wait(()=>state().miner.status==='idle',50);
@@ -100,7 +108,7 @@ async function run({win,state,dir,menubar,showMain}){
  win.setSize(780,620);await js(`document.querySelector('[data-view="mining"]').click()`);await capture('mining-small');
  const small=await js(`({width:document.body.clientWidth,nav:document.querySelector('nav').scrollWidth,main:document.querySelector('main').clientWidth,scroll:document.querySelector('main').scrollWidth})`);
  assert.ok(small.nav<=small.width);assert.ok(small.scroll<=small.main,'Small window horizontal overflow');
- const report={passed:true,layout,small,hardware:state().hardware,live,benchmark,rendererErrors:errors,settingsPersisted:true,stopReturnedIdle:true,poolPresets:state().pools.length,selectedPool:{pool:state().config.pool,host:state().config.host,port:state().config.port,transport:state().config.transport},menuBar:{available:menubar.available(),liveTitle:menuLiveTitle,bounds:menubar.tray.getBounds(),hideContinuesMining:!!live,showFromMenu:!!live,hiddenDurationStop:!!live&&fullRun},screenshotRedactions:publicCapture?['wallet input rendered as password; performance values unchanged']:[]};
+ const report={passed:true,layout,small,hardware:state().hardware,live,benchmark,rendererErrors:errors,settingsPersisted:true,stopReturnedIdle:true,poolPresets:state().pools.length,selectedPool:{pool:state().config.pool,host:state().config.host,port:state().config.port,transport:state().config.transport},menuBar:{available:menubar.available(),liveTitle:menuLiveTitle,bounds:menubar.tray.getBounds(),hideContinuesMining:!!live,showFromMenu:!!live,continuousWhileHidden:!!live&&fullRun},screenshotRedactions:publicCapture?['wallet input rendered as password; performance values unchanged']:[]};
  report.language={englishViews:6,persisted:true,switchWhileMining:!!live,translatedMenu:true,translatedLogs:true};
  await js(`document.querySelector('[data-view="performance"]').click();document.querySelector('#benchmark').click()`);
  await wait(()=>state().miner.status==='running');

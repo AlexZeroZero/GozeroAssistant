@@ -87,7 +87,7 @@ GPU＋8 个 CPU 线程|GPU + 8 CPU threads
 费用规则|Fees
 内核费 0% · 软件服务费 0.5%|Kernel 0% · Service fee 0.5%
 按有效运行时间分时累计|Accrued over eligible runtime
-保存配置后手动启动；到时自动停止|Save and start manually; stops at the time limit
+保存配置后手动启动；持续运行|Save and start manually; continuous mining
 保存配置|Save
 ▶ 一键挖矿|▶ Start mining
 ■ 停止|■ Stop
@@ -106,7 +106,7 @@ GPU＋8 个 CPU 线程|GPU + 8 CPU threads
 运行日志|Logs
 最近12条|Last 12 entries
 全部日志 ↗|All logs ↗
-Mac 测试版每次最多运行10分钟，不自动续跑。软件服务费沿用原版分时账本，短任务余额会累计；收益按矿池结算。|Sessions are limited to 10 minutes and do not restart automatically. The original service-fee ledger carries balances across short runs. Payouts are determined by the pool.
+正式版持续挖矿，无运行时长限制；手动停止、退出应用或触发保护时结束。软件服务费沿用原版分时账本；收益按矿池结算。|Continuous mining has no session time limit. Stop manually, quit, or let a protection stop the task. The original service-fee ledger remains active; payouts are determined by the pool.
 打开结果目录|Open results
 导出日志|Export logs
 偏好与保护|Settings
@@ -121,7 +121,7 @@ Mac 测试版每次最多运行10分钟，不自动续跑。软件服务费沿�
 读取 macOS 系统热状态，不冒充摄氏温度。温度与功耗传感器未接入时显示 —。|Uses the macOS thermal state, not a Celsius estimate. Unavailable temperature and power sensors show —.
 保存设置|Save settings
 任务生命周期|Window and task behavior
-关闭主窗口会收起到顶部菜单栏，当前任务继续运行。菜单栏显示实时算力，可打开窗口、停止任务或退出助手；退出或按 ⌘Q 会停止内核。达到所选时限仍会自动停止。应用启动、系统唤醒均不会自动开始新的挖矿任务。|Closing the window hides it to the menu bar and keeps the task running. Use the menu bar to view hashrate, reopen, stop or quit. Quit or ⌘Q stops the miner. The session time limit still applies. Launching or waking the app never starts a new task.
+关闭主窗口会收起到顶部菜单栏，当前任务继续运行。菜单栏显示实时算力，可打开窗口、停止任务或退出助手；退出或按 ⌘Q 会停止内核。挖矿不设运行时长上限，温度保护仍有效。应用启动、系统唤醒均不会自动开始新的挖矿任务。|Closing the window hides it to the menu bar and keeps the task running. Use the menu bar to view hashrate, reopen, stop or quit. Quit or ⌘Q stops the miner. Mining has no session time limit; thermal protection remains active. Launching or waking the app never starts a new task.
 配置与运行结果保存在本机。此 Mac 版使用独立配置目录，不共享 Windows 设置。|Settings and results stay on this Mac in a separate profile from Windows.
 打开配置目录|Open profile
 官方网站 ↗|Website ↗
@@ -263,7 +263,7 @@ Innovlab 必须使用 TLS；TCP 兼容仅限 Suprnova|Innovlab requires TLS; TCP
 矿池主机名无效，不要填写协议或路径|Invalid hostname; omit the scheme and path
 矿池端口无效|Invalid pool port
 CPU 线程数无效|Invalid CPU thread count
-本次时长需要 1、3、5 或 10 分钟|Duration must be 1, 3, 5 or 10 minutes
+运行时长配置无效|Invalid session duration setting
 偏好设置无效|Invalid preferences
 语言设置无效|Invalid language
 已有运行任务|A task is already running
@@ -280,6 +280,9 @@ CPU 线程数无效|Invalid CPU thread count
 调度异常，停止全部任务：|Scheduler error; stopping all tasks: 
 服务费调度失败|Service-fee scheduler failed
 配置无法读取，已使用默认值；原文件保留。|Settings could not be read; using defaults. Original file preserved.
+持续运行 · 无时限|Continuous · No time limit
+持续挖矿，无时限；可手动停止或从菜单栏退出|Continuous mining; stop manually or quit from the menu bar
+离线测速超时|Offline benchmark timed out
 语言|Language
 `.trim().split('\n').map(row=>row.split('|'));
 const dictionary=Object.fromEntries(entries),ordered=Object.keys(dictionary).sort((a,b)=>b.length-a.length);

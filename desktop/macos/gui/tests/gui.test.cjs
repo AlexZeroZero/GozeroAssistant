@@ -11,6 +11,18 @@ async function temp(fn){await fs.mkdir(base,{recursive:true});const dir=await fs
 function fake(){const child=new EventEmitter();child.stdout=new PassThrough();child.stderr=new PassThrough();child.kill=()=>{queueMicrotask(()=>child.emit('close',null));return true;};return child;}
 const config=()=>miningConfig({...DEFAULT,wallet:ADDRESSES.NOID});
 
+test('legacy timed profiles migrate to continuous mode without changing wallet or preferences',()=>temp(async dir=>{
+ for(const seconds of [60,180,300,600]){
+  const legacy={...DEFAULT,seconds,wallet:ADDRESSES.NOID,cpuThreads:4,language:'en'};
+  await fs.writeFile(path.join(dir,'settings.json'),JSON.stringify(legacy));
+  const store=new Store(dir);await store.load();
+  assert.deepEqual(store.value,{...legacy,seconds:0});assert.equal(store.warning,null);
+  assert.equal(JSON.parse(await fs.readFile(store.file,'utf8')).seconds,seconds,'Loading does not overwrite user settings');
+ }
+ assert.equal(DEFAULT.seconds,0);
+ assert.equal(t('持续运行 · 无时限','en'),'Continuous · No time limit');
+}));
+
 test('language persists independently and preserves protocol values in translated logs',()=>temp(async dir=>{
  const store=new Store(dir);await store.save({...DEFAULT,language:'en',cpuThreads:4});const next=new Store(dir);await next.load();
  assert.equal(next.value.language,'en');assert.equal(next.value.cpuThreads,4);assert.throws(()=>validate({...DEFAULT,language:'xx'}),/语言/);
@@ -50,7 +62,7 @@ test('menu bar actions keep show, stop and quit separate',async()=>{
 });
 test('configuration validates wallet checksum and excludes executable/argument injection',()=>{
  assert.equal(validate(DEFAULT).cpuThreads,0);assert.throws(()=>miningConfig(DEFAULT),/收款地址/);
- for(const patch of [{wallet:'o1'+'q'.repeat(58)},{host:'example.com;whoami'},{host:'https://example.com'},{port:0},{cpuThreads:32},{seconds:0},{seconds:601},{worker:'$(id)'},{stopOnThermal:'false'}])assert.throws(()=>validate({...DEFAULT,...patch}));
+ for(const patch of [{wallet:'o1'+'q'.repeat(58)},{host:'example.com;whoami'},{host:'https://example.com'},{port:0},{cpuThreads:32},{seconds:-1},{seconds:601},{worker:'$(id)'},{stopOnThermal:'false'}])assert.throws(()=>validate({...DEFAULT,...patch}));
  assert.deepEqual(miningConfig({...DEFAULT,wallet:ADDRESSES.NOID}).selected,[GPU_ID]);
 });
 test('settings persist atomically; corrupt settings stay on disk until explicit save',()=>temp(async dir=>{
@@ -65,9 +77,9 @@ test('cancel while setup awaits filesystem prevents any child launch',()=>temp(a
  let spawned=0;const miner=new Miner(dir,dir,()=>{},{spawn:()=>{spawned++;return fake();},verify:()=>({executable:'native',flag:'--metal-source',metal:'shader'})});
  const pending=miner.start(config(),{},false);await miner.stop();await assert.rejects(pending,/取消/);assert.equal(spawned,0);assert.equal(miner.status,'idle');
 }));
-test('miner runs isolated bounded child; rejects duplicate start; stop cleans config',()=>temp(async dir=>{
+test('miner runs isolated continuous child; rejects duplicate start; stop cleans config',()=>temp(async dir=>{
  const child=fake();let args,opts;const miner=new Miner(dir,dir,()=>{},{spawn:(_e,a,o)=>{args=a;opts=o;return child;},verify:()=>({executable:'native',flag:'--metal-source',metal:'shader'})});
- await miner.start(config(),{},false);const cfg=JSON.parse(await fs.readFile(args[1],'utf8'));assert.equal(cfg.wallet,ADDRESSES.NOID);assert.ok(cfg.seconds<=600);assert.equal(cfg.command.at(-1),'0');assert.equal(opts.stdio[0],'ignore');
+ await miner.start(config(),{},false);const cfg=JSON.parse(await fs.readFile(args[1],'utf8'));assert.equal(cfg.wallet,ADDRESSES.NOID);assert.equal(cfg.seconds,0);assert.equal(cfg.command[cfg.command.indexOf('--worker-seconds')+1],'0');assert.equal(cfg.command.at(-1),'0');assert.equal(opts.stdio[0],'ignore');
  await assert.rejects(miner.start(config(),{},false),/已有/);
  child.stdout.write(JSON.stringify({type:'stats',localHashesPerSecond:2e6,cpuHashesPerSecond:0.2e6,gpuHashesPerSecond:1.8e6,accepted:3,rejected:0})+'\n');assert.equal(miner.rate.total,2e6);assert.equal(miner.jobs.get(GPU_ID).telemetry.hash,2e6);
  await miner.stop();assert.equal(miner.status,'idle');await assert.rejects(fs.stat(args[1]),{code:'ENOENT'});
@@ -98,5 +110,6 @@ test('original service fee ledger and recipient transition remain active',()=>te
  const cfg=config();let seen;const miner={status:'idle',jobs:new Map(),async start(c){seen=c;this.status='running';this.jobs.set(GPU_ID,{status:'running',telemetry:{hash:1,at:Date.now()}});},async stop(){this.status='idle';}};
  const fee=new FeeController(miner,dir,()=>{},()=>{});const key=fee.ledger.key('NOID',cfg.wallets.NOID);fee.ledger.credit(key,12000);
  await fee.start(cfg,{gpus:[{id:GPU_ID}]});assert.equal(fee.phase,'service');assert.equal(seen.worker,'GozerService');assert.equal(seen.wallets.NOID,ADDRESSES.NOID);assert.equal(fee.snapshot().rate,0.005);
- await fee.stop();assert.equal(fee.active,false);assert.equal(miner.status,'idle');assert.ok((await fs.readFile(path.join(dir,'service-fee-ledger.json'),'utf8')).includes('entries'));
+ assert.equal(seen.seconds,0);await fee.transition('user');assert.equal(fee.phase,'user');assert.equal(seen.seconds,0);assert.equal(seen.worker,cfg.worker);
+ assert.equal(fee.active,true);await fee.stop();assert.equal(fee.active,false);assert.equal(miner.status,'idle');assert.ok((await fs.readFile(path.join(dir,'service-fee-ledger.json'),'utf8')).includes('entries'));
 }));

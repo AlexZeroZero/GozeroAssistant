@@ -4,7 +4,7 @@ const fs=require('node:fs/promises'),path=require('node:path'),crypto=require('n
 const {verifyNative}=require('../../experiments/noid-apple/miner_cli.cjs');
 const {GPU_ID}=require('./config.cjs');
 class Miner extends EventEmitter{
- constructor(dir,nativeDir,log,deps={}){super();this.dir=dir;this.nativeDir=nativeDir;this.log=log;this.spawn=deps.spawn||spawn;this.verify=deps.verify||verifyNative;this.status='idle';this.jobs=new Map();this.child=null;this.epoch=0;this.serial=0;this.points=[];this.totals={accepted:0,rejected:0,submitted:0};this.rate={total:null,cpu:null,gpu:null};this.done=Promise.resolve();this.bound=0;this.lastReport=null;}
+ constructor(dir,nativeDir,log,deps={}){super();this.dir=dir;this.nativeDir=nativeDir;this.log=log;this.spawn=deps.spawn||spawn;this.verify=deps.verify||verifyNative;this.status='idle';this.jobs=new Map();this.child=null;this.epoch=0;this.serial=0;this.points=[];this.totals={accepted:0,rejected:0,submitted:0};this.rate={total:null,cpu:null,gpu:null};this.done=Promise.resolve();this.lastReport=null;}
  snapshot(){return{status:this.status,workState:this.workState,session:this.session,rate:this.rate,totals:this.totals,points:this.points,lastReport:this.lastReport,jobs:[...this.jobs.values()]};}
  update(){this.emit('update');}
  signal(child,signal){try{if(process.platform==='darwin'&&child.pid)process.kill(-child.pid,signal);else child.kill(signal);}catch(e){if(e.code!=='ESRCH')this.log('停止',e.message);}}
@@ -21,10 +21,8 @@ class Miner extends EventEmitter{
    let executable=path.join(this.nativeDir,'node'),args;
    if(benchmark){executable=native.executable;args=[native.flag,native.metal,'--search-seconds','30','--cpu-threads',String(cfg.cpuThreads)];}
    else{
-    const remaining=this.bound?Math.ceil((this.bound-Date.now())/1000):cfg.seconds;
-    if(remaining<=0)throw Error('本次运行时限已到');
-    const seconds=Math.max(1,Math.min(600,remaining));
-    const command=[native.executable,native.flag,native.metal,'--worker-seconds',String(seconds+30),'--cpu-threads',String(cfg.cpuThreads)];
+    const seconds=0; // Explicit continuous mode in both controller and native worker.
+    const command=[native.executable,native.flag,native.metal,'--worker-seconds','0','--cpu-threads',String(cfg.cpuThreads)];
     const c={pool:cfg.pool,host:cfg.host,port:cfg.port,transport:cfg.transport||'tls',wallet:cfg.wallets.NOID,worker:cfg.worker,seconds,batch:65536,command,cwd:this.nativeDir};
     input=path.join(this.dir,'run-'+id+'.json');await fs.writeFile(input,JSON.stringify(c),{mode:0o600});
     args=[path.resolve(__dirname,'../../experiments/noid-apple/pool_runner.cjs'),input,report];

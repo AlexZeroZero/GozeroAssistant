@@ -19,6 +19,22 @@ def request(**overrides):
 
 
 class WorkerTests(unittest.TestCase):
+    def test_continuous_worker_waits_for_input_then_exits_on_eof(self):
+        process=subprocess.Popen(COMMAND+['--worker-seconds','0','--cpu-threads','4'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+        try:
+            with self.assertRaises(subprocess.TimeoutExpired):
+                process.wait(timeout=2)
+            stdout,stderr=process.communicate(json.dumps(request())+'\n',timeout=10)
+            self.assertEqual(process.returncode,0,stderr)
+            rows=[json.loads(line) for line in stdout.splitlines()]
+            self.assertEqual(rows[0]['event'],'ready')
+            self.assertEqual(rows[1]['count'],4)
+            self.assertEqual(len(rows[1]['candidates']),4)
+            self.assertFalse(any(row.get('event')=='lifetime-ended' for row in rows))
+        finally:
+            if process.poll() is None:process.kill();process.wait()
+            process.stdin.close();process.stdout.close();process.stderr.close()
+
     def test_cpu_chunk_reservations_cover_every_nonce_once(self):
         data=json.dumps(request(count=1021,capacity=128))+'\n'
         run=subprocess.run(COMMAND+['--worker-seconds','10','--cpu-threads','8'],input=data,capture_output=True,text=True,timeout=15)
