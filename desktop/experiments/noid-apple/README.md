@@ -184,6 +184,59 @@ CPU-verified worker output, overflow rejection, EOF and independent lifetime.
 The native process only computes assigned batches; no orphan background mining
 continues after EOF or expiry. The macOS graphical assistant remains pending.
 
+## Reproducible Metal tuning
+
+On the M3, three alternating 15-second samples per implementation measured
+median wall rates of 1.241916 MH/s baseline and 1.597495 MH/s optimized:
+**28.63% improvement**. Individual optimized samples were 1.597244–1.597781
+MH/s. These are same-device synthetic search results. The measurements and
+correctness reports are retained in
+[optimization evidence](evidence/mac-m3-optimization-2026-10-06.json).
+
+The subsequent 180-second Innovlab TLS run measured a local average of
+1.281108 MH/s with **20 submitted / 20 accepted / 0 rejected / 0 pending**.
+This includes Windows-to-Mac SSH scheduling and pool pauses; it is separate
+from the controlled A/B measurement. See
+[optimized live evidence](evidence/mac-m3-optimized-innovlab-2026-10-06.json).
+
+The optimized Metal path splits 32-bit carryless multiplication into three
+16-bit products. Three interleaved bit planes use ordinary 32-bit integer
+multiplication without `mulhi`; a plane has at most six summed terms, below
+the eight needed for a carry to corrupt the next retained bit. Full and partial
+round loops are specialized separately. PMULL and the original portable CPU
+implementation remain independent verification paths. Define
+`GZ_METAL_BASELINE=1` in the Metal source to select the original arithmetic
+and round schedule for comparison on the same host executable.
+
+`build_mac.py` additionally tests the new arithmetic in a portable native
+library against the independent Python reference. Metal startup checks all
+16,384 field basis pairs, 4,096 random products, 16 dense/zero products,
+192 digests across random headers, the published fixtures, counter carry,
+candidate overflow retry and strict target comparison. These checks also
+precede worker readiness. CPU verification of mining candidates is retained.
+
+On the Mac, after a normal runtime-source build:
+
+```sh
+python3 benchmark_mac.py --seconds 15 --rounds 3 --report artifacts/ab.json
+```
+
+This alternates baseline/optimized order, validates 4,096 complete digests
+per sample, warms up eight batches, then measures candidate-only search with
+65,536 nonces per dispatch. GPU and wall time, actual hashes, checked candidates,
+hardware, source/binary hashes and all samples are retained. The reported
+speedup compares medians on the same device; it is an offline synthetic
+measurement, not pool-side hashrate. Each sample is limited to 1–60 seconds
+and the harness to 2–10 rounds. `--threadgroup` is an explicit tuning override;
+the default remains Metal's reported SIMD width, with runtime validation.
+
+The native test ZIP includes `Run-Performance-Test.command`: a preheated
+30-second search benchmark with no pool connection. Read
+`metalSearch.hashesPerSecondWall / 1000000` for MH/s. The existing 32-candidate
+quick check is dominated by dispatch overhead and must not be called sustained
+mining speed. A group-chat claim of 30–50 MH/s on other M-series devices has
+no supplied benchmark or share evidence and remains unverified.
+
 ## Remaining acceptance gates
 
 1. Extend the verified M3 result to representative base/Pro/Max/Ultra devices

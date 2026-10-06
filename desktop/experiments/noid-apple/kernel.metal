@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "dispatch.h"
 
+// Startup arithmetic differential test, including dense carry-heavy inputs.
+kernel void noid_multiply(device const U* pairs [[buffer(0)]],
+                         device U* output [[buffer(1)]], uint index [[thread_position_in_grid]]) {
+    output[index]=gm(pairs[2*index],pairs[2*index+1]);
+}
+
 // Hash batches are bounded by the host. Low 64 bits are counter; upper 64
 // bits are supplied by the pool verbatim. Only the host changes jobs.
 

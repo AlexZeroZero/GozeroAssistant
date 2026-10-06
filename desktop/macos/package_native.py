@@ -60,9 +60,14 @@ def main():
     files['build-selftest.json'] = (BUILD / 'selftest.json').read_bytes()
     flag = '--metal-source' if mode == 'runtime-source' else '--metallib'
     files['Run-Core-Test.command'] = LAUNCHER.replace('__METAL_FLAG__', flag).replace('__METAL_FILE__', metal_name).encode('utf-8')
+    performance = LAUNCHER.replace('内核自检 / 短基准', '内核自检 / 30秒大批次算力测试')
+    performance = performance.replace('--benchmark --count 32', '--benchmark --count 4096 --search-seconds 30 --search-batch 65536')
+    files['Run-Performance-Test.command'] = performance.replace('__METAL_FLAG__', flag).replace('__METAL_FILE__', metal_name).encode('utf-8')
     files['README.txt'] = ('Gozero NOID Apple Silicon 内核测试包\n\n'
         '这是已通过构建机 CPU / Metal 自检的独立内核测试程序，不是完整 Gozero助手，不能连接矿池。\n'
         '双击 Run-Core-Test.command，或在终端执行 /bin/zsh Run-Core-Test.command。\n'
+        '测大批次算力请双击 Run-Performance-Test.command；预热后测量30秒，查看 metalSearch.hashesPerSecondWall（H/s）。\n'
+        '除以1000000得到 MH/s；32候选短测的 metalDigestBatch 数值不代表持续算力。\n'
         '无需安装 Python 或 Xcode；程序使用系统 Metal / Foundation 框架。\n'
         '启动后先校验向量，再运行少量候选短基准；结果保存在 results/。\n'
         '测试包不包含开发者分发签名或公证；不修改系统安全设置。\n'
@@ -77,7 +82,7 @@ def main():
             item = zipfile.ZipInfo(NAME + '/' + name)
             item.create_system = 3
             item.compress_type = zipfile.ZIP_DEFLATED
-            mode = 0o755 if name in ('noid-apple-check', 'Run-Core-Test.command') else 0o644
+            mode = 0o755 if name == 'noid-apple-check' or name.endswith('.command') else 0o644
             item.external_attr = (stat.S_IFREG | mode) << 16
             bundle.writestr(item, data)
     with zipfile.ZipFile(archive) as bundle:

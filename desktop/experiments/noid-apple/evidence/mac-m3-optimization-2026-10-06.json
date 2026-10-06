@@ -1,0 +1,721 @@
+{
+  "scope": "Optimization validated on one Apple M3 only; no 30-50 MH/s claim",
+  "baselineCoreRevision": "7b59a8f",
+  "selection": "16-bit three-plane carryless products; split round loops; SIMD-width threadgroup",
+  "build": {
+    "workerCount": 1,
+    "cpuSingle": {
+      "hashesPerSecond": 79506.70751509252,
+      "checksum": 3555123813,
+      "seconds": 0.05151766596827656,
+      "backend": "PMULL"
+    },
+    "maxThreadsPerThreadgroup": 1024,
+    "compiler": "21.0.0 (clang-2100.1.1.101)",
+    "count": 4096,
+    "metalRandomHeaderDigests": 192,
+    "powerWatts": null,
+    "chip": "Apple M3",
+    "cpuSelftest": "passed",
+    "gpu": "Apple M3",
+    "os": "Version 26.5.1 (Build 25F80)",
+    "metalArithmeticPairs": 20496,
+    "metalDigestBatch": {
+      "hashesPerSecondWall": 778608.6374683697,
+      "gpuSeconds": 0.004868374999205116,
+      "wallSeconds": 0.00526066601742059
+    },
+    "scope": "offline correctness and synthetic benchmark; no pool shares",
+    "threadExecutionWidth": 32,
+    "cpuFour": {
+      "seconds": 0.04067537502851337,
+      "hashesPerSecond": 100699.74762688015,
+      "checksum": 3555123813
+    },
+    "appleFamily1": true,
+    "model": "Mac15,12",
+    "metalCompilation": "runtime-source",
+    "threadgroup": 32,
+    "unifiedMemory": true,
+    "temperatureC": null,
+    "metalSelftest": "passed",
+    "pmullAvailable": true,
+    "sourceSha256": {
+      "core.h": "ecda9ccda03a78d123571b172ff714536b2d8bd617182e59f167f874a6239f74",
+      "cpu_batch.h": "630f6ba55aa61acdbb1fad6ad0b98f0d62d051c72f4cc07b14e097cfcea370f7",
+      "build_mac.py": "5b3eaf7f92eb9bf97b8e48dace4d90d8705b856a6ad72eb12ce3606f140b247a",
+      "provenance.json": "843ea774edc1d6287c0c522b94b7b59ce1474abe3f354bc81707b5f162381443",
+      "generate.py": "a647dcac416315279ac6cedcf6d2a6b95fcb9c082079983eedef87819004d789",
+      "fixtures.h": "a0a2722c60a4b6caac2c0c8b7fe07e880ae27c9abc8b30127b60b511ecf3f388",
+      "pmull_backend.cpp": "8cf684c40e21e2d293f9eca3a05e5c7098fe62b0adb81ea983148e6709cdf969",
+      "test_core.py": "f3f00156d2498b74c02244d2d0455e33853505443b3e1b4fa3ead4e8d43ce58a",
+      "benchmark_mac.py": "5b2973668b31a86a194c2a80833c8111156cba5bd1694caa876dde5ea6aba4df",
+      "kernel.metal": "dc9a713794e4c84d71dd42acfda5eef90610652224c380a6627c34698d46752f",
+      "constants.h": "7f364e85481c4b43efe72f1b760359fee15da14d423d8a145f48a06ba387ff3b",
+      "test_worker.py": "c6de9c40515773a8e48f2a01b643246a7a4da80653a743d3d172904e28af655d",
+      "mac_host.mm": "6f82dab793005fac7d41d1ef0e0131397381c540114fbe4bbb1c911cd1d1de52",
+      "dispatch.h": "19ccb05c552a38e63150eb7023a1a50e0c94431c42617e60e4e1e179b7ab60e3",
+      "test_bridge.cpp": "83314540eda0a88b762c32d2193ed458571ae1030bc797dc34816d81bac759ce",
+      "fixtures.json": "bce819b8b4f55336a272365e09430fd3009b5ce6af35ce0e97c226349891243b"
+    },
+    "binarySha256": {
+      "noid-apple-check": "99ecf8f52eb44f87c35c211ed30b3a05c39d4f38fe2d2c8f10db83a814fb68e9"
+    },
+    "metalArtifact": {
+      "name": "noid-runtime.metal",
+      "sha256": "bf2fb73c0a5730b1edfe7bac1d8564daea7b24caa47282464ff55a39f5889ff2"
+    }
+  },
+  "metadataDifferences": {
+    "provenance.json": {
+      "measuredBuildSha256": "843ea774edc1d6287c0c522b94b7b59ce1474abe3f354bc81707b5f162381443",
+      "localSha256": "4305603719a9a29c5253b167213277fd331734b52ef007d4cb380dd3796ad749",
+      "note": "Remote provenance status metadata predates the local live-pool documentation; not a compiled algorithm input. Historical build hashes are preserved."
+    }
+  },
+  "nativeDifferential": {
+    "portable": {
+      "platform": "macOS-26.5.1-arm64-arm-64bit",
+      "machine": "arm64",
+      "python": "3.12.15",
+      "librarySha256": "c26156889661d88abb0fb44e6cd5e8c2d4a995a4277c12e472d0a2000c4e00ad",
+      "tests": 10,
+      "passed": true,
+      "elapsedSeconds": 6.161250125005608,
+      "failures": [],
+      "scope": "Native library differential tests only; no Metal execution or accepted pool shares",
+      "sourceSha256": {
+        "core.h": "ecda9ccda03a78d123571b172ff714536b2d8bd617182e59f167f874a6239f74",
+        "constants.h": "7f364e85481c4b43efe72f1b760359fee15da14d423d8a145f48a06ba387ff3b",
+        "test_bridge.cpp": "83314540eda0a88b762c32d2193ed458571ae1030bc797dc34816d81bac759ce",
+        "cpu_batch.h": "630f6ba55aa61acdbb1fad6ad0b98f0d62d051c72f4cc07b14e097cfcea370f7",
+        "dispatch.h": "19ccb05c552a38e63150eb7023a1a50e0c94431c42617e60e4e1e179b7ab60e3",
+        "test_core.py": "f3f00156d2498b74c02244d2d0455e33853505443b3e1b4fa3ead4e8d43ce58a"
+      }
+    },
+    "pmull": {
+      "platform": "macOS-26.5.1-arm64-arm-64bit",
+      "machine": "arm64",
+      "python": "3.12.15",
+      "librarySha256": "57e34bec09743a5849f950ebc554d822cf069401ab486089316e7cfdeb89920b",
+      "tests": 10,
+      "passed": true,
+      "elapsedSeconds": 6.142049207999662,
+      "failures": [],
+      "scope": "Native library differential tests only; no Metal execution or accepted pool shares",
+      "sourceSha256": {
+        "core.h": "ecda9ccda03a78d123571b172ff714536b2d8bd617182e59f167f874a6239f74",
+        "constants.h": "7f364e85481c4b43efe72f1b760359fee15da14d423d8a145f48a06ba387ff3b",
+        "test_bridge.cpp": "83314540eda0a88b762c32d2193ed458571ae1030bc797dc34816d81bac759ce",
+        "cpu_batch.h": "630f6ba55aa61acdbb1fad6ad0b98f0d62d051c72f4cc07b14e097cfcea370f7",
+        "dispatch.h": "19ccb05c552a38e63150eb7023a1a50e0c94431c42617e60e4e1e179b7ab60e3",
+        "test_core.py": "f3f00156d2498b74c02244d2d0455e33853505443b3e1b4fa3ead4e8d43ce58a"
+      }
+    },
+    "gpu-arithmetic": {
+      "platform": "macOS-26.5.1-arm64-arm-64bit",
+      "machine": "arm64",
+      "python": "3.12.15",
+      "librarySha256": "70a26ad9774a916f9a0d096ebeed5b7a8b968741a0796f135bc4c29017695bf0",
+      "tests": 10,
+      "passed": true,
+      "elapsedSeconds": 6.226795292001043,
+      "failures": [],
+      "scope": "Native library differential tests only; no Metal execution or accepted pool shares",
+      "sourceSha256": {
+        "core.h": "ecda9ccda03a78d123571b172ff714536b2d8bd617182e59f167f874a6239f74",
+        "constants.h": "7f364e85481c4b43efe72f1b760359fee15da14d423d8a145f48a06ba387ff3b",
+        "test_bridge.cpp": "83314540eda0a88b762c32d2193ed458571ae1030bc797dc34816d81bac759ce",
+        "cpu_batch.h": "630f6ba55aa61acdbb1fad6ad0b98f0d62d051c72f4cc07b14e097cfcea370f7",
+        "dispatch.h": "19ccb05c552a38e63150eb7023a1a50e0c94431c42617e60e4e1e179b7ab60e3",
+        "test_core.py": "f3f00156d2498b74c02244d2d0455e33853505443b3e1b4fa3ead4e8d43ce58a"
+      }
+    }
+  },
+  "referenceTestsPassed": 8,
+  "protocolAndTransportTestsPassed": 19,
+  "nativeWorkerTestsPassed": 3,
+  "screeningNote": "Single 5-second samples for exploration, not rigorous comparisons. The final alternating A/B is the performance evidence.",
+  "screening": [
+    {
+      "variant": "baseline-128",
+      "hashesPerSecondWall": 1231694.6051789108,
+      "durationSeconds": 5.001551499939524,
+      "metalSourceSha256": "f4334c47fdf4b128647c4f3d05732d383cb2fe930169940b6902d19218468278",
+      "metalSelftest": "passed",
+      "digestCountChecked": 4096,
+      "threadgroup": 128
+    },
+    {
+      "variant": "baseline-256",
+      "hashesPerSecondWall": 1230961.1899793358,
+      "durationSeconds": 5.004531458951533,
+      "metalSourceSha256": "f4334c47fdf4b128647c4f3d05732d383cb2fe930169940b6902d19218468278",
+      "metalSelftest": "passed",
+      "digestCountChecked": 4096,
+      "threadgroup": 256
+    },
+    {
+      "variant": "baseline-64",
+      "hashesPerSecondWall": 1243143.8661609162,
+      "durationSeconds": 5.008205541991629,
+      "metalSourceSha256": "f4334c47fdf4b128647c4f3d05732d383cb2fe930169940b6902d19218468278",
+      "metalSelftest": "passed",
+      "digestCountChecked": 4096,
+      "threadgroup": 64
+    },
+    {
+      "variant": "basis-mask",
+      "hashesPerSecondWall": 1240382.6133405447,
+      "durationSeconds": 5.019354458083399,
+      "metalSourceSha256": "5cec8386e366284d651d55b69d14da601200ea533000104ced3909d05a3e6a2c",
+      "metalSelftest": "passed",
+      "digestCountChecked": 4096,
+      "threadgroup": 32
+    },
+    {
+      "variant": "cl16-lut8",
+      "hashesPerSecondWall": 975762.3094114654,
+      "durationSeconds": 5.037292332970537,
+      "metalSourceSha256": "81b97ec500cecf9ef76785a7ae97c3d712215abae66698126fd79f23aa049218",
+      "metalSelftest": "passed",
+      "digestCountChecked": 4096,
+      "threadgroup": 32
+    },
+    {
+      "variant": "cl16-six-split",
+      "hashesPerSecondWall": 1478253.3276435807,
+      "durationSeconds": 5.009674499975517,
+      "metalSourceSha256": "3c23081a2f07a0a8f8a32a031fb06255c790c4ec962ad3208f2c31364d1c8f55",
+      "metalSelftest": "passed",
+      "digestCountChecked": 4096,
+      "threadgroup": 32
+    },
+    {
+      "variant": "cl16-six",
+      "hashesPerSecondWall": 1430539.9449964513,
+      "durationSeconds": 5.0393280000425875,
+      "metalSourceSha256": "d8750f22d080588c6d1344fb1baa9bf64869d636637064ddfc411b4da64423e9",
+      "metalSelftest": "passed",
+      "digestCountChecked": 4096,
+      "threadgroup": 32
+    },
+    {
+      "variant": "cl16-split",
+      "hashesPerSecondWall": 1598318.9986993305,
+      "durationSeconds": 5.002375624957494,
+      "metalSourceSha256": "863d11b28508905f5f94abf7334ca829ab6aec860d87b9635fc94c0a50e49075",
+      "metalSelftest": "passed",
+      "digestCountChecked": 4096,
+      "threadgroup": 32
+    },
+    {
+      "variant": "cl16",
+      "hashesPerSecondWall": 1553510.1617176405,
+      "durationSeconds": 5.020104916067794,
+      "metalSourceSha256": "6cacc04034900362a640f21b55ea083c0f3b29f8d5eec9fb63f7a7a65d67e127",
+      "metalSelftest": "passed",
+      "digestCountChecked": 4096,
+      "threadgroup": 32
+    },
+    {
+      "variant": "linear-unroll",
+      "hashesPerSecondWall": 1028588.3922323416,
+      "durationSeconds": 5.033445875043981,
+      "metalSourceSha256": "a8aaf30a7952b3d58f3ffc9b12ba4f4af02311fcd49a20eb3fd4179f33ac932e",
+      "metalSelftest": "passed",
+      "digestCountChecked": 4096,
+      "threadgroup": 32
+    },
+    {
+      "variant": "lut8",
+      "hashesPerSecondWall": 867506.246299937,
+      "durationSeconds": 5.06153358402662,
+      "metalSourceSha256": "7e62bfcdb68c6c9c875db5ee9c694eaa079c51739161efccf745568f6e4c4ac5",
+      "metalSelftest": "passed",
+      "digestCountChecked": 4096,
+      "threadgroup": 32
+    },
+    {
+      "variant": "mix-unroll",
+      "hashesPerSecondWall": 1595190.9461458588,
+      "durationSeconds": 5.012184916995466,
+      "metalSourceSha256": "624231cf322f28472d051060659d316b033964e96831cede22da1d32187f8a79",
+      "metalSelftest": "passed",
+      "digestCountChecked": 4096,
+      "threadgroup": 32
+    },
+    {
+      "variant": "nibble",
+      "hashesPerSecondWall": 983067.0505146893,
+      "durationSeconds": 5.066527249990031,
+      "metalSourceSha256": "6e15d5c01a4de379f1dca5fd65691156ddbb01f785634170a852686d370e5065",
+      "metalSelftest": "passed",
+      "digestCountChecked": 4096,
+      "threadgroup": 32
+    },
+    {
+      "variant": "planes-karatsuba-split",
+      "hashesPerSecondWall": 1420058.0775222657,
+      "durationSeconds": 5.030374541063793,
+      "metalSourceSha256": "48038d0364fc8191d97e7e1f39f11bde55538e85e0ab75c2ff1ebb8ec466d1fd",
+      "metalSelftest": "passed",
+      "digestCountChecked": 4096,
+      "threadgroup": 32
+    },
+    {
+      "variant": "planes-karatsuba",
+      "hashesPerSecondWall": 1388937.9419294628,
+      "durationSeconds": 5.0015308749862015,
+      "metalSourceSha256": "b3c74ced8eb29501b2bc61b3f4ba024da1bc606485c264305f77841d55111572",
+      "metalSelftest": "passed",
+      "digestCountChecked": 4096,
+      "threadgroup": 32
+    },
+    {
+      "variant": "shift",
+      "hashesPerSecondWall": 545632.633222432,
+      "durationSeconds": 5.044624959002249,
+      "metalSourceSha256": "5fb4391e70c6a3e8667ba6cf9771a35d2841d8b080e6429b0faf7f01f07fc79e",
+      "metalSelftest": "passed",
+      "digestCountChecked": 4096,
+      "threadgroup": 32
+    },
+    {
+      "variant": "six-group-128",
+      "hashesPerSecondWall": 1586703.448788383,
+      "durationSeconds": 5.038995790993795,
+      "metalSourceSha256": "863d11b28508905f5f94abf7334ca829ab6aec860d87b9635fc94c0a50e49075",
+      "metalSelftest": "passed",
+      "digestCountChecked": 4096,
+      "threadgroup": 128
+    },
+    {
+      "variant": "six-group-256",
+      "hashesPerSecondWall": 1583611.63196824,
+      "durationSeconds": 5.007449958007783,
+      "metalSourceSha256": "863d11b28508905f5f94abf7334ca829ab6aec860d87b9635fc94c0a50e49075",
+      "metalSelftest": "passed",
+      "digestCountChecked": 4096,
+      "threadgroup": 256
+    },
+    {
+      "variant": "six-group-64",
+      "hashesPerSecondWall": 1600163.557739114,
+      "durationSeconds": 5.037565042031929,
+      "metalSourceSha256": "863d11b28508905f5f94abf7334ca829ab6aec860d87b9635fc94c0a50e49075",
+      "metalSelftest": "passed",
+      "digestCountChecked": 4096,
+      "threadgroup": 64
+    },
+    {
+      "variant": "split",
+      "hashesPerSecondWall": 1250992.1198382906,
+      "durationSeconds": 5.02917316602543,
+      "metalSourceSha256": "c4d397c9641fdb569e5187feba7be58e8fb679e2ca76ea084869452de8804053",
+      "metalSelftest": "passed",
+      "digestCountChecked": 4096,
+      "threadgroup": 32
+    }
+  ],
+  "alternatingAB": {
+    "status": "passed",
+    "scope": "offline synthetic search; no pool shares",
+    "startedUTC": "2026-10-06T05:50:14Z",
+    "binarySha256": "99ecf8f52eb44f87c35c211ed30b3a05c39d4f38fe2d2c8f10db83a814fb68e9",
+    "optimizedMetalSha256": "bf2fb73c0a5730b1edfe7bac1d8564daea7b24caa47282464ff55a39f5889ff2",
+    "secondsPerSample": 15,
+    "rounds": 3,
+    "samples": [
+      {
+        "variant": "baseline",
+        "round": 1,
+        "result": {
+          "workerCount": 1,
+          "cpuSingle": {
+            "hashesPerSecond": 79488.83402518621,
+            "checksum": 3555123813,
+            "seconds": 0.05152924999129027,
+            "backend": "PMULL"
+          },
+          "maxThreadsPerThreadgroup": 1024,
+          "compiler": "21.0.0 (clang-2100.1.1.101)",
+          "count": 4096,
+          "metalRandomHeaderDigests": 192,
+          "powerWatts": null,
+          "chip": "Apple M3",
+          "cpuSelftest": "passed",
+          "gpu": "Apple M3",
+          "os": "Version 26.5.1 (Build 25F80)",
+          "metalSearch": {
+            "hashes": 18677760,
+            "hashesPerSecondGPU": 1250135.3381089875,
+            "warmupBatches": 8,
+            "cpuCheckedCandidates": 258,
+            "hashesPerSecondWall": 1242351.3010486094,
+            "gpuSeconds": 14.940590375001193,
+            "batches": 285,
+            "batch": 65536,
+            "wallSeconds": 15.034201666014269
+          },
+          "metalArithmeticPairs": 20496,
+          "metalDigestBatch": {
+            "hashesPerSecondWall": 896296.5742475553,
+            "gpuSeconds": 0.004191500003798865,
+            "wallSeconds": 0.004569915938191116
+          },
+          "scope": "offline correctness and synthetic benchmark; no pool shares",
+          "threadExecutionWidth": 32,
+          "cpuFour": {
+            "seconds": 0.040625708061270416,
+            "hashesPerSecond": 100822.85812280592,
+            "checksum": 3555123813
+          },
+          "appleFamily1": true,
+          "model": "Mac15,12",
+          "metalCompilation": "runtime-source",
+          "threadgroup": 32,
+          "unifiedMemory": true,
+          "temperatureC": null,
+          "metalSelftest": "passed",
+          "pmullAvailable": true
+        }
+      },
+      {
+        "variant": "optimized",
+        "round": 1,
+        "result": {
+          "workerCount": 1,
+          "cpuSingle": {
+            "hashesPerSecond": 79480.02992259557,
+            "checksum": 3555123813,
+            "seconds": 0.05153495795093477,
+            "backend": "PMULL"
+          },
+          "maxThreadsPerThreadgroup": 1024,
+          "compiler": "21.0.0 (clang-2100.1.1.101)",
+          "count": 4096,
+          "metalRandomHeaderDigests": 192,
+          "powerWatts": null,
+          "chip": "Apple M3",
+          "cpuSelftest": "passed",
+          "gpu": "Apple M3",
+          "os": "Version 26.5.1 (Build 25F80)",
+          "metalSearch": {
+            "hashes": 23986176,
+            "hashesPerSecondGPU": 1610348.5270433002,
+            "warmupBatches": 8,
+            "cpuCheckedCandidates": 323,
+            "hashesPerSecondWall": 1597494.541778934,
+            "gpuSeconds": 14.895021541728056,
+            "batches": 366,
+            "batch": 65536,
+            "wallSeconds": 15.014871958992444
+          },
+          "metalArithmeticPairs": 20496,
+          "metalDigestBatch": {
+            "hashesPerSecondWall": 1093530.2224958644,
+            "gpuSeconds": 0.0033807499930844642,
+            "wallSeconds": 0.0037456669379025698
+          },
+          "scope": "offline correctness and synthetic benchmark; no pool shares",
+          "threadExecutionWidth": 32,
+          "cpuFour": {
+            "seconds": 0.04061166709288955,
+            "hashesPerSecond": 100857.7163461764,
+            "checksum": 3555123813
+          },
+          "appleFamily1": true,
+          "model": "Mac15,12",
+          "metalCompilation": "runtime-source",
+          "threadgroup": 32,
+          "unifiedMemory": true,
+          "temperatureC": null,
+          "metalSelftest": "passed",
+          "pmullAvailable": true
+        }
+      },
+      {
+        "variant": "optimized",
+        "round": 2,
+        "result": {
+          "workerCount": 1,
+          "cpuSingle": {
+            "hashesPerSecond": 79480.92889993082,
+            "checksum": 3555123813,
+            "seconds": 0.05153437505941838,
+            "backend": "PMULL"
+          },
+          "maxThreadsPerThreadgroup": 1024,
+          "compiler": "21.0.0 (clang-2100.1.1.101)",
+          "count": 4096,
+          "metalRandomHeaderDigests": 192,
+          "powerWatts": null,
+          "chip": "Apple M3",
+          "cpuSelftest": "passed",
+          "gpu": "Apple M3",
+          "os": "Version 26.5.1 (Build 25F80)",
+          "metalSearch": {
+            "hashes": 23986176,
+            "hashesPerSecondGPU": 1610500.6206513604,
+            "warmupBatches": 8,
+            "cpuCheckedCandidates": 323,
+            "hashesPerSecondWall": 1597781.4319246155,
+            "gpuSeconds": 14.893614875043568,
+            "batches": 366,
+            "batch": 65536,
+            "wallSeconds": 15.012175958952866
+          },
+          "metalArithmeticPairs": 20496,
+          "metalDigestBatch": {
+            "hashesPerSecondWall": 1100077.2049690047,
+            "gpuSeconds": 0.003390333331481088,
+            "wallSeconds": 0.0037233750335872173
+          },
+          "scope": "offline correctness and synthetic benchmark; no pool shares",
+          "threadExecutionWidth": 32,
+          "cpuFour": {
+            "seconds": 0.040638457983732224,
+            "hashesPerSecond": 100791.22592790428,
+            "checksum": 3555123813
+          },
+          "appleFamily1": true,
+          "model": "Mac15,12",
+          "metalCompilation": "runtime-source",
+          "threadgroup": 32,
+          "unifiedMemory": true,
+          "temperatureC": null,
+          "metalSelftest": "passed",
+          "pmullAvailable": true
+        }
+      },
+      {
+        "variant": "baseline",
+        "round": 2,
+        "result": {
+          "workerCount": 1,
+          "cpuSingle": {
+            "hashesPerSecond": 79148.2933070118,
+            "checksum": 3555123813,
+            "seconds": 0.05175095796585083,
+            "backend": "PMULL"
+          },
+          "maxThreadsPerThreadgroup": 1024,
+          "compiler": "21.0.0 (clang-2100.1.1.101)",
+          "count": 4096,
+          "metalRandomHeaderDigests": 192,
+          "powerWatts": null,
+          "chip": "Apple M3",
+          "cpuSelftest": "passed",
+          "gpu": "Apple M3",
+          "os": "Version 26.5.1 (Build 25F80)",
+          "metalSearch": {
+            "hashes": 18677760,
+            "hashesPerSecondGPU": 1249592.4476017838,
+            "warmupBatches": 8,
+            "cpuCheckedCandidates": 258,
+            "hashesPerSecondWall": 1241784.095152989,
+            "gpuSeconds": 14.947081375088601,
+            "batches": 285,
+            "batch": 65536,
+            "wallSeconds": 15.041068791993894
+          },
+          "metalArithmeticPairs": 20496,
+          "metalDigestBatch": {
+            "hashesPerSecondWall": 907332.2727314386,
+            "gpuSeconds": 0.004181874995992985,
+            "wallSeconds": 0.0045143329771235585
+          },
+          "scope": "offline correctness and synthetic benchmark; no pool shares",
+          "threadExecutionWidth": 32,
+          "cpuFour": {
+            "seconds": 0.04065083304885775,
+            "hashesPerSecond": 100760.54271943374,
+            "checksum": 3555123813
+          },
+          "appleFamily1": true,
+          "model": "Mac15,12",
+          "metalCompilation": "runtime-source",
+          "threadgroup": 32,
+          "unifiedMemory": true,
+          "temperatureC": null,
+          "metalSelftest": "passed",
+          "pmullAvailable": true
+        }
+      },
+      {
+        "variant": "baseline",
+        "round": 3,
+        "result": {
+          "workerCount": 1,
+          "cpuSingle": {
+            "hashesPerSecond": 79478.23005405815,
+            "checksum": 3555123813,
+            "seconds": 0.05153612501453608,
+            "backend": "PMULL"
+          },
+          "maxThreadsPerThreadgroup": 1024,
+          "compiler": "21.0.0 (clang-2100.1.1.101)",
+          "count": 4096,
+          "metalRandomHeaderDigests": 192,
+          "powerWatts": null,
+          "chip": "Apple M3",
+          "cpuSelftest": "passed",
+          "gpu": "Apple M3",
+          "os": "Version 26.5.1 (Build 25F80)",
+          "metalSearch": {
+            "hashes": 18677760,
+            "hashesPerSecondGPU": 1249748.5120315638,
+            "warmupBatches": 8,
+            "cpuCheckedCandidates": 258,
+            "hashesPerSecondWall": 1241915.5920376352,
+            "gpuSeconds": 14.94521483337303,
+            "batches": 285,
+            "batch": 65536,
+            "wallSeconds": 15.039476208970882
+          },
+          "metalArithmeticPairs": 20496,
+          "metalDigestBatch": {
+            "hashesPerSecondWall": 899807.6443362741,
+            "gpuSeconds": 0.004211166669847444,
+            "wallSeconds": 0.004552084021270275
+          },
+          "scope": "offline correctness and synthetic benchmark; no pool shares",
+          "threadExecutionWidth": 32,
+          "cpuFour": {
+            "seconds": 0.04061470797751099,
+            "hashesPerSecond": 100850.1649763928,
+            "checksum": 3555123813
+          },
+          "appleFamily1": true,
+          "model": "Mac15,12",
+          "metalCompilation": "runtime-source",
+          "threadgroup": 32,
+          "unifiedMemory": true,
+          "temperatureC": null,
+          "metalSelftest": "passed",
+          "pmullAvailable": true
+        }
+      },
+      {
+        "variant": "optimized",
+        "round": 3,
+        "result": {
+          "workerCount": 1,
+          "cpuSingle": {
+            "hashesPerSecond": 79461.33447551922,
+            "checksum": 3555123813,
+            "seconds": 0.05154708295594901,
+            "backend": "PMULL"
+          },
+          "maxThreadsPerThreadgroup": 1024,
+          "compiler": "21.0.0 (clang-2100.1.1.101)",
+          "count": 4096,
+          "metalRandomHeaderDigests": 192,
+          "powerWatts": null,
+          "chip": "Apple M3",
+          "cpuSelftest": "passed",
+          "gpu": "Apple M3",
+          "os": "Version 26.5.1 (Build 25F80)",
+          "metalSearch": {
+            "hashes": 23986176,
+            "hashesPerSecondGPU": 1610112.0236052356,
+            "warmupBatches": 8,
+            "cpuCheckedCandidates": 323,
+            "hashesPerSecondWall": 1597244.1248381329,
+            "gpuSeconds": 14.897209416703845,
+            "batches": 366,
+            "batch": 65536,
+            "wallSeconds": 15.01722600008361
+          },
+          "metalArithmeticPairs": 20496,
+          "metalDigestBatch": {
+            "hashesPerSecondWall": 1104725.3098304127,
+            "gpuSeconds": 0.0034022500040009618,
+            "wallSeconds": 0.0037077090237289667
+          },
+          "scope": "offline correctness and synthetic benchmark; no pool shares",
+          "threadExecutionWidth": 32,
+          "cpuFour": {
+            "seconds": 0.040628875023685396,
+            "hashesPerSecond": 100814.99912592108,
+            "checksum": 3555123813
+          },
+          "appleFamily1": true,
+          "model": "Mac15,12",
+          "metalCompilation": "runtime-source",
+          "threadgroup": 32,
+          "unifiedMemory": true,
+          "temperatureC": null,
+          "metalSelftest": "passed",
+          "pmullAvailable": true
+        }
+      }
+    ],
+    "baselineMetalSha256": "99564fd3fcbd6df58f0a0964650755672fcdffbe7df053b2a3464d04a4acd806",
+    "medianHashesPerSecond": {
+      "baseline": 1241915.5920376352,
+      "optimized": 1597494.541778934
+    },
+    "speedup": 1.286314909017201
+  },
+  "nativePackage": {
+    "name": "Gozero-NOID-Mac-Core-Test-arm64.zip",
+    "sha256": "63d483c5685bb2834f18612775982cd26cfb42b498a5b6d059ab11d90983390c",
+    "manifestAndCRCVerified": true,
+    "launchersExecutableAndLF": true,
+    "launchEnvironmentPATH": "/usr/bin:/bin",
+    "performanceLauncherExitCode": 0,
+    "performanceLauncherResult": {
+      "workerCount": 1,
+      "cpuSingle": {
+        "hashesPerSecond": 55650.56711736654,
+        "checksum": 3555123813,
+        "seconds": 0.07360212504863739,
+        "backend": "PMULL"
+      },
+      "maxThreadsPerThreadgroup": 1024,
+      "compiler": "21.0.0 (clang-2100.1.1.101)",
+      "count": 4096,
+      "metalRandomHeaderDigests": 192,
+      "powerWatts": null,
+      "chip": "Apple M3",
+      "cpuSelftest": "passed",
+      "gpu": "Apple M3",
+      "os": "Version 26.5.1 (Build 25F80)",
+      "metalSearch": {
+        "hashes": 47448064,
+        "hashesPerSecondGPU": 1593379.3489339529,
+        "warmupBatches": 8,
+        "cpuCheckedCandidates": 685,
+        "hashesPerSecondWall": 1580478.4000222941,
+        "gpuSeconds": 29.77825966662931,
+        "batches": 724,
+        "batch": 65536,
+        "wallSeconds": 30.021330249961466
+      },
+      "metalArithmeticPairs": 20496,
+      "metalDigestBatch": {
+        "hashesPerSecondWall": 1033582.0757198968,
+        "gpuSeconds": 0.0035591250052675605,
+        "wallSeconds": 0.00396291702054441
+      },
+      "scope": "offline correctness and synthetic benchmark; no pool shares",
+      "threadExecutionWidth": 32,
+      "cpuFour": {
+        "seconds": 0.04061187501065433,
+        "hashesPerSecond": 100857.1999920081,
+        "checksum": 3555123813
+      },
+      "appleFamily1": true,
+      "model": "Mac15,12",
+      "metalCompilation": "runtime-source",
+      "threadgroup": 32,
+      "unifiedMemory": true,
+      "temperatureC": null,
+      "metalSelftest": "passed",
+      "pmullAvailable": true
+    },
+    "postTestSSHProcessCheck": "NO_WORKER_REMAINS"
+  }
+}

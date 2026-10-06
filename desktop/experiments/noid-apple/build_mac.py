@@ -45,11 +45,13 @@ def main():
     # Internal core functions have static linkage, preventing accelerated and
     # portable implementations from being coalesced by the linker.
     run(compiler, *flags, '-DGZ_FORCE_PORTABLE=1', '-dynamiclib', 'test_bridge.cpp', '-o', OUT / 'portable.dylib')
+    run(compiler, *flags, '-DGZ_FORCE_PORTABLE=1', '-DGZ_TEST_METAL_ARITH=1', '-dynamiclib', 'test_bridge.cpp', '-o', OUT / 'gpu-arithmetic.dylib')
     run(compiler, *flags, '-march=armv8-a+crypto', '-dynamiclib', 'test_bridge.cpp', '-o', OUT / 'pmull.dylib')
     run(compiler, *flags, '-march=armv8-a+crypto', '-c', 'pmull_backend.cpp', '-o', OUT / 'pmull.o')
     executable = OUT / 'noid-apple-check'
     run(compiler, *flags, '-fobjc-arc', 'mac_host.mm', OUT / 'pmull.o', '-framework', 'Foundation', '-framework', 'Metal', '-o', executable)
     run(sys.executable, 'test_core.py', '--library', OUT / 'portable.dylib', '--report', OUT / 'portable-tests.json')
+    run(sys.executable, 'test_core.py', '--library', OUT / 'gpu-arithmetic.dylib', '--report', OUT / 'gpu-arithmetic-tests.json')
     available = run(executable, '--pmull-available', capture=True) == 'true'
     if available:
         run(sys.executable, 'test_core.py', '--library', OUT / 'pmull.dylib', '--report', OUT / 'pmull-tests.json')

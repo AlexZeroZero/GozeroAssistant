@@ -275,3 +275,33 @@ LIVE INNOVLAB ACCEPTANCE — 2026-10-06
   Mac Gozero GUI, autonomous production miner or new Windows release was built.
   Next: integrate this verified path into Mac adapters/UI, preserve fee behavior,
   test reconnect faults and sustained operation, then package the Mac assistant.
+
+METAL PERFORMANCE OPTIMIZATION — 2026-10-06
+- User requested more hashrate, citing a group-chat claim of 30–50 MH/s on
+  M4–M6. No benchmark/source was supplied. Do not endorse or extrapolate it.
+- On the same M3, selected 16-bit three-plane carryless multiplication (no
+  GPU mulhi) and separate full/partial round loops. Larger tables, shift-only
+  multiply and larger threadgroups did not improve this tested workload.
+- Three alternating 15-second samples/version, 65,536 nonces/batch and eight
+  warmup batches: baseline median 1.241916 MH/s; optimized 1.597495 MH/s,
+  +28.63%. All 4,096 digests/sample checked against CPU. Baseline remains
+  selectable with GZ_METAL_BASELINE; benchmark_mac.py reproduces the A/B.
+- Eight independent reference tests, 10 differential groups for each of
+  portable/PMULL/new GPU arithmetic, 20,496 actual Metal field products,
+  192 random-header digests, existing fixtures and worker checks pass.
+- Optimized live TLS run: 180.016958 s, 230,621,184 useful hashes, local average
+  1.281108 MH/s, 20/20 accepted, 0 rejected/pending, 2 pauses, 3 jobs, no
+  reconnects. This includes Windows/SSH scheduling and is not pool-side rate.
+  The run ended normally; no native worker remained after package checks.
+- Evidence: noid-apple/evidence/mac-m3-optimization-2026-10-06.json and
+  mac-m3-optimized-innovlab-2026-10-06.json. Historical evidence is retained.
+  A stale remote provenance status JSON is recorded as metadata-only drift;
+  all computational source hashes match local files. No hashes were rewritten.
+- Updated native test ZIP SHA256:
+  63d483c5685bb2834f18612775982cd26cfb42b498a5b6d059ab11d90983390c.
+  Adds Run-Performance-Test.command, a preheated 30-second offline search test.
+  Extracted-package launch with system PATH passed and measured 1.580478 MH/s.
+  Deployed within the session's optimized-package-check directory; no Xcode or
+  Python required to run this native package. It remains a core test, not GUI.
+- M3-only evidence. Full Mac assistant integration, other M-series devices,
+  long-duration/pool-side rates and additional performance work remain open.

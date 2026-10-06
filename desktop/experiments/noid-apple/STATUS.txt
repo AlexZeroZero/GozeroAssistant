@@ -1,5 +1,21 @@
 Experimental Apple Silicon NOID development checkpoint, 2026-10-06.
 
+METAL OPTIMIZATION (same M3): three alternating 15-second samples per version
+measured 1.241916 MH/s baseline versus 1.597495 MH/s optimized median wall
+throughput (+28.63%). Uses 16-bit three-plane carryless multiply without GPU
+mulhi, specialized full/partial rounds, and the original SIMD-width groups.
+30 native differential groups pass (portable, PMULL, GPU arithmetic), along
+with 20,496 actual Metal field products, 192 random-header digests, fixtures,
+overflow/strict-target checks and three worker lifecycle tests. Evidence:
+evidence/mac-m3-optimization-2026-10-06.json. No other M chip has been measured;
+the group-chat 30-50 MH/s claim has no supplied benchmark or share evidence.
+benchmark_mac.py reproduces bounded A/B tests. The native test ZIP now also
+includes Run-Performance-Test.command for a 30-second offline search test.
+The optimized kernel then completed another 180-second Innovlab TLS session:
+local average 1.281108 MH/s; 20 submitted, 20 accepted, 0 rejected, 0 pending.
+Normal duration stop; this includes SSH scheduling and pool pauses and is not
+the controlled A/B figure. Evidence: mac-m3-optimized-innovlab-2026-10-06.json.
+
 MAC VALIDATION (same day): dedicated SSH works on an Apple M3 / 16 GB / 10-core
 GPU Mac. Apple Clang 21 / macOS SDK 26.5 built the native host and libraries.
 Project-local native ARM64 Python 3.12.15 passed all eight reference tests and

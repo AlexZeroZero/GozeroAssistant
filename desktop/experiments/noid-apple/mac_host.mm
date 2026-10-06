@@ -50,8 +50,9 @@ class GPU {
 public:
     id<MTLDevice> device;
     id<MTLCommandQueue> queue;
-    id<MTLComputePipelineState> hashPipeline, searchPipeline;
+    id<MTLComputePipelineState> hashPipeline, searchPipeline, multiplyPipeline;
     double lastGPUSeconds = 0;
+    NSUInteger groupWidth = 0;
     explicit GPU(NSString* path, bool runtimeSource) {
         device = MTLCreateSystemDefaultDevice();
         require(device != nil && [device supportsFamily:MTLGPUFamilyApple1], "Apple-family Metal GPU required");
@@ -68,6 +69,7 @@ public:
         if (!library) throw std::runtime_error(error.localizedDescription.UTF8String ?: "metallib load failed");
         hashPipeline = pipeline(library, @"noid_hash");
         searchPipeline = pipeline(library, @"noid_search");
+        multiplyPipeline = pipeline(library, @"noid_multiply");
     }
     id<MTLComputePipelineState> pipeline(id<MTLLibrary> library, NSString* name) {
         id<MTLFunction> fn = [library newFunctionWithName:name]; require(fn != nil, "Metal function missing");
@@ -82,8 +84,9 @@ public:
     }
     void finish(id<MTLCommandBuffer> command, id<MTLComputeCommandEncoder> encoder,
                 id<MTLComputePipelineState> state, W count) {
-        NSUInteger width = std::min<NSUInteger>(state.maxTotalThreadsPerThreadgroup, state.threadExecutionWidth);
-        require(width > 0, "invalid Metal threadgroup width");
+        NSUInteger width = groupWidth ? groupWidth : state.threadExecutionWidth;
+        require(width > 0 && width <= state.maxTotalThreadsPerThreadgroup && width % state.threadExecutionWidth == 0,
+                "invalid Metal threadgroup width");
         [encoder dispatchThreads:MTLSizeMake(count, 1, 1) threadsPerThreadgroup:MTLSizeMake(width, 1, 1)];
         [encoder endEncoding]; [command commit]; [command waitUntilCompleted];
         if (command.status != MTLCommandBufferStatusCompleted)
@@ -101,6 +104,18 @@ public:
         finish(command, encoder, hashPipeline, request.count);
         std::vector<Digest> result(request.count);
         std::memcpy(result.data(), output.contents, sizeof(Digest) * request.count); return result;
+    }
+    std::vector<U> products(const std::vector<U>& pairs) {
+        require(!pairs.empty() && pairs.size()%2==0 && pairs.size()<=65536,"invalid arithmetic test size");
+        W count=pairs.size()/2;
+        auto input=buffer(pairs.size()*sizeof(U)), output=buffer(count*sizeof(U));
+        std::memcpy(input.contents,pairs.data(),pairs.size()*sizeof(U));
+        auto command=[queue commandBuffer];auto encoder=[command computeCommandEncoder];
+        require(command!=nil && encoder!=nil,"Metal encoder unavailable");
+        [encoder setComputePipelineState:multiplyPipeline];
+        [encoder setBuffer:input offset:0 atIndex:0];[encoder setBuffer:output offset:0 atIndex:1];
+        finish(command,encoder,multiplyPipeline,count);
+        std::vector<U> result(count);std::memcpy(result.data(),output.contents,count*sizeof(U));return result;
     }
     // Overflow retries the exact subranges before any result is returned.
     std::vector<U> search(const Request& request, Digest target, W capacity, bool accelerated) {
@@ -156,6 +171,22 @@ static void cpuSelftest(bool accelerated) {
 }
 
 static void gpuSelftest(GPU& gpu, bool accelerated) {
+    std::vector<U> pairs;
+    for(W i=0;i<128;++i)for(W j=0;j<128;++j) {
+        W a[4]={},b[4]={};a[i/32]=1u<<(i%32);b[j/32]=1u<<(j%32);
+        pairs.push_back({a[0],a[1],a[2],a[3]});pairs.push_back({b[0],b[1],b[2],b[3]});
+    }
+    W seed=0xa991e;
+    auto randomWord=[&]() {seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;};
+    for(W i=0;i<4096;++i)for(W j=0;j<2;++j)pairs.push_back({randomWord(),randomWord(),randomWord(),randomWord()});
+    U dense[]={{~0u,~0u,~0u,~0u},{0xaaaaaaaa,0xaaaaaaaa,0xaaaaaaaa,0xaaaaaaaa},
+               {0x55555555,0x55555555,0x55555555,0x55555555},{0,0,0,0}};
+    for(U a:dense)for(U b:dense){pairs.push_back(a);pairs.push_back(b);}
+    auto products=gpu.products(pairs);
+    for(size_t i=0;i<products.size();++i) {
+        U expected=gm(pairs[2*i],pairs[2*i+1]);
+        require(std::memcmp(&products[i],&expected,sizeof(U))==0,"Metal field multiplication mismatch");
+    }
     for (const auto& fixture : FIXTURES) {
         U header[16]; Digest expected; decode(fixture.header, header, sizeof(header)); decode(fixture.digest, &expected, sizeof(expected));
         Request request = {prepare(header), header[10], 1};
@@ -177,6 +208,12 @@ static void gpuSelftest(GPU& gpu, bool accelerated) {
     require(gpu.search(request, zero, 4, accelerated).empty(), "zero target matched");
     Request single = request; single.count = 1;
     require(gpu.search(single, digests[0], 1, accelerated).empty(), "Metal strict equality matched");
+    for(W trial=0;trial<12;++trial) {
+        U randomHeader[16];for(U& v:randomHeader)v={randomWord(),randomWord(),randomWord(),randomWord()};
+        Request batch={prepare(randomHeader),{0xfffffff8,randomWord()&0x7fffffffu,randomWord(),randomWord()},16};
+        auto actual=gpu.hashes(batch);
+        for(W i=0;i<batch.count;++i)require(equal(actual[i],cpuHash(batch.prepared,nonceAt(batch.nonce,i),accelerated)),"Metal random header mismatch");
+    }
 }
 
 static NSString* encodeHex(const void* value, size_t size) {
@@ -256,10 +293,19 @@ int main(int argc, char** argv) {
             bool pmull = pmullAvailable();
             if (argc == 2 && std::string(argv[1]) == "--pmull-available") { puts(pmull ? "true" : "false"); return 0; }
             bool cpuOnly = false, benchmark = false, runtimeSource = false; W count = 32; NSString* library = nil; unsigned workerSeconds=0;
+            unsigned searchSeconds=0, searchBatch=65536, groupWidth=0;
             for (int i = 1; i < argc; ++i) {
                 std::string arg(argv[i]);
                 if (arg == "--cpu-only") cpuOnly = true;
                 else if (arg == "--benchmark") benchmark = true;
+                else if ((arg == "--search-seconds" || arg == "--search-batch" || arg == "--threadgroup") && i+1<argc) {
+                    std::string value(argv[++i]); size_t used=0; unsigned long n=std::stoul(value,&used);
+                    unsigned limit=arg=="--search-seconds" ? 60 : arg=="--search-batch" ? 65536 : 1024;
+                    require(used==value.size() && n>=1 && n<=limit,"invalid search benchmark option");
+                    if(arg=="--search-seconds") searchSeconds=n;
+                    else if(arg=="--search-batch") searchBatch=n;
+                    else groupWidth=n;
+                }
                 else if (arg == "--worker-seconds" && i + 1 < argc) {
                     std::string value(argv[++i]); size_t used=0; unsigned long parsed=std::stoul(value,&used);
                     require(used==value.size() && parsed>=1 && parsed<=900,"worker lifetime must be 1..900 seconds");
@@ -270,12 +316,13 @@ int main(int argc, char** argv) {
                 else if (arg == "--count" && i + 1 < argc) {
                     std::string value(argv[++i]); size_t consumed = 0; unsigned long parsed = std::stoul(value,&consumed);
                     require(consumed == value.size() && parsed >= 4 && parsed <= 4096 && parsed % 4 == 0, "count must be a multiple of 4 in [4,4096]"); count = static_cast<W>(parsed);
-                } else throw std::runtime_error("Usage: noid-apple-check [--cpu-only | --metallib FILE | --metal-source FILE] [--benchmark --count 32]");
+                } else throw std::runtime_error("Usage: noid-apple-check [--cpu-only | --metallib FILE | --metal-source FILE] [--benchmark --count 32] [--search-seconds 1..60 --search-batch 1..65536 --threadgroup N] [--worker-seconds 1..900]");
             }
+            require(!cpuOnly || (!searchSeconds && !groupWidth),"search/threadgroup options require Metal");
             cpuSelftest(pmull);
             if(workerSeconds) {
-                require(!cpuOnly && !benchmark && library!=nil,"worker requires Metal and no benchmark flag");
-                GPU gpu(library,runtimeSource); gpuSelftest(gpu,pmull);
+                require(!cpuOnly && !benchmark && !searchSeconds && library!=nil,"worker requires Metal and no benchmark flag");
+                GPU gpu(library,runtimeSource); gpu.groupWidth=groupWidth; gpuSelftest(gpu,pmull);
                 workerLoop(gpu,pmull,workerSeconds); return 0;
             }
             NSMutableDictionary* report = [@{@"scope":@"offline correctness and synthetic benchmark; no pool shares", @"model":sysText("hw.model"),
@@ -299,11 +346,34 @@ int main(int argc, char** argv) {
             }
             if (!cpuOnly) {
                 require(library != nil, "provide --metallib, --metal-source or --cpu-only");
-                GPU gpu(library, runtimeSource); gpuSelftest(gpu, pmull);
+                GPU gpu(library, runtimeSource); gpu.groupWidth=groupWidth; gpuSelftest(gpu, pmull);
                 report[@"metalSelftest"] = @"passed"; report[@"gpu"] = gpu.device.name;
+                report[@"metalArithmeticPairs"] = @20496;
+                report[@"metalRandomHeaderDigests"] = @192;
                 report[@"metalCompilation"] = runtimeSource ? @"runtime-source" : @"offline-metallib";
                 report[@"appleFamily1"] = @([gpu.device supportsFamily:MTLGPUFamilyApple1]);
                 report[@"unifiedMemory"] = @(gpu.device.hasUnifiedMemory);
+                report[@"threadExecutionWidth"] = @(gpu.searchPipeline.threadExecutionWidth);
+                report[@"maxThreadsPerThreadgroup"] = @(gpu.searchPipeline.maxTotalThreadsPerThreadgroup);
+                report[@"threadgroup"] = @(groupWidth ? groupWidth : gpu.searchPipeline.threadExecutionWidth);
+                if(searchSeconds) {
+                    // A nontrivial target forces the real search path. All candidates
+                    // are CPU checked; full digest checks remain outside timing.
+                    Digest target={{0,0,0,0},{0,0,0,0x0000ffffu}};
+                    Request batch=request; batch.count=searchBatch;
+                    for(unsigned i=0;i<8;++i) {gpu.search(batch,target,256,pmull);batch.nonce=nonceAt(batch.nonce,batch.count);}
+                    double start=seconds(), gpuTime=0; unsigned long long hashes=0, batches=0, candidates=0;
+                    while(seconds()-start<searchSeconds) {
+                        @autoreleasepool {
+                            candidates+=gpu.search(batch,target,256,pmull).size();gpuTime+=gpu.lastGPUSeconds;
+                            hashes+=batch.count;++batches;batch.nonce=nonceAt(batch.nonce,batch.count);
+                        }
+                    }
+                    double wall=seconds()-start;
+                    report[@"metalSearch"] = @{@"wallSeconds":@(wall),@"gpuSeconds":@(gpuTime),@"hashes":@(hashes),
+                        @"batches":@(batches),@"batch":@(searchBatch),@"cpuCheckedCandidates":@(candidates),
+                        @"hashesPerSecondWall":@(hashes/wall),@"hashesPerSecondGPU":gpuTime>0?@(hashes/gpuTime):[NSNull null],@"warmupBatches":@8};
+                }
                 if (benchmark) {
                     double start = seconds(); auto output = gpu.hashes(request); double wall = seconds() - start;
                     double gpuTime = gpu.lastGPUSeconds;

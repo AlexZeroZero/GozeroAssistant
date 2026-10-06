@@ -19,6 +19,10 @@ on this one Mac. A 180-second Innovlab TLS test also returned 17 accepted shares
 zero rejections, using a Windows Node controller and the Mac worker over SSH.
 Do not generalize to the entire M-series family or claim a complete Mac app.
 No long-term pool-side hashrate or power efficiency has been measured.
+Metal tuning now measures +28.63% in alternating M3 A/B tests (1.242 -> 1.597
+MH/s). Optimized live test: 180 seconds, 20 accepted/0 rejected, 1.281 MH/s
+local average including SSH scheduling. See the optimization evidence and the
+latest MAC_HANDOFF.txt checkpoint. Group-chat 30–50 MH/s claims are unverified.
 
 The source under desktop/experiments/noid-apple is an UNCOMPILED draft at handoff.
 It is not an available miner or release. Validate the exact NOID algorithm and

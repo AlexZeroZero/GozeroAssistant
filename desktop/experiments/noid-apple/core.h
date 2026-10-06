@@ -35,6 +35,23 @@ static inline W hi(W a, W b) {
 #endif
 }
 struct Pair { W lo, hi; };
+#if (defined(__METAL_VERSION__) || defined(GZ_TEST_METAL_ARITH)) && !defined(GZ_METAL_BASELINE)
+// Three bit planes, spaced three bits apart: each integer product sums at
+// most six terms, so carries cannot reach the next retained parity bit.
+// 16x16 products fit in 32 bits. Karatsuba avoids GPU mulhi entirely.
+static inline W cl16(W a, W b) {
+    W a0=a&0x9249u, a1=a&0x2492u, a2=a&0x4924u;
+    W b0=b&0x9249u, b1=b&0x2492u, b2=b&0x4924u;
+    return ((a0*b0 ^ a1*b2 ^ a2*b1)&0x49249249u)
+         | ((a0*b1 ^ a1*b0 ^ a2*b2)&0x92492492u)
+         | ((a0*b2 ^ a1*b1 ^ a2*b0)&0x24924924u);
+}
+static inline Pair cl32(W a, W b) {
+    W l=cl16(a,b), h=cl16(a>>16,b>>16);
+    W m=cl16((a^(a>>16))&65535u,(b^(b>>16))&65535u)^l^h;
+    return {l^(m<<16),h^(m>>16)};
+}
+#else
 // Bit planes prevent integer-product carries crossing the retained parity bits.
 static inline Pair cl32(W a, W b) {
     W av[4] = {a & 0x11111111u, a & 0x22222222u, a & 0x44444444u, a & 0x88888888u};
@@ -51,6 +68,7 @@ static inline Pair cl32(W a, W b) {
     }
     return p;
 }
+#endif
 static inline U cl64(W a0, W a1, W b0, W b1) {
     Pair l = cl32(a0, b0), h = cl32(a1, b1), m = cl32(a0 ^ a1, b0 ^ b1);
     return {l.lo, l.hi ^ m.lo ^ l.lo ^ h.lo, h.lo ^ m.hi ^ l.hi ^ h.hi, h.hi};
@@ -122,11 +140,24 @@ static inline void mix(GZ_THREAD State& s, bool full) {
 static inline U sbox(U x) { U x2 = square(x); return gm(gm(x,x2),square(x2)); }
 static inline void permute(GZ_THREAD State& s) {
     mix(s,true);
+#if (defined(__METAL_VERSION__) || defined(GZ_TEST_METAL_ARITH)) && !defined(GZ_METAL_BASELINE)
+    // Separate round types so the compiler can specialize state indexing.
+    for (W r=0;r<4;++r) {
+        for (W i=0;i<4;++i) s.v[i]=sbox(gx(s.v[i],RC[i][r]));
+        mix(s,true);
+    }
+    for (W r=4;r<62;++r) {s.v[0]=sbox(gx(s.v[0],RC[0][r]));mix(s,false);}
+    for (W r=62;r<66;++r) {
+        for (W i=0;i<4;++i) s.v[i]=sbox(gx(s.v[i],RC[i][r]));
+        mix(s,true);
+    }
+#else
     for (W r = 0; r < 66; ++r) {
         bool full = r < 4 || r >= 62;
         for (W i = 0; i < (full ? 4u : 1u); ++i) s.v[i] = sbox(gx(s.v[i],RC[i][r]));
         mix(s,full);
     }
+#endif
 }
 static inline Prepared prepare(GZ_THREAD const U* header) {
     Prepared p; p.prefix = {{{0,0,0,0},{0,0,0,0},IV[0],IV[1]}};
