@@ -5,7 +5,11 @@ GPU Mac. Apple Clang 21 / macOS SDK 26.5 built the native host and libraries.
 Project-local native ARM64 Python 3.12.15 passed all eight reference tests and
 ten differential test groups for EACH portable and PMULL backend. Metal runtime
 source compilation and GPU selftests pass on this M3. No offline metallib build
-has run. Only short synthetic benchmarks exist, not sustained mining rates.
+has run. A bounded 180-second live Innovlab test now also passed: 17 submitted,
+17 accepted, 0 rejected, 0 unacknowledged; 7 pauses and 8 job notifications.
+Local average was 1.054 MH/s; this is not a long-term pool-side hashrate estimate.
+Native worker exit after the test was checked over SSH. Live evidence:
+evidence/mac-m3-innovlab-2026-10-06.json.
 Evidence: evidence/mac-m3-selftest-2026-10-06.json and associated CPU reports.
 
 VERIFIED LOCALLY (Windows x64, Clang 18, Python 3.12, Node 24):
@@ -14,7 +18,7 @@ VERIFIED LOCALLY (Windows x64, Clang 18, Python 3.12, Node 24):
 - 16,384 field-basis products, 4,132 dense/random products and squares,
   basis conversion, permutations, random full hashes, cached prefix, four-state
   interleaving, strict LE targets and nonce range/carry handling.
-- Fourteen offline protocol lifecycle tests, including pause cancellation,
+- Nineteen offline protocol/transport tests, including pause cancellation,
   expiry, late results, authorization, namespace, overflow retries and a final
   pre-send cancellation gate. No network connection was made by these tests.
 - ARM64 Mach-O arithmetic objects cross-compiled; PMULL instructions emitted.
@@ -27,10 +31,15 @@ IMPLEMENTED AND VERIFIED ON THE ABOVE M3:
 - Metal digest/search kernels, candidate CPU recheck and overflow splitting.
 - Metal runtime source compilation and driver execution; full M-family
   compatibility, offline metallib compilation and sustained mining are unverified.
+- Native stdio worker: CPU/Metal selftest before ready, one bounded GPU batch,
+  CPU-verified candidates, EOF exit and independent lifetime. Three worker tests
+  passed on Mac. Live controller currently ran on Windows over SSH.
+- Innovlab duplicate job notifications preserve reserved nonce progress. Changed
+  work under the same ID fails closed. No production fee code was modified.
 
 NOT IMPLEMENTED / NOT CLAIMED:
-- Live pool transport/mining scheduler integration, accepted shares, effective
-  pool hashrate, asynchronous adaptive Metal dispatch or production telemetry.
+- Standalone Mac application integration, long-term pool-side effective
+  hashrate, asynchronous adaptive Metal dispatch or production telemetry.
 - Gozero macOS UI/device adapters, signed .app/.dmg, full-family compatibility.
 - No Windows release modification, publishing or automatic mining activation.
 

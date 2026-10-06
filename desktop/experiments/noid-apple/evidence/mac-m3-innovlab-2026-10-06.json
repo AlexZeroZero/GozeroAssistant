@@ -1,0 +1,516 @@
+{
+  "startedAt": "2026-10-06T05:31:17.271Z",
+  "pool": "innovlab",
+  "host": "hk2.innovlab.cc",
+  "port": 19601,
+  "worker": "gozero-m3-test",
+  "walletSuffix": "uqwd8yjg",
+  "durationLimitSeconds": 180,
+  "tlsVerified": true,
+  "authorized": true,
+  "hashes": 189661184,
+  "discardedHashes": 458752,
+  "accepted": 17,
+  "rejected": 0,
+  "submitted": 17,
+  "pauses": 7,
+  "jobs": 8,
+  "reconnects": 0,
+  "events": [
+    {
+      "at": "2026-10-06T05:31:17.623Z",
+      "type": "worker-ready",
+      "gpu": "Apple M3"
+    },
+    {
+      "at": "2026-10-06T05:31:17.624Z",
+      "type": "connecting",
+      "attempt": 0
+    },
+    {
+      "at": "2026-10-06T05:31:18.173Z",
+      "type": "tls-ready",
+      "protocol": "TLSv1.3"
+    },
+    {
+      "at": "2026-10-06T05:31:19.286Z",
+      "type": "authorized"
+    },
+    {
+      "at": "2026-10-06T05:31:19.286Z",
+      "type": "job",
+      "job": "5ab25b017638db18b12a000000000000",
+      "expiresMs": 296999.98730000004,
+      "target": "0000000000000000000000000000000000000000000000000000000040000000"
+    },
+    {
+      "at": "2026-10-06T05:31:22.292Z",
+      "type": "submitted",
+      "id": 3,
+      "job": "5ab25b017638db18b12a000000000000",
+      "nonce": "de55310000000000db1a3e0000000200"
+    },
+    {
+      "at": "2026-10-06T05:31:22.550Z",
+      "type": "accepted",
+      "id": 3,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T05:31:24.299Z",
+      "type": "submitted",
+      "id": 4,
+      "job": "5ab25b017638db18b12a000000000000",
+      "nonce": "7f23530000000000db1a3e0000000200"
+    },
+    {
+      "at": "2026-10-06T05:31:24.580Z",
+      "type": "accepted",
+      "id": 4,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T05:31:27.283Z",
+      "type": "stats",
+      "localHashesPerSecond": 878027.4457163801,
+      "hashes": 8781824,
+      "accepted": 2,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T05:31:28.821Z",
+      "type": "paused"
+    },
+    {
+      "at": "2026-10-06T05:31:28.821Z",
+      "type": "job",
+      "job": "5ab25b017638db18b22a000000000000",
+      "expiresMs": 42999.99280000001,
+      "target": "0000000000000000000000000000000000000000000000000000000040000000"
+    },
+    {
+      "at": "2026-10-06T05:31:32.431Z",
+      "type": "paused"
+    },
+    {
+      "at": "2026-10-06T05:31:33.017Z",
+      "type": "job",
+      "job": "5ab25b017638db18b32a000000000000",
+      "expiresMs": 297999.98860000004,
+      "target": "0000000000000000000000000000000000000000000000000000000040000000"
+    },
+    {
+      "at": "2026-10-06T05:31:37.297Z",
+      "type": "stats",
+      "localHashesPerSecond": 1027496.0430153082,
+      "hashes": 19070976,
+      "accepted": 2,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T05:31:47.300Z",
+      "type": "stats",
+      "localHashesPerSecond": 1061354.137763128,
+      "hashes": 29687808,
+      "accepted": 2,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T05:31:57.301Z",
+      "type": "stats",
+      "localHashesPerSecond": 1107409.353775075,
+      "hashes": 40763392,
+      "accepted": 2,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T05:32:07.304Z",
+      "type": "stats",
+      "localHashesPerSecond": 1087665.9271575157,
+      "hashes": 51642368,
+      "accepted": 2,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T05:32:17.309Z",
+      "type": "stats",
+      "localHashesPerSecond": 1034995.7965710094,
+      "hashes": 61997056,
+      "accepted": 2,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T05:32:27.320Z",
+      "type": "stats",
+      "localHashesPerSecond": 1099783.0180517563,
+      "hashes": 73007104,
+      "accepted": 2,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T05:32:37.331Z",
+      "type": "stats",
+      "localHashesPerSecond": 1106378.6131658494,
+      "hashes": 84082688,
+      "accepted": 2,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T05:32:47.341Z",
+      "type": "stats",
+      "localHashesPerSecond": 1080220.2792501054,
+      "hashes": 94896128,
+      "accepted": 2,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T05:32:49.372Z",
+      "type": "paused"
+    },
+    {
+      "at": "2026-10-06T05:32:49.662Z",
+      "type": "job",
+      "job": "5ab25b017638db18b42a000000000000",
+      "expiresMs": 297999.9904,
+      "target": "0000000000000000000000000000000000000000000000000000000000010000"
+    },
+    {
+      "at": "2026-10-06T05:32:57.350Z",
+      "type": "stats",
+      "localHashesPerSecond": 1047624.7567208974,
+      "hashes": 105381888,
+      "accepted": 2,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T05:32:57.553Z",
+      "type": "paused"
+    },
+    {
+      "at": "2026-10-06T05:32:58.282Z",
+      "type": "job",
+      "job": "5ab25b017638db18b52a000000000000",
+      "expiresMs": 297999.9951,
+      "target": "0000000000000000000000000000000000000000000000000000000000010000"
+    },
+    {
+      "at": "2026-10-06T05:33:07.352Z",
+      "type": "stats",
+      "localHashesPerSecond": 995938.710190409,
+      "hashes": 115343360,
+      "accepted": 2,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T05:33:13.894Z",
+      "type": "submitted",
+      "id": 6,
+      "job": "5ab25b017638db18b52a000000000000",
+      "nonce": "e62f010100000000db1a3e0000000200"
+    },
+    {
+      "at": "2026-10-06T05:33:14.149Z",
+      "type": "accepted",
+      "id": 6,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T05:33:14.962Z",
+      "type": "submitted",
+      "id": 7,
+      "job": "5ab25b017638db18b52a000000000000",
+      "nonce": "b6ab130100000000db1a3e0000000200"
+    },
+    {
+      "at": "2026-10-06T05:33:15.221Z",
+      "type": "accepted",
+      "id": 7,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T05:33:17.363Z",
+      "type": "stats",
+      "localHashesPerSecond": 1099819.150962496,
+      "hashes": 126353408,
+      "accepted": 4,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T05:33:25.091Z",
+      "type": "paused"
+    },
+    {
+      "at": "2026-10-06T05:33:25.345Z",
+      "type": "job",
+      "job": "5ab25b017638db18b62a000000000000",
+      "expiresMs": 297999.9967,
+      "target": "0000000000000000000000000000000000000000000000000000000000040000"
+    },
+    {
+      "at": "2026-10-06T05:33:27.081Z",
+      "type": "submitted",
+      "id": 9,
+      "job": "5ab25b017638db18b62a000000000000",
+      "nonce": "acfe1a0000000000db1a3e0000000200"
+    },
+    {
+      "at": "2026-10-06T05:33:27.336Z",
+      "type": "accepted",
+      "id": 9,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T05:33:27.371Z",
+      "type": "stats",
+      "localHashesPerSecond": 1041239.3463619611,
+      "hashes": 136773632,
+      "accepted": 5,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T05:33:28.528Z",
+      "type": "submitted",
+      "id": 10,
+      "job": "5ab25b017638db18b62a000000000000",
+      "nonce": "f12a320000000000db1a3e0000000200"
+    },
+    {
+      "at": "2026-10-06T05:33:28.779Z",
+      "type": "accepted",
+      "id": 10,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T05:33:35.381Z",
+      "type": "submitted",
+      "id": 11,
+      "job": "5ab25b017638db18b62a000000000000",
+      "nonce": "f8d5a40000000000db1a3e0000000200"
+    },
+    {
+      "at": "2026-10-06T05:33:35.635Z",
+      "type": "accepted",
+      "id": 11,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T05:33:36.585Z",
+      "type": "submitted",
+      "id": 12,
+      "job": "5ab25b017638db18b62a000000000000",
+      "nonce": "0cd2b80000000000db1a3e0000000200"
+    },
+    {
+      "at": "2026-10-06T05:33:36.839Z",
+      "type": "accepted",
+      "id": 12,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T05:33:37.372Z",
+      "type": "stats",
+      "localHashesPerSecond": 1094303.4471485675,
+      "hashes": 147718144,
+      "accepted": 8,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T05:33:37.594Z",
+      "type": "submitted",
+      "id": 13,
+      "job": "5ab25b017638db18b62a000000000000",
+      "nonce": "0bf3c90000000000db1a3e0000000200"
+    },
+    {
+      "at": "2026-10-06T05:33:38.310Z",
+      "type": "accepted",
+      "id": 13,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T05:33:47.378Z",
+      "type": "stats",
+      "localHashesPerSecond": 1087182.3861954166,
+      "hashes": 158597120,
+      "accepted": 9,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T05:33:47.580Z",
+      "type": "submitted",
+      "id": 14,
+      "job": "5ab25b017638db18b62a000000000000",
+      "nonce": "93f56f0100000000db1a3e0000000200"
+    },
+    {
+      "at": "2026-10-06T05:33:47.836Z",
+      "type": "accepted",
+      "id": 14,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T05:33:49.841Z",
+      "type": "submitted",
+      "id": 15,
+      "job": "5ab25b017638db18b62a000000000000",
+      "nonce": "bcaa950100000000db1a3e0000000200"
+    },
+    {
+      "at": "2026-10-06T05:33:50.096Z",
+      "type": "accepted",
+      "id": 15,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T05:33:51.331Z",
+      "type": "submitted",
+      "id": 16,
+      "job": "5ab25b017638db18b62a000000000000",
+      "nonce": "e221ae0100000000db1a3e0000000200"
+    },
+    {
+      "at": "2026-10-06T05:33:51.593Z",
+      "type": "accepted",
+      "id": 16,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T05:33:51.867Z",
+      "type": "submitted",
+      "id": 17,
+      "job": "5ab25b017638db18b62a000000000000",
+      "nonce": "8158b70100000000db1a3e0000000200"
+    },
+    {
+      "at": "2026-10-06T05:33:52.127Z",
+      "type": "accepted",
+      "id": 17,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T05:33:55.190Z",
+      "type": "submitted",
+      "id": 18,
+      "job": "5ab25b017638db18b62a000000000000",
+      "nonce": "eab8ef0100000000db1a3e0000000200"
+    },
+    {
+      "at": "2026-10-06T05:33:55.445Z",
+      "type": "accepted",
+      "id": 18,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T05:33:56.389Z",
+      "type": "submitted",
+      "id": 19,
+      "job": "5ab25b017638db18b62a000000000000",
+      "nonce": "ffdb030200000000db1a3e0000000200"
+    },
+    {
+      "at": "2026-10-06T05:33:56.641Z",
+      "type": "accepted",
+      "id": 19,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T05:33:57.391Z",
+      "type": "stats",
+      "localHashesPerSecond": 1099637.5766154898,
+      "hashes": 169607168,
+      "accepted": 15,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T05:33:58.251Z",
+      "type": "submitted",
+      "id": 20,
+      "job": "5ab25b017638db18b62a000000000000",
+      "nonce": "ab97220200000000db1a3e0000000200"
+    },
+    {
+      "at": "2026-10-06T05:33:58.511Z",
+      "type": "accepted",
+      "id": 20,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T05:34:04.132Z",
+      "type": "paused"
+    },
+    {
+      "at": "2026-10-06T05:34:04.989Z",
+      "type": "job",
+      "job": "5ab25b017638db18b72a000000000000",
+      "expiresMs": 42999.99609999999,
+      "target": "0000000000000000000000000000000000000000000000000000000000020000"
+    },
+    {
+      "at": "2026-10-06T05:34:07.395Z",
+      "type": "stats",
+      "localHashesPerSecond": 995722.3053778489,
+      "hashes": 179568640,
+      "accepted": 16,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T05:34:09.794Z",
+      "type": "submitted",
+      "id": 21,
+      "job": "5ab25b017638db18b72a000000000000",
+      "nonce": "494e500000000000db1a3e0000000200"
+    },
+    {
+      "at": "2026-10-06T05:34:10.050Z",
+      "type": "accepted",
+      "id": 21,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T05:34:13.676Z",
+      "type": "paused"
+    },
+    {
+      "at": "2026-10-06T05:34:14.372Z",
+      "type": "job",
+      "job": "5ab25b017638db18b82a000000000000",
+      "expiresMs": 42999.99249999999,
+      "target": "0000000000000000000000000000000000000000000000000000000000010000"
+    },
+    {
+      "at": "2026-10-06T05:34:17.285Z",
+      "type": "stopped",
+      "reason": "duration-limit",
+      "error": null,
+      "accepted": 17,
+      "rejected": 0
+    }
+  ],
+  "reason": "duration-limit",
+  "error": null,
+  "elapsedSeconds": 180.01298,
+  "localHashesPerSecond": 1053597.2683747583,
+  "finishedAt": "2026-10-06T05:34:17.285Z",
+  "scope": "180-second live Innovlab TLS validation; Windows Node controller and SSH-connected M3 GPU worker; not a complete standalone Mac assistant",
+  "unacknowledgedSubmissions": 0,
+  "sourceSha256": {
+    "mac_host.mm": "0435cbf5fff2427a76d20a73ce6eda849f8c9f3db1cf468d60d74ca1799b70a0",
+    "pool_runner.cjs": "d687d232580c195a78d22d89c7e0d3e8939d6b4976fe5a6718c74c272df250bc",
+    "pool_session.cjs": "c7df8a27b5b739ab2af2334f5f8c33ec23fc6b9582edc509b5aa491663c693c6",
+    "test_pool_runner.cjs": "8de610e6556cb9a87b523accb550a024b70e0417aa5db394046c997686bcae78",
+    "test_pool_session.cjs": "ef14c297d1569aa21823b52494b145ef41f602f75c3a90c52c07a7ce60ef0cbe",
+    "test_worker.py": "c6de9c40515773a8e48f2a01b643246a7a4da80653a743d3d172904e28af655d"
+  },
+  "nativeBinarySha256": {
+    "noid-apple-check": "76512b63a44eb2665b2e09b6e09705c50ea04a6b68ed81d22aa204b66dc1e4a5"
+  },
+  "nativeWorkerTests": {
+    "passed": 3,
+    "checks": [
+      "candidate CPU digest vs Python reference and EOF",
+      "nonce overflow refusal",
+      "independent idle deadline"
+    ]
+  },
+  "protocolAndTransportTestsPassed": 19
+}

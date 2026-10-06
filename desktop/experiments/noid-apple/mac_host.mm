@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Offline selftest/benchmark only. No pool connection or background mining.
+// Selftests and bounded stdio worker. Network/session policy belongs to the host.
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 #include <sys/sysctl.h>
@@ -9,6 +9,9 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <poll.h>
+#include <unistd.h>
+#include <cerrno>
 #define GZ_FORCE_PORTABLE 1
 #include "dispatch.h"
 #include "cpu_batch.h"
@@ -176,16 +179,92 @@ static void gpuSelftest(GPU& gpu, bool accelerated) {
     require(gpu.search(single, digests[0], 1, accelerated).empty(), "Metal strict equality matched");
 }
 
+static NSString* encodeHex(const void* value, size_t size) {
+    const auto* bytes = static_cast<const unsigned char*>(value);
+    std::string out(size * 2, '0'); const char* digits = "0123456789abcdef";
+    for (size_t i=0;i<size;++i) {out[2*i]=digits[bytes[i]>>4];out[2*i+1]=digits[bytes[i]&15];}
+    return [NSString stringWithUTF8String:out.c_str()];
+}
+static void emitJSON(NSDictionary* value) {
+    NSData* data=[NSJSONSerialization dataWithJSONObject:value options:0 error:nil];
+    require(data!=nil,"worker JSON encoding failed");
+    fwrite(data.bytes,1,data.length,stdout); fputc('\n',stdout); fflush(stdout);
+}
+static NSString* jsonString(NSDictionary* object, NSString* key) {
+    id value=object[key]; require([value isKindOfClass:NSString.class],"missing worker string"); return value;
+}
+static unsigned jsonNumber(NSDictionary* object, NSString* key, unsigned low, unsigned high) {
+    id value=object[key]; require([value isKindOfClass:NSNumber.class],"missing worker number");
+    double n=[value doubleValue]; require(n>=low && n<=high && n==static_cast<unsigned>(n),"invalid worker integer");
+    return static_cast<unsigned>(n);
+}
+static void workerLoop(GPU& gpu, bool accelerated, unsigned lifetime) {
+    const double deadline=seconds()+lifetime;
+    emitJSON(@{@"event":@"ready",@"cpuSelftest":@"passed",@"metalSelftest":@"passed",@"gpu":gpu.device.name,@"maxBatch":@65536});
+    std::string pending, previousHeader; Prepared prepared;
+    while(seconds()<deadline) {
+        pollfd descriptor={STDIN_FILENO,POLLIN,0};
+        int result=poll(&descriptor,1,500);
+        if(result<0 && errno==EINTR) continue;
+        require(result>=0,"worker stdin poll failed");
+        if(result==0) continue;
+        char chunk[2048]; ssize_t length=read(STDIN_FILENO,chunk,sizeof(chunk));
+        if(length==0) return; // Parent pipe closed: no orphan mining.
+        require(length>0,"worker stdin read failed"); pending.append(chunk,length);
+        require(pending.size()<=8192,"worker input line too long");
+        size_t newline;
+        while((newline=pending.find('\n'))!=std::string::npos) {
+            @autoreleasepool {
+                std::string line=pending.substr(0,newline); pending.erase(0,newline+1);
+                if(line.empty()) continue;
+                require(seconds()<deadline,"worker lifetime expired");
+                NSData* bytes=[NSData dataWithBytes:line.data() length:line.size()];
+                id parsed=[NSJSONSerialization JSONObjectWithData:bytes options:0 error:nil];
+                require([parsed isKindOfClass:NSDictionary.class],"worker request must be an object");
+                NSDictionary* request=parsed;
+                unsigned idValue=jsonNumber(request,@"id",1,0x7fffffffu);
+                unsigned count=jsonNumber(request,@"count",1,65536);
+                unsigned capacity=jsonNumber(request,@"capacity",1,256);
+                NSString* fields=jsonString(request,@"fields");
+                U header[16], nonce; Digest target;
+                decode(fields.UTF8String,header,sizeof(header));
+                decode(jsonString(request,@"nonce").UTF8String,&nonce,sizeof(nonce));
+                decode(jsonString(request,@"target").UTF8String,&target,sizeof(target));
+                require(validRange(nonce,count),"worker nonce range overflow");
+                // Pathological easy targets could return huge JSON. Admission
+                // limits output, and live pool targets are many orders smaller.
+                if(previousHeader!=fields.UTF8String) {prepared=prepare(header);previousHeader=fields.UTF8String;}
+                double start=seconds();
+                auto candidates=gpu.search({prepared,nonce,count},target,capacity,accelerated);
+                require(candidates.size()<=1024,"worker candidate output limit exceeded");
+                NSMutableArray* values=[NSMutableArray array];
+                for(U candidate:candidates) {
+                    Digest digest=cpuHash(prepared,candidate,accelerated);
+                    require(below(digest,target),"worker CPU verification failed");
+                    [values addObject:@{@"nonce":encodeHex(&candidate,sizeof(candidate)),@"cpuDigest":encodeHex(&digest,sizeof(digest))}];
+                }
+                emitJSON(@{@"id":@(idValue),@"count":@(count),@"elapsedSeconds":@(seconds()-start),@"candidates":values});
+            }
+        }
+    }
+    emitJSON(@{@"event":@"lifetime-ended"});
+}
+
 int main(int argc, char** argv) {
     @autoreleasepool {
         try {
             bool pmull = pmullAvailable();
             if (argc == 2 && std::string(argv[1]) == "--pmull-available") { puts(pmull ? "true" : "false"); return 0; }
-            bool cpuOnly = false, benchmark = false, runtimeSource = false; W count = 32; NSString* library = nil;
+            bool cpuOnly = false, benchmark = false, runtimeSource = false; W count = 32; NSString* library = nil; unsigned workerSeconds=0;
             for (int i = 1; i < argc; ++i) {
                 std::string arg(argv[i]);
                 if (arg == "--cpu-only") cpuOnly = true;
                 else if (arg == "--benchmark") benchmark = true;
+                else if (arg == "--worker-seconds" && i + 1 < argc) {
+                    std::string value(argv[++i]); size_t used=0; unsigned long parsed=std::stoul(value,&used);
+                    require(used==value.size() && parsed>=1 && parsed<=900,"worker lifetime must be 1..900 seconds");
+                    workerSeconds=static_cast<unsigned>(parsed);
+                }
                 else if (arg == "--metallib" && i + 1 < argc) library = [NSString stringWithUTF8String:argv[++i]];
                 else if (arg == "--metal-source" && i + 1 < argc) { runtimeSource = true; library = [NSString stringWithUTF8String:argv[++i]]; }
                 else if (arg == "--count" && i + 1 < argc) {
@@ -194,6 +273,11 @@ int main(int argc, char** argv) {
                 } else throw std::runtime_error("Usage: noid-apple-check [--cpu-only | --metallib FILE | --metal-source FILE] [--benchmark --count 32]");
             }
             cpuSelftest(pmull);
+            if(workerSeconds) {
+                require(!cpuOnly && !benchmark && library!=nil,"worker requires Metal and no benchmark flag");
+                GPU gpu(library,runtimeSource); gpuSelftest(gpu,pmull);
+                workerLoop(gpu,pmull,workerSeconds); return 0;
+            }
             NSMutableDictionary* report = [@{@"scope":@"offline correctness and synthetic benchmark; no pool shares", @"model":sysText("hw.model"),
                 @"chip":sysText("machdep.cpu.brand_string"), @"os":NSProcessInfo.processInfo.operatingSystemVersionString,
                 @"compiler":@(__clang_version__), @"cpuSelftest":@"passed", @"pmullAvailable":@(pmull),

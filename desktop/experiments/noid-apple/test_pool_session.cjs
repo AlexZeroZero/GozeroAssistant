@@ -113,9 +113,16 @@ test('pause between CPU validation and transport write suppresses queued submits
   assert.equal(session.canSend(request),true);
   session.receive({method:'mining.pause'}); assert.equal(session.canSend(request),false);
 });
-test('opaque work domain is echoed verbatim; repeated job IDs cannot reuse counters',()=>{
+test('opaque work domain is echoed verbatim; changed work under an ID fails closed',()=>{
   const {session}=setup(); session.receive(job({work_domain_id:'AB'.repeat(32)}));
   const [request]=session.complete(session.allocate(1),found(),hash).requests;
   assert.equal(request.params[2],'AB'.repeat(32));
-  assert.throws(()=>session.receive(job()),/job ID reused/); assert.equal(session.connected,false);
+  assert.throws(()=>session.receive(job({share_target_hex:'00'.repeat(32)})),/job ID reused/); assert.equal(session.connected,false);
+});
+test('duplicate notify and pause/resume replay preserve all reserved nonce counters',()=>{
+  const {session}=setup();session.receive(job());const first=session.allocate(9);
+  session.receive(job());assert.equal(first.signal.aborted,true);assert.equal(session.allocate(7).start,9n);
+  session.receive({method:'mining.pause'});session.receive(job());assert.equal(session.allocate(1).start,16n);
+  session.receive(job({job_id:'another'}));session.allocate(3);
+  session.receive(job());assert.equal(session.allocate(1).start,17n);
 });

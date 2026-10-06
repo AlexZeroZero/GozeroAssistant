@@ -74,7 +74,7 @@ class Session {
   invalidate() { this.abort.abort(); this.abort=new AbortController(); this.generation++; this.inflight.clear(); this.job=null; }
   disconnect() {
     this.invalidate(); this.connected=false; this.authorized=false; this.namespace=null;
-    this.pending.clear(); this.decoder=new LineDecoder(); this.seenJobs=new Set();
+    this.pending.clear(); this.decoder=new LineDecoder(); this.seenJobs=new Map();
   }
   connect({tlsVerified=false}={}) {
     this.disconnect(); check(!this.policy.tlsRequired || tlsVerified,'Innovlab requires verified TLS');
@@ -110,16 +110,20 @@ class Session {
       const j=message.params[0]; check(j && typeof j==='object','invalid job');
       check(j.nonce_field_index===10 && j.nonce_bits===64 && typeof j.clean==='boolean','unsupported nonce layout/clean');
       check(typeof j.job_id==='string' && j.job_id.length>0 && j.job_id.length<=256,'invalid job ID');
-      // Reusing a job ID would reset its counters and produce duplicate work.
-      // A new connection has a fresh namespace, so reconnect safely if reused.
-      check(!this.seenJobs.has(j.job_id) && this.seenJobs.size<65536,'job ID reused or session job limit reached');
       check(Number.isSafeInteger(j.expires_in_seconds) && j.expires_in_seconds>0 && j.expires_in_seconds<=86400,'invalid expiry');
       const prefix=hex(j.nonce_prefix_hex,8); check(prefix===this.namespace,'session namespace changed');
       const fields=hex(j.pow_fields_hex,256); check(fields.slice(320,352)==='0'.repeat(32),'nonce field must be zero');
-      hex(j.work_domain_id,32); this.seenJobs.add(j.job_id);
+      hex(j.work_domain_id,32);
+      const target=hex(j.share_target_hex,32),blockTarget=hex(j.block_target_hex,32);
+      const signature=JSON.stringify([fields,prefix,target,blockTarget,j.work_domain_id]);
+      let saved=this.seenJobs.get(j.job_id);
+      // Innovlab can replay the current ID. Keep reserved counters even across
+      // pause/expiry and never reuse a nonce. Changed work under an ID is unsafe.
+      if(saved) check(saved.signature===signature,'job ID reused with changed work');
+      else {check(this.seenJobs.size<65536,'session job limit reached');saved={signature,nextCounter:0n};this.seenJobs.set(j.job_id,saved);}
       this.job=Object.freeze({id:j.job_id,domain:j.work_domain_id,fields,prefix,
-        target:hex(j.share_target_hex,32),blockTarget:hex(j.block_target_hex,32),deadline:this.now()+j.expires_in_seconds*1000});
-      this.counter=0n; return [];
+        target,blockTarget,deadline:this.now()+j.expires_in_seconds*1000});
+      this.counter=saved.nextCounter; return [];
     }
     if(message.method) return []; // Optional notifications do not restart work.
     const method=this.pending.get(message.id)?.method; if(!method) return [];
@@ -148,7 +152,8 @@ class Session {
     check(Number.isInteger(count) && count>0 && count<=1048576,'invalid batch count');
     check(this.inflight.size<64,'too many in-flight batches');
     check(this.counter+BigInt(count)<=SPACE,'nonce space exhausted');
-    const ticket=this.ticket(this.counter,count); this.counter+=BigInt(count); return ticket;
+    const ticket=this.ticket(this.counter,count); this.counter+=BigInt(count);
+    this.seenJobs.get(this.job.id).nextCounter=this.counter; return ticket;
   }
   complete(ticket,{nonces,totalMatches,capacity},hashNonce) {
     try { return this.finish(ticket,{nonces,totalMatches,capacity},hashNonce); }

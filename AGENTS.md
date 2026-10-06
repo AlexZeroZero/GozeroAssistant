@@ -15,9 +15,10 @@ Dedicated project-local SSH authentication is now verified. Remote work is
 restricted to the Gozero-Mac-Test session directory unless necessary tool setup
 is authorized. Keep private keys and host connection data under ignored .local/.
 Native arm64 builds and CPU/PMULL plus runtime-compiled Metal selftests now pass
-on this one Mac. Do not generalize to the entire M-series family or claim
-accepted pool shares. Only short synthetic benchmark timing exists so far;
-no sustained pool hashrate or power efficiency has been measured.
+on this one Mac. A 180-second Innovlab TLS test also returned 17 accepted shares,
+zero rejections, using a Windows Node controller and the Mac worker over SSH.
+Do not generalize to the entire M-series family or claim a complete Mac app.
+No long-term pool-side hashrate or power efficiency has been measured.
 
 The source under desktop/experiments/noid-apple is an UNCOMPILED draft at handoff.
 It is not an available miner or release. Validate the exact NOID algorithm and

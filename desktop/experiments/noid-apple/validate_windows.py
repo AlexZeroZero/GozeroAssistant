@@ -43,7 +43,7 @@ def main():
     instructions = len(re.findall(r'\bpmull2?(?:\.1q)?\s', assembly))
     if instructions == 0:
         raise RuntimeError('ARM64 object did not select PMULL instructions')
-    run('node', '--test', 'test_pool_session.cjs')
+    run('node', '--test', 'test_pool_session.cjs', 'test_pool_runner.cjs')
     record = {'recordedAtUTC': datetime.now(timezone.utc).isoformat(), 'compiler': run(clang, '--version', capture=True).splitlines()[0],
               'native': json.loads((OUT / 'core-tests.json').read_text()),
               'referenceTests': 8, 'poolStateTests': 'passed; offline simulated messages only',

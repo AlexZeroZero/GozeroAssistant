@@ -1,5 +1,5 @@
 {
-  "status": "experimental-native-cpu-and-metal-selftests-passed-on-one-apple-m3",
+  "status": "experimental-bounded-innovlab-live-test-passed-on-one-apple-m3",
   "upstream": "https://github.com/proof-native/parano1d",
   "commit": "d1a7e8b0816b29029e2066bf9a974253bb4a07c8",
   "license": "Apache-2.0",
@@ -11,10 +11,12 @@
   "vectors": "https://noid.suprnova.cc/stratum/noid-poseidon2b-vectors.json",
   "protocol": "https://noid.suprnova.cc/stratum/stratum-protocol.md",
   "target": "macOS arm64 Apple M-series base/Pro/Max/Ultra, subject to runtime capability and real-device validation",
-  "supportsPoolMining": false,
+  "supportsPoolMining": true,
+  "poolMiningScope": "Bounded experimental Node TLS controller plus native Mac stdio worker; live test used Windows controller over SSH, not a standalone Mac GUI",
   "macOSBuildVerified": true,
   "metalExecutionVerified": true,
   "verifiedHardware": "Apple M3, Mac15,12, 16 GB, 10-core GPU; macOS 26.5.1 build 25F80",
   "metalCompilationVerified": "Apple Metal runtime source compiler; offline metallib compiler not tested",
-  "acceptedPoolSharesVerified": false
+  "acceptedPoolSharesVerified": true,
+  "poolEvidence": "evidence/mac-m3-innovlab-2026-10-06.json"
 }

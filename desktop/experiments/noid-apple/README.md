@@ -16,7 +16,7 @@ random/dense products and squares, basis conversion, permutation, 48 randomized
 cached hashes and 16 interleaved hashes, strict 256-bit little-endian target
 comparison and 64-bit counter boundary handling.
 
-Fourteen simulated protocol tests pass. After the original Windows validation,
+Nineteen simulated protocol/transport tests pass. After the original Windows validation,
 Apple Clang 21 and macOS SDK 26.5 compiled the native host and libraries on M3.
 Both portable and PMULL libraries passed all ten differential groups on native
 ARM64 Python. Metal runtime source compilation, all six public fixtures, batch
@@ -122,14 +122,67 @@ A future transport must call `tick()` periodically, connect using verified TLS
 call `disconnect()` on transport faults. It must call `canSend(request)` directly
 before `socket.write`, without an await between them, so pause/expiry after GPU
 completion cannot leak a stale queued submit. Request replies are correlated by
-monotonic IDs. A rejected CPU candidate stops the session. Jobs with repeated IDs
-fail closed to avoid repeating nonce counters. `reconnectDelay()` provides a
-bounded jittered delay; reconnect scheduling itself is not implemented.
+monotonic IDs. A rejected CPU candidate stops the session. Identical replayed
+job IDs retain reserved nonce counters even across pause and expiry. Reusing an
+ID with different work fails closed. This replay case was observed on Innovlab
+and is covered by a regression test.
 
 Innovlab's 60-second handshake and 600-second silence policy is separate from
 Suprnova's no-idle-drop documentation. The 4 MiB newline framing limit applies
 to bytes, with strict UTF-8 decoding. Optional statistics are not proof of work.
 The model intentionally has no production wallet and is not wired to the UI.
+
+## Bounded live acceptance test
+
+On 2026-10-06, the M3 completed a 180-second TLS session with Innovlab HK2:
+17 submitted shares were accepted, none rejected or left unacknowledged. The
+controller handled seven pauses and eight job notifications. Local useful-work
+average was 1.054 MH/s; the short sample is not a long-term pool-side rate or
+profitability measurement. The worker was confirmed stopped afterward.
+[Live evidence](evidence/mac-m3-innovlab-2026-10-06.json) retains replies and
+source/binary hashes. An earlier test stopped safely on a replayed job ID;
+the identical-replay counter fix preceded the successful complete run.
+
+`pool_runner.cjs` now supplies verified TLS, bounded reconnects and a single
+in-flight native batch. It requires an explicit local JSON configuration and
+stops after 1–600 seconds. The native host's `--worker-seconds` mode has its own
+hard lifetime (1–900 seconds), exits on parent EOF, and accepts at most 65,536
+nonces per request. CPU/Metal selftests precede its ready event. GPU candidates
+are recomputed on CPU in the native process; only those CPU digests pass into
+the session's strict target, namespace, generation and pre-send checks.
+
+```sh
+node desktop/experiments/noid-apple/pool_runner.cjs LOCAL_CONFIG.json REPORT.json
+```
+
+Configuration example (replace the address and binary paths; keep real wallet
+configuration outside Git):
+
+```json
+{
+  "pool": "innovlab",
+  "host": "hk2.innovlab.cc",
+  "port": 19601,
+  "wallet": "REPLACE_WITH_YOUR_PUBLIC_NOID_ADDRESS",
+  "worker": "gozero-mac-test",
+  "seconds": 180,
+  "batch": 65536,
+  "command": ["/path/to/noid-apple-check", "--worker-seconds", "240", "--metal-source", "/path/to/noid-runtime.metal"]
+}
+```
+
+The command is an argument array, not evaluated shell code. For Windows control
+of a Mac, it may instead contain the authorized SSH client invocation with a
+verified known-host file and dedicated key. In that topology Node/TLS runs on
+Windows, while GPU search and CPU rechecks run on the Mac. This is not a
+standalone Mac application. No seed or private wallet key is required. The
+test runner does not modify production fee logic or the Windows miner.
+
+Run `node --test .../test_pool_session.cjs .../test_pool_runner.cjs` for protocol
+tests. On Mac, `test_worker.py --executable PATH --metal-source PATH` checks real
+CPU-verified worker output, overflow rejection, EOF and independent lifetime.
+The native process only computes assigned batches; no orphan background mining
+continues after EOF or expiry. The macOS graphical assistant remains pending.
 
 ## Remaining acceptance gates
 
@@ -138,8 +191,8 @@ The model intentionally has no production wallet and is not wired to the UI.
 2. Measure scalar/four-state PMULL and Metal against the pinned upstream CPU
    implementation. Tune only from measured results. Add bounded asynchronous
    dispatch, worker limits and adaptive batch sizing to keep cancellation timely.
-3. Implement transport and worker integration, then verify TLS, accepted shares,
-   pause/reconnect behavior and pool-side effective hashrate over a sustained run.
+3. Extend bounded live transport/worker testing to longer sessions, reconnect
+   faults, other pools and pool-side effective hashrate; integrate it into the app.
 4. Port Gozero device discovery, unified-memory telemetry, process management,
    tray/mini-window and arm64 packaging. Keep unavailable telemetry explicit.
 5. Build/sign/package the Mac app in a later authorized release step. This branch

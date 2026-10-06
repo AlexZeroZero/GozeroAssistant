@@ -246,3 +246,32 @@ M3 NATIVE / METAL VERIFIED — 2026-10-06 (supersedes prior pending-build notes)
   scheduling, accepted-share validation with user's test wallet, then Mac UI,
   telemetry/tray/mini-window and application packaging. Existing Windows release
   remains untouched. Never promote the core test ZIP as the complete assistant.
+
+LIVE INNOVLAB ACCEPTANCE — 2026-10-06
+- User supplied a public NOID test address and authorized acceptance testing.
+  Full address/configuration stays in ignored .local/mac-ssh/live-innovlab.json;
+  do not put an operator wallet into distributable source or defaults.
+- Added bounded native stdio worker (--worker-seconds), with readiness gated on
+  CPU/Metal selftests, cached headers, candidate-only GPU search and CPU digest
+  rechecks. Maximum 65,536 candidates/request; EOF and hard lifetime terminate it.
+  Three actual Mac worker tests pass, including idle deadline and overflow.
+- Added pool_runner.cjs: verified TLS only, single in-flight worker batch,
+  bounded reconnection, live pause/expiry cancellation, final submission gate,
+  finite 1..600-second test duration and JSON reporting. Node ran on Windows;
+  computation and CPU candidate validation ran on the Mac via authorized SSH.
+- First live run accepted two shares then safely stopped because Innovlab
+  replayed an identical job ID. Fixed session replay handling to preserve
+  reserved nonce counters across duplicate notifications/pause/expiry. Changed
+  work under an existing ID still fails closed. Nineteen offline protocol and
+  transport tests now pass, including replay and false TLS authorization.
+- Full post-fix run: 180.013 s, TLSv1.3, hk2.innovlab.cc:19601, 189,661,184 useful
+  hashes, 17 submitted/17 accepted/0 rejected/0 unacknowledged, 7 pauses, 8 jobs,
+  0 reconnects. Local average 1,053,597 H/s. Short sample only, not a sustained
+  pool-side rate or earnings proof. Normal duration stop; remote worker absent.
+- Tracked proof: noid-apple/evidence/mac-m3-innovlab-2026-10-06.json and
+  mac-m3-worker-build-2026-10-06.json. First failed run and full local configs
+  remain in ignored artifacts/.local for diagnosis.
+- The old native core-test ZIP remains a selftest-only package. No complete
+  Mac Gozero GUI, autonomous production miner or new Windows release was built.
+  Next: integrate this verified path into Mac adapters/UI, preserve fee behavior,
+  test reconnect faults and sustained operation, then package the Mac assistant.
