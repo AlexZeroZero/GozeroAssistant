@@ -1,0 +1,3318 @@
+{
+  "scope": "M3-only short matched offline optimization; not sustained pool performance",
+  "baselineCommit": "e2f25760b1bba6965dfe787c704a6ab4ac493202",
+  "candidateCount": 17,
+  "selected": "six-bit basis lookup; 22 reads vs 32 per conversion",
+  "consensusArithmeticChanged": false,
+  "basisTableBytes": {
+    "previous": 16384,
+    "selected": 45056
+  },
+  "cl16IndependentPairs": 427680,
+  "candidateSourceHashes": {
+    "baseline": "ef6cb8036be373b2ae5e017092d124428ba281b89eec62b2bef320ff336f50e1",
+    "six-products": "6c9327346c1ce4f6107b4066c3537c353e845e5c6c43076a7d6db049c757a39d",
+    "diagonal-byte": "f030c36631a9465bc62f24be9b3343915b024c3b3d3c705a1c0cf428df45f047",
+    "basis-six": "5ede3ba14bc1b5a24a432e5bdaed450c866ba52751f880b16cab5684a3aab583",
+    "basis-byte": "64cbb09ab41a2c35b9ceb1bcc95184b5824656dfafe3f3a0851d6c3d026ac3c8",
+    "diagonal-packed": "b7e928c6f647ce01cce6c045c50a92f95574eb3a33eff8375ef601bbc3ffbff8",
+    "packed-six": "cc457bf7c196b87b021747fd043dfdce2d063760ba151386124f4508c404d03c",
+    "basis-five": "c7ded7e8e6c27f90d95fa69cd615a51017e185d7dd8f286b4f1756bed4595419",
+    "basis-four-unroll": "5d6c536b01d8d62f1d0fc8a1d79e00d8ab5bacfbbe5d7ffc0a2ac021c6aaf197",
+    "noinline-gm": "c5946b743824b8f999f81c76e372f572da0aaae745b878a8040f8edb992d3cd5",
+    "noinline-sbox": "99c8730d073811b5613b4273e94ea65191ec0bde85a26e249076293d1d0a0aa5",
+    "register-64": "c0281bd5be6b0dc8ec5c722c83ce98213c74879669471317fda3528c709f109f",
+    "register-128": "eeee5ab4818a92c12bc36a704752cd97bb5c4b8151d3e42d2286aa308e5d33bc",
+    "register-256": "2916207f8e7fa5bebf2affde7222ceee4345b9de60744ef0b4177f8a4dc459f6",
+    "register-512": "d1695ba847f707bfb6b3099eb49b9be7306e50d23def4c2c79fee0084a900a10",
+    "constant-prepared": "250312953f9286de0dd0f787998010b2f82e27554d74a71baafb24c3be381063",
+    "word-six": "819b4eb8f0f68697b834752a6bccb9a14185262f3a238239e38c3de4060c1f0d",
+    "word-five": "40df53b4cf3da9ef05081a4cf5e715a74e398b7cf2c550578199ffd0d3267ea4"
+  },
+  "baselineVsPreviousGUI": "identical after CRLF/LF normalization",
+  "screening": [
+    {
+      "report": "screen.json",
+      "sha256": "9582ec5ec3e7efdf64dcb09861f3814627777d84243fe70e7453230e1915ecfe",
+      "medians": {
+        "baseline": 1756017.6175586423,
+        "six-products": 1569221.0695512197,
+        "diagonal-byte": 1744508.8189063296,
+        "basis-six": 1784576.923005057,
+        "basis-byte": 1713176.4290383712
+      },
+      "samples": [
+        {
+          "name": "baseline",
+          "round": 1,
+          "error": null,
+          "rate": 1756017.6175586423,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "six-products",
+          "round": 1,
+          "error": null,
+          "rate": 1569221.0695512197,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "diagonal-byte",
+          "round": 1,
+          "error": null,
+          "rate": 1744508.8189063296,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "basis-six",
+          "round": 1,
+          "error": null,
+          "rate": 1784576.923005057,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "basis-byte",
+          "round": 1,
+          "error": null,
+          "rate": 1713176.4290383712,
+          "metalSelftest": "passed"
+        }
+      ]
+    },
+    {
+      "report": "screen2.json",
+      "sha256": "7f87ee205e5e4225f56eb9021b72a6221bf84dbf18b901540cbc899921033014",
+      "medians": {
+        "baseline": 1757443.7811770593,
+        "diagonal-packed": 1711791.7399153544,
+        "basis-five": 1747793.9866469891,
+        "basis-four-unroll": 1661034.66574493,
+        "noinline-gm": 1756333.1960104387,
+        "noinline-sbox": 1742563.2342879586
+      },
+      "samples": [
+        {
+          "name": "baseline",
+          "round": 1,
+          "error": null,
+          "rate": 1757386.747562134,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "diagonal-packed",
+          "round": 1,
+          "error": null,
+          "rate": 1711791.7399153544,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "packed-six",
+          "round": 1,
+          "error": "selftest failed: program_source:181:42: error: use of undeclared identifier 'times32Bytes'\nstatic inline W towerWord0(W a){return a^times32Bytes(a);}\n                                         ^\nprogram_source:184:41: error: use of undeclared identifier 'xtimeBytes'\nstatic inline W towerWord1(W a){W t=a;t=xtimeBytes(t);t=xtimeBytes(t);t=xtimeBytes(t);t=xtimeBytes(t);t=xtimeBytes(t);W h=(t>>8)&0x00ff00ffu;\n                                        ^\nprogram_source:184:57: error: use of undeclared identifier 'xtimeBytes'\nstatic inline W towerWord1(W a){W t=a;t=xtimeBytes(t);t=xtimeBytes(t);t=xtimeBytes(t);t=xtimeBytes(t);t=xtimeBytes(t);W h=(t>>8)&0x00ff00ffu;\n                                                        ^\nprogram_source:184:73: error: use of undeclared identifier 'xtimeBytes'\nstatic inline W towerWord1(W a){W t=a;t=xtimeBytes(t);t=xtimeBytes(t);t=xtimeBytes(t);t=xtimeBytes(t);t=xtimeBytes(t);W h=(t>>8)&0x00ff00ffu;\n                                                                        ^\nprogram_source:184:89: error: use of undeclared identifier 'xtimeBytes'\nstatic inline W towerWord1(W a){W t=a;t=xtimeBytes(t);t=xtimeBytes(t);t=xtimeBytes(t);t=xtimeBytes(t);t=xtimeBytes(t);W h=(t>>8)&0x00ff00ffu;\n                                                                                        ^\nprogram_source:184:105: error: use of undeclared identifier 'xtimeBytes'\nstatic inline W towerWord1(W a){W t=a;t=xtimeBytes(t);t=xtimeBytes(t);t=xtimeBytes(t);t=xtimeBytes(t);t=xtimeBytes(t);W h=(t>>8)&0x00ff00ffu;\n                                                                                                        ^\nprogram_source:185:27: error: use of undeclared identifier 'times32Bytes'\n    W low=(a&0x00ff00ffu)^times32Bytes(h);\n                          ^\nprogram_source:190:41: error: use of undeclared identifier 'xtimeBytes'\nstatic inline W towerWord2(W a){W t=a;t=xtimeBytes(t);W h=(t>>8)&0x00ff00ffu;\n                                        ^\nprogram_source:191:27: error: use of undeclared identifier 'times32Bytes'\n    W low=(a&0x00ff00ffu)^times32Bytes(h);\n                          ^\nprogram_source:196:41: error: use of undeclared identifier 'xtimeBytes'\nstatic inline W towerWord3(W a){W t=a;t=xtimeBytes(t);t=xtimeBytes(t);t=xtimeBytes(t);W h=(t>>8)&0x00ff00ffu;\n                                        ^\nprogram_source:196:57: error: use of undeclared identifier 'xtimeBytes'\nstatic inline W towerWord3(W a){W t=a;t=xtimeBytes(t);t=xtimeBytes(t);t=xtimeBytes(t);W h=(t>>8)&0x00ff00ffu;\n                                                        ^\nprogram_source:196:73: error: use of undeclared identifier 'xtimeBytes'\nstatic inline W towerWord3(W a){W t=a;t=xtimeBytes(t);t=xtimeBytes(t);t=xtimeBytes(t);W h=(t>>8)&0x00ff00ffu;\n                                                                        ^\nprogram_source:197:27: error: use of undeclared identifier 'times32Bytes'\n    W low=(a&0x00ff00ffu)^times32Bytes(h);\n                          ^\n\n",
+          "rate": null,
+          "metalSelftest": null
+        },
+        {
+          "name": "basis-five",
+          "round": 1,
+          "error": null,
+          "rate": 1747793.9866469891,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "basis-four-unroll",
+          "round": 1,
+          "error": null,
+          "rate": 1661034.66574493,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "noinline-gm",
+          "round": 1,
+          "error": null,
+          "rate": 1756333.1960104387,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "noinline-sbox",
+          "round": 1,
+          "error": null,
+          "rate": 1742563.2342879586,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "baseline",
+          "round": 1,
+          "error": null,
+          "rate": 1757500.8147919844,
+          "metalSelftest": "passed"
+        }
+      ]
+    },
+    {
+      "report": "screen3.json",
+      "sha256": "c99e939a661c6ddb716f777dfd1fbb769f23cc0b30a7e54c287866f9bed17db2",
+      "medians": {
+        "baseline": 1756244.4696065416,
+        "constant-prepared": 1753258.9317773853,
+        "packed-six": 1729509.5644776989
+      },
+      "samples": [
+        {
+          "name": "baseline",
+          "round": 1,
+          "error": null,
+          "rate": 1756777.4525259319,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "register-64",
+          "round": 1,
+          "error": "selftest failed: program_source:255:100: error: 'max_total_threads_per_threadgroup' attribute cannot be applied to types\n                         device U* output [[buffer(1)]], uint index [[thread_position_in_grid]]) [[max_total_threads_per_threadgroup(64)]] {\n                                                                                                   ^\nprogram_source:263:102: error: 'max_total_threads_per_threadgroup' attribute cannot be applied to types\n                      device Digest* output [[buffer(1)]], uint index [[thread_position_in_grid]]) [[max_total_threads_per_threadgroup(64)]] {\n                                                                                                     ^\nprogram_source:277:67: error: 'max_total_threads_per_threadgroup' attribute cannot be applied to types\n                        uint index [[thread_position_in_grid]]) [[max_total_threads_per_threadgroup(64)]] {\n                                                                  ^\n\n",
+          "rate": null,
+          "metalSelftest": null
+        },
+        {
+          "name": "register-128",
+          "round": 1,
+          "error": "selftest failed: program_source:255:100: error: 'max_total_threads_per_threadgroup' attribute cannot be applied to types\n                         device U* output [[buffer(1)]], uint index [[thread_position_in_grid]]) [[max_total_threads_per_threadgroup(128)]] {\n                                                                                                   ^\nprogram_source:263:102: error: 'max_total_threads_per_threadgroup' attribute cannot be applied to types\n                      device Digest* output [[buffer(1)]], uint index [[thread_position_in_grid]]) [[max_total_threads_per_threadgroup(128)]] {\n                                                                                                     ^\nprogram_source:277:67: error: 'max_total_threads_per_threadgroup' attribute cannot be applied to types\n                        uint index [[thread_position_in_grid]]) [[max_total_threads_per_threadgroup(128)]] {\n                                                                  ^\n\n",
+          "rate": null,
+          "metalSelftest": null
+        },
+        {
+          "name": "register-256",
+          "round": 1,
+          "error": "selftest failed: program_source:255:100: error: 'max_total_threads_per_threadgroup' attribute cannot be applied to types\n                         device U* output [[buffer(1)]], uint index [[thread_position_in_grid]]) [[max_total_threads_per_threadgroup(256)]] {\n                                                                                                   ^\nprogram_source:263:102: error: 'max_total_threads_per_threadgroup' attribute cannot be applied to types\n                      device Digest* output [[buffer(1)]], uint index [[thread_position_in_grid]]) [[max_total_threads_per_threadgroup(256)]] {\n                                                                                                     ^\nprogram_source:277:67: error: 'max_total_threads_per_threadgroup' attribute cannot be applied to types\n                        uint index [[thread_position_in_grid]]) [[max_total_threads_per_threadgroup(256)]] {\n                                                                  ^\n\n",
+          "rate": null,
+          "metalSelftest": null
+        },
+        {
+          "name": "register-512",
+          "round": 1,
+          "error": "selftest failed: program_source:255:100: error: 'max_total_threads_per_threadgroup' attribute cannot be applied to types\n                         device U* output [[buffer(1)]], uint index [[thread_position_in_grid]]) [[max_total_threads_per_threadgroup(512)]] {\n                                                                                                   ^\nprogram_source:263:102: error: 'max_total_threads_per_threadgroup' attribute cannot be applied to types\n                      device Digest* output [[buffer(1)]], uint index [[thread_position_in_grid]]) [[max_total_threads_per_threadgroup(512)]] {\n                                                                                                     ^\nprogram_source:277:67: error: 'max_total_threads_per_threadgroup' attribute cannot be applied to types\n                        uint index [[thread_position_in_grid]]) [[max_total_threads_per_threadgroup(512)]] {\n                                                                  ^\n\n",
+          "rate": null,
+          "metalSelftest": null
+        },
+        {
+          "name": "constant-prepared",
+          "round": 1,
+          "error": null,
+          "rate": 1753258.9317773853,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "packed-six",
+          "round": 1,
+          "error": null,
+          "rate": 1729509.5644776989,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "baseline",
+          "round": 1,
+          "error": null,
+          "rate": 1755711.4866871512,
+          "metalSelftest": "passed"
+        }
+      ]
+    },
+    {
+      "report": "screen4.json",
+      "sha256": "24af75853759e527e465963e4aec2019a79b47323cd22f53b3c41cf32a51dd28",
+      "medians": {
+        "baseline": 1736868.8841245149,
+        "register-64": 1756271.2331978928,
+        "register-128": 1757696.6059065834,
+        "register-256": 1755703.465084911,
+        "register-512": 1755870.0727766105
+      },
+      "samples": [
+        {
+          "name": "baseline",
+          "round": 1,
+          "error": null,
+          "rate": 1716293.289984444,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "register-64",
+          "round": 1,
+          "error": null,
+          "rate": 1756271.2331978928,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "register-128",
+          "round": 1,
+          "error": null,
+          "rate": 1757696.6059065834,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "register-256",
+          "round": 1,
+          "error": null,
+          "rate": 1755703.465084911,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "register-512",
+          "round": 1,
+          "error": null,
+          "rate": 1755870.0727766105,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "baseline",
+          "round": 1,
+          "error": null,
+          "rate": 1757444.4782645858,
+          "metalSelftest": "passed"
+        }
+      ]
+    },
+    {
+      "report": "screen5.json",
+      "sha256": "f44108ebb62e285c463248ad6bb6306f1f99077962fe9eae8546536e4b7d2a8d",
+      "medians": {
+        "baseline": 1756895.1950720777,
+        "word-six": 1763228.6093772533,
+        "word-five": 1740130.679306528
+      },
+      "samples": [
+        {
+          "name": "baseline",
+          "round": 1,
+          "error": null,
+          "rate": 1756564.6850023996,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "word-six",
+          "round": 1,
+          "error": null,
+          "rate": 1763228.6093772533,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "word-five",
+          "round": 1,
+          "error": null,
+          "rate": 1740130.679306528,
+          "metalSelftest": "passed"
+        },
+        {
+          "name": "baseline",
+          "round": 1,
+          "error": null,
+          "rate": 1757225.705141756,
+          "metalSelftest": "passed"
+        }
+      ]
+    }
+  ],
+  "sequentialConfirmation": {
+    "scope": "short offline synthetic screening; all hashes checked before timing",
+    "samples": [
+      {
+        "name": "baseline",
+        "round": 1,
+        "result": {
+          "workerCount": 1,
+          "cpuSingle": {
+            "hashesPerSecond": 79465.57223429273,
+            "checksum": 3555123813,
+            "seconds": 0.05154433404095471,
+            "backend": "PMULL"
+          },
+          "maxThreadsPerThreadgroup": 1024,
+          "cpuMiningThreads": 0,
+          "compiler": "21.0.0 (clang-2100.1.1.101)",
+          "count": 4096,
+          "metalRandomHeaderDigests": 192,
+          "powerWatts": null,
+          "chip": "Apple M3",
+          "cpuSelftest": "passed",
+          "gpu": "Apple M3",
+          "os": "Version 26.5.1 (Build 25F80)",
+          "metalSearch": {
+            "hashes": 35127296,
+            "batch": 65536,
+            "wallSeconds": 20.005805542110465,
+            "gpuHashes": 35127296,
+            "hashesPerSecondWall": 1755855.1154593662,
+            "warmupBatches": 8,
+            "hashesPerSecondGPU": 1771530.671086504,
+            "cpuHashes": 0,
+            "cpuCheckedCandidates": 505,
+            "gpuBusyFraction": 0.9911514060224971,
+            "batches": 536,
+            "gpuSeconds": 19.828782291675452
+          },
+          "metalArithmeticPairs": 20496,
+          "metalDigestBatch": {
+            "hashesPerSecondWall": 1156776.2452287101,
+            "gpuSeconds": 0.0032398750045103952,
+            "wallSeconds": 0.0035408749245107174
+          },
+          "scope": "offline correctness and synthetic benchmark; no pool shares",
+          "threadExecutionWidth": 32,
+          "cpuFour": {
+            "seconds": 0.04059820796828717,
+            "hashesPerSecond": 100891.15271293609,
+            "checksum": 3555123813
+          },
+          "appleFamily1": true,
+          "model": "Mac15,12",
+          "metalCompilation": "runtime-source",
+          "threadgroup": 32,
+          "unifiedMemory": true,
+          "temperatureC": null,
+          "metalSelftest": "passed",
+          "pmullAvailable": true
+        }
+      },
+      {
+        "name": "basis-six",
+        "round": 1,
+        "result": {
+          "workerCount": 1,
+          "cpuSingle": {
+            "hashesPerSecond": 78972.99030602207,
+            "checksum": 3555123813,
+            "seconds": 0.05186583392787725,
+            "backend": "PMULL"
+          },
+          "maxThreadsPerThreadgroup": 1024,
+          "cpuMiningThreads": 0,
+          "compiler": "21.0.0 (clang-2100.1.1.101)",
+          "count": 4096,
+          "metalRandomHeaderDigests": 192,
+          "powerWatts": null,
+          "chip": "Apple M3",
+          "cpuSelftest": "passed",
+          "gpu": "Apple M3",
+          "os": "Version 26.5.1 (Build 25F80)",
+          "metalSearch": {
+            "hashes": 35651584,
+            "batch": 65536,
+            "wallSeconds": 20.006537958048284,
+            "gpuHashes": 35651584,
+            "hashesPerSecondWall": 1781996.669026786,
+            "warmupBatches": 8,
+            "hashesPerSecondGPU": 1798661.156799573,
+            "cpuHashes": 0,
+            "cpuCheckedCandidates": 512,
+            "gpuBusyFraction": 0.9907350599584646,
+            "batches": 544,
+            "gpuSeconds": 19.821178583428264
+          },
+          "metalArithmeticPairs": 20496,
+          "metalDigestBatch": {
+            "hashesPerSecondWall": 1189458.7995637076,
+            "gpuSeconds": 0.0031190416775643826,
+            "wallSeconds": 0.0034435829147696495
+          },
+          "scope": "offline correctness and synthetic benchmark; no pool shares",
+          "threadExecutionWidth": 32,
+          "cpuFour": {
+            "seconds": 0.041046250029467046,
+            "hashesPerSecond": 99789.87111025945,
+            "checksum": 3555123813
+          },
+          "appleFamily1": true,
+          "model": "Mac15,12",
+          "metalCompilation": "runtime-source",
+          "threadgroup": 32,
+          "unifiedMemory": true,
+          "temperatureC": null,
+          "metalSelftest": "passed",
+          "pmullAvailable": true
+        }
+      },
+      {
+        "name": "basis-six",
+        "round": 2,
+        "result": {
+          "workerCount": 1,
+          "cpuSingle": {
+            "hashesPerSecond": 77342.54632124027,
+            "checksum": 3555123813,
+            "seconds": 0.05295920802745968,
+            "backend": "PMULL"
+          },
+          "maxThreadsPerThreadgroup": 1024,
+          "cpuMiningThreads": 0,
+          "compiler": "21.0.0 (clang-2100.1.1.101)",
+          "count": 4096,
+          "metalRandomHeaderDigests": 192,
+          "powerWatts": null,
+          "chip": "Apple M3",
+          "cpuSelftest": "passed",
+          "gpu": "Apple M3",
+          "os": "Version 26.5.1 (Build 25F80)",
+          "metalSearch": {
+            "hashes": 34603008,
+            "batch": 65536,
+            "wallSeconds": 20.025438916054554,
+            "gpuHashes": 34603008,
+            "hashesPerSecondWall": 1727952.5380219503,
+            "warmupBatches": 8,
+            "hashesPerSecondGPU": 1745119.6729887112,
+            "cpuHashes": 0,
+            "cpuCheckedCandidates": 496,
+            "gpuBusyFraction": 0.9901627749474853,
+            "batches": 528,
+            "gpuSeconds": 19.82844416666194
+          },
+          "metalArithmeticPairs": 20496,
+          "metalDigestBatch": {
+            "hashesPerSecondWall": 1126099.5057278152,
+            "gpuSeconds": 0.0032955000060610473,
+            "wallSeconds": 0.0036373339826241136
+          },
+          "scope": "offline correctness and synthetic benchmark; no pool shares",
+          "threadExecutionWidth": 32,
+          "cpuFour": {
+            "seconds": 0.047452625003643334,
+            "hashesPerSecond": 86317.66945844442,
+            "checksum": 3555123813
+          },
+          "appleFamily1": true,
+          "model": "Mac15,12",
+          "metalCompilation": "runtime-source",
+          "threadgroup": 32,
+          "unifiedMemory": true,
+          "temperatureC": null,
+          "metalSelftest": "passed",
+          "pmullAvailable": true
+        }
+      },
+      {
+        "name": "baseline",
+        "round": 2,
+        "result": {
+          "workerCount": 1,
+          "cpuSingle": {
+            "hashesPerSecond": 75075.14927996355,
+            "checksum": 3555123813,
+            "seconds": 0.05455866607371718,
+            "backend": "PMULL"
+          },
+          "maxThreadsPerThreadgroup": 1024,
+          "cpuMiningThreads": 0,
+          "compiler": "21.0.0 (clang-2100.1.1.101)",
+          "count": 4096,
+          "metalRandomHeaderDigests": 192,
+          "powerWatts": null,
+          "chip": "Apple M3",
+          "cpuSelftest": "passed",
+          "gpu": "Apple M3",
+          "os": "Version 26.5.1 (Build 25F80)",
+          "metalSearch": {
+            "hashes": 32964608,
+            "batch": 65536,
+            "wallSeconds": 20.03768658300396,
+            "gpuHashes": 32964608,
+            "hashesPerSecondWall": 1645130.4327696543,
+            "warmupBatches": 8,
+            "hashesPerSecondGPU": 1660792.4995021047,
+            "cpuHashes": 0,
+            "cpuCheckedCandidates": 463,
+            "gpuBusyFraction": 0.9905695222388432,
+            "batches": 503,
+            "gpuSeconds": 19.848721625297912
+          },
+          "metalArithmeticPairs": 20496,
+          "metalDigestBatch": {
+            "hashesPerSecondWall": 1081285.7123400457,
+            "gpuSeconds": 0.003374791660462506,
+            "wallSeconds": 0.0037880829768255353
+          },
+          "scope": "offline correctness and synthetic benchmark; no pool shares",
+          "threadExecutionWidth": 32,
+          "cpuFour": {
+            "seconds": 0.04842637502588332,
+            "hashesPerSecond": 84582.00717709589,
+            "checksum": 3555123813
+          },
+          "appleFamily1": true,
+          "model": "Mac15,12",
+          "metalCompilation": "runtime-source",
+          "threadgroup": 32,
+          "unifiedMemory": true,
+          "temperatureC": null,
+          "metalSelftest": "passed",
+          "pmullAvailable": true
+        }
+      },
+      {
+        "name": "baseline",
+        "round": 3,
+        "result": {
+          "workerCount": 1,
+          "cpuSingle": {
+            "hashesPerSecond": 79431.47695185653,
+            "checksum": 3555123813,
+            "seconds": 0.05156645900569856,
+            "backend": "PMULL"
+          },
+          "maxThreadsPerThreadgroup": 1024,
+          "cpuMiningThreads": 0,
+          "compiler": "21.0.0 (clang-2100.1.1.101)",
+          "count": 4096,
+          "metalRandomHeaderDigests": 192,
+          "powerWatts": null,
+          "chip": "Apple M3",
+          "cpuSelftest": "passed",
+          "gpu": "Apple M3",
+          "os": "Version 26.5.1 (Build 25F80)",
+          "metalSearch": {
+            "hashes": 29491200,
+            "batch": 65536,
+            "wallSeconds": 20.03723304194864,
+            "gpuHashes": 29491200,
+            "hashesPerSecondWall": 1471819.983241157,
+            "warmupBatches": 8,
+            "hashesPerSecondGPU": 1485192.374622225,
+            "cpuHashes": 0,
+            "cpuCheckedCandidates": 420,
+            "gpuBusyFraction": 0.9909961890395044,
+            "batches": 450,
+            "gpuSeconds": 19.856821583467536
+          },
+          "metalArithmeticPairs": 20496,
+          "metalDigestBatch": {
+            "hashesPerSecondWall": 904011.464483907,
+            "gpuSeconds": 0.004099041660083458,
+            "wallSeconds": 0.00453091599047184
+          },
+          "scope": "offline correctness and synthetic benchmark; no pool shares",
+          "threadExecutionWidth": 32,
+          "cpuFour": {
+            "seconds": 0.043548124958761036,
+            "hashesPerSecond": 94056.86246833377,
+            "checksum": 3555123813
+          },
+          "appleFamily1": true,
+          "model": "Mac15,12",
+          "metalCompilation": "runtime-source",
+          "threadgroup": 32,
+          "unifiedMemory": true,
+          "temperatureC": null,
+          "metalSelftest": "passed",
+          "pmullAvailable": true
+        }
+      },
+      {
+        "name": "basis-six",
+        "round": 3,
+        "result": {
+          "workerCount": 1,
+          "cpuSingle": {
+            "hashesPerSecond": 79477.58696867785,
+            "checksum": 3555123813,
+            "seconds": 0.05153654201421887,
+            "backend": "PMULL"
+          },
+          "maxThreadsPerThreadgroup": 1024,
+          "cpuMiningThreads": 0,
+          "compiler": "21.0.0 (clang-2100.1.1.101)",
+          "count": 4096,
+          "metalRandomHeaderDigests": 192,
+          "powerWatts": null,
+          "chip": "Apple M3",
+          "cpuSelftest": "passed",
+          "gpu": "Apple M3",
+          "os": "Version 26.5.1 (Build 25F80)",
+          "metalSearch": {
+            "hashes": 26738688,
+            "batch": 65536,
+            "wallSeconds": 20.029682792024687,
+            "gpuHashes": 26738688,
+            "hashesPerSecondWall": 1334953.1431744227,
+            "warmupBatches": 8,
+            "hashesPerSecondGPU": 1347361.6571265513,
+            "cpuHashes": 0,
+            "cpuCheckedCandidates": 373,
+            "gpuBusyFraction": 0.9907905098185801,
+            "batches": 408,
+            "gpuSeconds": 19.84521962501458
+          },
+          "metalArithmeticPairs": 20496,
+          "metalDigestBatch": {
+            "hashesPerSecondWall": 902426.2706074967,
+            "gpuSeconds": 0.003983374990639277,
+            "wallSeconds": 0.004538874956779182
+          },
+          "scope": "offline correctness and synthetic benchmark; no pool shares",
+          "threadExecutionWidth": 32,
+          "cpuFour": {
+            "seconds": 0.04060545901302248,
+            "hashesPerSecond": 100873.1362619588,
+            "checksum": 3555123813
+          },
+          "appleFamily1": true,
+          "model": "Mac15,12",
+          "metalCompilation": "runtime-source",
+          "threadgroup": 32,
+          "unifiedMemory": true,
+          "temperatureC": null,
+          "metalSelftest": "passed",
+          "pmullAvailable": true
+        }
+      },
+      {
+        "name": "basis-six",
+        "round": 4,
+        "result": {
+          "workerCount": 1,
+          "cpuSingle": {
+            "hashesPerSecond": 79440.72175854068,
+            "checksum": 3555123813,
+            "seconds": 0.05156045802868903,
+            "backend": "PMULL"
+          },
+          "maxThreadsPerThreadgroup": 1024,
+          "cpuMiningThreads": 0,
+          "compiler": "21.0.0 (clang-2100.1.1.101)",
+          "count": 4096,
+          "metalRandomHeaderDigests": 192,
+          "powerWatts": null,
+          "chip": "Apple M3",
+          "cpuSelftest": "passed",
+          "gpu": "Apple M3",
+          "os": "Version 26.5.1 (Build 25F80)",
+          "metalSearch": {
+            "hashes": 27525120,
+            "batch": 65536,
+            "wallSeconds": 20.013910624897107,
+            "gpuHashes": 27525120,
+            "hashesPerSecondWall": 1375299.4362710414,
+            "warmupBatches": 8,
+            "hashesPerSecondGPU": 1387987.854583954,
+            "cpuHashes": 0,
+            "cpuCheckedCandidates": 384,
+            "gpuBusyFraction": 0.9908584082555132,
+            "batches": 420,
+            "gpuSeconds": 19.830951624753652
+          },
+          "metalArithmeticPairs": 20496,
+          "metalDigestBatch": {
+            "hashesPerSecondWall": 930072.4525448264,
+            "gpuSeconds": 0.004005374998087063,
+            "wallSeconds": 0.004403957980684936
+          },
+          "scope": "offline correctness and synthetic benchmark; no pool shares",
+          "threadExecutionWidth": 32,
+          "cpuFour": {
+            "seconds": 0.040633333032019436,
+            "hashesPerSecond": 100803.93840131979,
+            "checksum": 3555123813
+          },
+          "appleFamily1": true,
+          "model": "Mac15,12",
+          "metalCompilation": "runtime-source",
+          "threadgroup": 32,
+          "unifiedMemory": true,
+          "temperatureC": null,
+          "metalSelftest": "passed",
+          "pmullAvailable": true
+        }
+      },
+      {
+        "name": "baseline",
+        "round": 4,
+        "result": {
+          "workerCount": 1,
+          "cpuSingle": {
+            "hashesPerSecond": 79458.37945678622,
+            "checksum": 3555123813,
+            "seconds": 0.05154899996705353,
+            "backend": "PMULL"
+          },
+          "maxThreadsPerThreadgroup": 1024,
+          "cpuMiningThreads": 0,
+          "compiler": "21.0.0 (clang-2100.1.1.101)",
+          "count": 4096,
+          "metalRandomHeaderDigests": 192,
+          "powerWatts": null,
+          "chip": "Apple M3",
+          "cpuSelftest": "passed",
+          "gpu": "Apple M3",
+          "os": "Version 26.5.1 (Build 25F80)",
+          "metalSearch": {
+            "hashes": 29229056,
+            "batch": 65536,
+            "wallSeconds": 20.01996379205957,
+            "gpuHashes": 29229056,
+            "hashesPerSecondWall": 1459995.4477236862,
+            "warmupBatches": 8,
+            "hashesPerSecondGPU": 1473061.8191211254,
+            "cpuHashes": 0,
+            "cpuCheckedCandidates": 418,
+            "gpuBusyFraction": 0.9911297874754266,
+            "batches": 446,
+            "gpuSeconds": 19.842382458489737
+          },
+          "metalArithmeticPairs": 20496,
+          "metalDigestBatch": {
+            "hashesPerSecondWall": 937424.838522979,
+            "gpuSeconds": 0.003978333334089257,
+            "wallSeconds": 0.004369416972622275
+          },
+          "scope": "offline correctness and synthetic benchmark; no pool shares",
+          "threadExecutionWidth": 32,
+          "cpuFour": {
+            "seconds": 0.04062312503810972,
+            "hashesPerSecond": 100829.26894859578,
+            "checksum": 3555123813
+          },
+          "appleFamily1": true,
+          "model": "Mac15,12",
+          "metalCompilation": "runtime-source",
+          "threadgroup": 32,
+          "unifiedMemory": true,
+          "temperatureC": null,
+          "metalSelftest": "passed",
+          "pmullAvailable": true
+        }
+      }
+    ],
+    "binarySha256": "5fdfd0fddf2f62fd6789dc18a76f73ba7b809cb32a68b18c5a7ab625cf5423a4",
+    "seconds": 20,
+    "sources": {
+      "baseline": "ef6cb8036be373b2ae5e017092d124428ba281b89eec62b2bef320ff336f50e1",
+      "basis-six": "5ede3ba14bc1b5a24a432e5bdaed450c866ba52751f880b16cab5684a3aab583"
+    },
+    "medians": {
+      "baseline": 1558475.2080054055,
+      "basis-six": 1551625.9871464958
+    }
+  },
+  "sequentialCaveat": "Strong rate drift; aggregate median does not establish benefit. Replaced by short equal-work matched design.",
+  "matchedComparisons": [
+    {
+      "hashesPerVariant": 33554432,
+      "baselineRate": 1756050.6297380938,
+      "scope": "offline equal-work ABBA, pipelines precompiled, CPU candidate checks enabled",
+      "model": "Mac15,12",
+      "baselineGPUSeconds": 18.94073508339352,
+      "candidateGPUSeconds": 18.656549333420116,
+      "chip": "Apple M3",
+      "ratio": 1.0150554275976431,
+      "selftests": "passed",
+      "candidateRate": 1782488.7228519113,
+      "reportSha256": "ee328882404986757b070e7105e9d8d7c5e9784b4eded40863254025819deabc",
+      "cycles": [
+        {
+          "cycle": 0,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2984249589499086,
+            0.29394308291375637
+          ],
+          "ratio": 1.0152474281473982,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 1,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2988163339905441,
+            0.2937918750103563
+          ],
+          "ratio": 1.0171021032491476,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 2,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29823083395604044,
+            0.2938668749993667
+          ],
+          "ratio": 1.0148501220380253,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 3,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2984865000471473,
+            0.2938779171090573
+          ],
+          "ratio": 1.0156819640734684,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 4,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29824487515725195,
+            0.29370183299761266
+          ],
+          "ratio": 1.0154682118026694,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 5,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29826720885466784,
+            0.29353095905389637
+          ],
+          "ratio": 1.0161354353082117,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 6,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982913318555802,
+            0.2937523330328986
+          ],
+          "ratio": 1.01545178816392,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 7,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983608740614727,
+            0.29387016606051475
+          ],
+          "ratio": 1.0152812654008343,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 8,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983140420401469,
+            0.2937478329986334
+          ],
+          "ratio": 1.0155446560912493,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 9,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983341249637306,
+            0.2937854169867933
+          ],
+          "ratio": 1.0154830965525488,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 10,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29822654102463275,
+            0.2937976240646094
+          ],
+          "ratio": 1.0150747201381363,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 11,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982801249017939,
+            0.29379712499212474
+          ],
+          "ratio": 1.0152588283829849,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 12,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983905429719016,
+            0.2937867920845747
+          ],
+          "ratio": 1.0156703807365226,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 13,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29841295804362744,
+            0.29376583301927894
+          ],
+          "ratio": 1.015819147436535,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 14,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29837274900637567,
+            0.29363250092137605
+          ],
+          "ratio": 1.0161434720956481,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 15,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.3010587500175461,
+            0.2951040411135182
+          ],
+          "ratio": 1.0201783373808064,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 16,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2984526250511408,
+            0.29380745894741267
+          ],
+          "ratio": 1.0158102388563237,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 17,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29844795900862664,
+            0.29377541691064835
+          ],
+          "ratio": 1.0159051500874883,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 18,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2984837091062218,
+            0.29380445810966194
+          ],
+          "ratio": 1.0159264125080545,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 19,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2985523750539869,
+            0.29380183294415474
+          ],
+          "ratio": 1.0161692051483393,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 20,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.298365332884714,
+            0.29381695785559714
+          ],
+          "ratio": 1.0154803012811544,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 21,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982274158857763,
+            0.2937407490098849
+          ],
+          "ratio": 1.0152742406050732,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 22,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.298149875132367,
+            0.2935373760992661
+          ],
+          "ratio": 1.0157134982072644,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 23,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29823995800688863,
+            0.29374400002416223
+          ],
+          "ratio": 1.015305701503202,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 24,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983949580229819,
+            0.2939180419780314
+          ],
+          "ratio": 1.0152318517598355,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 25,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983602500753477,
+            0.2936102080857381
+          ],
+          "ratio": 1.016178054641147,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 26,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29825758398510516,
+            0.29357650014571846
+          ],
+          "ratio": 1.015945022292531,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 27,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29822787607554346,
+            0.29365441598929465
+          ],
+          "ratio": 1.0155742935819345,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 28,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29838579206261784,
+            0.2938719999510795
+          ],
+          "ratio": 1.0153597216212833,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 29,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983949580229819,
+            0.29383766604587436
+          ],
+          "ratio": 1.0155095568190227,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 30,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29837099998258054,
+            0.2939682089490816
+          ],
+          "ratio": 1.0149770992218468,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 31,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29794429207686335,
+            0.29310587397776544
+          ],
+          "ratio": 1.0165074074887526,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 32,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.30033474997617304,
+            0.29815779195632786
+          ],
+          "ratio": 1.0073013621598192,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 33,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29831808304879814,
+            0.29349908407311887
+          ],
+          "ratio": 1.0164191278173758,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 34,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29844816599506885,
+            0.29374495905358344
+          ],
+          "ratio": 1.0160111920103707,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 35,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2984794999938458,
+            0.29383233294356614
+          ],
+          "ratio": 1.0158157102852674,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 36,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983236260479316,
+            0.2935556670418009
+          ],
+          "ratio": 1.0162420949122803,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 37,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983801669906825,
+            0.29383212502580136
+          ],
+          "ratio": 1.0154783686926054,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 38,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982700838474557,
+            0.2937808749265969
+          ],
+          "ratio": 1.0152808072410446,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 39,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2981997079914436,
+            0.29371833405457437
+          ],
+          "ratio": 1.0152573857920513,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 40,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2981665428960696,
+            0.2938708340516314
+          ],
+          "ratio": 1.014617676702423,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 41,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983147508930415,
+            0.2935330420732498
+          ],
+          "ratio": 1.0162901892952767,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 42,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2981947079533711,
+            0.29349949897732586
+          ],
+          "ratio": 1.0159973321671938,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 43,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983232499100268,
+            0.2936894999584183
+          ],
+          "ratio": 1.0157777174610074,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 44,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29854474996682256,
+            0.2939865420339629
+          ],
+          "ratio": 1.0155048183543487,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 45,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29812983388546854,
+            0.2935202489607036
+          ],
+          "ratio": 1.0157044869684002,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 46,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29835224885027856,
+            0.2936633749632165
+          ],
+          "ratio": 1.0159668323898048,
+          "thermalStates": [
+            0,
+            1
+          ]
+        },
+        {
+          "cycle": 47,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29833129106555134,
+            0.2938426239416003
+          ],
+          "ratio": 1.0152757522504396,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 48,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29821412498131394,
+            0.2938379590632394
+          ],
+          "ratio": 1.0148931265791046,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 49,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.30598808405920863,
+            0.2937112090876326
+          ],
+          "ratio": 1.0417991366748045,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 50,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29804783302824944,
+            0.29348374996334314
+          ],
+          "ratio": 1.015551399576557,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 51,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29852837591897696,
+            0.2938664578832686
+          ],
+          "ratio": 1.0158640699224006,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 52,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983096670359373,
+            0.29533137602265924
+          ],
+          "ratio": 1.0100845736521051,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 53,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29828337393701077,
+            0.29389587487094104
+          ],
+          "ratio": 1.014928753484534,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 54,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2984600409399718,
+            0.2944358339300379
+          ],
+          "ratio": 1.0136675178296746,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 55,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29834862402640283,
+            0.29431945795658976
+          ],
+          "ratio": 1.0136897713042383,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 56,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29863508394919336,
+            0.2981154159642756
+          ],
+          "ratio": 1.001743177162566,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 57,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29820229101460427,
+            0.29451020795386285
+          ],
+          "ratio": 1.0125363500518114,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 58,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29842424986418337,
+            0.2956661250209436
+          ],
+          "ratio": 1.0093285114858674,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 59,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29831137403380126,
+            0.29458874906413257
+          ],
+          "ratio": 1.0126366841282803,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 60,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2985869999974966,
+            0.29569258401170373
+          ],
+          "ratio": 1.0097885985049875,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 61,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982661669375375,
+            0.29464312398340553
+          ],
+          "ratio": 1.012296377071864,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 62,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2994778749998659,
+            0.29804720799438655
+          ],
+          "ratio": 1.0048001355728395,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 63,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29893120797351,
+            0.2952893340261653
+          ],
+          "ratio": 1.0123332390563826,
+          "thermalStates": [
+            1
+          ]
+        }
+      ],
+      "winningCycles": 64
+    },
+    {
+      "hashesPerVariant": 33554432,
+      "baselineRate": 1756082.8155044625,
+      "scope": "offline equal-work ABBA, pipelines precompiled, CPU candidate checks enabled",
+      "model": "Mac15,12",
+      "baselineGPUSeconds": 18.93994154156826,
+      "candidateGPUSeconds": 18.643455958226696,
+      "chip": "Apple M3",
+      "ratio": 1.0157117706117567,
+      "selftests": "passed",
+      "candidateRate": 1783673.9858769164,
+      "reportSha256": "e61ef21c0beac20f0a6e4e4f29edf21f9750452d6bcba718c8d087047fbb3b3f",
+      "cycles": [
+        {
+          "cycle": 0,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2986710419645533,
+            0.29387241695076227
+          ],
+          "ratio": 1.0163289398289974,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 1,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29833399993367493,
+            0.29358120809774846
+          ],
+          "ratio": 1.0161890192724599,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 2,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983263749629259,
+            0.2938737499061972
+          ],
+          "ratio": 1.015151489570436,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 3,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982437489554286,
+            0.2938174590235576
+          ],
+          "ratio": 1.0150647614562487,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 4,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2981727489968762,
+            0.29362820798996836
+          ],
+          "ratio": 1.0154771949126329,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 5,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2980867500882596,
+            0.293576541938819
+          ],
+          "ratio": 1.015362971849367,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 6,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983071670169011,
+            0.2939238341059536
+          ],
+          "ratio": 1.014913159132809,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 7,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29823733295779675,
+            0.2935820840066299
+          ],
+          "ratio": 1.0158567201636928,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 8,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29834937513805926,
+            0.2937055000802502
+          ],
+          "ratio": 1.0158113316112234,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 9,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.30242133303545415,
+            0.29695991706103086
+          ],
+          "ratio": 1.018391088024519,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 10,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982370830141008,
+            0.29373354197014123
+          ],
+          "ratio": 1.0153320625685212,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 11,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2984116249717772,
+            0.29377266694791615
+          ],
+          "ratio": 1.0157909790316997,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 12,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29836841695941985,
+            0.29396183404605836
+          ],
+          "ratio": 1.01499032324268,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 13,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29841920791659504,
+            0.29365495895035565
+          ],
+          "ratio": 1.0162239690528938,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 14,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29828225111123174,
+            0.2936921240761876
+          ],
+          "ratio": 1.0156290436779074,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 15,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983685010112822,
+            0.29357999900821596
+          ],
+          "ratio": 1.0163107228668267,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 16,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29843220789916813,
+            0.2938042089808732
+          ],
+          "ratio": 1.0157519830445867,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 17,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2981526249786839,
+            0.29394354100804776
+          ],
+          "ratio": 1.014319361997891,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 18,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2984772080089897,
+            0.2938802510034293
+          ],
+          "ratio": 1.0156422794313822,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 19,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29824133310467005,
+            0.29403429210651666
+          ],
+          "ratio": 1.0143079943771638,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 20,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29843795800115913,
+            0.29373683396261185
+          ],
+          "ratio": 1.0160045438467062,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 21,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29856350005138665,
+            0.29354674997739494
+          ],
+          "ratio": 1.0170901230362048,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 22,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2985385830979794,
+            0.29362108395434916
+          ],
+          "ratio": 1.0167477725965852,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 23,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29837595799472183,
+            0.293791834032163
+          ],
+          "ratio": 1.0156033062581888,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 24,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29842879192437977,
+            0.2937505841255188
+          ],
+          "ratio": 1.0159257821147412,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 25,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29850641801021993,
+            0.2937401259550825
+          ],
+          "ratio": 1.016226220505762,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 26,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.30042195902206004,
+            0.29758670809678733
+          ],
+          "ratio": 1.0095274783722885,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 27,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982576659414917,
+            0.29386949993204325
+          ],
+          "ratio": 1.0149323628701286,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 28,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983284998917952,
+            0.2940457089571282
+          ],
+          "ratio": 1.0145650516372318,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 29,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2985581239918247,
+            0.2938292919425294
+          ],
+          "ratio": 1.0160938074554535,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 30,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983250409597531,
+            0.29366083291824907
+          ],
+          "ratio": 1.0158829762728436,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 31,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29829308402258903,
+            0.2938132919371128
+          ],
+          "ratio": 1.0152470708725971,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 32,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982077080523595,
+            0.293763583060354
+          ],
+          "ratio": 1.0151282366102283,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 33,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983327499823645,
+            0.29379258397966623
+          ],
+          "ratio": 1.0154536440001238,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 34,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29824716586153954,
+            0.29349829198326916
+          ],
+          "ratio": 1.016180243660638,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 35,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29836275102570653,
+            0.2936352910473943
+          ],
+          "ratio": 1.0160997677133747,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 36,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983414159389213,
+            0.29367450007703155
+          ],
+          "ratio": 1.015891457585407,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 37,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983592089731246,
+            0.2937033330090344
+          ],
+          "ratio": 1.0158523089145435,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 38,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2985070840222761,
+            0.29384475003462285
+          ],
+          "ratio": 1.0158666574342536,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 39,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982547089923173,
+            0.2936498330673203
+          ],
+          "ratio": 1.0156815206632226,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 40,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2981994589790702,
+            0.2937536659883335
+          ],
+          "ratio": 1.0151344255595205,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 41,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29826999991200864,
+            0.293595791910775
+          ],
+          "ratio": 1.0159205551646808,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 42,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29828504112083465,
+            0.29360520793125033
+          ],
+          "ratio": 1.0159392036079964,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 43,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.3064884591149166,
+            0.29372012498788536
+          ],
+          "ratio": 1.0434710904728026,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 44,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29845370911061764,
+            0.2937891250476241
+          ],
+          "ratio": 1.0158773203815403,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 45,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29820387496147305,
+            0.29370083403773606
+          ],
+          "ratio": 1.0153320671985508,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 46,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29839729086961597,
+            0.2944538331357762
+          ],
+          "ratio": 1.0133924482892411,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 47,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29839024995453656,
+            0.2940996659453958
+          ],
+          "ratio": 1.0145888775335683,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 48,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29828737501520663,
+            0.2936527088750154
+          ],
+          "ratio": 1.0157828141887288,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 49,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2984297499060631,
+            0.29372958396561444
+          ],
+          "ratio": 1.0160016770425102,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 50,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29824283288326114,
+            0.2937629160005599
+          ],
+          "ratio": 1.015250110339634,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 51,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983212500112131,
+            0.2937322489451617
+          ],
+          "ratio": 1.0156230753774271,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 52,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2984460419975221,
+            0.29373208398465067
+          ],
+          "ratio": 1.0160484954483822,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 53,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982749161310494,
+            0.29370145790744573
+          ],
+          "ratio": 1.0155717927183219,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 54,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2984478329308331,
+            0.2937574159586802
+          ],
+          "ratio": 1.0159669738271822,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 55,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983326659305021,
+            0.29406933300197124
+          ],
+          "ratio": 1.0144977134644035,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 56,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29836645803879946,
+            0.2939664169680327
+          ],
+          "ratio": 1.0149678358369936,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 57,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29826279205735773,
+            0.2936963749816641
+          ],
+          "ratio": 1.0155480879734342,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 58,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982640410773456,
+            0.29382837493903935
+          ],
+          "ratio": 1.0150961122771975,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 59,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29824699996970594,
+            0.2937454158673063
+          ],
+          "ratio": 1.0153247807769472,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 60,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29829070798587054,
+            0.297439125017263
+          ],
+          "ratio": 1.0028630496023618,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 61,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2980109170312062,
+            0.2933952921302989
+          ],
+          "ratio": 1.015731761976799,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 62,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.298185248975642,
+            0.2941942911129445
+          ],
+          "ratio": 1.0135657216446983,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 63,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982587079750374,
+            0.29372154199518263
+          ],
+          "ratio": 1.0154471679163701,
+          "thermalStates": [
+            0
+          ]
+        }
+      ],
+      "winningCycles": 64
+    },
+    {
+      "hashesPerVariant": 33554432,
+      "baselineRate": 1756269.928016456,
+      "scope": "offline equal-work ABBA, pipelines precompiled, CPU candidate checks enabled",
+      "model": "Mac15,12",
+      "baselineGPUSeconds": 18.937331291628652,
+      "candidateGPUSeconds": 18.658145999914268,
+      "chip": "Apple M3",
+      "ratio": 1.0147131981617394,
+      "selftests": "passed",
+      "candidateRate": 1782110.275492866,
+      "reportSha256": "508e0f6801b6722485b4428d168c9127fa99990d5e964ebea9e71907fa8b927d",
+      "cycles": [
+        {
+          "cycle": 0,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29845637490507215,
+            0.2938210410065949
+          ],
+          "ratio": 1.0157760447740474,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 1,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982637919485569,
+            0.29376941605005413
+          ],
+          "ratio": 1.0152989918383368,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 2,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29822208383120596,
+            0.293425792013295
+          ],
+          "ratio": 1.0163458426234517,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 3,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983158329734579,
+            0.2934775421163067
+          ],
+          "ratio": 1.0164860684816344,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 4,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29822941590100527,
+            0.29388016706798226
+          ],
+          "ratio": 1.0147993955373549,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 5,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29844933294225484,
+            0.29379120899830014
+          ],
+          "ratio": 1.0158552189489838,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 6,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29824541695415974,
+            0.2940148750785738
+          ],
+          "ratio": 1.0143888702041193,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 7,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983527909964323,
+            0.2939904580125585
+          ],
+          "ratio": 1.014838348881675,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 8,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29838279099203646,
+            0.294001416885294
+          ],
+          "ratio": 1.0149025611956553,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 9,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2985096669290215,
+            0.29376679193228483
+          ],
+          "ratio": 1.0161450345205456,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 10,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29827595909591764,
+            0.29374491702765226
+          ],
+          "ratio": 1.0154250909738767,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 11,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29830191703513265,
+            0.29784620797727257
+          ],
+          "ratio": 1.0015300146372683,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 12,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.30020075000356883,
+            0.2938004999887198
+          ],
+          "ratio": 1.0217843401052575,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 13,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2984842489240691,
+            0.29378862492740154
+          ],
+          "ratio": 1.01598300137668,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 14,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29841041611507535,
+            0.29385516804177314
+          ],
+          "ratio": 1.0155016775905559,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 15,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29834891599603,
+            0.2937978330301121
+          ],
+          "ratio": 1.0154905259816924,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 16,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29831883299630135,
+            0.29408845806028694
+          ],
+          "ratio": 1.0143847023576396,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 17,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983829580480233,
+            0.2937430419260636
+          ],
+          "ratio": 1.0157958332954404,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 18,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29836095799691975,
+            0.2938855418469757
+          ],
+          "ratio": 1.0152284325449203,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 19,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983167920028791,
+            0.29374454193748534
+          ],
+          "ratio": 1.0155653958205861,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 20,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982740841107443,
+            0.29352187598124146
+          ],
+          "ratio": 1.0161903030689492,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 21,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29837370896711946,
+            0.29373454209417105
+          ],
+          "ratio": 1.0157937396122145,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 22,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982919580535963,
+            0.29362245893571526
+          ],
+          "ratio": 1.015903072042944,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 23,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2984050839440897,
+            0.29396283288951963
+          ],
+          "ratio": 1.0151116078549958,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 24,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29840129101648927,
+            0.29402941709849983
+          ],
+          "ratio": 1.0148688317010297,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 25,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29856187489349395,
+            0.29381012497469783
+          ],
+          "ratio": 1.0161728596630404,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 26,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2981620830250904,
+            0.293635250069201
+          ],
+          "ratio": 1.0154165174474883,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 27,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29826474911533296,
+            0.2935438340064138
+          ],
+          "ratio": 1.016082487731001,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 28,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.30017074989154935,
+            0.2974260011687875
+          ],
+          "ratio": 1.009228341543698,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 29,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29835270799230784,
+            0.29365600016899407
+          ],
+          "ratio": 1.0159939106322053,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 30,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29918091697618365,
+            0.29366108193062246
+          ],
+          "ratio": 1.0187966175472487,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 31,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983218749286607,
+            0.2937255831202492
+          ],
+          "ratio": 1.0156482515400431,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 32,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29830112494528294,
+            0.29377420898526907
+          ],
+          "ratio": 1.0154095077837173,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 33,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2984177489997819,
+            0.29366137518081814
+          ],
+          "ratio": 1.0161967974713566,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 34,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29821329191327095,
+            0.2936101669911295
+          ],
+          "ratio": 1.0156776755018857,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 35,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982559580123052,
+            0.293530041933991
+          ],
+          "ratio": 1.0161002807316635,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 36,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983370829606429,
+            0.29367625003214926
+          ],
+          "ratio": 1.0158706498328802,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 37,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982877080794424,
+            0.29361170798074454
+          ],
+          "ratio": 1.0159257957758432,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 38,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29818395886104554,
+            0.29406000091694295
+          ],
+          "ratio": 1.0140242057105462,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 39,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982467090478167,
+            0.29360829188954085
+          ],
+          "ratio": 1.0157979773950692,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 40,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983461249386892,
+            0.2936152920592576
+          ],
+          "ratio": 1.016112351799704,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 41,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29822712391614914,
+            0.29350325104314834
+          ],
+          "ratio": 1.0160947889204346,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 42,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29822258197236806,
+            0.29385854094289243
+          ],
+          "ratio": 1.0148508224925943,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 43,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29840941610746086,
+            0.29364533396437764
+          ],
+          "ratio": 1.016223932724438,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 44,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2984747081063688,
+            0.29381425015162677
+          ],
+          "ratio": 1.0158619194009035,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 45,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.3043747920310125,
+            0.2949276241706684
+          ],
+          "ratio": 1.032032156658466,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 46,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29841883305925876,
+            0.29368354100733995
+          ],
+          "ratio": 1.0161237910564436,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 47,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29842062399256974,
+            0.2938262509414926
+          ],
+          "ratio": 1.015636360047326,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 48,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982173338532448,
+            0.2938849579077214
+          ],
+          "ratio": 1.0147417410416892,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 49,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2984828760381788,
+            0.2935649158898741
+          ],
+          "ratio": 1.016752547331472,
+          "thermalStates": [
+            0
+          ]
+        },
+        {
+          "cycle": 50,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2984392918879166,
+            0.29372149985283613
+          ],
+          "ratio": 1.0160621270061752,
+          "thermalStates": [
+            0,
+            1
+          ]
+        },
+        {
+          "cycle": 51,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29838749999180436,
+            0.29406087496317923
+          ],
+          "ratio": 1.0147133651464748,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 52,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29823041695635766,
+            0.2940172079252079
+          ],
+          "ratio": 1.0143298042345246,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 53,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29834674997255206,
+            0.29384683398529887
+          ],
+          "ratio": 1.0153138147728973,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 54,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2984570828266442,
+            0.2943699579918757
+          ],
+          "ratio": 1.0138843136801388,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 55,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983495829394087,
+            0.29380729189142585
+          ],
+          "ratio": 1.0154601031810382,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 56,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2984656250337139,
+            0.2950211251154542
+          ],
+          "ratio": 1.0116754348249188,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 57,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29824050003662705,
+            0.2946585830068216
+          ],
+          "ratio": 1.0121561605070317,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 58,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29844679206144065,
+            0.2957479589385912
+          ],
+          "ratio": 1.0091254496989102,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 59,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2982894580345601,
+            0.29490683309268206
+          ],
+          "ratio": 1.0114701477290455,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 60,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2989269159734249,
+            0.29658850003033876
+          ],
+          "ratio": 1.0078843783317524,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 61,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.29825112503021955,
+            0.29472474998328835
+          ],
+          "ratio": 1.0119649776516264,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 62,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2988678750116378,
+            0.3001283759949729
+          ],
+          "ratio": 0.9958001272650201,
+          "thermalStates": [
+            1
+          ]
+        },
+        {
+          "cycle": 63,
+          "hashesPerVariant": 524288,
+          "wallSeconds": [
+            0.2983823750400916,
+            0.2964640830177814
+          ],
+          "ratio": 1.0064705714189166,
+          "thermalStates": [
+            1
+          ]
+        }
+      ],
+      "winningCycles": 63
+    }
+  ],
+  "comparatorBinarySha256": "914945ffde43b142ab736f7c1430e6a1eba7f66bf6489cf4269b6ed8d599af7c",
+  "medianMatchedSpeedup": 1.0150554275976431,
+  "build": {
+    "workerCount": 1,
+    "cpuSingle": {
+      "hashesPerSecond": 79330.07150523819,
+      "checksum": 3555123813,
+      "seconds": 0.05163237499073148,
+      "backend": "PMULL"
+    },
+    "maxThreadsPerThreadgroup": 1024,
+    "cpuMiningThreads": 0,
+    "compiler": "21.0.0 (clang-2100.1.1.101)",
+    "count": 4096,
+    "metalRandomHeaderDigests": 192,
+    "powerWatts": null,
+    "chip": "Apple M3",
+    "cpuSelftest": "passed",
+    "gpu": "Apple M3",
+    "os": "Version 26.5.1 (Build 25F80)",
+    "metalArithmeticPairs": 20496,
+    "metalDigestBatch": {
+      "hashesPerSecondWall": 848589.5360261328,
+      "gpuSeconds": 0.004498041671467945,
+      "wallSeconds": 0.0048268330283463
+    },
+    "scope": "offline correctness and synthetic benchmark; no pool shares",
+    "threadExecutionWidth": 32,
+    "cpuFour": {
+      "seconds": 0.04059941694140434,
+      "hashesPerSecond": 100888.14836704693,
+      "checksum": 3555123813
+    },
+    "appleFamily1": true,
+    "model": "Mac15,12",
+    "metalCompilation": "runtime-source",
+    "threadgroup": 32,
+    "unifiedMemory": true,
+    "temperatureC": null,
+    "metalSelftest": "passed",
+    "pmullAvailable": true,
+    "hybridWorkerTests": "passed",
+    "sourceSha256": {
+      "core.h": "ed60bbe0d8d4e492d1ecf49e2b25052f4defe4e4a24d6e7a4f2f9bbcfb349d51",
+      "cpu_batch.h": "630f6ba55aa61acdbb1fad6ad0b98f0d62d051c72f4cc07b14e097cfcea370f7",
+      "build_mac.py": "eb1e6ed6a799f74f374ebc4c89d1e42958cabe19154d39ba0a2951bf8ae24c67",
+      "provenance.json": "4305603719a9a29c5253b167213277fd331734b52ef007d4cb380dd3796ad749",
+      "generate.py": "4d24a83f7ab855608b541361653377f269bba69f9638ee99cd4b667d60262955",
+      "fixtures.h": "a0a2722c60a4b6caac2c0c8b7fe07e880ae27c9abc8b30127b60b511ecf3f388",
+      "pmull_backend.cpp": "8cf684c40e21e2d293f9eca3a05e5c7098fe62b0adb81ea983148e6709cdf969",
+      "miner_cli.cjs": "f9716b3b8656a72c2fc5157433d8b9d6f10b3779f1ebcce68f2c6d1095e82e7c",
+      "test_core.py": "f3f00156d2498b74c02244d2d0455e33853505443b3e1b4fa3ead4e8d43ce58a",
+      "test_pool_runner.cjs": "b0cf725b2d9c903341a49e4c4ee39eb8dc2015409843eaca1412339cd6c5f50d",
+      "pool_runner.cjs": "fd03122a975b1c7c3d4260d96785458647ab2bcea3af0df64a1b3bcae3a0a4fc",
+      "benchmark_mac.py": "34d98e481df3f3514911e143d6319b08a53c6ae1a50ce20e6b3f00309cbe2aec",
+      "pool_session.cjs": "c7df8a27b5b739ab2af2334f5f8c33ec23fc6b9582edc509b5aa491663c693c6",
+      "kernel.metal": "dc9a713794e4c84d71dd42acfda5eef90610652224c380a6627c34698d46752f",
+      "constants.h": "7f364e85481c4b43efe72f1b760359fee15da14d423d8a145f48a06ba387ff3b",
+      "test_miner_cli.cjs": "8402774f2be265396cd5ff6d697112a750f20ee53cea086fc3f8078e16423f6e",
+      "test_worker.py": "7d368a1fdc6aeeafada7af70ff70a0bc05beaec0974ee60e131d31f5a55f5946",
+      "mac_host.mm": "62b0439546f1679f6803c163dfa85f4f33b7449894f6907501cafa8f658a86c7",
+      "test_pool_session.cjs": "ef14c297d1569aa21823b52494b145ef41f602f75c3a90c52c07a7ce60ef0cbe",
+      "dispatch.h": "19ccb05c552a38e63150eb7023a1a50e0c94431c42617e60e4e1e179b7ab60e3",
+      "test_bridge.cpp": "83314540eda0a88b762c32d2193ed458571ae1030bc797dc34816d81bac759ce",
+      "fixtures.json": "bce819b8b4f55336a272365e09430fd3009b5ce6af35ce0e97c226349891243b",
+      "tower_linear.h": "c645a7915981a19ee7bdcdecec448702de0306286df8091b0f77bef0d055f96a",
+      "benchmark_cooperative_mac.py": "c322e95cbed5695151913f5a1b46931e844069de04795a7779e5396fdb1cf106"
+    },
+    "binarySha256": {
+      "noid-apple-check": "5fdfd0fddf2f62fd6789dc18a76f73ba7b809cb32a68b18c5a7ab625cf5423a4"
+    },
+    "metalArtifact": {
+      "name": "noid-runtime.metal",
+      "sha256": "b0bf179058fa3273042f0883e398d28bffd71771637185c82881c63e5881064c"
+    }
+  },
+  "guiAcceptance": {
+    "passed": true,
+    "layout": {
+      "title": "Gozero\u52a9\u624b Mac",
+      "node": "undefined",
+      "bodyWidth": 920,
+      "navWidth": 918,
+      "views": 6
+    },
+    "small": {
+      "width": 780,
+      "nav": 778,
+      "main": 778,
+      "scroll": 778
+    },
+    "hardware": {
+      "chip": "Apple M3",
+      "model": "MacBook Air",
+      "gpu": "Apple M3",
+      "memoryBytes": 17179869184,
+      "cpuCores": 8,
+      "performanceCores": 4,
+      "efficiencyCores": 4,
+      "os": "25.5.0",
+      "gpuLoad": 99,
+      "cpuLoad": 2.443486087152179,
+      "perCore": [
+        6.5326633165829096,
+        6.030150753768848,
+        2.985074626865669,
+        2.500000000000002,
+        1.0000000000000009,
+        0.5000000000000004,
+        0,
+        0
+      ],
+      "freeMemory": 566607872,
+      "thermalState": 0,
+      "temperatureC": null,
+      "powerWatts": null,
+      "gpus": [
+        {
+          "id": "apple-metal",
+          "name": "Apple M3",
+          "vendor": "Apple",
+          "sensors": {
+            "at": 1791281907952,
+            "load": 99,
+            "temp": null,
+            "power": null
+          }
+        }
+      ],
+      "modelId": "Mac15,12",
+      "gpuCores": 10,
+      "scannedAt": 1791281866083,
+      "at": 1791281907939
+    },
+    "live": {
+      "accepted": 1,
+      "rejected": 0,
+      "submitted": 1,
+      "rate": {
+        "total": 1323634.065244455,
+        "cpu": 0,
+        "gpu": 1323634.065244455
+      }
+    },
+    "benchmark": {
+      "total": 1785860.5709046803,
+      "cpu": 0,
+      "gpu": 1785860.5709046803
+    },
+    "rendererErrors": [],
+    "settingsPersisted": true,
+    "stopReturnedIdle": true,
+    "zipSha256": "a2accf83808f4d9a84ca68258748011a61c714c2c774de0a94255ad07b9cd669"
+  },
+  "desktopDelivery": {
+    "version": "0.1.1",
+    "signatureVerified": true,
+    "payloadManifestVerified": true,
+    "settingsPreserved": true,
+    "openedIdle": true,
+    "noNativeWorker": true,
+    "zipSha256": "a2accf83808f4d9a84ca68258748011a61c714c2c774de0a94255ad07b9cd669"
+  },
+  "limitations": [
+    "Only Apple M3 tested",
+    "No long-term pool-side rate or energy measurement",
+    "GPU register/instruction/cache counters unavailable; xctrace/metal CLI absent"
+  ]
+}

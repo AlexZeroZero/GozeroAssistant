@@ -1,0 +1,54 @@
+M3 kernel follow-up, 2026-10-06
+
+Selected: six-bit basis conversion, 22 lookups instead of 32 per conversion.
+Tables grow from 16 KiB to 44 KiB for both directions together. Finite-field
+arithmetic, round constants, nonce encoding, pool protocol and fees are unchanged.
+generate.py emits exact tables from the independently pinned consensus basis.
+GZ_METAL_NIBBLE_BASIS retains the previous four-bit path for A/B comparisons.
+
+Seventeen candidate variants were screened. Six integer products instead of
+nine in cl16 passed 427,680 independent Python polynomial cases and GPU tests,
+but was slower. Byte lookup tables, packed AES diagonal maps, explicit nibble
+unrolling, noinline helpers, kernel thread limits and constant prepared state
+also failed to beat the selected candidate. Initial packed-six helper ordering
+and kernel-attribute placement compile errors were corrected before measurement.
+
+A four-round, 20-second sequential comparison showed substantial rate drift
+and no median benefit. It is retained as evidence, not hidden or used as proof
+of speedup. A new benchmark precompiles and verifies BOTH pipelines, then runs
+equal-work short blocks in alternating ABBA/BAAB order. All returned candidates
+are CPU-checked. Each variant checks 33,554,432 nonces in each comparison.
+
+Three matched comparisons:
+  Previous      Six-bit       Ratio
+  1.756051 M    1.782489 M     1.015055
+  1.756083 M    1.783674 M     1.015712
+  1.756270 M    1.782110 M     1.014713
+This supports ~1.5% on this M3, not a large gain, a sustained pool-side rate,
+or a claim for other Apple chips. Thermal state is recorded, but temperature,
+power, register occupancy and instruction/cache counters were not measured.
+Only Command Line Tools are installed; xcrun metal/xctrace are unavailable.
+
+Reproduce candidate bytes in a full Git checkout:
+  python research/arithmetic_candidates.py --out artifacts/arithmetic-candidates
+The generator pins the previous GUI commit, keeps the exact CRLF bytes used
+in the original Windows-generated screening, and emits sources.json hashes.
+The baseline matches the previous distributed shader after LF normalization.
+
+Run screen_mac.py on Mac with --executable, --sources and --report. It refuses
+to start when a native worker is present. --stop-gui must be explicitly supplied
+only when the operator authorizes stopping the GUI task. Sampling is bounded.
+
+From desktop/experiments/noid-apple, after build_mac.py:
+  xcrun clang++ -std=c++17 -O3 -arch arm64 -mmacosx-version-min=11.0 -fobjc-arc \
+    research/compare_mac.mm artifacts/macos-arm64/pmull.o \
+    -framework Foundation -framework Metal -o artifacts/compare-metal
+  artifacts/compare-metal artifacts/arithmetic-candidates/baseline.metal \
+    artifacts/arithmetic-candidates/basis-six.metal > artifacts/abba.json
+No pool connection is made. Ensure other GPU work is stopped before comparing.
+
+The selected kernel passes the full native build tests. Mac GUI Beta 0.1.1
+packages it, with a 30-second GUI benchmark of 1.785861 MH/s. A short GUI pool
+test accepted 1/1 shares, zero rejected; its 1.323634 MH/s local sample includes
+controller/pool timing and is not the evidence for the optimization gain.
+Compact results and per-cycle matched timings: ../evidence/mac-m3-basis-six-2026-10-06.json.

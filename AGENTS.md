@@ -62,3 +62,12 @@ with active worker passed; no child worker remained. No long-term claim.
 Desktop contains the new GUI only among our delivered versions; superseded
 CPU-GPU CLI folder/ZIP are in Trash with results backed up in the test session.
 The app is ad-hoc signed, not Developer ID signed/notarized or a public release.
+
+Kernel follow-up: desktop GUI is now Mac Beta 0.1.1. Exact six-bit basis tables
+replace nibble tables by default; GZ_METAL_NIBBLE_BASIS keeps the previous path.
+Three precompiled equal-work ABBA comparisons show only ~1.5% gain on this M3
+(1.756 -> 1.782–1.784 MH/s). Seventeen variants screened, most slower/unchanged.
+Long sequential tests drifted and did not prove a benefit; preserve that result.
+Full selftests and short GUI pool acceptance passed; desktop app updated idle,
+user settings preserved, old GUI moved to Trash. See basis-six evidence and
+research/ARITHMETIC-20261006.txt. No large hashrate gain or hardware-counter proof.

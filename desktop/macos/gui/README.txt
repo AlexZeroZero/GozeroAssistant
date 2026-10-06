@@ -1,4 +1,4 @@
-Gozero助手 Mac Beta 0.1
+Gozero助手 Mac Beta 0.1.1
 
 运行要求
 Apple Silicon（arm64），macOS 13.5 或更新。当前只在 Apple M3 实机验证。

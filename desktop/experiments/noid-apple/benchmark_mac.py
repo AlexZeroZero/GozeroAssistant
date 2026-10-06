@@ -25,8 +25,8 @@ def main():
     parser.add_argument('--batch', type=int, default=65536)
     parser.add_argument('--threadgroup', type=int, default=32)
     parser.add_argument('--report', type=Path, required=True)
-    parser.add_argument('--baseline', choices=('original', 'flat'), default='original',
-                        help='original bit planes or the previous optimized flat-field kernel')
+    parser.add_argument('--baseline', choices=('original', 'flat', 'nibble'), default='original',
+                        help='original bit planes, flat-field kernel, or previous nibble basis')
     args = parser.parse_args()
     if platform.system() != 'Darwin' or platform.machine() != 'arm64':
         parser.error('Run natively on an Apple Silicon Mac')
@@ -48,7 +48,7 @@ def main():
     try:
         with tempfile.TemporaryDirectory(prefix='noid-ab-', dir=args.report.parent) as tmp:
             baseline = Path(tmp) / 'baseline.metal'
-            switch = 'GZ_METAL_BASELINE' if args.baseline == 'original' else 'GZ_METAL_FLAT'
+            switch = {'original':'GZ_METAL_BASELINE','flat':'GZ_METAL_FLAT','nibble':'GZ_METAL_NIBBLE_BASIS'}[args.baseline]
             baseline.write_text('#define ' + switch + ' 1\n' + text)
             report['baselineMetalSha256'] = digest(baseline)
             save()

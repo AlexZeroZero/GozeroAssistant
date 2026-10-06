@@ -450,3 +450,41 @@ MAC GUI DELIVERY — 2026-10-06
 - Remaining work: longer-duration operation and pool-side rates, additional
   M-series hardware validation, other Windows feature ports and further kernel
   profiling. No 30–50 MH/s claim and no Windows artifact changes/public release.
+
+SIX-BIT BASIS KERNEL / GUI BETA 0.1.1 — 2026-10-06
+- User requested further kernel optimization and explicitly authorized stopping
+  the currently running task for exclusive GPU tests. GUI stopped for testing.
+- Screened 17 candidate variants: six-product carryless multiplication, table
+  sizes/layouts, packed tower diagonal arithmetic, inlining/constant-memory
+  options and kernel thread limits. Most were slower or unchanged. All retained
+  measurement candidates passed real GPU correctness gates. Initial generator
+  compile errors were fixed and are retained in raw screening logs.
+- Selected 6-bit basis conversion: 22 lookups instead of 32, exact independent
+  reference-derived tables (44 KiB vs 16 KiB total). Consensus arithmetic and
+  protocol unchanged; old path available via GZ_METAL_NIBBLE_BASIS.
+- Four sequential 20-second rounds drifted strongly (late samples ~1.3–1.5 M)
+  and showed no aggregate benefit. Do not cite that test as an improvement.
+  New compare_mac.mm precompiles/tests both pipelines then alternates equal-work
+  ABBA/BAAB blocks. Three runs gave ratios 1.015055, 1.015712 and 1.014713;
+  baseline ~1.756 M, candidate ~1.782–1.784 M, 33,554,432 hashes/variant/run.
+  Only a ~1.5% short matched M3 gain is supported, not long-term pool efficiency.
+- Validation: 8 reference tests, 30 native differential groups, 20,496 actual
+  Metal arithmetic pairs, fixtures/192 random header digests/4096 batch digests,
+  5 worker tests and 7 GUI adapter tests passed. New packaged GUI accepted 1/1
+  pool share, zero rejects. GUI offline 30-second result 1.785861 MH/s. Pool
+  sample 1.323634 MH/s includes pool/controller effects and is not a speedup test.
+- Only Command Line Tools are available on Mac; metal/xctrace tools missing.
+  No register occupancy, GPU instruction/cache counters, temperature or power
+  claim. System thermal state was recorded, with no fabricated Celsius values.
+- New GUI ZIP SHA256:
+  a2accf83808f4d9a84ca68258748011a61c714c2c774de0a94255ad07b9cd669.
+  Verified native shader SHA256:
+  b0bf179058fa3273042f0883e398d28bffd71771637185c82881c63e5881064c.
+- Replaced Desktop/Gozero助手.app with version 0.1.1; verified all payload hashes,
+  deep strict signature, preserved settings hash and opened idle with no worker.
+  Old app: Trash/Gozero-GUI-0.1-20261006-181935/Gozero助手.app. Desktop has one GUI.
+- Research generators pin e2f25760b1bba6965dfe787c704a6ab4ac493202. See
+  research/ARITHMETIC-20261006.txt and evidence/mac-m3-basis-six-2026-10-06.json.
+  Full reports/source variants/old package backups: session/mac-kernel-next and
+  local ignored .local/mac-kernel-next. Original GUI baseline differs only by
+  CRLF/LF from the benchmark baseline; normalized source equality was verified.

@@ -10,7 +10,7 @@ const profile=process.argv.find(a=>a.startsWith('--profile-dir='));if(profile){c
 let win,store,hardware,miner,fee,timer,awake,ready=false,starting=false,quitting=false,shutdownPromise,logId=0,runEpoch=0,logs=[];
 function redact(s){s=String(s).slice(0,1200);const wallet=store?.value.wallet;return wallet?s.split(wallet).join('[收款地址]'):s;}
 function log(type,text){logs.push({id:++logId,at:Date.now(),type,text:redact(text)});if(logs.length>300)logs.shift();push();}
-function state(){return{version:'Mac Beta 0.1',ready,starting,config:store?.value,hardware:hardware?.value,miner:miner?.snapshot(),fee:fee?.snapshot(),logs};}
+function state(){return{version:'Mac Beta 0.1.1',ready,starting,config:store?.value,hardware:hardware?.value,miner:miner?.snapshot(),fee:fee?.snapshot(),logs};}
 function push(){if(win&&!win.isDestroyed())win.webContents.send('state',state());}
 function busy(){return starting||miner.status!=='idle'||fee.active||fee.switching||fee.stopping;}
 function handle(name,fn){ipcMain.handle(name,async(e,...args)=>{try{if(e.sender!==win.webContents||e.senderFrame!==win.webContents.mainFrame||e.senderFrame.url!==URL)throw Error('非本机界面请求');return{ok:true,value:await fn(...args)};}catch(error){log('提示',error.message);return{ok:false,error:redact(error.message)};}});}
