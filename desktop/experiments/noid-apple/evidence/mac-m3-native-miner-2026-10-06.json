@@ -1,0 +1,747 @@
+{
+  "startedAt": "2026-10-06T06:21:31.261Z",
+  "pool": "innovlab",
+  "host": "hk2.innovlab.cc",
+  "port": 19601,
+  "worker": "gozero-mac",
+  "walletSuffix": "uqwd8yjg",
+  "durationLimitSeconds": 180,
+  "tlsVerified": true,
+  "authorized": true,
+  "hashes": 295763968,
+  "discardedHashes": 524288,
+  "accepted": 32,
+  "rejected": 0,
+  "submitted": 32,
+  "pauses": 7,
+  "jobs": 10,
+  "reconnects": 0,
+  "events": [
+    {
+      "at": "2026-10-06T06:21:31.703Z",
+      "type": "worker-ready",
+      "gpu": "Apple M3"
+    },
+    {
+      "at": "2026-10-06T06:21:31.703Z",
+      "type": "connecting",
+      "attempt": 0
+    },
+    {
+      "at": "2026-10-06T06:21:32.292Z",
+      "type": "tls-ready",
+      "protocol": "TLSv1.3"
+    },
+    {
+      "at": "2026-10-06T06:21:32.848Z",
+      "type": "authorized"
+    },
+    {
+      "at": "2026-10-06T06:21:32.853Z",
+      "type": "job",
+      "job": "5ab25b017638db18672b000000000000",
+      "expiresMs": 284999.96133300004,
+      "target": "0000000000000000000000000000000000000000000000000000000040000000"
+    },
+    {
+      "at": "2026-10-06T06:21:40.606Z",
+      "type": "paused"
+    },
+    {
+      "at": "2026-10-06T06:21:41.119Z",
+      "type": "job",
+      "job": "5ab25b017638db18682b000000000000",
+      "expiresMs": 297999.974417,
+      "target": "0000000000000000000000000000000000000000000000000000000040000000"
+    },
+    {
+      "at": "2026-10-06T06:21:41.264Z",
+      "type": "stats",
+      "localHashesPerSecond": 1369494.5278493538,
+      "hashes": 13697024,
+      "accepted": 0,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T06:21:51.266Z",
+      "type": "stats",
+      "localHashesPerSecond": 1756030.6784623817,
+      "hashes": 31260672,
+      "accepted": 0,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T06:22:01.268Z",
+      "type": "stats",
+      "localHashesPerSecond": 1755987.0652324301,
+      "hashes": 48824320,
+      "accepted": 0,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T06:22:03.562Z",
+      "type": "submitted",
+      "id": 3,
+      "job": "5ab25b017638db18682b000000000000",
+      "nonce": "d69f580200000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:22:03.852Z",
+      "type": "accepted",
+      "id": 3,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:22:11.269Z",
+      "type": "stats",
+      "localHashesPerSecond": 1756084.6021262289,
+      "hashes": 66387968,
+      "accepted": 1,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T06:22:12.182Z",
+      "type": "submitted",
+      "id": 4,
+      "job": "5ab25b017638db18682b000000000000",
+      "nonce": "9ff13f0300000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:22:13.068Z",
+      "type": "accepted",
+      "id": 4,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:22:21.271Z",
+      "type": "stats",
+      "localHashesPerSecond": 1756060.7307090224,
+      "hashes": 83951616,
+      "accepted": 2,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T06:22:31.274Z",
+      "type": "stats",
+      "localHashesPerSecond": 1755880.3599833783,
+      "hashes": 101515264,
+      "accepted": 2,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T06:22:41.275Z",
+      "type": "stats",
+      "localHashesPerSecond": 1756106.9741692045,
+      "hashes": 119078912,
+      "accepted": 2,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T06:22:48.948Z",
+      "type": "paused"
+    },
+    {
+      "at": "2026-10-06T06:22:49.769Z",
+      "type": "job",
+      "job": "5ab25b017638db18692b000000000000",
+      "expiresMs": 297999.972625,
+      "target": "0000000000000000000000000000000000000000000000000000000000010000"
+    },
+    {
+      "at": "2026-10-06T06:22:51.277Z",
+      "type": "stats",
+      "localHashesPerSecond": 1611910.930377464,
+      "hashes": 135200768,
+      "accepted": 2,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T06:22:58.851Z",
+      "type": "submitted",
+      "id": 6,
+      "job": "5ab25b017638db18692b000000000000",
+      "nonce": "d646f20000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:22:59.658Z",
+      "type": "accepted",
+      "id": 6,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:01.277Z",
+      "type": "stats",
+      "localHashesPerSecond": 1756290.70648582,
+      "hashes": 152764416,
+      "accepted": 3,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T06:23:09.449Z",
+      "type": "submitted",
+      "id": 7,
+      "job": "5ab25b017638db18692b000000000000",
+      "nonce": "4cbe0e0200000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:09.732Z",
+      "type": "accepted",
+      "id": 7,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:11.278Z",
+      "type": "stats",
+      "localHashesPerSecond": 1756197.6393132382,
+      "hashes": 170328064,
+      "accepted": 4,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T06:23:18.144Z",
+      "type": "submitted",
+      "id": 8,
+      "job": "5ab25b017638db18692b000000000000",
+      "nonce": "a512f70200000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:18.429Z",
+      "type": "accepted",
+      "id": 8,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:21.279Z",
+      "type": "stats",
+      "localHashesPerSecond": 1756064.8202270854,
+      "hashes": 187891712,
+      "accepted": 5,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T06:23:30.123Z",
+      "type": "submitted",
+      "id": 9,
+      "job": "5ab25b017638db18692b000000000000",
+      "nonce": "f005380400000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:30.411Z",
+      "type": "accepted",
+      "id": 9,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:31.279Z",
+      "type": "stats",
+      "localHashesPerSecond": 1756359.4650581246,
+      "hashes": 205455360,
+      "accepted": 6,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T06:23:31.541Z",
+      "type": "submitted",
+      "id": 11,
+      "job": "5ab25b017638db18692b000000000000",
+      "nonce": "f8095e0400000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:31.821Z",
+      "type": "accepted",
+      "id": 11,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:41.282Z",
+      "type": "stats",
+      "localHashesPerSecond": 1723184.9014265013,
+      "hashes": 222691328,
+      "accepted": 7,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T06:23:42.256Z",
+      "type": "paused"
+    },
+    {
+      "at": "2026-10-06T06:23:42.667Z",
+      "type": "job",
+      "job": "5ab25b017638db186a2b000000000000",
+      "expiresMs": 297999.98091600003,
+      "target": "0000000000000000000000000000000000000000000000000000000000100000"
+    },
+    {
+      "at": "2026-10-06T06:23:43.036Z",
+      "type": "submitted",
+      "id": 12,
+      "job": "5ab25b017638db186a2b000000000000",
+      "nonce": "edd0080000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:43.075Z",
+      "type": "submitted",
+      "id": 13,
+      "job": "5ab25b017638db186a2b000000000000",
+      "nonce": "ef9b090000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:43.383Z",
+      "type": "accepted",
+      "id": 12,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:43.673Z",
+      "type": "accepted",
+      "id": 13,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:44.451Z",
+      "type": "submitted",
+      "id": 14,
+      "job": "5ab25b017638db186a2b000000000000",
+      "nonce": "5f7d2d0000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:44.761Z",
+      "type": "accepted",
+      "id": 14,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:45.019Z",
+      "type": "submitted",
+      "id": 15,
+      "job": "5ab25b017638db186a2b000000000000",
+      "nonce": "ab203c0000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:45.054Z",
+      "type": "paused"
+    },
+    {
+      "at": "2026-10-06T06:23:45.345Z",
+      "type": "job",
+      "job": "5ab25b017638db186b2b000000000000",
+      "expiresMs": 297999.98866599996,
+      "target": "0000000000000000000000000000000000000000000000000000000000100000"
+    },
+    {
+      "at": "2026-10-06T06:23:45.431Z",
+      "type": "accepted",
+      "id": 15,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:45.521Z",
+      "type": "job",
+      "job": "5ab25b017638db186b2b000000000000",
+      "expiresMs": 297999.99716599996,
+      "target": "0000000000000000000000000000000000000000000000000000000000100000"
+    },
+    {
+      "at": "2026-10-06T06:23:45.547Z",
+      "type": "job",
+      "job": "5ab25b017638db186b2b000000000000",
+      "expiresMs": 297999.99933400005,
+      "target": "0000000000000000000000000000000000000000000000000000000000100000"
+    },
+    {
+      "at": "2026-10-06T06:23:45.628Z",
+      "type": "submitted",
+      "id": 16,
+      "job": "5ab25b017638db186b2b000000000000",
+      "nonce": "908f060000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:45.704Z",
+      "type": "submitted",
+      "id": 17,
+      "job": "5ab25b017638db186b2b000000000000",
+      "nonce": "7226080000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:45.988Z",
+      "type": "accepted",
+      "id": 16,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:46.157Z",
+      "type": "accepted",
+      "id": 17,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:46.719Z",
+      "type": "submitted",
+      "id": 18,
+      "job": "5ab25b017638db186b2b000000000000",
+      "nonce": "421f230000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:46.831Z",
+      "type": "submitted",
+      "id": 19,
+      "job": "5ab25b017638db186b2b000000000000",
+      "nonce": "3afc260000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:47.106Z",
+      "type": "accepted",
+      "id": 18,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:47.358Z",
+      "type": "submitted",
+      "id": 20,
+      "job": "5ab25b017638db186b2b000000000000",
+      "nonce": "8f7c340000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:47.443Z",
+      "type": "accepted",
+      "id": 19,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:47.793Z",
+      "type": "accepted",
+      "id": 20,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:48.681Z",
+      "type": "submitted",
+      "id": 21,
+      "job": "5ab25b017638db186b2b000000000000",
+      "nonce": "45c0570000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:48.758Z",
+      "type": "submitted",
+      "id": 22,
+      "job": "5ab25b017638db186b2b000000000000",
+      "nonce": "3b6d590000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:48.961Z",
+      "type": "accepted",
+      "id": 21,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:49.195Z",
+      "type": "accepted",
+      "id": 22,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:49.251Z",
+      "type": "submitted",
+      "id": 23,
+      "job": "5ab25b017638db186b2b000000000000",
+      "nonce": "3ab1660000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:49.532Z",
+      "type": "accepted",
+      "id": 23,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:50.485Z",
+      "type": "submitted",
+      "id": 24,
+      "job": "5ab25b017638db186b2b000000000000",
+      "nonce": "7570860000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:50.769Z",
+      "type": "accepted",
+      "id": 24,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:51.283Z",
+      "type": "stats",
+      "localHashesPerSecond": 1572629.5209384267,
+      "hashes": 238419968,
+      "accepted": 20,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T06:23:52.291Z",
+      "type": "submitted",
+      "id": 25,
+      "job": "5ab25b017638db186b2b000000000000",
+      "nonce": "3c24b40000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:52.599Z",
+      "type": "accepted",
+      "id": 25,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:53.013Z",
+      "type": "submitted",
+      "id": 26,
+      "job": "5ab25b017638db186b2b000000000000",
+      "nonce": "6505c60000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:53.470Z",
+      "type": "accepted",
+      "id": 26,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:54.961Z",
+      "type": "submitted",
+      "id": 27,
+      "job": "5ab25b017638db186b2b000000000000",
+      "nonce": "cd77f60000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:55.078Z",
+      "type": "submitted",
+      "id": 28,
+      "job": "5ab25b017638db186b2b000000000000",
+      "nonce": "0c6cf90000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:55.261Z",
+      "type": "accepted",
+      "id": 27,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:55.568Z",
+      "type": "accepted",
+      "id": 28,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:56.347Z",
+      "type": "submitted",
+      "id": 29,
+      "job": "5ab25b017638db186b2b000000000000",
+      "nonce": "ee05180100000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:56.626Z",
+      "type": "accepted",
+      "id": 29,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:56.943Z",
+      "type": "submitted",
+      "id": 30,
+      "job": "5ab25b017638db186b2b000000000000",
+      "nonce": "5bb2260100000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:57.025Z",
+      "type": "submitted",
+      "id": 31,
+      "job": "5ab25b017638db186b2b000000000000",
+      "nonce": "3e25280100000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:57.222Z",
+      "type": "accepted",
+      "id": 30,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:57.516Z",
+      "type": "accepted",
+      "id": 31,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:23:57.700Z",
+      "type": "paused"
+    },
+    {
+      "at": "2026-10-06T06:23:58.195Z",
+      "type": "job",
+      "job": "5ab25b017638db186c2b000000000000",
+      "expiresMs": 297999.991625,
+      "target": "0000000000000000000000000000000000000000000000000000000000040000"
+    },
+    {
+      "at": "2026-10-06T06:23:58.294Z",
+      "type": "submitted",
+      "id": 32,
+      "job": "5ab25b017638db186c2b000000000000",
+      "nonce": "d88f010000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:23:58.573Z",
+      "type": "accepted",
+      "id": 32,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:24:01.285Z",
+      "type": "stats",
+      "localHashesPerSecond": 1520134.9795740899,
+      "hashes": 253624320,
+      "accepted": 28,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T06:24:01.664Z",
+      "type": "submitted",
+      "id": 33,
+      "job": "5ab25b017638db186c2b000000000000",
+      "nonce": "f516530000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:24:01.943Z",
+      "type": "accepted",
+      "id": 33,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:24:06.244Z",
+      "type": "submitted",
+      "id": 34,
+      "job": "5ab25b017638db186c2b000000000000",
+      "nonce": "cdb5bd0000000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:24:06.653Z",
+      "type": "accepted",
+      "id": 34,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:24:11.418Z",
+      "type": "stats",
+      "localHashesPerSecond": 1480787.3394582039,
+      "hashes": 268435456,
+      "accepted": 30,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T06:24:12.499Z",
+      "type": "submitted",
+      "id": 35,
+      "job": "5ab25b017638db186c2b000000000000",
+      "nonce": "d17d430100000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:24:12.800Z",
+      "type": "accepted",
+      "id": 35,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:24:12.939Z",
+      "type": "submitted",
+      "id": 36,
+      "job": "5ab25b017638db186c2b000000000000",
+      "nonce": "6c924d0100000000c7593e0000000200"
+    },
+    {
+      "at": "2026-10-06T06:24:13.721Z",
+      "type": "accepted",
+      "id": 36,
+      "error": null
+    },
+    {
+      "at": "2026-10-06T06:24:14.745Z",
+      "type": "paused"
+    },
+    {
+      "at": "2026-10-06T06:24:15.463Z",
+      "type": "job",
+      "job": "5ab25b017638db186d2b000000000000",
+      "expiresMs": 297999.99462499993,
+      "target": "0000000000000000000000000000000000000000000000000000000000010000"
+    },
+    {
+      "at": "2026-10-06T06:24:21.420Z",
+      "type": "stats",
+      "localHashesPerSecond": 1369411.183208839,
+      "hashes": 282132480,
+      "accepted": 32,
+      "rejected": 0
+    },
+    {
+      "at": "2026-10-06T06:24:24.371Z",
+      "type": "paused"
+    },
+    {
+      "at": "2026-10-06T06:24:24.678Z",
+      "type": "job",
+      "job": "5ab25b017638db186e2b000000000000",
+      "expiresMs": 297999.990875,
+      "target": "0000000000000000000000000000000000000000000000000000000000010000"
+    },
+    {
+      "at": "2026-10-06T06:24:31.395Z",
+      "type": "stopped",
+      "reason": "duration-limit",
+      "error": null,
+      "accepted": 32,
+      "rejected": 0
+    }
+  ],
+  "reason": "duration-limit",
+  "error": null,
+  "elapsedSeconds": 180.00475362499998,
+  "localHashesPerSecond": 1643089.7631523593,
+  "finishedAt": "2026-10-06T06:24:31.395Z",
+  "scope": "180-second run of the extracted Mac miner ZIP via Run-Mining-Test.command; TLS/controller/GPU/CPU all on Mac. Local rate includes pauses; not long-term pool-side hashrate.",
+  "sourceSha256": {
+    "core.h": "ed60bbe0d8d4e492d1ecf49e2b25052f4defe4e4a24d6e7a4f2f9bbcfb349d51",
+    "cpu_batch.h": "630f6ba55aa61acdbb1fad6ad0b98f0d62d051c72f4cc07b14e097cfcea370f7",
+    "build_mac.py": "32bfec31382b35639b0132350b7bd8ec93d00270f4679760a314f23176c067ea",
+    "provenance.json": "4305603719a9a29c5253b167213277fd331734b52ef007d4cb380dd3796ad749",
+    "generate.py": "4c2c3eaffcb2a9ff34d039a3916513856b06726edccab9d8c4ab850d7f23a466",
+    "fixtures.h": "a0a2722c60a4b6caac2c0c8b7fe07e880ae27c9abc8b30127b60b511ecf3f388",
+    "pmull_backend.cpp": "8cf684c40e21e2d293f9eca3a05e5c7098fe62b0adb81ea983148e6709cdf969",
+    "miner_cli.cjs": "4944d3128b7a2d586556a925faf1cffc330ef4242cfc02dc5c32b348f4e5830b",
+    "test_core.py": "f3f00156d2498b74c02244d2d0455e33853505443b3e1b4fa3ead4e8d43ce58a",
+    "test_pool_runner.cjs": "8de610e6556cb9a87b523accb550a024b70e0417aa5db394046c997686bcae78",
+    "pool_runner.cjs": "d687d232580c195a78d22d89c7e0d3e8939d6b4976fe5a6718c74c272df250bc",
+    "benchmark_mac.py": "1342b4319c237fba46debf822dd894de8eb20112d4a20e9a999e375a82dce620",
+    "pool_session.cjs": "c7df8a27b5b739ab2af2334f5f8c33ec23fc6b9582edc509b5aa491663c693c6",
+    "kernel.metal": "dc9a713794e4c84d71dd42acfda5eef90610652224c380a6627c34698d46752f",
+    "constants.h": "7f364e85481c4b43efe72f1b760359fee15da14d423d8a145f48a06ba387ff3b",
+    "test_miner_cli.cjs": "73f720d4cba8743e238a4030fe68670107e93a1211bccb1f2c215ccac6b34dc2",
+    "test_worker.py": "c6de9c40515773a8e48f2a01b643246a7a4da80653a743d3d172904e28af655d",
+    "mac_host.mm": "6f82dab793005fac7d41d1ef0e0131397381c540114fbe4bbb1c911cd1d1de52",
+    "test_pool_session.cjs": "ef14c297d1569aa21823b52494b145ef41f602f75c3a90c52c07a7ce60ef0cbe",
+    "dispatch.h": "19ccb05c552a38e63150eb7023a1a50e0c94431c42617e60e4e1e179b7ab60e3",
+    "test_bridge.cpp": "83314540eda0a88b762c32d2193ed458571ae1030bc797dc34816d81bac759ce",
+    "fixtures.json": "bce819b8b4f55336a272365e09430fd3009b5ce6af35ce0e97c226349891243b",
+    "tower_linear.h": "6616adc025e03125ef9e24b90ca06338b4d8843e1a7c7a160685c5c3e43ebf83"
+  },
+  "nativeBinarySha256": {
+    "noid-apple-check": "99ecf8f52eb44f87c35c211ed30b3a05c39d4f38fe2d2c8f10db83a814fb68e9"
+  },
+  "metalArtifact": {
+    "name": "noid-runtime.metal",
+    "sha256": "6ad079f64cfbe3ccd956be9ba90fe82099f1a9bc0cb445c0431b2760f29f7143"
+  },
+  "packageSha256": "863fa1bad8a0679048e52bc3bd725c9b78e8951032923c8f4d352ef233f8324b",
+  "nodeRuntime": {
+    "version": "24.21.0",
+    "architecture": "darwin-arm64",
+    "url": "https://nodejs.org/dist/v24.21.0/node-v24.21.0-darwin-arm64.tar.gz",
+    "checksumURL": "https://nodejs.org/dist/v24.21.0/SHASUMS256.txt",
+    "sha256": "bed7eea5325e1108f32ce5228ddd6a5f0f08a499ee42aa7442aea583702f6057",
+    "scope": "Bundled project-local Node runtime for the bounded Mac miner; does not replace system Node"
+  },
+  "unacknowledgedSubmissions": 0,
+  "postTestSSHProcessCheck": "NO_WORKER_REMAINS"
+}

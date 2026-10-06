@@ -237,6 +237,89 @@ quick check is dominated by dispatch overhead and must not be called sustained
 mining speed. A group-chat claim of 30–50 MH/s on other M-series devices has
 no supplied benchmark or share evidence and remains unverified.
 
+## AES-tower research and Mac-local miner
+
+The next controlled comparison measured **1.597504 MH/s** for the previous
+flat-field kernel and **1.757637 MH/s** for the hybrid kernel (+10.02%, medians
+of three alternating 15-second samples on this M3). This is a kernel-to-kernel
+comparison; moving the controller to the Mac is a separate scheduling change.
+[Research and A/B evidence](evidence/mac-m3-hybrid-research-2026-10-06.json)
+retains every sample, generated shader hashes and rejected experiments.
+
+The pinned upstream tower starts with AES GF(2^8), polynomial `0x11b`, and
+quadratic extensions `Y^2 = Y + tau`. The extension constant is `0x20` in
+GF(256) and occupies the highest byte at subsequent levels. Sources:
+[Block8](https://github.com/proof-native/parano1d/blob/d1a7e8b0816b29029e2066bf9a974253bb4a07c8/noid_core/src/tower/block8.rs),
+[Block16](https://github.com/proof-native/parano1d/blob/d1a7e8b0816b29029e2066bf9a974253bb4a07c8/noid_core/src/tower/block16.rs),
+[Block128](https://github.com/proof-native/parano1d/blob/d1a7e8b0816b29029e2066bf9a974253bb4a07c8/noid_core/src/tower/block128.rs).
+
+One cached-header hash still needs three permutations, each with eight full
+rounds and 58 partial rounds: 270 x^7 S-boxes, hence 540 GF(2^128) products
+and 540 squarings per nonce. The current arithmetic expands each general
+product into 243 ordinary integer products. That is 131,220 integer products
+per nonce before counting transforms and other instructions. Unified memory
+does not remove these operations. The job is only 164 bytes per batch and
+only matching candidates return to CPU; input/output transfer is already small.
+
+The partial MDS diagonal adjustments are `0x21`, `0x2001`, `0x201`, `0x801`
+in tower coordinates. They lie in GF(2^16), so each acts independently on
+eight 16-bit coordinates. The generator proves this on all 128 input basis
+vectors against the independent flat reference, then emits shift/XOR masks.
+The hybrid kernel keeps the 58 middle rounds in this representation and
+converts only the nonlinear lane for each S-box. It retains the previous
+arithmetic and full-round implementation. MDS/basis vector lookups per nonce
+fall from 27,456 to 17,088 (37.76% fewer); these are logical table accesses,
+not measured DRAM traffic or a promise of an equal hashrate increase.
+
+The research also screened 32-way bit slicing, 16-way bit slicing, a 24 KiB
+threadgroup-state layout, full tower arithmetic using GF(256) log/exp or full
+tables, and carryless 4/8-bit lookup products. All completed variants passed
+full-hash comparisons but were slower (roughly 0.26–0.87 MH/s). One fully
+inlined bit-slice variant exceeded a 180-second compile limit. Register pressure,
+compiler decisions and internal memory traffic remain profiling hypotheses;
+no hardware-counter measurement establishes their individual contribution.
+The slow variants are not part of the default miner.
+
+Research generators retain the exact screened shaders from base commit
+`692df24`. From a Git checkout, run:
+
+```sh
+python3 research/generate_candidates.py
+```
+
+This only generates files under `artifacts/research-tower` and checks 1,000
+independent tower/flat field pairs; it does not connect to a pool. Current
+`benchmark_mac.py --baseline flat --report artifacts/hybrid-v-flat.json`
+compares the hybrid kernel to the previous optimized implementation.
+`--baseline original` selects the older four-plane implementation.
+
+`Gozero-NOID-Mac-Miner-arm64.zip` bundles the native worker, verified shader,
+the existing TLS/session controller and official Node 24.21.0 ARM64 runtime.
+All computation, CPU candidate verification, TLS and scheduling run on the Mac;
+Windows/SSH is no longer in the per-batch control loop. Requires Apple Silicon
+and macOS 13.5+ (the Node binary's deployment minimum). The public runtime
+download and checksum are pinned in `desktop/macos/node-runtime.json`.
+
+Double-click `Run-Mining-Test.command` and enter a public NOID address to run
+180 seconds, or use `./node miner_cli.cjs --wallet YOUR_ADDRESS --seconds 600`.
+The CLI rejects a missing address, non-native execution, durations outside
+1–600 seconds and modified native/shader artifacts. Startup selftests and CPU
+candidate rechecks remain mandatory. Ctrl+C, EOF and the independent native
+deadline bound process lifetime. The package includes offline selftest and
+30-second performance launchers. No operator wallet is included in defaults.
+This is an experimental standalone command-line miner; Gozero GUI, production
+fee integration and long-duration validation remain pending.
+
+The extracted package's mining launcher completed a 180.004754-second M3 run:
+295,763,968 useful hashes, local average **1.643090 MH/s**, **32 submitted /
+32 accepted / 0 rejected / 0 pending**, seven pauses, ten jobs and no reconnects.
+Active ten-second intervals were about 1.756 MH/s. The separate packaged
+30-second offline launcher measured 1.757167 MH/s. Both launchers exited
+normally and SSH process inspection confirmed no worker remained.
+[Native miner evidence](evidence/mac-m3-native-miner-2026-10-06.json) binds
+the run to the ZIP, controller sources, executable, shader and Node runtime.
+These are finite validation runs, not long-term pool-side rates.
+
 ## Remaining acceptance gates
 
 1. Extend the verified M3 result to representative base/Pro/Max/Ultra devices
@@ -244,8 +327,9 @@ no supplied benchmark or share evidence and remains unverified.
 2. Measure scalar/four-state PMULL and Metal against the pinned upstream CPU
    implementation. Tune only from measured results. Add bounded asynchronous
    dispatch, worker limits and adaptive batch sizing to keep cancellation timely.
-3. Extend bounded live transport/worker testing to longer sessions, reconnect
-   faults, other pools and pool-side effective hashrate; integrate it into the app.
+3. Extend bounded Mac-local transport/worker testing to longer sessions,
+   reconnect faults, other pools and pool-side effective hashrate; integrate
+   production fee behavior and the assistant UI before a production release.
 4. Port Gozero device discovery, unified-memory telemetry, process management,
    tray/mini-window and arm64 packaging. Keep unavailable telemetry explicit.
 5. Build/sign/package the Mac app in a later authorized release step. This branch

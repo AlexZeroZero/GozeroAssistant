@@ -19,7 +19,7 @@ def run(*args, capture=False):
 
 
 def metal_source(name='kernel.metal'):
-    if name not in ('kernel.metal', 'dispatch.h', 'core.h', 'constants.h'):
+    if name not in ('kernel.metal', 'dispatch.h', 'core.h', 'constants.h', 'tower_linear.h'):
         raise ValueError('Unexpected local Metal include: ' + name)
     source = (ROOT / name).read_text(encoding='utf-8').replace('#pragma once', '')
     return re.sub(r'^#include "([^"]+)"\s*$', lambda match: metal_source(match.group(1)), source, flags=re.MULTILINE)
@@ -77,7 +77,7 @@ def main():
         launch += ['--benchmark', '--count', args.count]
     result = json.loads(run(executable, *launch, capture=True))
     result['sourceSha256'] = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in ROOT.iterdir()
-                             if p.is_file() and p.suffix in ('.h', '.cpp', '.mm', '.metal', '.py', '.json')}
+                             if p.is_file() and p.suffix in ('.h', '.cpp', '.mm', '.metal', '.py', '.json', '.cjs')}
     result['binarySha256'] = {executable.name: hashlib.sha256(executable.read_bytes()).hexdigest()}
     if metal_artifact:
         result['metalArtifact'] = {'name': metal_artifact.name, 'sha256': hashlib.sha256(metal_artifact.read_bytes()).hexdigest()}

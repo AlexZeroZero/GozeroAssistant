@@ -138,6 +138,10 @@ static inline void mix(GZ_THREAD State& s, bool full) {
     s.v[3] = gx(gx(a,b),gx(c4,gx(d4,d2)));
 }
 static inline U sbox(U x) { U x2 = square(x); return gm(gm(x,x2),square(x2)); }
+#if (defined(__METAL_VERSION__) || defined(GZ_TEST_METAL_ARITH)) && !defined(GZ_METAL_BASELINE) && !defined(GZ_METAL_FLAT)
+#define GZ_HYBRID_TOWER 1
+#include "tower_linear.h"
+#endif
 static inline void permute(GZ_THREAD State& s) {
     mix(s,true);
 #if (defined(__METAL_VERSION__) || defined(GZ_TEST_METAL_ARITH)) && !defined(GZ_METAL_BASELINE)
@@ -146,7 +150,21 @@ static inline void permute(GZ_THREAD State& s) {
         for (W i=0;i<4;++i) s.v[i]=sbox(gx(s.v[i],RC[i][r]));
         mix(s,true);
     }
+#ifdef GZ_HYBRID_TOWER
+    // Only lane zero is nonlinear in the 58 middle rounds. Keep all four
+    // lanes in tower coordinates so four dense MDS lookups become sparse
+    // shift/XOR maps. Convert only the active S-box lane in each middle round.
+    for(W i=0;i<4;++i) s.v[i]=towerBasis(s.v[i],HF2T);
+    for(W r=4;r<62;++r) {
+        s.v[0]=towerBasis(sbox(gx(towerBasis(s.v[0],HT2F),RC[0][r])),HF2T);
+        U sum=gx(gx(s.v[0],s.v[1]),gx(s.v[2],s.v[3]));
+        s.v[0]=gx(sum,towerDiagonal0(s.v[0]));s.v[1]=gx(sum,towerDiagonal1(s.v[1]));
+        s.v[2]=gx(sum,towerDiagonal2(s.v[2]));s.v[3]=gx(sum,towerDiagonal3(s.v[3]));
+    }
+    for(W i=0;i<4;++i) s.v[i]=towerBasis(s.v[i],HT2F);
+#else
     for (W r=4;r<62;++r) {s.v[0]=sbox(gx(s.v[0],RC[0][r]));mix(s,false);}
+#endif
     for (W r=62;r<66;++r) {
         for (W i=0;i<4;++i) s.v[i]=sbox(gx(s.v[i],RC[i][r]));
         mix(s,true);

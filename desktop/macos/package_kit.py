@@ -11,13 +11,14 @@ OUT = REPO / 'desktop' / 'dist'
 NAME = 'Gozero-Mac-DeveloperKit'
 REFERENCE = ('reference.py', 'test_reference.py', 'constants.json', 'pool-vectors.json', 'provenance.json', 'LICENSE-Apache-2.0.txt')
 CORE = ('NOTICE', 'README.md', 'STATUS.txt', 'LICENSE-Apache-2.0.txt', 'provenance.json',
-        'build_mac.py', 'benchmark_mac.py', 'constants.h', 'core.h', 'cpu_batch.h', 'dispatch.h', 'fixtures.h', 'fixtures.json',
+        'build_mac.py', 'benchmark_mac.py', 'constants.h', 'tower_linear.h', 'core.h', 'cpu_batch.h', 'dispatch.h', 'fixtures.h', 'fixtures.json',
         'generate.py', 'kernel.metal', 'mac_host.mm', 'pmull_backend.cpp', 'test_bridge.cpp', 'test_core.py',
-        'pool_session.cjs', 'test_pool_session.cjs', 'pool_runner.cjs', 'test_pool_runner.cjs', 'test_worker.py', 'evidence/offline-2026-10-06.json',
+        'pool_session.cjs', 'test_pool_session.cjs', 'pool_runner.cjs', 'test_pool_runner.cjs', 'miner_cli.cjs', 'test_miner_cli.cjs', 'test_worker.py', 'evidence/offline-2026-10-06.json',
         'evidence/mac-m3-selftest-2026-10-06.json', 'evidence/mac-m3-portable-2026-10-06.json',
         'evidence/mac-m3-pmull-2026-10-06.json', 'evidence/mac-m3-package-smoke-2026-10-06.json',
         'evidence/mac-m3-innovlab-2026-10-06.json', 'evidence/mac-m3-worker-build-2026-10-06.json',
-        'evidence/mac-m3-optimization-2026-10-06.json', 'evidence/mac-m3-optimized-innovlab-2026-10-06.json')
+        'evidence/mac-m3-optimization-2026-10-06.json', 'evidence/mac-m3-optimized-innovlab-2026-10-06.json',
+        'evidence/mac-m3-hybrid-research-2026-10-06.json', 'evidence/mac-m3-native-miner-2026-10-06.json')
 
 
 def main():
@@ -31,6 +32,7 @@ def main():
     for source, destination in [('run_checks.py', 'desktop/macos/run_checks.py'),
                                 ('package_native.py', 'desktop/macos/package_native.py'),
                                 ('python-runtime.json', 'desktop/macos/python-runtime.json'),
+                                ('node-runtime.json', 'desktop/macos/node-runtime.json'),
                                 ('Run-Mac-Checks.command', 'Run-Mac-Checks.command'),
                                 ('REMOTE-SETUP.md', 'README-远程与本机测试.md')]:
         files[destination] = (REPO / 'desktop/macos' / source).read_bytes()

@@ -23,10 +23,16 @@ Metal tuning now measures +28.63% in alternating M3 A/B tests (1.242 -> 1.597
 MH/s). Optimized live test: 180 seconds, 20 accepted/0 rejected, 1.281 MH/s
 local average including SSH scheduling. See the optimization evidence and the
 latest MAC_HANDOFF.txt checkpoint. Group-chat 30–50 MH/s claims are unverified.
+Latest hybrid tower work: 1.758 MH/s synthetic median (+10.02% over the prior
+optimized kernel). A standalone bounded Mac miner ZIP now runs TLS/controller
+and GPU locally: 180-second test, 32 accepted/0 rejected, 1.643 MH/s including
+pauses. See mac-m3-hybrid-research and mac-m3-native-miner evidence. macOS 13.5+
+for the bundled Node runtime; no GUI/production fee integration yet.
 
-The source under desktop/experiments/noid-apple is an UNCOMPILED draft at handoff.
-It is not an available miner or release. Validate the exact NOID algorithm and
-pool lifecycle before app integration. Preserve source licenses and provenance.
+The original handoff describes an uncompiled draft; later checkpoints supersede
+that status. There is now a verified experimental bounded Mac CLI miner, not a
+production release or complete assistant. Preserve source licenses/provenance
+and the exact NOID algorithm and pool lifecycle when integrating it into the app.
 Public reference algorithms and protocol documentation are the implementation
 basis. Do not bypass third-party miner protections or remove their fees.
 

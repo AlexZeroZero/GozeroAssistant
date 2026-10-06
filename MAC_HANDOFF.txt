@@ -305,3 +305,57 @@ METAL PERFORMANCE OPTIMIZATION — 2026-10-06
   Python required to run this native package. It remains a core test, not GUI.
 - M3-only evidence. Full Mac assistant integration, other M-series devices,
   long-duration/pool-side rates and additional performance work remain open.
+
+AES-TOWER RESEARCH / NATIVE MAC MINER — 2026-10-06
+- User explicitly requested continued algorithm research and a stronger Apple
+  mining core, citing unified-memory GPU architecture. Explained that shared
+  memory removes transfer costs but not GF(2^128) arithmetic costs.
+- Studied pinned upstream noid_core/src/tower/block{8,16,32,64,128}.rs: AES
+  GF(256), then quadratic extensions Y^2=Y+tau. Independently cross-checked
+  1,000 random tower/flat products. Partial diagonal adjustments are GF(65536)
+  constants 0x21,0x2001,0x201,0x801; generator verifies all 128 basis images
+  before emitting independent 16-bit shift/XOR coordinate maps.
+- Selected hybrid representation: middle 58 rounds keep passive lanes in
+  tower coordinates, convert only the nonlinear lane for the S-box. Full
+  rounds and optimized carryless multiplication remain as before. MDS/basis
+  vector lookup count drops from 27,456 to 17,088 per nonce. Still 540 GF128
+  products, expanding to 131,220 ordinary integer products, per cached nonce.
+- A/B against prior optimized flat kernel: three alternating 15-second samples
+  gave medians 1.597504 versus 1.757637 MH/s (+10.02%). This is the controlled
+  kernel gain. User memory premise is not a basis for a 30–50 MH/s promise.
+- Researched full tower log/table products, 32/16-way bit slicing, threadgroup
+  state storage and carryless subword tables. Completed alternatives checked
+  full hashes but ran ~0.26–0.87 MH/s; a fully inlined bit-slice compile hit its
+  180-second limit. Keep as rejected experiments under research/, not defaults.
+  research/generate_candidates.py reproduces exact recorded source bytes from
+  commit 692df24 in a full Git checkout. Does not connect to a pool.
+- Added miner_cli.cjs, native-artifact integrity gate and two CLI test groups.
+  All 21 Node tests pass on Windows and native Mac; 8 reference / 30 native
+  differential groups / Metal fixture and random checks / 3 worker tests pass.
+- Downloaded official Node 24.21.0 darwin-arm64 to the test session only, checked
+  published SHA256, verified arm64 and LC_BUILD_VERSION minos 13.5. Runtime
+  provenance: desktop/macos/node-runtime.json. No system Node replacement.
+- package_native.py --node-archive VERIFIED_ARCHIVE creates the self-contained
+  Gozero-NOID-Mac-Miner-arm64.zip, including Node license and public-address
+  prompt. It runs 180 seconds by launcher, CLI range 1–600 seconds. No operator
+  wallet default, background auto-mining, GUI or production fee integration.
+- Actual extracted Run-Mining-Test.command run on Mac: TLSv1.3, 180.004754 s,
+  295,763,968 useful hashes, 1.643090 MH/s local average including 7 pauses,
+  10 jobs, no reconnects; 32 submitted/32 accepted/0 rejected/0 pending. Active
+  intervals ~1.756 MH/s. Windows/SSH only launched/read logs, no per-batch work.
+- Extracted Run-Performance-Test.command with system PATH: 30-second offline
+  result 1.757167 MH/s. All test processes ended; NO_WORKER_REMAINS checked.
+- Miner ZIP SHA256:
+  863fa1bad8a0679048e52bc3bd725c9b78e8951032923c8f4d352ef233f8324b.
+  Core-test ZIP SHA256:
+  34aa05e22da3dd8381e02b7c5213acb3d0e414ff0eba1161d8b6c07d77286f9d.
+  Mac folder: current session's miner-package-check/Gozero-NOID-Mac-Miner-arm64.
+- Evidence: mac-m3-hybrid-research-2026-10-06.json and
+  mac-m3-native-miner-2026-10-06.json. All build sources now match local hashes;
+  old provenance-metadata drift was resolved before this build. Preserve older
+  records. Full artifacts and public test address remain ignored, project-local.
+- Next research should profile integer instruction issue rate, register spills
+  and cache behavior; these have not been isolated with hardware counters.
+  Further algebra/circuit optimization is needed for a much larger speed jump.
+  Validate on additional M chips before claiming family-wide performance, and
+  integrate fee handling and long-duration lifecycle before production use.
