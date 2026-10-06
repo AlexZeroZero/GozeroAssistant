@@ -2,6 +2,19 @@
 (function(root){
 'use strict';
 const entries=`
+QTC / PRL 需要 macOS 14 或更新版本|QTC / PRL require macOS 14 or newer
+NOID：已验证矿池接受份额|NOID: pool acceptance verified
+QTC：本地校验通过；外部矿池接受份额待验证|QTC: local validation passed; live pool acceptance pending
+PRL v3：本地校验通过；外部矿池接受份额待验证。电池供电时暂停；TMAC/s 为本地矩阵吞吐。|PRL v3: local validation passed; live pool acceptance pending. Pauses on battery; TMAC/s is local matrix throughput.
+填写对应币种的公开收款地址|Enter the public payout address for this coin
+此内核不支持 CPU 协同|CPU assistance unavailable for this core
+本轮连接 · 内核实时采样|Current session · Live core samples
+电池供电，暂停计算|Paused on battery power
+离线测速目前仅支持 NOID|Offline benchmark currently supports NOID only
+币种不支持|Unsupported coin
+请输入对应币种的公开收款地址|Enter a valid public payout address for this coin
+当前提供 NOID、QTC、PRL 挖矿、设备监控、NOID 离线测速、公开服务费调度、实时日志与结果导出。QTC、PRL 已通过本地正确性验证，外部矿池接受份额仍待验证。|NOID, QTC and PRL mining, device monitoring, NOID offline benchmark, disclosed fee scheduling, live logs and export. QTC and PRL pass local correctness checks; live pool acceptance is still pending.
+
 Gozero助手 Mac|Gozero Assistant Mac
 Gozero助手|Gozero Assistant
 切换主题|Change theme
@@ -284,7 +297,7 @@ CPU 线程数无效|Invalid CPU thread count
 持续挖矿，无时限；可手动停止或从菜单栏退出|Continuous mining; stop manually or quit from the menu bar
 离线测速超时|Offline benchmark timed out
 语言|Language
-`.trim().split('\n').map(row=>row.split('|'));
+`.trim().split('\n').filter(Boolean).map(row=>row.split('|'));
 const dictionary=Object.fromEntries(entries),ordered=Object.keys(dictionary).sort((a,b)=>b.length-a.length);
 const pattern=new RegExp(ordered.map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'g');
 const rules=[

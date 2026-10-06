@@ -17,6 +17,8 @@ const PRESETS=Object.freeze([
  // on 2026-10-06, and TCP subscribe verified on the user's M3. Explicit choice
  // avoids silently downgrading TLS or relying on the local poisoned DNS answer.
  ['suprnova-eu-tcp','Suprnova · 欧洲 TCP兼容（非加密）','suprnova','51.89.7.224',3337,'tcp'],
-].map(([id,label,pool,host,port,transport='tls'])=>Object.freeze({id,label,pool,host,port,transport,source:SOURCES[pool]})));
-function presetFor(c){return PRESETS.find(p=>p.pool===c.pool&&p.host.toLowerCase()===c.host.toLowerCase()&&p.port===c.port&&p.transport===(c.transport||'tls'))||null;}
-module.exports={PRESETS,presetFor};
+].map(([id,label,pool,host,port,transport='tls'])=>Object.freeze({coin:'NOID',id,label,pool,host,port,transport,source:SOURCES[pool]})));
+const {COINS}=require('./coins.cjs');
+const ALL_PRESETS=Object.freeze([...PRESETS,...['QTC','PRL'].flatMap(coin=>['hk','eu','sg'].map(region=>({coin,id:coin.toLowerCase()+'-'+region,label:'Kryptex · '+region.toUpperCase(),pool:'kryptex',host:coin.toLowerCase()+'-'+region+'.kryptex.network',port:COINS[coin].port,transport:'tls',source:COINS[coin].site})))]);
+function presetFor(c){return ALL_PRESETS.find(p=>p.coin===(c.coin||'NOID')&&p.pool===c.pool&&p.host.toLowerCase()===c.host.toLowerCase()&&p.port===c.port&&p.transport===(c.transport||'tls'))||null;}
+module.exports={PRESETS,ALL_PRESETS,presetFor};

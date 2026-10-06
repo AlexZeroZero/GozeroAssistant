@@ -1,16 +1,17 @@
 'use strict';
 const {t}=require('./i18n.js');
 const {presetFor}=require('./pools.cjs');
-const rate=n=>Number.isFinite(n)?(n/1e6).toFixed(2)+' MH/s':'等待采样';
+const {formatRate}=require('./coins.cjs');
 function model(s){
+ const rate=n=>Number.isFinite(n)?formatRate(n,s.config?.coin,2):'等待采样';
  const m=s.miner||{},busy=s.starting||m.status&&m.status!=='idle'||s.fee?.active||s.fee?.switching;
  let title='Gozero 待机';
  if(s.starting||m.status==='starting')title='Gozero 启动中';
  else if(m.status==='stopping')title='Gozero 停止中';
  else if(s.fee?.switching)title='Gozero 切换中';
- else if(m.status==='running')title=m.session?.benchmark?'Gozero 测速中':({paused:'等待矿池',reconnecting:'重连中',waiting:'等待计算'}[m.workState]||rate(m.rate?.total));
+ else if(m.status==='running')title=m.session?.benchmark?'Gozero 测速中':({'power-paused':'电池供电，暂停计算',paused:'等待矿池',reconnecting:'重连中',waiting:'等待计算'}[m.workState]||rate(m.rate?.total));
  const summary=busy&&m.status==='running'&&!m.session?.benchmark&&m.workState==='mining'
-  ?'GPU '+rate(m.rate?.gpu)+' · CPU '+rate(m.rate?.cpu):title;
+  ?'GPU '+rate(m.rate?.gpu)+(s.config?.coin&&s.config.coin!=='NOID'?'':' · CPU '+rate(m.rate?.cpu)):title;
  const language=s.config?.language||'zh';return {title:t(title,language),summary:t(summary,language),language,busy:!!busy,pool:s.config?(presetFor(s.config)?.label||s.config.host+':'+s.config.port):'读取配置',shares:'接受 '+(m.totals?.accepted||0)+' / 拒绝 '+(m.totals?.rejected||0)};
 }
 class MenuBar{

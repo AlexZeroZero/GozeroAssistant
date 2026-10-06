@@ -1,0 +1,31 @@
+Gozero Mac 0.1.7 — QTC / PRL GUI integration
+
+The Mining view now switches between NOID, QTC and PRL. Wallets, workers,
+pool endpoints and CPU preferences are saved separately for each coin.
+Stop the current task before changing coins. No coin starts automatically.
+All three mining modes are continuous, with no 10-minute limit.
+Closing the window keeps mining in the menu bar; Quit stops all core processes.
+
+QTC: Quantus 4.2.0 Goldilocks Poseidon2, native Metal, CPU verification of
+GPU candidates. Local rate is displayed in MH/s. Kryptex TLS protocol.
+PRL: Pearl cert-v3 Metal core, local rate in TMAC/s (multiply-accumulates/sec,
+half the operations/sec figure). This is not comparable to QTC/NOID MH/s.
+PRL pauses on battery power. The upstream GPU admission, proof verification,
+adaptive shape selection and durable safety halt remain enabled. Cert-v4
+device admission has not passed and is not advertised as supported.
+Both cores passed local correctness tests and connected to real Kryptex pools.
+External pool acceptance for QTC and PRL remains unverified: short real tests
+produced no submitted shares. This is an integration build, not a claim of
+verified long-term pool earnings or stability. Only Apple M3 has been tested.
+QTC/PRL require macOS 14+. NOID retains its existing macOS 13.5+ requirement.
+CPU assistance and the 30-second offline benchmark currently support NOID.
+
+The unchanged original 0.5% FeeController and persistent time ledger apply to
+all three coins. Fee sessions use the original coin-specific recipients and
+return to the user's saved wallet. This is time sharing, not a per-share fee.
+Bundled upstream sources/licenses are under native/cores. There are no public
+default wallets. Mutable PRL state is in the user's application profile.
+
+This addendum describes 0.1.7. The retained README.txt describes the earlier
+NOID release; it does not describe the newly integrated QTC/PRL functionality.
+The app is ad-hoc signed, without Apple Developer ID signing/notarization.

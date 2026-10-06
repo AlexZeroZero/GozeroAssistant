@@ -2,6 +2,7 @@
 const {EventEmitter}=require('node:events'),{spawn}=require('node:child_process');
 const fs=require('node:fs/promises'),path=require('node:path'),crypto=require('node:crypto');
 const {verifyNative}=require('../../experiments/noid-apple/miner_cli.cjs');
+const {launchSpec,coreEvent}=require('./core-adapter.cjs');
 const {GPU_ID}=require('./config.cjs');
 class Miner extends EventEmitter{
  constructor(dir,nativeDir,log,deps={}){super();this.dir=dir;this.nativeDir=nativeDir;this.log=log;this.spawn=deps.spawn||spawn;this.verify=deps.verify||verifyNative;this.status='idle';this.jobs=new Map();this.child=null;this.epoch=0;this.serial=0;this.points=[];this.totals={accepted:0,rejected:0,submitted:0};this.rate={total:null,cpu:null,gpu:null};this.done=Promise.resolve();this.lastReport=null;}
@@ -10,16 +11,20 @@ class Miner extends EventEmitter{
  signal(child,signal){try{if(process.platform==='darwin'&&child.pid)process.kill(-child.pid,signal);else child.kill(signal);}catch(e){if(e.code!=='ESRCH')this.log('停止',e.message);}}
  async start(cfg,_hardware,benchmark=false){
   if(this.status!=='idle')throw Error('已有运行任务');
-  const epoch=++this.epoch;this.status='starting';this.points=[];this.rate={total:null,cpu:null,gpu:null};this.totals={accepted:0,rejected:0,submitted:0};this.session={startedAt:Date.now(),benchmark,coin:'NOID',cpuThreads:cfg.cpuThreads};this.update();
+  const epoch=++this.epoch;this.status='starting';this.points=[];this.rate={total:null,cpu:null,gpu:null};this.totals={accepted:0,rejected:0,submitted:0};this.session={startedAt:Date.now(),benchmark,coin:cfg.coin||'NOID',cpuThreads:cfg.cpuThreads};this.update();
   this.workState='waiting';this.lastRateLog=0;
+  const external=['QTC','PRL'].includes(cfg.coin);
+  this.coreSample=null;this.coreSummary=null;this.powerPaused=false;this.lastSampleAt=Date.now();
   let input;
   try{
-   const native=this.verify(this.nativeDir);await fs.mkdir(path.join(this.dir,'results'),{recursive:true});
+   if(external&&benchmark)throw Error('离线测速目前仅支持 NOID');
+   const native=external?null:this.verify(this.nativeDir);await fs.mkdir(path.join(this.dir,'results'),{recursive:true});
    if(epoch!==this.epoch)throw Error('启动已取消');
    const id=Date.now()+'-'+(++this.serial)+'-'+crypto.randomBytes(4).toString('hex');
    const report=path.join(this.dir,'results',id+'.json');this.lastReport=report;
-   let executable=path.join(this.nativeDir,'node'),args;
-   if(benchmark){executable=native.executable;args=[native.flag,native.metal,'--search-seconds','30','--cpu-threads',String(cfg.cpuThreads)];}
+   let executable=path.join(this.nativeDir,'node'),args,options={cwd:this.nativeDir};
+   if(external){const spec=launchSpec(path.join(this.nativeDir,'cores'),this.dir,cfg,report);await fs.access(spec.executable);executable=spec.executable;args=spec.args;options={cwd:spec.cwd,env:spec.env};}
+   else if(benchmark){executable=native.executable;args=[native.flag,native.metal,'--search-seconds','30','--cpu-threads',String(cfg.cpuThreads)];}
    else{
     const seconds=0; // Explicit continuous mode in both controller and native worker.
     const command=[native.executable,native.flag,native.metal,'--worker-seconds','0','--cpu-threads',String(cfg.cpuThreads)];
@@ -28,12 +33,14 @@ class Miner extends EventEmitter{
     args=[path.resolve(__dirname,'../../experiments/noid-apple/pool_runner.cjs'),input,report];
    }
    if(epoch!==this.epoch)throw Error('启动已取消');
-   const child=this.spawn(executable,args,{cwd:this.nativeDir,detached:process.platform==='darwin',stdio:['ignore','pipe','pipe'],windowsHide:true});this.child=child;
+   const child=this.spawn(executable,args,{...options,detached:process.platform==='darwin',stdio:['ignore','pipe','pipe'],windowsHide:true});this.child=child;
+   if(external)this.sampleTimer=setInterval(()=>{if(this.status==='running'&&Date.now()-this.lastSampleAt>20000){this.rate={total:0,gpu:0,cpu:null};const j=this.jobs.get(GPU_ID);if(j)j.telemetry=null;if(this.workState==='mining')this.workState='waiting';this.update();}},2000);
    this.jobs=new Map([[GPU_ID,{id:GPU_ID,status:'running',telemetry:null}]]);this.status='running';this.update();
    let output='',line='',finished=false;
    let finishResolve;this.done=new Promise(r=>{finishResolve=r;});
-   const finish=async(code,error)=>{if(finished)return;finished=true;clearTimeout(this.forceTimer);if(input)await fs.unlink(input).catch(()=>{});
+   const finish=async(code,error)=>{if(finished)return;finished=true;clearTimeout(this.forceTimer);clearInterval(this.sampleTimer);if(input)await fs.unlink(input).catch(()=>{});
     try{if(benchmark&&code===0){const data=JSON.parse(output),s=data.metalSearch;if(!s||data.metalSelftest!=='passed')throw Error('离线校验报告无效');await fs.writeFile(report,JSON.stringify(data,null,2));this.rate={total:s.hashesPerSecondWall,cpu:s.cpuHashes/s.wallSeconds,gpu:s.gpuHashes/s.wallSeconds};this.log('测速','30秒离线总算力 '+(s.hashesPerSecondWall/1e6).toFixed(3)+' MH/s');}
+     else if(external){await fs.writeFile(report,JSON.stringify({coin:cfg.coin,totals:this.totals,summary:this.coreSummary,exitCode:code},null,2));}
      else if(!benchmark){const data=JSON.parse(await fs.readFile(report,'utf8'));this.totals={accepted:data.accepted,rejected:data.rejected,submitted:data.submitted};this.log('结果','接受 '+data.accepted+' / 拒绝 '+data.rejected+'；'+(data.error||data.reason));}
     }catch(e){if(code===0)this.log('报告',e.message);}
     if(error||code&&this.status!=='stopping')this.log('错误',error?.message||'内核退出码 '+code);
@@ -43,7 +50,7 @@ class Miner extends EventEmitter{
    child.stderr.on('data',chunk=>this.log('内核',String(chunk).slice(0,800)));
    child.stdout.on('data',chunk=>{if(benchmark){output+=String(chunk);if(output.length>2*1024*1024){this.log('错误','测速报告过大');this.stop();}return;}
     line+=String(chunk);if(line.length>1024*1024){this.log('错误','内核输出过大');this.stop();return;}
-    let i;while((i=line.indexOf('\n'))>=0){const raw=line.slice(0,i);line=line.slice(i+1);if(!raw.trim())continue;try{this.event(JSON.parse(raw));}catch(e){this.log('内核',raw.slice(0,300));}}
+    let i;while((i=line.indexOf('\n'))>=0){const raw=line.slice(0,i);line=line.slice(i+1);if(!raw.trim())continue;try{external?coreEvent(this,JSON.parse(raw)):this.event(JSON.parse(raw));}catch(e){this.log('内核',raw.slice(0,300));}}
    });
    this.log(benchmark?'测速':'挖矿',benchmark?'离线自检和30秒测速已启动，不连接矿池':'正在校验内核并连接矿池 · '+(cfg.transport==='tcp'?'TCP 兼容（非加密）':'TLS 加密'));return true;
   }catch(e){if(input)await fs.unlink(input).catch(()=>{});this.status='idle';this.update();throw e;}
@@ -71,7 +78,7 @@ class Miner extends EventEmitter{
  }
  async stop(reason='用户停止'){
   ++this.epoch;const child=this.child;if(!child){this.status='idle';this.update();return;}
-  if(this.status!=='stopping'){this.status='stopping';this.log('停止',reason);this.update();this.signal(child,'SIGTERM');this.forceTimer=setTimeout(()=>this.signal(child,'SIGKILL'),6000);}
+  if(this.status!=='stopping'){this.status='stopping';this.log('停止',reason);this.update();this.signal(child,['QTC','PRL'].includes(this.session?.coin)?'SIGINT':'SIGTERM');this.forceTimer=setTimeout(()=>this.signal(child,'SIGKILL'),this.session?.coin==='PRL'?35000:this.session?.coin==='QTC'?15000:6000);}
   await this.done;
  }
 }

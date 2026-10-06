@@ -16,7 +16,7 @@ test('legacy timed profiles migrate to continuous mode without changing wallet o
   const legacy={...DEFAULT,seconds,wallet:ADDRESSES.NOID,cpuThreads:4,language:'en'};
   await fs.writeFile(path.join(dir,'settings.json'),JSON.stringify(legacy));
   const store=new Store(dir);await store.load();
-  assert.deepEqual(store.value,{...legacy,seconds:0});assert.equal(store.warning,null);
+  assert.deepEqual(store.value,validate({...legacy,seconds:0}));assert.equal(store.warning,null);
   assert.equal(JSON.parse(await fs.readFile(store.file,'utf8')).seconds,seconds,'Loading does not overwrite user settings');
  }
  assert.equal(DEFAULT.seconds,0);

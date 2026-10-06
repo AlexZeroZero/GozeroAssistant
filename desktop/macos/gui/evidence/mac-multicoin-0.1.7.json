@@ -1,0 +1,157 @@
+{
+  "version": "0.1.7",
+  "testedHardware": "Apple M3, macOS 26.5.1, arm64",
+  "guiIntegration": true,
+  "coins": {
+    "NOID": {
+      "seconds": 30.158,
+      "rate": {
+        "total": 1701333.0319171494,
+        "cpu": 0,
+        "gpu": 1701333.0319171494
+      },
+      "totals": {
+        "accepted": 2,
+        "rejected": 0,
+        "submitted": 2
+      },
+      "hiddenWindowContinued": true,
+      "menuTitle": "1.70 MH/s",
+      "finalTotals": {
+        "accepted": 2,
+        "rejected": 0,
+        "submitted": 2
+      },
+      "runSummary": {
+        "submitted": 2,
+        "accepted": 2,
+        "rejected": 0,
+        "reconnects": 0,
+        "error": null
+      }
+    },
+    "QTC": {
+      "seconds": 30.136,
+      "rate": {
+        "total": 18696456.837336857,
+        "gpu": 18696456.837336857,
+        "cpu": null
+      },
+      "totals": {
+        "accepted": 0,
+        "rejected": 0,
+        "submitted": 0
+      },
+      "hiddenWindowContinued": true,
+      "menuTitle": "18.70 MH/s",
+      "finalTotals": {
+        "accepted": 0,
+        "rejected": 0,
+        "submitted": 0
+      },
+      "runSummary": {
+        "local_average_hps": 18561258.51279372,
+        "elapsed_seconds": 30.110620334002306,
+        "submitted": 0,
+        "accepted": 0,
+        "rejected": 0,
+        "reconnects": 0,
+        "error": null
+      }
+    },
+    "PRL": {
+      "seconds": 30.184,
+      "rate": {
+        "total": 1288588214551.7163,
+        "gpu": 1288588214551.7163,
+        "cpu": null
+      },
+      "totals": {
+        "accepted": 0,
+        "rejected": 0,
+        "submitted": 0
+      },
+      "hiddenWindowContinued": true,
+      "menuTitle": "1.29 TMAC/s",
+      "finalTotals": {
+        "accepted": 0,
+        "rejected": 0,
+        "submitted": 0
+      },
+      "runSummary": {
+        "elapsed_seconds": 28.293339291994926,
+        "ops_per_second": 2117932531588.67,
+        "completed_jobs": 436,
+        "submitted": 0,
+        "accepted": 0,
+        "rejected": 0,
+        "gate_failures": 0,
+        "failed": false
+      }
+    }
+  },
+  "checks": {
+    "coinProfilePersistence": true,
+    "bilingualViews": true,
+    "menuRateUnits": true,
+    "hideContinuesMining": true,
+    "menuStop": true,
+    "activeQuitCoins": [
+      "QTC",
+      "PRL",
+      "NOID"
+    ],
+    "noOrphanWorkers": true,
+    "windowsAndMacUnitTests": 19,
+    "noidCpu4Regression": {
+      "accepted": 1,
+      "rejected": 0,
+      "submitted": 1,
+      "rate": {
+        "total": 1701000,
+        "cpu": 126000,
+        "gpu": 1575000
+      },
+      "elapsedSeconds": 48.438,
+      "cpuThreads": 4,
+      "finalTotals": {
+        "accepted": 1,
+        "rejected": 0,
+        "submitted": 1
+      },
+      "automaticDurationStop": false,
+      "manualStop": true,
+      "poolPausedSeconds": 0,
+      "pauses": 0,
+      "workResumptions": 1,
+      "cpuHashes": 6909916,
+      "gpuHashes": 75665444
+    },
+    "noidOfflineBenchmark": {
+      "total": 1561811.5634637245,
+      "cpu": 123481.4243692601,
+      "gpu": 1438330.1390944645
+    },
+    "rendererErrors": []
+  },
+  "delivery": {
+    "version": "0.1.7",
+    "dmgSha256": "3513b56f517b9f71ce3ce570f76d93055628202e10f9136dc69fe64ad781d4f3",
+    "zipSha256": "6fc5e3acdd9be3ebaddadd3afb6a8b54139f52bbc713e2528f3812867f4cb022",
+    "signatureAndManifestVerified": true,
+    "dmgMountedVerified": true,
+    "oldSettingsPreserved": true,
+    "feeLedgerUnchanged": true,
+    "privateQtcPrlProfilesAdded": true,
+    "openedIdle": true,
+    "qtcPrlExternalAcceptance": "unverified"
+  },
+  "limitations": [
+    "Only M3 tested",
+    "Short GUI tests are not sustained speed or pool earnings measurements",
+    "QTC and PRL external pool acceptance remains unverified",
+    "PRL TMAC/s is local MAC throughput, not comparable to NOID/QTC MH/s",
+    "PRL cert-v4 device admission not passed",
+    "Ad-hoc signed, not notarized"
+  ]
+}

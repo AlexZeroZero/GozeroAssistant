@@ -661,3 +661,42 @@ QTC / PRL NATIVE CORES - 2026-10-06
   scripts/logs under .local/prl-qtc-research and remote session/prl-qtc-research.
   Remote isolated Rust toolchain/cache remain reusable. Temporary loopback
   build proxy + SSH reverse tunnel were stopped after compiling.
+
+
+QTC / PRL GUI INTEGRATION 0.1.7 - 2026-10-06
+- User requested formal GUI integration. Mac GUI now selects NOID, QTC and PRL
+  with separate saved wallet/worker/pool/CPU profiles. Legacy NOID preferences
+  and original 0.5% FeeController/ledger preserved. QTC/PRL use original fee
+  recipients; tested transitions return to the user's selected wallet.
+- QTC displays MH/s; PRL displays recent local TMAC/s (ops/2), not equivalent
+  NOID/QTC hashes or pool-reported rate. No inferred accepted shares. CPU
+  collaboration and 30-second offline benchmark remain NOID only. PRL battery
+  pause, G3 admission, proof verification, v4 guards and durable halt preserved.
+- Relocatable Python and both native cores are bundled inside the signed app,
+  including licenses/sources. PRL state stays in the app user profile. No runtime
+  dependency on Desktop research package. QTC/PRL require macOS 14+; NOID 13.5+.
+  Build with desktop/macos/package_gui.py --cores-package pointing at the
+  hash-verified standalone core payload in prl-qtc-research/package.
+- 19 GUI/config/adapter/fee tests passed on Windows and M3; 5 QTC pool adapter
+  tests also passed locally. Actual final M3 GUI runs: NOID 30s 2 accepted/0
+  rejected; QTC 30s ~18.56 MH/s local average, 0 submitted; PRL 28.29s pool
+  runtime ~2.118 TOPS (~1.059 TMAC/s average), 0 submitted/0 gate failures.
+  Earlier 60s GUI runs also passed. External QTC/PRL acceptance STILL unverified.
+  Short samples do not establish sustained performance. PRL v4 not admitted.
+- All three coins: start/stop, bilingual views, independent profile persistence,
+  small-window layout, hidden mining, actual menu rates and menu Stop passed.
+  Active Quit tested for QTC, PRL and NOID; no orphan native/admission workers.
+  NOID CPU4 regression: 1 accepted/0 rejected, CPU and GPU both contributed;
+  30s offline benchmark and six-view translation/layout checks passed.
+- Desktop /Users/apple/Desktop/Gozero助手.app now 0.1.7, opened idle. Previous
+  0.1.6 moved to Trash. Original settings and fee ledger preserved, user-provided
+  QTC/PRL wallets added only to private local profiles, not public app defaults.
+  Signed payload manifest verified after copying. DMG verified and mounted
+  read-only, its contained signed application matches the tested payload.
+- ZIP SHA256 6fc5e3acdd9be3ebaddadd3afb6a8b54139f52bbc713e2528f3812867f4cb022.
+  DMG SHA256 3513b56f517b9f71ce3ce570f76d93055628202e10f9136dc69fe64ad781d4f3.
+  Private build/QA/delivery: .local/multicoin-gui, remote multicoin-gui-0.1.7.
+  Compact evidence: desktop/macos/gui/evidence/mac-multicoin-0.1.7.json.
+- Current request was integration: GitHub release/main/Windows untouched.
+  Existing README retained; new bundled MULTICOIN.txt explains the new features
+  and limits. App still uses ad-hoc signing, not Developer ID/notarization.
