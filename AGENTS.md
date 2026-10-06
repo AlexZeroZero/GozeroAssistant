@@ -87,3 +87,11 @@ hides the main window; explicit Quit/Cmd+Q stops all children. This supersedes
 earlier close-means-stop requirements. Hidden tasks retain their original
 1–10-minute bound. TLS remains default; explicit Suprnova TCP compatibility
 was added after all four TLS endpoints timed out on M3. See latest handoff.
+
+Latest publication request: replace the previous GitHub Mac release with the
+bilingual build and upload the two supplied JPEGs. User explicitly requires
+release body, links and README unchanged. Preserve the compatibility release
+URL/tag and ZIP filename; disclose actual version/new hash in CURRENT-VERSION.
+Keep an actual version source tag (mac-v0.1.5), validate all assets before old
+release deletion, and preserve Windows/main. This is explicit replacement
+permission; no additional approval is needed.

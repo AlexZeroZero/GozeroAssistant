@@ -2,7 +2,7 @@
 const api=window.gozero,$=s=>document.querySelector(s);let state,currentView='overview',dirty=false,lastLog=0;
 const thermal=['正常','偏热','严重','临界'];const fmt=(n,suffix='',digits=0)=>Number.isFinite(n)?n.toFixed(digits)+suffix:'—';const hash=n=>Number.isFinite(n)?(n/1e6).toFixed(3)+' MH/s':'—';
 function text(s,t){const e=$(s);if(e&&e.textContent!==String(t))e.textContent=t;}
-function toast(t){$('#toast').textContent=t;$('#toast').hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('#toast').hidden=true,4500);}
+function toast(t){$('#toast').textContent=gozeroI18n.t(t,state?.config.language);$('#toast').hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('#toast').hidden=true,4500);}
 async function action(fn){try{await fn();}catch(e){toast(e.message);}}
 function view(v){currentView=v;document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id==='view-'+v));document.querySelectorAll('nav [data-view]').forEach(x=>x.classList.toggle('active',x.dataset.view===v));$('main').scrollTop=0;}
 function fields(selector,rows){const e=$(selector),key=JSON.stringify(rows);if(e.dataset.key===key)return;e.dataset.key=key;e.replaceChildren(...rows.map(([label,value])=>{const row=document.createElement('div');row.className='field';const a=document.createElement('label'),b=document.createElement('span');a.textContent=label;b.className='value';b.textContent=value;row.append(a,b);return row;}));}
@@ -28,11 +28,12 @@ function render(){if(!state?.config)return;document.body.classList.toggle('light
  for(const id of ['start','benchmark','scan'])$('#'+id).disabled=busy||!state.ready;
  document.querySelectorAll('[data-stop]').forEach(e=>e.disabled=!busy);
  if(m.session?.benchmark){text('#benchmark-hash',m.status==='idle'?hash(r.total):'测速进行中…');text('#benchmark-status',m.status==='idle'?'本次结果已保存到本机报告目录':'正在执行算法自检、预热与30秒搜索');text('#benchmark-gpu',hash(r.gpu));text('#benchmark-cpu',hash(r.cpu));}
- const pts=m.points||[],max=Math.max(1,...pts.map(p=>p.total));$('#hash-line').setAttribute('d',pts.map((p,i)=>(i?'L':'M')+(i/Math.max(1,pts.length-1)*856+2).toFixed(1)+','+(67-p.total/max*62).toFixed(1)).join(' '));text('#chart-status',pts.length?'已采样 '+pts.length+' 点':'等待实际算力');logs();clock();
+ const pts=m.points||[],max=Math.max(1,...pts.map(p=>p.total));$('#hash-line').setAttribute('d',pts.map((p,i)=>(i?'L':'M')+(i/Math.max(1,pts.length-1)*856+2).toFixed(1)+','+(67-p.total/max*62).toFixed(1)).join(' '));text('#chart-status',pts.length?'已采样 '+pts.length+' 点':'等待实际算力');logs();clock();$('#language').value=state.config.language;gozeroI18n.localize(document,state.config.language);
 }
 function clock(){const m=state?.miner;const s=m?.status!=='idle'&&m?.session?Math.max(0,Math.floor((Date.now()-m.session.startedAt)/1000)):0;text('#runtime',[Math.floor(s/3600),Math.floor(s/60)%60,s%60].map(n=>String(n).padStart(2,'0')).join(':'));}
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.view)view(b.dataset.view);if(b.dataset.window)action(()=>api.window(b.dataset.window));if(b.hasAttribute('data-stop'))action(()=>api.stop());if(b.dataset.open)action(()=>api.open(b.dataset.open));});
 document.querySelectorAll('input,select').forEach(e=>e.addEventListener('input',()=>dirty=true));
+$('#language').onchange=()=>action(async()=>{await api.language($('#language').value);render();});
 $('#preset').onchange=()=>{const p=state.pools.find(p=>p.id===$('#preset').value);if(p){$('#pool').value=p.pool;$('#host').value=p.host;$('#port').value=p.port;$('#transport').value=p.transport;}dirty=true;};
 for(const id of ['pool','host','port','transport'])$('#'+id).addEventListener('input',()=>{$('#preset').value='custom';});
 $('#save-mining').onclick=()=>action(async()=>{await save();toast('挖矿配置已保存');});$('#save-settings').onclick=()=>action(async()=>{await save();toast('设置已保存');});

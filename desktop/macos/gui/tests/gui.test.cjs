@@ -6,9 +6,20 @@ const {delta,parseGPU}=require('../hardware.cjs'),{Miner}=require('../miner.cjs'
 const {FeeController,ADDRESSES}=require('../../../src/service-fee.cjs');
 const base=path.resolve(__dirname,'../artifacts');
 const {PRESETS,presetFor}=require('../pools.cjs'),{model:menuModel,MenuBar}=require('../menubar.cjs');
+const {t}=require('../i18n.js');
 async function temp(fn){await fs.mkdir(base,{recursive:true});const dir=await fs.mkdtemp(path.join(base,'test-'));try{await fn(dir);}finally{assert.ok(path.resolve(dir).startsWith(base+path.sep));await fs.rm(dir,{recursive:true,force:true});}}
 function fake(){const child=new EventEmitter();child.stdout=new PassThrough();child.stderr=new PassThrough();child.kill=()=>{queueMicrotask(()=>child.emit('close',null));return true;};return child;}
 const config=()=>miningConfig({...DEFAULT,wallet:ADDRESSES.NOID});
+
+test('language persists independently and preserves protocol values in translated logs',()=>temp(async dir=>{
+ const store=new Store(dir);await store.save({...DEFAULT,language:'en',cpuThreads:4});const next=new Store(dir);await next.load();
+ assert.equal(next.value.language,'en');assert.equal(next.value.cpuThreads,4);assert.throws(()=>validate({...DEFAULT,language:'xx'}),/语言/);
+ assert.equal(t('本次最多 180 秒，到时自动停止','en'),'Stops automatically after 180s');
+ assert.equal(t('矿池等待 0.123 秒，收到新任务 · abc12','en'),'Pool wait 0.123s; new work · abc12');
+ const raw='矿池要求暂停旧任务，保持连接等待新任务 · 原因：canonical-tip-unverified';
+ assert.ok(t(raw,'en').includes('canonical-tip-unverified'));assert.equal(t(raw,'zh'),raw);
+ assert.equal(menuModel({config:{...DEFAULT,language:'en'},miner:{status:'idle'}}).title,'Gozero Idle');
+}));
 
 test('all catalog entries validate and custom ports never masquerade as presets',()=>{
  assert.equal(PRESETS.length,11);assert.equal(new Set(PRESETS.map(p=>p.host+':'+p.port)).size,11);

@@ -3,6 +3,7 @@ const {app,BrowserWindow,ipcMain,dialog,shell,session,Menu,Tray,nativeImage,powe
 const fs=require('node:fs/promises'),path=require('node:path'),{pathToFileURL}=require('node:url');
 const {Store,miningConfig}=require('./config.cjs'),{Hardware}=require('./hardware.cjs'),{Miner}=require('./miner.cjs');
 const {FeeController}=require('../../src/service-fee.cjs');
+const {t}=require('./i18n.js');
 const {PRESETS}=require('./pools.cjs'),{MenuBar}=require('./menubar.cjs');
 const PAGE=path.join(__dirname,'renderer/index.html'),URL=pathToFileURL(PAGE).href;
 const nativeDir=path.resolve(__dirname,'../../../native');
@@ -11,7 +12,7 @@ const profile=process.argv.find(a=>a.startsWith('--profile-dir='));if(profile){c
 let win,store,hardware,miner,fee,timer,awake,menubar,ready=false,starting=false,quitting=false,shutdownPromise,logId=0,runEpoch=0,logs=[];
 function redact(s){s=String(s).slice(0,1200);const wallet=store?.value.wallet;return wallet?s.split(wallet).join('[收款地址]'):s;}
 function log(type,text){logs.push({id:++logId,at:Date.now(),type,text:redact(text)});if(logs.length>300)logs.shift();push();}
-function state(){return{version:'Mac 0.1.4',pools:PRESETS,ready,starting,config:store?.value,hardware:hardware?.value,miner:miner?.snapshot(),fee:fee?.snapshot(),logs};}
+function state(){return{version:'Mac 0.1.5',pools:PRESETS,ready,starting,config:store?.value,hardware:hardware?.value,miner:miner?.snapshot(),fee:fee?.snapshot(),logs};}
 function push(){const s=state();menubar?.update(s);if(win&&!win.isDestroyed())win.webContents.send('state',s);}
 function showMain(){if(win&&!win.isDestroyed()){if(win.isMinimized())win.restore();win.show();win.focus();}}
 function hideMain(){if(menubar?.available()){win.hide();log('窗口','主窗口已收起，任务继续；顶部菜单栏可查看算力、停止或退出');}else return shutdown();}
@@ -32,6 +33,7 @@ async function start(benchmark=false){
   else await fee.start(miningConfig(store.value),hardware.value,false);
  }catch(e){await stop('启动失败');throw e;}finally{starting=false;push();}
 }
+function applicationMenu(){const lang=store.value.language;Menu.setApplicationMenu(Menu.buildFromTemplate([{label:t('Gozero助手',lang),submenu:[{label:t('关于 Gozero助手',lang),role:'about'},{type:'separator'},{label:t('退出 Gozero助手',lang),accelerator:'Command+Q',click:()=>shutdown()}]},{label:t('编辑',lang),submenu:[{role:'undo',label:lang==='en'?'Undo':'撤销'},{role:'redo',label:lang==='en'?'Redo':'重做'},{type:'separator'},{role:'cut',label:lang==='en'?'Cut':'剪切'},{role:'copy',label:lang==='en'?'Copy':'复制'},{role:'paste',label:lang==='en'?'Paste':'粘贴'},{role:'selectAll',label:lang==='en'?'Select All':'全选'}]},{label:t('窗口',lang),submenu:[{role:'minimize',label:lang==='en'?'Minimize':'最小化'},{role:'zoom',label:lang==='en'?'Zoom':'缩放'}]}]));}
 async function boot(){
  if(process.platform!=='darwin'||process.arch!=='arm64')throw Error('此版本需要 Apple Silicon Mac');
  const dir=app.getPath('userData');store=new Store(dir);await store.load();
@@ -43,12 +45,13 @@ async function boot(){
  session.defaultSession.setPermissionRequestHandler((_w,_p,cb)=>cb(false));session.defaultSession.setPermissionCheckHandler(()=>false);
  session.defaultSession.webRequest.onBeforeRequest({urls:['http://*/*','https://*/*']},(d,cb)=>cb({cancel:d.webContentsId===win.webContents.id}));
  handle('bootstrap',()=>state());handle('save',async c=>{if(busy())throw Error('停止任务后再修改配置');await store.save(c);hardware.start(store.value.interval);push();return store.value;});
+ handle('language',async language=>{if(!['zh','en'].includes(language))throw Error('语言设置无效');await store.save({...store.value,language});applicationMenu();push();return language;});
  handle('start',()=>start(false));handle('benchmark',()=>start(true));handle('stop',()=>stop());
  handle('scan',async()=>{if(busy())throw Error('请先停止任务');ready=false;push();try{await hardware.scan();}finally{ready=true;push();}return state();});
  handle('window',a=>{if(a==='minimize')win.minimize();else if(a==='maximize')win.isMaximized()?win.unmaximize():win.maximize();else if(a==='close')return hideMain();else throw Error('窗口操作无效');});
  handle('open',id=>{if(id==='results')return shell.openPath(path.join(dir,'results'));if(id==='profile')return shell.openPath(dir);const links={site:'https://gozero.trade/',pool:store.value.pool==='innovlab'?'https://noid.innovlab.cc/':'https://noid.suprnova.cc/StartMining'};if(!links[id])throw Error('链接不存在');return shell.openExternal(links[id]);});
- handle('exportLogs',async()=>{const r=await dialog.showSaveDialog(win,{defaultPath:'Gozero-Mac-log.txt'});if(r.canceled)return false;await fs.writeFile(r.filePath,logs.map(l=>new Date(l.at).toISOString()+' ['+l.type+'] '+l.text).join('\n'));return true;});
- Menu.setApplicationMenu(Menu.buildFromTemplate([{label:'Gozero助手',submenu:[{label:'关于 Gozero助手',role:'about'},{type:'separator'},{label:'退出 Gozero助手',accelerator:'Command+Q',click:()=>shutdown()}]},{label:'编辑',submenu:[{role:'undo'},{role:'redo'},{type:'separator'},{role:'cut'},{role:'copy'},{role:'paste'},{role:'selectAll'}]},{label:'窗口',submenu:[{role:'minimize'},{role:'zoom'}]}]));
+ handle('exportLogs',async()=>{const r=await dialog.showSaveDialog(win,{defaultPath:'Gozero-Mac-log.txt'});if(r.canceled)return false;await fs.writeFile(r.filePath,logs.map(l=>new Date(l.at).toISOString()+' ['+t(l.type,store.value.language)+'] '+t(l.text,store.value.language)).join('\n'));return true;});
+ applicationMenu();
  menubar=new MenuBar({Tray,Menu,nativeImage,icon:path.join(process.resourcesPath,'gozero.icns'),show:showMain,stop:()=>stop('菜单栏停止'),quit:shutdown,onError:e=>log('错误',e.message)});
  win.on('close',e=>{if(!quitting){e.preventDefault();hideMain();}});
  await win.loadFile(PAGE);win.show();log('系统','Gozero助手 Mac 已启动；不会自动挖矿');if(store.warning)log('配置',store.warning);

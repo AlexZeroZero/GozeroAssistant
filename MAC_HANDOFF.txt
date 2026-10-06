@@ -572,3 +572,25 @@ POOL CATALOG AND MAC MENU BAR 0.1.4 — 2026-10-06
   Innovlab GUI validation in session/menubar-pools-0.1.4. Local ignored assets:
   .local/menubar-pools. Tracked compact evidence mac-menubar-pools-0.1.4.json
   and actual screenshot docs/screenshots/mac-0.1.4/01-suprnova-mining.png.
+
+BILINGUAL RELEASE 0.1.5 — 2026-10-06
+- User requested Chinese/English switching, deletion/replacement of previous
+  GitHub Mac version, and upload of two supplied original JPEGs. User explicitly
+  insisted release body AND links stay completely unchanged, as does README.
+- Added shared translations for all six views, dynamic logs, menus and errors;
+  header language selector persists and works during mining without restart.
+  English six-view 780px layout and untranslated-text checks passed on M3,
+  plus language persistence/reload, active switching, menu controls and exit.
+- 180-second Suprnova GUI run: 7 submitted, 6 accepted, 1 rejected. Do not claim
+  zero rejection. Native kernel unchanged. Desktop now 0.1.5, payload/signature
+  verified, settings unchanged, opened idle without worker.
+- ZIP SHA256 c4cd4e1c06db8cc6293c9ceba1cd7f6ee94c1298337afb5c3ca980f46bb0fcec.
+- Publication plan: stage mac-v0.1.5, verify assets, replace old Mac Release using
+  its original mac-v0.1.2 URL and original asset filename to keep links working.
+  Repoint compatibility tag to this version; source version tag mac-v0.1.5 also
+  identifies new source. README-MAC.txt and body remain byte-identical. Separate
+  CURRENT-VERSION.txt explicitly explains historical notes/hash and true version.
+  Preserve old three screenshot assets for unchanged body links. Add the user's
+  JPEGs without edits (docs/screenshots/user-mac-0.1.4). Main/Windows untouched.
+- Private diagnostics and old release metadata: .local/bilingual-release and
+  remote session/bilingual-release-0.1.5. Source proof mac-bilingual-0.1.5.json.

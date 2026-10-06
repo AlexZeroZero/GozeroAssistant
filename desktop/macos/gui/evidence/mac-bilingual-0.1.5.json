@@ -1,0 +1,124 @@
+{
+  "passed": true,
+  "layout": {
+    "title": "Gozero\u52a9\u624b Mac",
+    "node": "undefined",
+    "bodyWidth": 920,
+    "navWidth": 918,
+    "views": 6
+  },
+  "small": {
+    "width": 780,
+    "nav": 778,
+    "main": 778,
+    "scroll": 778
+  },
+  "hardware": {
+    "chip": "Apple M3",
+    "model": "MacBook Air",
+    "gpu": "Apple M3",
+    "memoryBytes": 17179869184,
+    "cpuCores": 8,
+    "performanceCores": 4,
+    "efficiencyCores": 4,
+    "os": "25.5.0",
+    "gpuLoad": 99,
+    "cpuLoad": 45.94583174406695,
+    "perCore": [
+      25.888324873096447,
+      24.623115577889443,
+      15.920398009950254,
+      9.499999999999996,
+      78.39195979899498,
+      82.91457286432161,
+      47.5,
+      82.82828282828282
+    ],
+    "freeMemory": 769146880,
+    "thermalState": 1,
+    "temperatureC": null,
+    "powerWatts": null,
+    "gpus": [
+      {
+        "id": "apple-metal",
+        "name": "Apple M3",
+        "vendor": "Apple",
+        "sensors": {
+          "at": 1791286478319,
+          "load": 99,
+          "temp": null,
+          "power": null
+        }
+      }
+    ],
+    "modelId": "Mac15,12",
+    "gpuCores": 10,
+    "scannedAt": 1791286261036,
+    "at": 1791286478280
+  },
+  "live": {
+    "accepted": 2,
+    "rejected": 0,
+    "submitted": 2,
+    "rate": {
+      "total": 1112000,
+      "cpu": 98000,
+      "gpu": 1014000
+    },
+    "elapsedSeconds": 90.158,
+    "cpuThreads": 4,
+    "finalTotals": {
+      "accepted": 6,
+      "rejected": 1,
+      "submitted": 7
+    },
+    "automaticDurationStop": true,
+    "poolPausedSeconds": 0,
+    "pauses": 0,
+    "workResumptions": 1,
+    "cpuHashes": 24237972,
+    "gpuHashes": 229189740
+  },
+  "benchmark": {
+    "total": 1314087.0880093216,
+    "cpu": 125741.98961933827,
+    "gpu": 1188345.0983899832
+  },
+  "rendererErrors": [],
+  "settingsPersisted": true,
+  "stopReturnedIdle": true,
+  "poolPresets": 11,
+  "selectedPool": {
+    "pool": "suprnova",
+    "host": "51.89.7.224",
+    "port": 3337,
+    "transport": "tcp"
+  },
+  "menuBar": {
+    "available": true,
+    "liveTitle": "0.26 MH/s",
+    "bounds": {
+      "x": 743,
+      "y": 0,
+      "width": 93,
+      "height": 33
+    },
+    "hideContinuesMining": true,
+    "showFromMenu": true,
+    "hiddenDurationStop": true,
+    "stopFromMenu": true
+  },
+  "screenshotRedactions": [
+    "wallet input rendered as password; performance values unchanged"
+  ],
+  "language": {
+    "englishViews": 6,
+    "persisted": true,
+    "switchWhileMining": true,
+    "translatedMenu": true,
+    "translatedLogs": true
+  },
+  "shutdownWithActiveWorker": true,
+  "applicationVersion": "0.1.5",
+  "zipSha256": "c4cd4e1c06db8cc6293c9ceba1cd7f6ee94c1298337afb5c3ca980f46bb0fcec"
+}
