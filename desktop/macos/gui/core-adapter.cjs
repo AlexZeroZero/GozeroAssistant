@@ -9,7 +9,7 @@ function launchSpec(root,dir,cfg,report){
  // Mutable admission records and pool ledger belong to the profile, never the app.
  env.PMK_HOME=path.join(dir,'prl-state');
  env.PMK_RESOURCE_BUNDLE=path.join(root,'prl/libpmk/.build/release/libpmk_PMK.bundle');
- const args=coin==='QTC'?[path.join(root,'qtc/pool_miner.py'),'--core',path.join(root,'qtc/gozero_worker'),'--wallet',wallet,'--worker',cfg.worker,'--host',cfg.host,'--port',String(cfg.port),'--seconds','0','--report',report]:[path.join(root,'prl_gui.py'),'--wallet',wallet,'--worker',cfg.worker,'--pool',cfg.pools.PRL];
+ const args=coin==='QTC'?[path.join(root,'qtc/pool_miner.py'),'--core',path.join(root,'qtc/gozero_worker'),'--wallet',wallet,'--worker',cfg.worker,'--host',cfg.host,'--port',String(cfg.port),'--seconds','0','--adaptive-batch','--max-batch','1048576','--report',report]:[path.join(root,'prl_gui.py'),'--wallet',wallet,'--worker',cfg.worker,'--pool',cfg.pools.PRL];
  return {executable:path.join(root,'python/bin/python3'),args,cwd:root,env};
 }
 function coreEvent(m,e){

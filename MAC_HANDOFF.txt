@@ -700,3 +700,61 @@ QTC / PRL GUI INTEGRATION 0.1.7 - 2026-10-06
 - Current request was integration: GitHub release/main/Windows untouched.
   Existing README retained; new bundled MULTICOIN.txt explains the new features
   and limits. App still uses ad-hoc signing, not Developer ID/notarization.
+
+
+APPLE M3 CORE OPTIMIZATION 0.1.8 - 2026-10-06
+- User requested dedicated Apple M-series QTC/PRL core optimization. Implemented
+  measured variants via cores/optimization/patch_kernels.py against pinned
+  upstream shaders; original sources/licenses and comparison fallbacks retained.
+- QTC: split external/internal rounds and fixed S-box indices; CPU candidate
+  verification unchanged. Worker capacity 1048576; GUI enables adaptive batches
+  from 262144, doubling below 40 ms and halving above 90 ms (thresholds, not hard
+  deadline guarantees). Old workers remain capped at their reported capacity.
+  Dispatched counts stay frozen for nonce advancement/candidate checks. Added
+  checked end-of-range increment: upstream saturated at U512::MAX and repeated
+  the last nonce forever. New large-range regression caught and verifies this.
+- PRL: exact base Apple M3 selects BK32/PF0, zero padding and a fixed transcript
+  switch. fastMath=false, all arithmetic/proofs unchanged. Other GPUs retain
+  upstream geometry. Effective macros/source change G3 cache identity. Keep
+  existing adaptive matrix-size policy: smaller-size candidate was inconclusive.
+  GZ_PRL_BASELINE=1 / GZ_QTC_BASELINE_SHADER=1 are research comparison paths.
+- Correctness passed: QTC 25 CPU/GPU pairs, 65920 arithmetic operand pairs,
+  30 small-range + 12 enlarged/boundary cases; PRL optimized AND fallback each
+  94 G3 cases, real production-shaped proof verified by official Rust, and two
+  locally mocked pool proofs verified (corrupt proof/job mismatch gates retained).
+  19 GUI/fee unit tests and 7 QTC adapter tests pass on Windows and Mac.
+- QTC same-batch kernel +3.38% paired; full adaptive initial +6.11%. Warm run
+  with background activity +7.57%. User-idle comparison: medians 15.107 ->
+  16.660 MH/s (~10.3% ratio); four paired blocks mean +12.66%. Do not equate
+  these different statistics or promise an absolute sustained rate.
+- PRL 2048 full pipeline initial +4.09%; initial 4096 during desktop activity
+  -1.87%. User-idle 90-second warmup then six paired blocks at 4096: medians
+  1.609 -> 1.735 TOPS (0.805 -> 0.867 TMAC/s), paired gain +8.10%. Negative
+  samples retained. Background apps not terminated; no hardware clock/temp
+  counters, so slowdown is NOT proven exclusively thermal. One M3 only.
+- Final packaged GUI (including renderer/backend version consistency): NOID
+  30s 1 accepted/0 rejected; QTC 30s ~20.993 MH/s local average,
+  0 submitted; PRL ~28.34s ~2.566 TOPS local, 0 submitted/0
+  gate failures. These short QA readings are NOT paired or sustained gains.
+  External QTC/PRL pool acceptance remains unverified; PRL v4 not admitted.
+  Bilingual views, hidden mining, menu rates/Stop, active PRL Quit and no
+  remaining miner processes passed; original fee handling/continuous mode kept.
+- Desktop /Users/apple/Desktop/Gozero助手.app updated to 0.1.8, opened idle.
+  Settings bytes and fee ledger unchanged, prior 0.1.7 app moved to Trash.
+  App signature/payload hashes and read-only-mounted DMG application verified.
+- ZIP SHA256 ea8cba56f4dc393aa27c7dc83835630273e15c47bef82d9335c841508f2c9576.
+  DMG SHA256 af1801cfada254723d409a41aa4ce4632ec4a2ed46be370c0bf376f8fa00a426.
+- Local private scripts/data: .local/m-series-opt. Remote session/m-series-opt
+  and session/optimized-gui-0.1.8. Original verified core package was not changed;
+  tuned staging payload is m-series-opt/package/Gozero-Mac-QTC-PRL-Cores-arm64.
+  Optimized research source trees contain applied patches and reusable builds.
+  Research scripts and probes all stopped. Existing GUI opened but not mining.
+- Public evidence: cores/optimization/evidence and gui/evidence/mac-optimized-
+  0.1.8.json. Reproduction and conservative interpretation: optimization/RESULTS.txt.
+  GitHub release, README, Windows checkout and main were not changed in this task.
+  App remains ad-hoc signed, without Developer ID signing or notarization.
+
+  Final visual QA caught stale 0.1.7 labels in header/About. Both now match
+  0.1.8, with an actual GUI assertion. Re-signed/rebuilt ZIP+DMG and repeated
+  GUI acceptance before final desktop replacement. Final private QA is in
+  gui-accept-final.log; fix-version.py records this small packaging repair.

@@ -1,0 +1,108 @@
+{
+  "version": "0.1.8",
+  "hardware": "Apple M3, 16 GB, macOS 26.5.1",
+  "checks": {
+    "guiPassed": true,
+    "rendererErrors": [],
+    "activeQuitCoin": "PRL",
+    "windowsAndMacGuiUnitTests": 19,
+    "qtcAdapterUnitTests": 7,
+    "qtcGpuCpuPairs": 25,
+    "qtcArithmeticOperandPairs": 65920,
+    "qtcSmallRangeCases": 30,
+    "qtcLargeRangeCases": 12,
+    "prlG3CasesEachProfile": 94,
+    "prlProductionProofRustVerified": true,
+    "localMockPoolVerifiedProofs": 2,
+    "noOrphanWorkers": true
+  },
+  "coins": {
+    "NOID": {
+      "seconds": 30.124,
+      "rate": {
+        "total": 1767946.778170903,
+        "cpu": 0,
+        "gpu": 1767946.778170903
+      },
+      "totals": {
+        "accepted": 1,
+        "rejected": 0,
+        "submitted": 1
+      },
+      "hiddenWindowContinued": true,
+      "menuTitle": "1.77 MH/s",
+      "runSummary": {
+        "submitted": 1,
+        "accepted": 1,
+        "rejected": 0,
+        "reconnects": 0,
+        "error": null
+      }
+    },
+    "QTC": {
+      "seconds": 30.073,
+      "rate": {
+        "total": 21180663.762638297,
+        "gpu": 21180663.762638297,
+        "cpu": null
+      },
+      "totals": {
+        "accepted": 0,
+        "rejected": 0,
+        "submitted": 0
+      },
+      "hiddenWindowContinued": true,
+      "menuTitle": "21.18 MH/s",
+      "runSummary": {
+        "local_average_hps": 20993341.310302652,
+        "elapsed_seconds": 30.00627783300297,
+        "submitted": 0,
+        "accepted": 0,
+        "rejected": 0,
+        "reconnects": 0,
+        "error": null
+      }
+    },
+    "PRL": {
+      "seconds": 30.119,
+      "rate": {
+        "total": 1291450177233.9224,
+        "gpu": 1291450177233.9224,
+        "cpu": null
+      },
+      "totals": {
+        "accepted": 0,
+        "rejected": 0,
+        "submitted": 0
+      },
+      "hiddenWindowContinued": true,
+      "menuTitle": "1.29 TMAC/s",
+      "runSummary": {
+        "elapsed_seconds": 28.335734874999616,
+        "ops_per_second": 2565848625681.3193,
+        "completed_jobs": 529,
+        "submitted": 0,
+        "accepted": 0,
+        "rejected": 0,
+        "gate_failures": 0,
+        "failed": false
+      }
+    }
+  },
+  "delivery": {
+    "version": "0.1.8",
+    "dmgSha256": "af1801cfada254723d409a41aa4ce4632ec4a2ed46be370c0bf376f8fa00a426",
+    "zipSha256": "ea8cba56f4dc393aa27c7dc83835630273e15c47bef82d9335c841508f2c9576",
+    "signatureAndManifestVerified": true,
+    "dmgMountedVerified": true,
+    "settingsUnchanged": true,
+    "feeLedgerUnchanged": true,
+    "openedIdle": true,
+    "qtcPrlExternalAcceptance": "unverified"
+  },
+  "limitations": [
+    "One M3 only; no multi-day or power-efficiency measurement",
+    "Short real pool tests do not establish QTC/PRL accepted-share compatibility",
+    "Ad-hoc signed, not notarized"
+  ]
+}

@@ -11,8 +11,8 @@ use std::time::Instant;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init();
-    let engine = GpuEngine::try_new(262_144, 0, true)?;
-    println!("{{\"ready\":true,\"backend\":\"wgpu-metal\"}}");
+    let engine = GpuEngine::try_new(1_048_576, 0, true)?;
+    println!("{{\"ready\":true,\"backend\":\"wgpu-metal\",\"max_batch\":1048576}}");
     io::stdout().flush()?;
     let cancel = AtomicBool::new(false);
     for line in io::stdin().lock().lines() {
@@ -27,7 +27,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         if fields[3].len() != 128 { return Err("nonce must be 64 bytes".into()); }
         let start = U512::from_big_endian(&hex::decode(fields[3])?);
         let count: u64 = fields[4].parse()?;
-        if count == 0 || count > 262_144 { return Err("count outside 1..262144".into()); }
+        if count == 0 || count > 1_048_576 { return Err("count outside 1..1048576".into()); }
         let end = start.checked_add(U512::from(count - 1)).ok_or("nonce overflow")?;
         let ctx = engine.prepare_context(header, difficulty);
         let began = Instant::now();

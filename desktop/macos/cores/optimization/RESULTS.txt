@@ -1,0 +1,58 @@
+Gozero Mac 0.1.8 — Apple Silicon core tuning / 苹果芯片内核优化
+
+QTC uses the exact Goldilocks Poseidon2 algorithm. External/internal rounds
+are separated and S-box lanes use fixed indices. Candidates still pass the
+CPU verifier. Dispatch grows from 262144 up to 1048576 nonces when response
+time is below 40 ms and shrinks above 90 ms. These are adaptation thresholds,
+not a hard deadline guarantee. Each dispatched range retains its original
+count; new pool generations discard old candidates. TLS and submit unchanged.
+A maximum-nonce exhaustion bug in the upstream host loop is also fixed.
+
+PRL preserves exact FP32 arithmetic, transcript, BLAKE3 and proof validation.
+Only the exact base Apple M3 selects BK32/PF0 with zero threadgroup padding
+and fixed transcript register updates. Other devices retain upstream geometry.
+The modified source and effective parameters change the cache/admission key;
+all 94 G3 cases must pass again. Upstream adaptive job sizes remain unchanged.
+GZ_PRL_BASELINE=1 retains the original profile for manual comparisons.
+Cert-v4 is still not admitted. No safety/admission gate has been bypassed.
+
+M3 measurements (2026-10-06; raw paired results in evidence/m3-tuning.json):
+QTC identical 1M dispatch, kernel-only change: 20.327 -> 21.055 MH/s medians;
+mean paired gain 3.38%. Worker + adaptive dispatch initial mean gain 6.11%.
+Warm mixed-background run: 15.432 -> 16.300 MH/s; paired gain 7.57%.
+After user stopped interactive use: 15.107 -> 16.660 MH/s; paired gain 12.66%.
+These are distinct runs; the final median ratio is approximately +10.3%.
+
+PRL initial full-pipeline 2048 square: 2.122 -> 2.212 TOPS; paired gain 4.09%.
+Initial 4096-square run with concurrent desktop activity: paired gain -1.87%.
+After a 90-second warmup and user idle, 4096 square: 1.609 -> 1.735 TOPS
+(0.805 -> 0.867 TMAC/s); six ABBA blocks, paired gain 8.10%.
+The smaller job-size experiment was inconclusive and is not enabled.
+The pure K3 shader benchmark improved approximately 5%; complete pipeline
+measurements include CPU preparation, GPU noise, allocation and synchronization.
+
+All first-pass, negative and background-load samples are retained. User idle
+means interactive use stopped; background applications were not terminated.
+No clock/temperature hardware counters were captured; slowdown cannot be
+attributed exclusively to thermal throttling. Adaptive batch tests retained
+40/90 ms thresholds, the old 262144 starting size and the 1048576 upper cap.
+
+Correctness: 25 GPU/CPU QTC comparisons, 65920 arithmetic operand pairs,
+15 minimum-hash + 15 exhausted small ranges, plus 10 enlarged exhausted
+ranges and 2 CPU minimum cases including U512::MAX. PRL tuned and fallback
+profiles each passed all 94 G3 cases; production-sized proof passed the official
+Rust verifier. A LOCAL mock pool verified two proofs and rejected corruption.
+GUI/fee unit tests: 19; QTC adapter/range/batch lifecycle unit tests: 7.
+
+All figures are local throughput, not pool-observed earnings. PRL TMAC/s is
+operations/2/1e12 and cannot be compared to QTC/NOID MH/s. QTC and PRL real
+external pool acceptance remains unverified. Only this Apple M3 was tested;
+other M-series models are targets, not verified performance claims. Warm runs
+and background applications can change rates substantially. No multi-day or
+energy-efficiency claim. Original 0.5% service fee, settings, continuous mining,
+bilingual GUI, menu bar and explicit Stop/Quit behavior are retained.
+
+中文：本版调整 QTC 的 Metal 内核及自适应批量，调整基础款 M3 的 PRL
+分块和寄存器访问。保留完整验证、安全保护和持续挖矿功能。
+实测仅针对这一台 M3；算力会受温度、系统负载和矿池工作影响。测试吞吐
+不等于矿池收益，不承诺所有 M 系列芯片均有相同比例提升。

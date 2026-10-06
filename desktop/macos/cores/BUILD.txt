@@ -54,3 +54,21 @@ Offline correctness, a short local rate and pool authorization are different
 claims. Only an actual accepted pool response counts as an accepted share.
 Different algorithms' MH/s or matrix-operation rates cannot be compared.
 Only one Apple M3 has been tested; other Apple Silicon models remain untested.
+
+
+Measured Metal optimization (Mac GUI 0.1.8)
+Apply optimization/patch_kernels.py qtc PATH_TO_QUANTUS and
+optimization/patch_kernels.py prl PATH_TO_PMK after patch_pearl.py, before
+building. The script verifies pinned shader hashes and retains the fallback.
+Copy optimization/dispatch_large.rs into engine-gpu/examples; build and run it
+alongside the other QTC correctness examples. Rebuild gozero_worker.
+Rebuild libpmk AND the G3 helper from the modified libpmk source/resource files.
+Use separate PMK_HOME directories and force real admission for each profile:
+GZ_PRL_BASELINE=1 uses upstream SG geometry, the default tunes only Apple M3.
+Never reuse an old admission key for a different shader or macro profile.
+GZ_QTC_BASELINE_SHADER=1 selects the preserved Quantus Apple shader.
+optimization/bench_production.py runs alternating timed blocks with persistent
+workers/contexts and writes raw JSON. Pass --quantus, --pearl and --output;
+PRL needs output/pmk-state and output/baseline-admission containing real G3
+results. Run with the bundled PRL Python environment. No external pool traffic.
+Preserve warm/thermal decline samples when reporting speed. See RESULTS.txt.

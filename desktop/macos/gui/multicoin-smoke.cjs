@@ -12,6 +12,8 @@ async function run({win,state,dir,menubar}){
  const click=selector=>js(`document.querySelector(${JSON.stringify(selector)}).click()`);
  const runSeconds=Number(process.env.GOZERO_GUI_RUN_SECONDS||60);assert.ok(runSeconds>=30&&runSeconds<=600);
  await wait(()=>state().ready);
+ assert.equal(await js(`document.querySelector('header .badge').textContent`),state().version);
+ assert.ok((await js(`document.querySelector('#view-about .badge').textContent`)).startsWith(state().version));
  await click('[data-view="mining"]');
  for(const coin of ['NOID','QTC','PRL']){
   await click('[data-coin="'+coin+'"]');await wait(()=>state().config.coin===coin);

@@ -25,7 +25,7 @@ test('external launch uses fee-selected wallet and profile state, continuous mod
   assert.equal(spec.args[spec.args.indexOf('--wallet')+1],ADDRESSES[coin]);
   assert.equal(spec.env.PMK_HOME,path.join('/profile','prl-state'));
   assert.equal(spec.executable,path.join('/app/cores','python/bin/python3'));
-  if(coin==='QTC')assert.equal(spec.args[spec.args.indexOf('--seconds')+1],'0');
+  if(coin==='QTC'){assert.equal(spec.args[spec.args.indexOf('--seconds')+1],'0');assert.ok(spec.args.includes('--adaptive-batch'));assert.equal(spec.args[spec.args.indexOf('--max-batch')+1],'1048576');}
   else assert.ok(spec.args.includes('stratum+ssl://prl-eu.kryptex.network:8048'));
  }
 });

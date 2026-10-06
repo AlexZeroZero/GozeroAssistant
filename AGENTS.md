@@ -107,3 +107,13 @@ this verifies removal of the time limit, not multi-day stability. Desktop is
 0.1.6, settings preserved, old 0.1.5 in Trash. Publication retains the original
 release/download URL and user JPG section; only duration-related body/README
 wording changes. Current package metadata is in CURRENT-VERSION and SHA256SUMS.
+
+
+Latest checkpoint: desktop GUI 0.1.8 includes measured QTC and PRL optimizations.
+See the latest MAC_HANDOFF.txt and cores/optimization/RESULTS.txt. QTC uses exact
+round restructuring plus adaptive bounded dispatch; base Apple M3 PRL uses a
+validated BK32/PF0 profile. Other PRL GPUs retain upstream geometry. Preserve
+CPU verification, G3 identity/gates, original fee ledger and continuous mining.
+One M3 tested; negative/background-load samples retained. External QTC/PRL pool
+acceptance still unverified. Desktop 0.1.7 moved to Trash, settings preserved;
+GitHub/main/Windows and retained README unchanged by this optimization task.

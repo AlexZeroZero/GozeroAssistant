@@ -1,0 +1,263 @@
+{
+  "hardware": "Apple M3, 10 GPU cores, 16 GB, macOS 26.5.1",
+  "units": {
+    "QTC": "hashes/second",
+    "PRL": "operations/second; GUI TMAC/s = ops/2e12"
+  },
+  "limits": [
+    "Single device and short alternating trials; not all M chips or multi-day proof",
+    "Bootstrap describes this run only",
+    "QTC/PRL external pool acceptance remains unverified"
+  ],
+  "results": {
+    "QTC_kernel_same_batch": {
+      "baselineMedian": 20327291.095400155,
+      "optimizedMedian": 21055073.738485225,
+      "meanPairedGainPercent": 3.3796448495648503,
+      "pairedGainsPercent": [
+        2.99435352348989,
+        2.572725455916136,
+        3.445646763811583,
+        3.1864863958115386,
+        3.462209457889287,
+        3.918213204171006,
+        3.4845448173622007,
+        3.9729791780671597
+      ],
+      "bootstrap95Percent": [
+        3.0755351885717404,
+        3.6673671049847534
+      ],
+      "blocks": 8
+    },
+    "QTC_production_adaptive": {
+      "baselineMedian": 19043384.018496253,
+      "optimizedMedian": 20792814.031925082,
+      "meanPairedGainPercent": 6.113330052175737,
+      "pairedGainsPercent": [
+        10.26266397565574,
+        10.62586762685962,
+        10.720227001754324,
+        9.897654326399907,
+        8.3561134074831,
+        5.360502651700072,
+        -0.2773994054738882,
+        -6.038989166972975
+      ],
+      "bootstrap95Percent": [
+        1.7139243482327786,
+        9.68575695858948
+      ],
+      "blocks": 8
+    },
+    "PRL_initial_2048": {
+      "baselineMedian": 2121527620544.1023,
+      "optimizedMedian": 2211990852934.6514,
+      "meanPairedGainPercent": 4.093066605671544,
+      "pairedGainsPercent": [
+        4.309681663253806,
+        4.465488911671867,
+        4.354509453513145,
+        5.048243377998163,
+        4.46284626412683,
+        3.545912348923874,
+        3.559926033819294,
+        2.997924792065376
+      ],
+      "bootstrap95Percent": [
+        3.649479504308645,
+        4.5162505218263735
+      ],
+      "blocks": 8
+    },
+    "PRL_initial_4096": {
+      "baselineMedian": 1706709893940.1992,
+      "optimizedMedian": 1617720211702.17,
+      "meanPairedGainPercent": -1.8749974611271174,
+      "pairedGainsPercent": [
+        1.4086911166917293,
+        1.9557195163403263,
+        0.43393285905852785,
+        -0.9669654286823315,
+        -8.53300865889539,
+        -2.199338738338441,
+        -5.845067822408301,
+        -1.253942532783059
+      ],
+      "bootstrap95Percent": [
+        -4.361464552144131,
+        0.2883050487965416
+      ],
+      "blocks": 8
+    },
+    "qtc-hot-batches.json:1": {
+      "baselineMedian": 15432066.31423489,
+      "optimizedMedian": 15571965.519968243,
+      "meanPairedGainPercent": 0.48334829103680726,
+      "pairedGainsPercent": [
+        6.3518050803948345,
+        -2.582660128137182,
+        -4.313543031113998,
+        6.8279693469124325,
+        -2.144427277088512,
+        6.280603117629613,
+        -2.996773175305134,
+        -3.556187604997596
+      ],
+      "bootstrap95Percent": [
+        -2.6234658650033102,
+        4.009319368695323
+      ],
+      "blocks": 8
+    },
+    "qtc-hot-batches.json:2": {
+      "baselineMedian": 15432066.31423489,
+      "optimizedMedian": 14698637.9280091,
+      "meanPairedGainPercent": -4.287702814373624,
+      "pairedGainsPercent": [
+        -6.451959357142922,
+        -3.143629078608845,
+        -3.1476460418278007,
+        -11.918023548429124,
+        -3.1525431062087383,
+        4.369568664473089,
+        -6.43587402087894,
+        -4.421516026365713
+      ],
+      "bootstrap95Percent": [
+        -7.149620157169934,
+        -1.3094035387983038
+      ],
+      "blocks": 8
+    },
+    "qtc-hot-batches.json:3": {
+      "baselineMedian": 15432066.31423489,
+      "optimizedMedian": 16299951.63917698,
+      "meanPairedGainPercent": 7.570813560167802,
+      "pairedGainsPercent": [
+        8.872365064757659,
+        9.215908207680057,
+        3.6024770452898647,
+        5.638195852262617,
+        10.164559113554738,
+        9.844220145104266,
+        8.043327299664682,
+        5.185455753028534
+      ],
+      "bootstrap95Percent": [
+        5.970335414157893,
+        9.07545058959676
+      ],
+      "blocks": 8
+    },
+    "qtc-idle-batches.json:1": {
+      "baselineMedian": 15107317.71375128,
+      "optimizedMedian": 15402756.697278779,
+      "meanPairedGainPercent": 5.028151197433215,
+      "pairedGainsPercent": [
+        8.955218138336441,
+        -1.6719843801541123,
+        10.045533374599614,
+        2.783837656950916
+      ],
+      "bootstrap95Percent": [
+        0.5559266383984018,
+        9.500375756468028
+      ],
+      "blocks": 4
+    },
+    "qtc-idle-batches.json:2": {
+      "baselineMedian": 15107317.71375128,
+      "optimizedMedian": 14547252.536457503,
+      "meanPairedGainPercent": 1.309955175779193,
+      "pairedGainsPercent": [
+        16.95444249092908,
+        -6.662582019143903,
+        -6.424440750785932,
+        1.3724009821175276
+      ],
+      "bootstrap95Percent": [
+        -6.543511384964917,
+        11.109721680500327
+      ],
+      "blocks": 4
+    },
+    "qtc-idle-batches.json:3": {
+      "baselineMedian": 15107317.71375128,
+      "optimizedMedian": 16659615.666697077,
+      "meanPairedGainPercent": 12.66195484182212,
+      "pairedGainsPercent": [
+        21.75452848443986,
+        3.841001152989243,
+        14.078658062035476,
+        10.973631667823902
+      ],
+      "bootstrap95Percent": [
+        6.400415380250801,
+        19.059304280285872
+      ],
+      "blocks": 4
+    },
+    "prl-hot-shapes.json:0->1": {
+      "baselineMedian": 1609066438680.871,
+      "optimizedMedian": 1684203577756.0776,
+      "meanPairedGainPercent": 3.5142785265754375,
+      "pairedGainsPercent": [
+        21.120166588541768,
+        -2.97569403220187,
+        4.207697474503003,
+        -1.3833271013443338,
+        -2.4523361070178606,
+        2.5691643369719186
+      ],
+      "bootstrap95Percent": [
+        -1.6117038404686461,
+        11.185916889704135
+      ],
+      "blocks": 6
+    },
+    "prl-hot-shapes.json:0->3": {
+      "baselineMedian": 1609066438680.871,
+      "optimizedMedian": 1734552582940.3784,
+      "meanPairedGainPercent": 8.101709586610498,
+      "pairedGainsPercent": [
+        18.627651585307127,
+        4.427868010682556,
+        7.386594782861722,
+        6.326366282391382,
+        6.293310006969177,
+        5.548466851451028
+      ],
+      "bootstrap95Percent": [
+        5.418662612221599,
+        12.47149955461222
+      ],
+      "blocks": 6
+    },
+    "prl-hot-shapes.json:2->1": {
+      "baselineMedian": 1603223427763.0874,
+      "optimizedMedian": 1684203577756.0776,
+      "meanPairedGainPercent": 7.219696648983187,
+      "pairedGainsPercent": [
+        5.051083248326682,
+        7.705358115417371,
+        12.215576823904772,
+        4.1843211567884175,
+        5.946798461199876,
+        8.215042088262003
+      ],
+      "bootstrap95Percent": [
+        5.294314544692302,
+        9.518088325145957
+      ],
+      "blocks": 6
+    }
+  },
+  "rawSha256": {
+    "qtc-worker-abba.json": "1f8daea5191418be1764416fff73592c8d67f021fa20174ecd0e33b86c395107",
+    "prl-pipeline-abba.json": "b2cd81dffdb30ec8e1df98d79dd35ff3bedc7e01466798401f312a997f3561f9",
+    "qtc-hot-batches.json": "43a377153f39a075a089057d9d6f9592524a0a2316299231fffde6dc9dc05194",
+    "qtc-idle-batches.json": "4d7877191a9100d63c52da442d4bac787537634707378fb3e7be2485b2547922",
+    "prl-hot-shapes.json": "5360100edfbbf700db2729cccac3a364754ecdc6f4bed3e843bfd704d1276811"
+  }
+}

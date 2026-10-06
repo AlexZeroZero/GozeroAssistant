@@ -7,6 +7,7 @@ import argparse
 import asyncio
 import contextlib
 import json
+import math
 import secrets
 import ssl
 import time
@@ -46,6 +47,17 @@ def emit(event, **fields):
     print(json.dumps(dict(event=event, timestamp=time.time(), **fields)), flush=True)
 
 
+def next_batch(count, seconds, limit):
+    """Aim for 40–90 ms per dispatch; bound job-change latency and memory use."""
+    if not isinstance(seconds, (int, float)) or not math.isfinite(seconds) or seconds <= 0:
+        return count
+    if seconds < .04:
+        return min(limit, count * 2)
+    if seconds > .09:
+        return min(count, max(min(65536, limit), count // 2))
+    return count
+
+
 async def run(args):
     began = time.monotonic()
     stats = dict(hashes=0, submitted=0, accepted=0, rejected=0, stale_local=0, reconnects=0, jobs=0)
@@ -63,7 +75,12 @@ async def run(args):
         ready = json.loads(await asyncio.wait_for(worker.stdout.readline(), 90))
         if not ready.get('ready'):
             raise RuntimeError('core initialization failed')
-        emit('core_ready', backend=ready['backend'])
+        limit = ready.get('max_batch', 262144)
+        if type(limit) is not int or not 1 <= limit <= 1048576:
+            raise RuntimeError('invalid core batch capability')
+        limit = min(limit, getattr(args, 'max_batch', 1048576))
+        batch = min(args.batch, limit)
+        emit('core_ready', backend=ready['backend'], max_batch=limit)
         request_id = 0
         while time.monotonic() < stop_at:
             current = {'job': None, 'generation': 0, 'session': None}
@@ -118,8 +135,10 @@ async def run(args):
                     if generation != current['generation']:
                         generation = current['generation']
                         nonce = int.from_bytes(bytes.fromhex(job['extranonce']) + secrets.token_bytes(28) + bytes(32), 'big')
+                    count = batch
+                    dispatch_started = time.monotonic()
                     request_id += 1
-                    worker.stdin.write(f"{request_id} {job['mining_hash']} {job['difficulty']} {nonce:0128x} {args.batch}\n".encode())
+                    worker.stdin.write(f"{request_id} {job['mining_hash']} {job['difficulty']} {nonce:0128x} {count}\n".encode())
                     await worker.stdin.drain()
                     try:
                         line = await asyncio.wait_for(worker.stdout.readline(), 30)
@@ -131,11 +150,11 @@ async def run(args):
                     if result.get('id') != request_id:
                         raise RuntimeError('core response id mismatch')
                     hashes = result['hashes']
-                    if not isinstance(hashes, int) or not 0 <= hashes <= args.batch:
+                    if not isinstance(hashes, int) or not 0 <= hashes <= count:
                         raise RuntimeError('invalid core work count')
                     stats['hashes'] += hashes
                     if 'nonce' in result:
-                        if not valid_candidate(result, job, nonce, args.batch):
+                        if not valid_candidate(result, job, nonce, count):
                             raise RuntimeError('core candidate failed adapter validation')
                         if generation != current['generation'] or reader_task.done():
                             stats['stale_local'] += 1
@@ -147,10 +166,12 @@ async def run(args):
                                 'nonce': result['nonce'], 'result': result['hash']}})
                             stats['submitted'] += 1
                             emit('share_submitted', job_id=job['job_id'])
-                    nonce += args.batch
+                    nonce += count
+                    if getattr(args, 'adaptive_batch', False) and hashes == count and 'nonce' not in result:
+                        batch = next_batch(count, time.monotonic() - dispatch_started, limit)
                     now = time.monotonic()
                     if now - last_sample >= 10:
-                        emit('hashrate', hashes_per_second=(stats['hashes'] - last_hashes) / (now - last_sample), **stats)
+                        emit('hashrate', batch=batch, hashes_per_second=(stats['hashes'] - last_hashes) / (now - last_sample), **stats)
                         last_sample, last_hashes = now, stats['hashes']
             except (OSError, asyncio.TimeoutError, ConnectionError) as exc:
                 emit('connection_error', reason=str(exc))
@@ -200,9 +221,11 @@ def main():
     parser.add_argument('--port', type=int, default=8049)
     parser.add_argument('--seconds', type=int, default=0)
     parser.add_argument('--batch', type=int, default=262144)
+    parser.add_argument('--max-batch', type=int, default=1048576)
+    parser.add_argument('--adaptive-batch', action='store_true')
     parser.add_argument('--report', type=Path)
     args = parser.parse_args()
-    if not args.wallet.startswith('qz') or args.seconds < 0 or not 1 <= args.batch <= 262144:
+    if not args.wallet.startswith('qz') or args.seconds < 0 or not 1 <= args.batch <= 1048576 or not 1 <= args.max_batch <= 1048576:
         parser.error('invalid wallet, duration or batch')
     try:
         asyncio.run(run(args))
