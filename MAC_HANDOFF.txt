@@ -518,3 +518,27 @@ PUBLIC MAC RELEASE 0.1.2 — 2026-10-06
   Full private diagnostics stay in session/release-mac-0.1.2 and ignored
   .local/github-release. Git credential helper is used in memory only; no token
   or SSH credentials are included in tracked files or release assets.
+
+POOL PAUSE / WINDOWS LOG COMPARISON — 2026-10-06
+- User supplied Windows Suprnova logs (51.89.7.224:3337, official noid.suprnova.cc
+  A record verified via Google DoH). Its current protocol page explicitly says
+  mining.pause is disabled. Mac user is on Innovlab, which emits pauses.
+- Confirmed Mac GUI omitted submitted/accepted/rejected/rate log lines and kept
+  zero rates until the next 10-second sample. Added real share outcome logs,
+  1-second samples, 10-second rate logs, pool reason and measured wait duration,
+  and a separate work-resumed event only after valid native batch completion.
+  Preserved protocol pause enforcement and unchanged native algorithm/scheduler.
+- 29 tests passed, including continuous batches after one fresh notify, discard
+  of paused work, and GUI distinction between notify and actual computation.
+- 180-second M3 CPU4+GPU GUI run: 36 submitted, 33 accepted, 3 rejected, no
+  reconnect. All 12 pauses said canonical-tip-unverified; total pool wait
+  5.189669 s; all resumed (13 work-resumed events including initial start).
+  Three rejections were stale share (job not found), sent before pause arrived.
+  Preserve these rejections; smoke passing does NOT mean zero final rejects.
+  Local useful-work mean 1.678264 MH/s, not a matched speedup experiment.
+- Desktop updated to diagnostic version 0.1.3, signed payload verified, user
+  settings unchanged, opened idle. Old 0.1.2 moved to Trash. No GitHub release
+  created/replaced for this diagnostic update; formal release remains 0.1.2.
+- Evidence: desktop/macos/gui/evidence/mac-pause-diagnostics-0.1.3.json;
+  actual log screenshot: docs/screenshots/mac-0.1.3/01-logs.png. Full reports in
+  remote session/pause-fix-0.1.3 and local ignored .local/pause-fix.

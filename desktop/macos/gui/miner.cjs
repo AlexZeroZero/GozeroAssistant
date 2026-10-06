@@ -5,12 +5,13 @@ const {verifyNative}=require('../../experiments/noid-apple/miner_cli.cjs');
 const {GPU_ID}=require('./config.cjs');
 class Miner extends EventEmitter{
  constructor(dir,nativeDir,log,deps={}){super();this.dir=dir;this.nativeDir=nativeDir;this.log=log;this.spawn=deps.spawn||spawn;this.verify=deps.verify||verifyNative;this.status='idle';this.jobs=new Map();this.child=null;this.epoch=0;this.serial=0;this.points=[];this.totals={accepted:0,rejected:0,submitted:0};this.rate={total:null,cpu:null,gpu:null};this.done=Promise.resolve();this.bound=0;this.lastReport=null;}
- snapshot(){return{status:this.status,session:this.session,rate:this.rate,totals:this.totals,points:this.points,lastReport:this.lastReport,jobs:[...this.jobs.values()]};}
+ snapshot(){return{status:this.status,workState:this.workState,session:this.session,rate:this.rate,totals:this.totals,points:this.points,lastReport:this.lastReport,jobs:[...this.jobs.values()]};}
  update(){this.emit('update');}
  signal(child,signal){try{if(process.platform==='darwin'&&child.pid)process.kill(-child.pid,signal);else child.kill(signal);}catch(e){if(e.code!=='ESRCH')this.log('停止',e.message);}}
  async start(cfg,_hardware,benchmark=false){
   if(this.status!=='idle')throw Error('已有运行任务');
   const epoch=++this.epoch;this.status='starting';this.points=[];this.rate={total:null,cpu:null,gpu:null};this.totals={accepted:0,rejected:0,submitted:0};this.session={startedAt:Date.now(),benchmark,coin:'NOID',cpuThreads:cfg.cpuThreads};this.update();
+  this.workState='waiting';this.lastRateLog=0;
   let input;
   try{
    const native=this.verify(this.nativeDir);await fs.mkdir(path.join(this.dir,'results'),{recursive:true});
@@ -53,12 +54,20 @@ class Miner extends EventEmitter{
   if(e.type==='stats'){
    const total=e.localHashesPerSecond,cpu=e.cpuHashesPerSecond,gpu=e.gpuHashesPerSecond;
    if(![total,cpu,gpu].every(n=>Number.isFinite(n)&&n>=0))throw Error('无效算力采样');
-   this.rate={total,cpu,gpu};const at=Date.now();this.points.push({at,total,cpu,gpu});if(this.points.length>120)this.points.shift();
-   this.jobs.get(GPU_ID).telemetry={hash:total,at};this.totals.accepted=e.accepted;this.totals.rejected=e.rejected;
-  }else if(e.type==='submitted')this.totals.submitted++;
-  else if(e.type==='accepted')this.totals.accepted++;
-  else if(e.type==='rejected')this.totals.rejected++;
-  else if(e.type==='paused'){this.rate={total:0,cpu:0,gpu:0};const j=this.jobs.get(GPU_ID);if(j)j.telemetry={hash:0,at:Date.now()};this.log('矿池','任务暂停，等待新的有效工作');}
+   const waiting=['paused','reconnecting'].includes(this.workState);
+   this.rate=waiting?{total:0,cpu:0,gpu:0}:{total,cpu,gpu};const at=Date.now();this.points.push({at,total,cpu,gpu});if(this.points.length>120)this.points.shift();
+   this.jobs.get(GPU_ID).telemetry={hash:this.rate.total,at};this.totals.accepted=e.accepted;this.totals.rejected=e.rejected;
+   if(!this.lastRateLog||at-this.lastRateLog>=10000){this.lastRateLog=at;this.log('算力','最近1秒有效工作 '+(total/1e6).toFixed(3)+' MH/s · GPU '+(gpu/1e6).toFixed(3)+' / CPU '+(cpu/1e6).toFixed(3)+' · 接受 '+e.accepted+' / 拒绝 '+e.rejected);}
+  }else if(e.type==='submitted'){this.totals.submitted++;this.log('份额','已提交 #'+e.id+'，等待矿池确认');}
+  else if(e.type==='accepted'){this.totals.accepted++;this.log('份额','NOID share accepted · #'+e.id+' · 累计接受 '+this.totals.accepted);}
+  else if(e.type==='rejected'){this.totals.rejected++;this.log('份额','NOID share rejected · #'+e.id+' · '+JSON.stringify(e.error||'矿池未接受').slice(0,200));}
+  else if(e.type==='paused'){this.workState='paused';this.rate={total:0,cpu:0,gpu:0};const j=this.jobs.get(GPU_ID);if(j)j.telemetry={hash:0,at:Date.now()};this.log('矿池','矿池要求暂停旧任务，保持连接等待新任务'+(e.reason?' · 原因：'+e.reason:''));}
+  else if(e.type==='job'){
+   if(this.workState!=='mining'){this.workState='waiting';this.rate={total:null,cpu:null,gpu:null};const j=this.jobs.get(GPU_ID);if(j)j.telemetry=null;}
+   this.log('任务',(Number.isFinite(e.pauseSeconds)?'矿池等待 '+e.pauseSeconds.toFixed(3)+' 秒，收到新任务':'收到有效工作')+' · '+e.job);
+  }
+  else if(e.type==='work-resumed'){this.workState='mining';this.log('内核','已完成新任务首批有效计算，持续搜索中');}
+  else if(e.type==='reconnect'){this.workState='reconnecting';this.rate={total:0,cpu:0,gpu:0};const j=this.jobs.get(GPU_ID);if(j)j.telemetry={hash:0,at:Date.now()};this.log('连接','连接中断，等待重连');}
   else{const text={ 'worker-ready':'CPU / Metal 自检通过','tls-ready':'TLS 证书已验证','authorized':'矿池授权成功','job':'收到有效工作','connecting':'正在连接矿池','reconnect':'连接中断，等待重连','stopped':'本次任务已结束','connection-error':e.message,'worker-stderr':e.message}[e.type];if(text)this.log('内核',text);}
   this.update();
  }

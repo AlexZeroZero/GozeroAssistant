@@ -42,6 +42,13 @@ async function run({win,state,dir}){
   if(!fullRun)await js(`document.querySelector('#stop').click()`);
   await wait(()=>state().miner.status==='idle'&&!state().fee.active,fullRun?duration+15:15);
   live.finalTotals={...state().miner.totals};live.automaticDurationStop=fullRun;
+  const runReport=JSON.parse(await fs.readFile(state().miner.lastReport,'utf8'));
+  live.poolPausedSeconds=runReport.poolPausedSeconds;live.pauses=runReport.pauses;
+  live.workResumptions=runReport.events.filter(e=>e.type==='work-resumed').length;
+  assert.ok(live.workResumptions>0,'No verified work completion event');
+  assert.ok(state().logs.some(l=>l.text.includes('NOID share accepted')),'Accepted shares missing from GUI log');
+  assert.ok(state().logs.some(l=>l.type==='算力'),'Periodic rate missing from GUI log');
+  await js(`document.querySelector('[data-view="logs"]').click()`);await capture('logs-live');
   if(threads){const result=JSON.parse(await fs.readFile(state().miner.lastReport,'utf8'));assert.ok(result.cpuHashes>0,'CPU did not contribute hashes');live.cpuHashes=result.cpuHashes;live.gpuHashes=result.gpuHashes;}
   assert.ok(live.accepted>0,'No accepted share in bounded GUI pool test');assert.equal(live.rejected,0);
  }

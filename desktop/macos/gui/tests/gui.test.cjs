@@ -37,6 +37,23 @@ test('offline benchmark uses native executable and never invokes pool controller
  await miner.start({...DEFAULT,cpuThreads:4},{},true);assert.equal(exe,'native');assert.ok(args.includes('--search-seconds'));assert.ok(!args.some(x=>x.includes('pool_runner')));
  child.stdout.write(JSON.stringify({metalSelftest:'passed',metalSearch:{hashesPerSecondWall:200,cpuHashes:60,gpuHashes:540,wallSeconds:3}}));child.emit('close',0);await miner.done;assert.equal(miner.rate.cpu,20);assert.equal(miner.rate.gpu,180);
 }));
+
+test('pool wait, real work resume and accepted shares are separately visible',()=>{
+ const logs=[],miner=new Miner('unused','unused',(type,text)=>logs.push({type,text}));
+ miner.jobs.set(GPU_ID,{status:'running'});miner.workState='mining';
+ const stats={type:'stats',localHashesPerSecond:2e6,cpuHashesPerSecond:0.2e6,gpuHashesPerSecond:1.8e6,accepted:0,rejected:0};
+ miner.event({type:'paused',reason:'canonical-tip-unverified'});
+ miner.event(stats);assert.equal(miner.rate.total,0);assert.equal(miner.workState,'paused');
+ miner.event({type:'job',job:'fresh',pauseSeconds:0.8});assert.equal(miner.rate.total,null);assert.equal(miner.workState,'waiting');
+ miner.event({type:'work-resumed',job:'fresh'});miner.event(stats);assert.equal(miner.rate.total,2e6);assert.equal(miner.workState,'mining');
+ miner.event({type:'submitted',id:42});miner.event({type:'accepted',id:42});
+ assert.equal(miner.totals.submitted,1);assert.equal(miner.totals.accepted,1);
+ assert.ok(logs.some(l=>l.text.includes('canonical-tip-unverified')));
+ assert.ok(logs.some(l=>l.text.includes('0.800 秒')));
+ assert.ok(logs.some(l=>l.text.includes('NOID share accepted')));
+ assert.equal(logs.filter(l=>l.type==='算力').length,1,'Do not flood the log each second');
+ miner.event({type:'reconnect'});miner.event(stats);assert.equal(miner.rate.total,0);
+});
 test('original service fee ledger and recipient transition remain active',()=>temp(async dir=>{
  const cfg=config();let seen;const miner={status:'idle',jobs:new Map(),async start(c){seen=c;this.status='running';this.jobs.set(GPU_ID,{status:'running',telemetry:{hash:1,at:Date.now()}});},async stop(){this.status='idle';}};
  const fee=new FeeController(miner,dir,()=>{},()=>{});const key=fee.ledger.key('NOID',cfg.wallets.NOID);fee.ledger.credit(key,12000);

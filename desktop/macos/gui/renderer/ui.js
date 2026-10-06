@@ -17,7 +17,8 @@ function render(){if(!state?.config)return;document.body.classList.toggle('light
  fields('#memory-fields',[['容量',fmt(h.memoryBytes/1073741824,' GB')],['空闲',fmt(h.freeMemory/1073741824,' GB',1)],['系统',h.os?'Darwin '+h.os:'—'],['热状态',thermal[h.thermalState]||'—']]);
  const used=h.memoryBytes?100*(1-h.freeMemory/h.memoryBytes):0;$('#memory-meter').value=used;text('#memory-used',fmt(used,' % 系统占用',1));
  const bars=$('#core-bars');if(bars.children.length!==h.perCore?.length){bars.replaceChildren(...(h.perCore||[]).map((_,i)=>{const e=document.createElement('div');e.className='core';const meter=document.createElement('meter');meter.min=0;meter.max=100;const label=document.createElement('small');label.textContent='#'+i;e.append(meter,label);return e;}));}(h.perCore||[]).forEach((n,i)=>{bars.children[i].firstChild.value=n??0;bars.children[i].title='CPU '+i+'：'+fmt(n,'%',1);});
- const status={idle:'待机',starting:'启动中',running:m.session?.benchmark?'离线测速中':'运行中',stopping:'停止中'}[m.status]||'初始化';
+ const workStatus={waiting:'等待有效计算',paused:'矿池暂停，等待新任务',mining:'持续计算中',reconnecting:'断线重连中'}[m.workState]||'运行中';
+ const status={idle:'待机',starting:'启动中',running:m.session?.benchmark?'离线测速中':workStatus,stopping:'停止中'}[m.status]||'初始化';
  text('#session-status',status);text('#overview-status',state.ready?'本机设备已连接 · '+status:'正在读取本机设备');text('#footer-state',state.ready?(h.chip+' · '+status):'正在读取本机设备');text('#footer-thermal','系统热状态：'+(thermal[h.thermalState]||'—'));text('#mining-device',h.gpu||'Apple GPU');
  const r=m.rate||{};text('#total-hash',hash(r.total));text('#gpu-hash',hash(r.gpu));text('#cpu-hash',hash(r.cpu));text('#rate-label',m.status==='idle'?'最后一次采样 / 待机':'真实本地算力 · 非矿池结算');
  text('#accepted',m.totals?.accepted||0);text('#rejected',m.totals?.rejected||0);text('#submitted',m.totals?.submitted||0);
