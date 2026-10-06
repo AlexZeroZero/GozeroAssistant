@@ -10,8 +10,10 @@ the `.local/github-publish/GozeroAssistant` main checkout from this task.
 
 Target all Apple M-series families, including base/Pro/Max/Ultra, with runtime
 capability checks. This is a target, not a claim of verified compatibility.
-There is no available Mac build/test host yet. Do not claim macOS builds, Metal
-execution, measured Apple hashrate, or accepted pool shares without evidence.
+The user has now confirmed an Apple Silicon Mac is available on the LAN and can
+enable SSH. Its address/authentication are still pending; no Mac execution has
+been verified. Do not claim macOS builds, Metal execution, measured Apple
+hashrate, or accepted pool shares without evidence.
 
 The source under desktop/experiments/noid-apple is an UNCOMPILED draft at handoff.
 It is not an available miner or release. Validate the exact NOID algorithm and

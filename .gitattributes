@@ -4,3 +4,4 @@
 *.ptx binary
 desktop/experiments/noid/** text eol=lf
 desktop/experiments/noid-apple/** text eol=lf
+desktop/macos/** text eol=lf
