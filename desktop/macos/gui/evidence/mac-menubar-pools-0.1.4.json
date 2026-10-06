@@ -1,0 +1,147 @@
+{
+  "passed": true,
+  "layout": {
+    "title": "Gozero助手 Mac",
+    "node": "undefined",
+    "bodyWidth": 920,
+    "navWidth": 918,
+    "views": 6
+  },
+  "small": {
+    "width": 780,
+    "nav": 778,
+    "main": 778,
+    "scroll": 778
+  },
+  "hardware": {
+    "chip": "Apple M3",
+    "model": "MacBook Air",
+    "gpu": "Apple M3",
+    "memoryBytes": 17179869184,
+    "cpuCores": 8,
+    "performanceCores": 4,
+    "efficiencyCores": 4,
+    "os": "25.5.0",
+    "gpuLoad": 99,
+    "cpuLoad": 44.31973611840296,
+    "perCore": [
+      9.547738693467334,
+      6.499999999999995,
+      4.020100502512558,
+      1.9900497512437831,
+      83.5,
+      83,
+      83,
+      83
+    ],
+    "freeMemory": 1686945792,
+    "thermalState": 1,
+    "temperatureC": null,
+    "powerWatts": null,
+    "gpus": [
+      {
+        "id": "apple-metal",
+        "name": "Apple M3",
+        "vendor": "Apple",
+        "sensors": {
+          "at": 1791285574595,
+          "load": 99,
+          "temp": null,
+          "power": null
+        }
+      }
+    ],
+    "modelId": "Mac15,12",
+    "gpuCores": 10,
+    "scannedAt": 1791285360776,
+    "at": 1791285574560
+  },
+  "live": {
+    "accepted": 1,
+    "rejected": 0,
+    "submitted": 1,
+    "rate": {
+      "total": 1112000,
+      "cpu": 99000,
+      "gpu": 1012999.9999999999
+    },
+    "elapsedSeconds": 90.425,
+    "cpuThreads": 4,
+    "finalTotals": {
+      "accepted": 9,
+      "rejected": 0,
+      "submitted": 9
+    },
+    "automaticDurationStop": true,
+    "poolPausedSeconds": 0,
+    "pauses": 0,
+    "workResumptions": 1,
+    "cpuHashes": 24140724,
+    "gpuHashes": 235381836
+  },
+  "benchmark": {
+    "total": 1421268.5196195166,
+    "cpu": 135862.4676460516,
+    "gpu": 1285406.051973465
+  },
+  "rendererErrors": [],
+  "settingsPersisted": true,
+  "stopReturnedIdle": true,
+  "poolPresets": 11,
+  "selectedPool": {
+    "pool": "suprnova",
+    "host": "51.89.7.224",
+    "port": 3337,
+    "transport": "tcp"
+  },
+  "menuBar": {
+    "available": true,
+    "liveTitle": "1.83 MH/s",
+    "bounds": {
+      "x": 743,
+      "y": 0,
+      "width": 93,
+      "height": 33
+    },
+    "hideContinuesMining": true,
+    "showFromMenu": true,
+    "hiddenDurationStop": true,
+    "stopFromMenu": true
+  },
+  "screenshotRedactions": [
+    "wallet input rendered as password; performance values unchanged"
+  ],
+  "shutdownWithActiveWorker": true,
+  "applicationVersion": "0.1.4",
+  "zipSha256": "c348061953e20ba924d1995887cc5ad0a034d0c782e256ede74f05c6be8d1c2e",
+  "scope": "Desktop build; not a new GitHub release. Native arithmetic unchanged.",
+  "unitTestsPassed": 34,
+  "endpointChecks": {
+    "innovlabTls": "Six catalog regions passed certificate verification and NOID subscribe from M3",
+    "suprnovaTls": "Four catalog regions timed out after 10 seconds from M3",
+    "suprnovaTcp": "51.89.7.224:3337 verified protocol and 180-second GUI mining; manual explicit plaintext choice",
+    "sources": [
+      "https://noid.innovlab.cc/",
+      "https://noid.suprnova.cc/StartMining"
+    ],
+    "addressVerifiedAt": "2026-10-06",
+    "tcpAddressSource": "Google DoH A record for noid.suprnova.cc, matching user Windows logs"
+  },
+  "firstGuiRun": {
+    "pool": "innovlab",
+    "seconds": 180,
+    "accepted": 21,
+    "rejected": 0,
+    "hideContinuesMining": true,
+    "stopFromMenu": true,
+    "hiddenDurationStop": true,
+    "shutdownWithActiveWorker": true
+  },
+  "delivery": {
+    "version": "0.1.4",
+    "settingsPreserved": true,
+    "signedPayloadVerified": true,
+    "openedIdle": true,
+    "noNativeWorker": true
+  }
+}

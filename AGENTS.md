@@ -79,3 +79,11 @@ branch; preserve main and existing Windows releases. Disclose NOID-only, bounded
 1–10-minute runs, M3-only validation and lack of Apple notarization. Screenshots
 must contain actual measurements; mask only the test wallet. User's local GUI
 preference is GPU plus 4 CPU threads; preserve settings during app replacement.
+
+Latest user explicitly requested pool choices and continued mining with the
+main window closed using a floating window or top menu bar. Mac 0.1.4 now uses
+a native menu bar with real rate/state, Show, Stop and Quit controls. Closing
+hides the main window; explicit Quit/Cmd+Q stops all children. This supersedes
+earlier close-means-stop requirements. Hidden tasks retain their original
+1–10-minute bound. TLS remains default; explicit Suprnova TCP compatibility
+was added after all four TLS endpoints timed out on M3. See latest handoff.

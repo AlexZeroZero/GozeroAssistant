@@ -542,3 +542,33 @@ POOL PAUSE / WINDOWS LOG COMPARISON — 2026-10-06
 - Evidence: desktop/macos/gui/evidence/mac-pause-diagnostics-0.1.3.json;
   actual log screenshot: docs/screenshots/mac-0.1.3/01-logs.png. Full reports in
   remote session/pause-fix-0.1.3 and local ignored .local/pause-fix.
+
+POOL CATALOG AND MAC MENU BAR 0.1.4 — 2026-10-06
+- User requested additional pool choices and hashrate visible after closing the
+  main window. Implemented native Electron Tray menu bar, not a desktop float.
+  Close hides main window and leaves task running; menu or Dock restores it.
+  Stop and explicit Quit/Cmd+Q stop children. Hidden deadline and thermal stop
+  remain active. Idle/paused/reconnecting states do not show old rates as live.
+- Catalog: six Innovlab TLS regions, four Suprnova TLS regions, plus explicit
+  Suprnova EU TCP compatibility (51.89.7.224:3337). Eleven choices, two operators.
+  Official endpoint pages checked. Six Innovlab TLS + subscribe probes passed;
+  all four Suprnova TLS probes timed out on M3. Windows-equivalent TCP verified
+  against official noid.suprnova.cc Google DoH A record and native pool replies.
+  No silent TLS downgrade. Existing profiles default TLS; Innovlab forbids TCP.
+  TCP fixed address was verified on this date and may need future revalidation.
+- 34 offline tests passed, covering transport validation, recovery, menu actions
+  and stale rate suppression. First Innovlab 180-second GUI run accepted 21/21.
+  Final build Suprnova 180-second CPU4+GPU GUI run accepted 9/9, zero rejected,
+  zero pauses. This is not a performance comparison (difficulty/thermal differ).
+- Actual M3 GUI checks: all 11 presets persist correctly, close while mining
+  keeps same session and samples updating, restore via menu, native close event,
+  hidden duration expiry, menu Stop, and final quit while worker active. No
+  native worker remains after exit. Actual menu bar title sampled 1.83 MH/s;
+  menu bar native bounds nonempty. Small-window layout and renderer checks pass.
+- Desktop replaced with 0.1.4; every payload hash and signature verified, settings
+  unchanged, opened idle. Old 0.1.3 moved to Trash. No public release changed.
+- ZIP SHA256 c348061953e20ba924d1995887cc5ad0a034d0c782e256ede74f05c6be8d1c2e.
+  Build/evidence in session/menubar-pools-final-0.1.4; earlier TLS probes and
+  Innovlab GUI validation in session/menubar-pools-0.1.4. Local ignored assets:
+  .local/menubar-pools. Tracked compact evidence mac-menubar-pools-0.1.4.json
+  and actual screenshot docs/screenshots/mac-0.1.4/01-suprnova-mining.png.

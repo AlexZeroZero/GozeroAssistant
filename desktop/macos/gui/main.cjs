@@ -1,17 +1,20 @@
 'use strict';
-const {app,BrowserWindow,ipcMain,dialog,shell,session,Menu,powerSaveBlocker}=require('electron');
+const {app,BrowserWindow,ipcMain,dialog,shell,session,Menu,Tray,nativeImage,powerSaveBlocker}=require('electron');
 const fs=require('node:fs/promises'),path=require('node:path'),{pathToFileURL}=require('node:url');
 const {Store,miningConfig}=require('./config.cjs'),{Hardware}=require('./hardware.cjs'),{Miner}=require('./miner.cjs');
 const {FeeController}=require('../../src/service-fee.cjs');
+const {PRESETS}=require('./pools.cjs'),{MenuBar}=require('./menubar.cjs');
 const PAGE=path.join(__dirname,'renderer/index.html'),URL=pathToFileURL(PAGE).href;
 const nativeDir=path.resolve(__dirname,'../../../native');
 app.setName('Gozero助手 Mac');app.setPath('userData',path.join(app.getPath('appData'),'gozero-assistant-mac'));
 const profile=process.argv.find(a=>a.startsWith('--profile-dir='));if(profile){const p=profile.slice(14);if(!path.isAbsolute(p))throw Error('配置目录必须为绝对路径');app.setPath('userData',p);}
-let win,store,hardware,miner,fee,timer,awake,ready=false,starting=false,quitting=false,shutdownPromise,logId=0,runEpoch=0,logs=[];
+let win,store,hardware,miner,fee,timer,awake,menubar,ready=false,starting=false,quitting=false,shutdownPromise,logId=0,runEpoch=0,logs=[];
 function redact(s){s=String(s).slice(0,1200);const wallet=store?.value.wallet;return wallet?s.split(wallet).join('[收款地址]'):s;}
 function log(type,text){logs.push({id:++logId,at:Date.now(),type,text:redact(text)});if(logs.length>300)logs.shift();push();}
-function state(){return{version:'Mac 0.1.3',ready,starting,config:store?.value,hardware:hardware?.value,miner:miner?.snapshot(),fee:fee?.snapshot(),logs};}
-function push(){if(win&&!win.isDestroyed())win.webContents.send('state',state());}
+function state(){return{version:'Mac 0.1.4',pools:PRESETS,ready,starting,config:store?.value,hardware:hardware?.value,miner:miner?.snapshot(),fee:fee?.snapshot(),logs};}
+function push(){const s=state();menubar?.update(s);if(win&&!win.isDestroyed())win.webContents.send('state',s);}
+function showMain(){if(win&&!win.isDestroyed()){if(win.isMinimized())win.restore();win.show();win.focus();}}
+function hideMain(){if(menubar?.available()){win.hide();log('窗口','主窗口已收起，任务继续；顶部菜单栏可查看算力、停止或退出');}else return shutdown();}
 function busy(){return starting||miner.status!=='idle'||fee.active||fee.switching||fee.stopping;}
 function handle(name,fn){ipcMain.handle(name,async(e,...args)=>{try{if(e.sender!==win.webContents||e.senderFrame!==win.webContents.mainFrame||e.senderFrame.url!==URL)throw Error('非本机界面请求');return{ok:true,value:await fn(...args)};}catch(error){log('提示',error.message);return{ok:false,error:redact(error.message)};}});}
 function releaseAwake(){if(awake!==undefined){powerSaveBlocker.stop(awake);awake=undefined;}}
@@ -42,15 +45,16 @@ async function boot(){
  handle('bootstrap',()=>state());handle('save',async c=>{if(busy())throw Error('停止任务后再修改配置');await store.save(c);hardware.start(store.value.interval);push();return store.value;});
  handle('start',()=>start(false));handle('benchmark',()=>start(true));handle('stop',()=>stop());
  handle('scan',async()=>{if(busy())throw Error('请先停止任务');ready=false;push();try{await hardware.scan();}finally{ready=true;push();}return state();});
- handle('window',a=>{if(a==='minimize')win.minimize();else if(a==='maximize')win.isMaximized()?win.unmaximize():win.maximize();else if(a==='close')return shutdown();else throw Error('窗口操作无效');});
+ handle('window',a=>{if(a==='minimize')win.minimize();else if(a==='maximize')win.isMaximized()?win.unmaximize():win.maximize();else if(a==='close')return hideMain();else throw Error('窗口操作无效');});
  handle('open',id=>{if(id==='results')return shell.openPath(path.join(dir,'results'));if(id==='profile')return shell.openPath(dir);const links={site:'https://gozero.trade/',pool:store.value.pool==='innovlab'?'https://noid.innovlab.cc/':'https://noid.suprnova.cc/StartMining'};if(!links[id])throw Error('链接不存在');return shell.openExternal(links[id]);});
  handle('exportLogs',async()=>{const r=await dialog.showSaveDialog(win,{defaultPath:'Gozero-Mac-log.txt'});if(r.canceled)return false;await fs.writeFile(r.filePath,logs.map(l=>new Date(l.at).toISOString()+' ['+l.type+'] '+l.text).join('\n'));return true;});
  Menu.setApplicationMenu(Menu.buildFromTemplate([{label:'Gozero助手',submenu:[{label:'关于 Gozero助手',role:'about'},{type:'separator'},{label:'退出 Gozero助手',accelerator:'Command+Q',click:()=>shutdown()}]},{label:'编辑',submenu:[{role:'undo'},{role:'redo'},{type:'separator'},{role:'cut'},{role:'copy'},{role:'paste'},{role:'selectAll'}]},{label:'窗口',submenu:[{role:'minimize'},{role:'zoom'}]}]));
- win.on('close',e=>{if(!quitting){e.preventDefault();shutdown();}});
+ menubar=new MenuBar({Tray,Menu,nativeImage,icon:path.join(process.resourcesPath,'gozero.icns'),show:showMain,stop:()=>stop('菜单栏停止'),quit:shutdown,onError:e=>log('错误',e.message)});
+ win.on('close',e=>{if(!quitting){e.preventDefault();hideMain();}});
  await win.loadFile(PAGE);win.show();log('系统','Gozero助手 Mac 已启动；不会自动挖矿');if(store.warning)log('配置',store.warning);
  try{await hardware.scan();log('设备','已连接 '+hardware.value.chip+' / Metal');}catch(e){log('设备',e.message);}ready=true;hardware.start(store.value.interval);push();
- if(process.argv.includes('--ui-smoke')){try{await require('./smoke.cjs').run({win,state,store,start,stop,dir});}catch(e){console.error(e.stack);process.exitCode=1;}finally{await shutdown();}}
+ if(process.argv.includes('--ui-smoke')){try{await require('./smoke.cjs').run({win,state,store,start,stop,dir,menubar,showMain});}catch(e){console.error(e.stack);process.exitCode=1;}finally{await shutdown();}}
 }
-function shutdown(){if(shutdownPromise)return shutdownPromise;shutdownPromise=(async()=>{ready=false;hardware?.stop();if(fee)await stop('退出应用');quitting=true;app.quit();})();return shutdownPromise;}
-if(!app.requestSingleInstanceLock())app.quit();else{app.on('second-instance',()=>{win?.restore();win?.show();win?.focus();});app.whenReady().then(boot).catch(e=>{dialog.showErrorBox('Gozero助手 Mac',e.message);quitting=true;app.quit();});}
+function shutdown(){if(shutdownPromise)return shutdownPromise;shutdownPromise=(async()=>{ready=false;hardware?.stop();if(fee)await stop('退出应用');quitting=true;menubar?.destroy();app.quit();})();return shutdownPromise;}
+if(!app.requestSingleInstanceLock())app.quit();else{app.on('second-instance',showMain);app.on('activate',showMain);app.whenReady().then(boot).catch(e=>{dialog.showErrorBox('Gozero助手 Mac',e.message);quitting=true;app.quit();});}
 app.on('before-quit',e=>{if(!quitting){e.preventDefault();shutdown();}});

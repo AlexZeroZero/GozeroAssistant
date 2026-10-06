@@ -3,7 +3,7 @@
 // unless the operator also explicitly supplies GOZERO_SMOKE_WALLET_FILE.
 const fs=require('node:fs/promises'),path=require('node:path'),assert=require('node:assert/strict');
 const sleep=n=>new Promise(r=>setTimeout(r,n));
-async function run({win,state,dir}){
+async function run({win,state,dir,menubar,showMain}){
  const threads=Number(process.env.GOZERO_SMOKE_CPU_THREADS||0),duration=Number(process.env.GOZERO_SMOKE_SECONDS||60);
  assert.ok([0,2,4,8].includes(threads));assert.ok([60,180,300,600].includes(duration));
  const fullRun=process.env.GOZERO_SMOKE_FULL_RUN==='1',publicCapture=process.env.GOZERO_PUBLIC_CAPTURE==='1';
@@ -13,8 +13,23 @@ async function run({win,state,dir}){
  const layout=await js(`({title:document.title,node:typeof require,bodyWidth:document.body.clientWidth,navWidth:document.querySelector('nav').scrollWidth,views:document.querySelectorAll('.view').length})`);
  assert.equal(layout.node,'undefined');assert.equal(layout.views,6);assert.ok(layout.navWidth<=layout.bodyWidth);
  await wait(()=>js(`document.querySelector('#overview-status').textContent.includes('已连接')`));await capture('overview');
+ const initialConfig={...state().config};
+ assert.equal(state().pools.length,11);assert.ok(menubar.available());
+ for(const p of state().pools){
+  await js(`document.querySelector('#preset').value=${JSON.stringify(p.id)};document.querySelector('#preset').dispatchEvent(new Event('change'));document.querySelector('#save-mining').click()`);
+  await wait(()=>state().config.host===p.host&&state().config.pool===p.pool&&state().config.port===p.port&&state().config.transport===p.transport);
+  assert.equal(await js(`document.querySelector('#preset').value`),p.id);
+ }
+ await js(`window.gozero.save(${JSON.stringify(initialConfig)})`);
+ // Rehydrate after the direct IPC restoration before entering a mining task.
+ await js(`location.reload()`);await wait(()=>js(`!!document.querySelector('#preset')?.options.length`));
  await js(`document.querySelector('[data-view="mining"]').click()`);await capture('mining-idle');
- let live=null;
+ let live=null,menuLiveTitle=null;
+ if(process.env.GOZERO_SMOKE_PRESET){
+  const p=state().pools.find(p=>p.id===process.env.GOZERO_SMOKE_PRESET);assert.ok(p);
+  await js(`document.querySelector('#preset').value=${JSON.stringify(p.id)};document.querySelector('#preset').dispatchEvent(new Event('change'));document.querySelector('#save-mining').click()`);
+  await wait(()=>state().config.host===p.host&&state().config.transport===p.transport);
+ }
  if(process.env.GOZERO_SMOKE_WALLET_FILE){
   const wallet=JSON.parse(await fs.readFile(process.env.GOZERO_SMOKE_WALLET_FILE,'utf8')).wallet;
   await js(`document.querySelector('#wallet').value=${JSON.stringify(wallet)};document.querySelector('#duration').value='${duration}';document.querySelector('#cpu-threads').value='${threads}';document.querySelector('#save-mining').click()`);
@@ -22,6 +37,12 @@ async function run({win,state,dir}){
   if(publicCapture)await js(`document.querySelector('#wallet').type='password';document.querySelector('#wallet').title='测试收款地址已遮挡'`);
   await js(`document.querySelector('#start').click()`);await wait(()=>state().miner.status==='running');
   await wait(()=>state().logs.some(l=>l.text==='矿池授权成功'),30);await wait(()=>state().miner.rate.total>0,30);
+  const began=state().miner.session.startedAt,at=state().miner.points.at(-1).at;
+  menuLiveTitle=menubar.tray.getTitle();assert.match(menuLiveTitle,/MH\/s/);
+  await js(`document.querySelector('[data-window="close"]').click()`);await wait(()=>!win.isVisible());
+  await sleep(3000);assert.equal(state().miner.status,'running');assert.equal(state().miner.session.startedAt,began);
+  assert.ok(state().miner.points.at(-1).at>at,'Sampling stopped while hidden');
+  menubar.menu.items[0].click();await wait(()=>win.isVisible());
   await wait(()=>state().miner.totals.accepted>0||state().miner.status==='idle',duration+5);
   if(fullRun)await wait(()=>Date.now()-state().miner.session.startedAt>=Math.min(90,duration-10)*1000&&state().miner.rate.gpu>0&&(!threads||state().miner.rate.cpu>0),duration);
   // A pool pause can arrive between a stats event and a screenshot. Read the
@@ -40,7 +61,9 @@ async function run({win,state,dir}){
   assert.ok(live,'No stable active UI frame');
   await js(`document.querySelector('[data-view="overview"]').click()`);await capture('overview-live');
   if(!fullRun)await js(`document.querySelector('#stop').click()`);
+  else {win.close();await wait(()=>!win.isVisible());}
   await wait(()=>state().miner.status==='idle'&&!state().fee.active,fullRun?duration+15:15);
+  assert.equal(menubar.tray.getTitle(),'Gozero 待机');showMain();await wait(()=>win.isVisible());
   live.finalTotals={...state().miner.totals};live.automaticDurationStop=fullRun;
   const runReport=JSON.parse(await fs.readFile(state().miner.lastReport,'utf8'));
   live.poolPausedSeconds=runReport.poolPausedSeconds;live.pauses=runReport.pauses;
@@ -63,7 +86,11 @@ async function run({win,state,dir}){
  win.setSize(780,620);await js(`document.querySelector('[data-view="mining"]').click()`);await capture('mining-small');
  const small=await js(`({width:document.body.clientWidth,nav:document.querySelector('nav').scrollWidth,main:document.querySelector('main').clientWidth,scroll:document.querySelector('main').scrollWidth})`);
  assert.ok(small.nav<=small.width);assert.ok(small.scroll<=small.main,'Small window horizontal overflow');
- const report={passed:true,layout,small,hardware:state().hardware,live,benchmark,rendererErrors:errors,settingsPersisted:true,stopReturnedIdle:true,screenshotRedactions:publicCapture?['wallet input rendered as password; performance values unchanged']:[]};
+ const report={passed:true,layout,small,hardware:state().hardware,live,benchmark,rendererErrors:errors,settingsPersisted:true,stopReturnedIdle:true,poolPresets:state().pools.length,selectedPool:{pool:state().config.pool,host:state().config.host,port:state().config.port,transport:state().config.transport},menuBar:{available:menubar.available(),liveTitle:menuLiveTitle,bounds:menubar.tray.getBounds(),hideContinuesMining:!!live,showFromMenu:!!live,hiddenDurationStop:!!live&&fullRun},screenshotRedactions:publicCapture?['wallet input rendered as password; performance values unchanged']:[]};
+ await js(`document.querySelector('[data-view="performance"]').click();document.querySelector('#benchmark').click()`);
+ await wait(()=>state().miner.status==='running');
+ const stopItem=menubar.menu.items.find(i=>i.label==='停止挖矿 / 测速');assert.ok(stopItem.enabled);stopItem.click();
+ await wait(()=>state().miner.status==='idle'&&!state().fee.active);report.menuBar.stopFromMenu=true;
  if(process.env.GOZERO_SMOKE_SHUTDOWN_ACTIVE==='1'){
   await js(`document.querySelector('[data-view="performance"]').click();document.querySelector('#benchmark').click()`);
   await wait(()=>state().miner.status==='running');await sleep(1500);assert.equal(state().miner.status,'running');report.shutdownWithActiveWorker=true;

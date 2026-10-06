@@ -5,9 +5,38 @@ const {validate,DEFAULT,Store,miningConfig,GPU_ID}=require('../config.cjs');
 const {delta,parseGPU}=require('../hardware.cjs'),{Miner}=require('../miner.cjs');
 const {FeeController,ADDRESSES}=require('../../../src/service-fee.cjs');
 const base=path.resolve(__dirname,'../artifacts');
+const {PRESETS,presetFor}=require('../pools.cjs'),{model:menuModel,MenuBar}=require('../menubar.cjs');
 async function temp(fn){await fs.mkdir(base,{recursive:true});const dir=await fs.mkdtemp(path.join(base,'test-'));try{await fn(dir);}finally{assert.ok(path.resolve(dir).startsWith(base+path.sep));await fs.rm(dir,{recursive:true,force:true});}}
 function fake(){const child=new EventEmitter();child.stdout=new PassThrough();child.stderr=new PassThrough();child.kill=()=>{queueMicrotask(()=>child.emit('close',null));return true;};return child;}
 const config=()=>miningConfig({...DEFAULT,wallet:ADDRESSES.NOID});
+
+test('all catalog entries validate and custom ports never masquerade as presets',()=>{
+ assert.equal(PRESETS.length,11);assert.equal(new Set(PRESETS.map(p=>p.host+':'+p.port)).size,11);
+ for(const p of PRESETS){const c=validate({...DEFAULT,...p});assert.equal(presetFor(c).id,p.id);assert.equal(presetFor({...c,port:c.port+1}),null);}
+});
+
+test('TCP is an explicit Suprnova choice, while existing settings remain TLS',()=>{
+ assert.equal(validate({}).transport,'tls');assert.throws(()=>validate({...DEFAULT,transport:'tcp'}),/TLS/);
+ const c=miningConfig({...DEFAULT,pool:'suprnova',transport:'tcp',wallet:ADDRESSES.NOID});assert.ok(c.pools.NOID.startsWith('stratum+tcp://'));
+});
+
+test('menu bar does not show old hashrate while paused, stopped or benchmarking',()=>{
+ const s={config:DEFAULT,miner:{status:'running',workState:'mining',rate:{total:1234000,cpu:134000,gpu:1100000}}};
+ assert.equal(menuModel(s).title,'1.23 MH/s');assert.equal(menuModel(s).busy,true);
+ s.miner.workState='paused';assert.equal(menuModel(s).title,'等待矿池');assert.ok(!menuModel(s).summary.includes('MH/s'));
+ s.miner.workState='reconnecting';assert.equal(menuModel(s).title,'重连中');
+ s.miner.status='idle';assert.equal(menuModel(s).title,'Gozero 待机');assert.equal(menuModel(s).busy,false);
+ s.miner.status='running';s.miner.session={benchmark:true};assert.equal(menuModel(s).title,'Gozero 测速中');
+});
+
+test('menu bar actions keep show, stop and quit separate',async()=>{
+ class FakeTray extends EventEmitter{setTitle(t){this.title=t;}setToolTip(){}setContextMenu(m){this.menu=m;}isDestroyed(){return !!this.destroyed;}destroy(){this.destroyed=true;}}
+ const actions=[];const bar=new MenuBar({Tray:FakeTray,Menu:{buildFromTemplate:x=>x},nativeImage:{createFromPath:()=>({resize:()=>({})})},icon:'icon',show:()=>actions.push('show'),stop:()=>actions.push('stop'),quit:()=>actions.push('quit'),onError:()=>assert.fail()});
+ bar.update({config:DEFAULT,miner:{status:'running',workState:'mining',rate:{total:1e6}}});
+ bar.menu[0].click();assert.deepEqual(actions,['show']);await bar.menu.find(x=>x.label==='停止挖矿 / 测速').click();assert.deepEqual(actions,['show','stop']);
+ await bar.menu.find(x=>x.label==='退出助手（停止内核）').click();assert.deepEqual(actions,['show','stop','quit']);
+ bar.destroy();assert.equal(bar.available(),false);
+});
 test('configuration validates wallet checksum and excludes executable/argument injection',()=>{
  assert.equal(validate(DEFAULT).cpuThreads,0);assert.throws(()=>miningConfig(DEFAULT),/收款地址/);
  for(const patch of [{wallet:'o1'+'q'.repeat(58)},{host:'example.com;whoami'},{host:'https://example.com'},{port:0},{cpuThreads:32},{seconds:0},{seconds:601},{worker:'$(id)'},{stopOnThermal:'false'}])assert.throws(()=>validate({...DEFAULT,...patch}));

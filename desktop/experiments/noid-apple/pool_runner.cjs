@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 // Bounded validation runner. Explicit config required; never starts on import.
 'use strict';
-const fs=require('node:fs'),path=require('node:path'),tls=require('node:tls');
+const fs=require('node:fs'),path=require('node:path'),tls=require('node:tls'),net=require('node:net');
 const {spawn}=require('node:child_process');
 const {Session,LineDecoder,nonce,reconnectDelay}=require('./pool_session.cjs');
 function check(ok,message){if(!ok)throw Error(message)}
 function validatedConfig(c){
  check(c&&['innovlab','suprnova'].includes(c.pool),'pool must be innovlab or suprnova');
+ check(['tls','tcp'].includes(c.transport??'tls')&&(c.pool!=='innovlab'||(c.transport??'tls')==='tls'),'Innovlab requires TLS; TCP only supported for Suprnova');
  check(typeof c.wallet==='string'&&/^o1[023456789acdefghjklmnpqrstuvwxyz]{20,100}$/.test(c.wallet),'NOID public address required');
  check(typeof c.worker==='string'&&/^[A-Za-z0-9_-]{1,32}$/.test(c.worker),'invalid worker name');
  check(typeof c.host==='string'&&/^[a-zA-Z0-9.-]+$/.test(c.host),'invalid TLS hostname');
@@ -26,10 +27,11 @@ function verifiedCandidates(response,ticket){
  }
  return {result:{nonces,totalMatches:nonces.length,capacity:1024},hash:(_header,n)=>digests.get(n.toString('hex'))};
 }
-async function run(input,{event=()=>{},reportFile,transport=tls.connect,spawnWorker=spawn}={}){
+async function run(input,{event=()=>{},reportFile,transport,spawnWorker=spawn}={}){
  const config=validatedConfig(input),started=performance.now();
+ const secure=(config.transport??'tls')==='tls';transport??=secure?tls.connect:net.connect;
  const summary={startedAt:new Date().toISOString(),pool:config.pool,host:config.host,port:config.port,worker:config.worker,
-  walletSuffix:config.wallet.slice(-8),durationLimitSeconds:config.seconds,tlsVerified:false,authorized:false,
+  walletSuffix:config.wallet.slice(-8),durationLimitSeconds:config.seconds,transport:secure?'tls':'tcp',tlsVerified:false,authorized:false,
   hashes:0,cpuHashes:0,gpuHashes:0,discardedHashes:0,accepted:0,rejected:0,submitted:0,pauses:0,poolPausedSeconds:0,jobs:0,reconnects:0,events:[]};
  const log=(type,data={})=>{const row={at:new Date().toISOString(),type,...data};summary.events.push(row);if(summary.events.length>2000)summary.events.shift();event(row)};
  const session=new Session({pool:config.pool,username:config.wallet+'.'+config.worker});
@@ -61,10 +63,10 @@ async function run(input,{event=()=>{},reportFile,transport=tls.connect,spawnWor
   };
   const connect=()=>{
    if(closed)return;session.disconnect();log('connecting',{attempt});
-   const connection=transport({host:config.host,port:config.port,servername:config.host,rejectUnauthorized:true});socket=connection;
+   const connection=transport({host:config.host,port:config.port,...(secure?{servername:config.host,rejectUnauthorized:true}:{})});socket=connection;
    connection.setTimeout(15000,()=>{if(!session.authorized)connection.destroy(Error('TLS/handshake timeout'))});
-   connection.on('secureConnect',()=>{try{check(connection.authorized,'TLS certificate not verified');summary.tlsVerified=true;
-    log('tls-ready',{protocol:connection.getProtocol()});send(session.connect({tlsVerified:true}));}catch(e){finish('protocol-error',e)}});
+   connection.on(secure?'secureConnect':'connect',()=>{try{if(secure)check(connection.authorized,'TLS certificate not verified');summary.tlsVerified=secure;
+    log(secure?'tls-ready':'tcp-ready',{protocol:secure?connection.getProtocol():'TCP'});send(session.connect({tlsVerified:secure}));}catch(e){finish('protocol-error',e)}});
    const lines=new LineDecoder();
    connection.on('data',chunk=>{if(closed||connection!==socket)return;try{lines.feed(chunk,message=>{
     const pending=session.pending.get(message.id)?.method;

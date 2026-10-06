@@ -25,7 +25,7 @@ class Miner extends EventEmitter{
     if(remaining<=0)throw Error('本次运行时限已到');
     const seconds=Math.max(1,Math.min(600,remaining));
     const command=[native.executable,native.flag,native.metal,'--worker-seconds',String(seconds+30),'--cpu-threads',String(cfg.cpuThreads)];
-    const c={pool:cfg.pool,host:cfg.host,port:cfg.port,wallet:cfg.wallets.NOID,worker:cfg.worker,seconds,batch:65536,command,cwd:this.nativeDir};
+    const c={pool:cfg.pool,host:cfg.host,port:cfg.port,transport:cfg.transport||'tls',wallet:cfg.wallets.NOID,worker:cfg.worker,seconds,batch:65536,command,cwd:this.nativeDir};
     input=path.join(this.dir,'run-'+id+'.json');await fs.writeFile(input,JSON.stringify(c),{mode:0o600});
     args=[path.resolve(__dirname,'../../experiments/noid-apple/pool_runner.cjs'),input,report];
    }
@@ -47,7 +47,7 @@ class Miner extends EventEmitter{
     line+=String(chunk);if(line.length>1024*1024){this.log('错误','内核输出过大');this.stop();return;}
     let i;while((i=line.indexOf('\n'))>=0){const raw=line.slice(0,i);line=line.slice(i+1);if(!raw.trim())continue;try{this.event(JSON.parse(raw));}catch(e){this.log('内核',raw.slice(0,300));}}
    });
-   this.log(benchmark?'测速':'挖矿',benchmark?'离线自检和30秒测速已启动，不连接矿池':'正在校验内核并建立 TLS 连接');return true;
+   this.log(benchmark?'测速':'挖矿',benchmark?'离线自检和30秒测速已启动，不连接矿池':'正在校验内核并连接矿池 · '+(cfg.transport==='tcp'?'TCP 兼容（非加密）':'TLS 加密'));return true;
   }catch(e){if(input)await fs.unlink(input).catch(()=>{});this.status='idle';this.update();throw e;}
  }
  event(e){
@@ -68,7 +68,7 @@ class Miner extends EventEmitter{
   }
   else if(e.type==='work-resumed'){this.workState='mining';this.log('内核','已完成新任务首批有效计算，持续搜索中');}
   else if(e.type==='reconnect'){this.workState='reconnecting';this.rate={total:0,cpu:0,gpu:0};const j=this.jobs.get(GPU_ID);if(j)j.telemetry={hash:0,at:Date.now()};this.log('连接','连接中断，等待重连');}
-  else{const text={ 'worker-ready':'CPU / Metal 自检通过','tls-ready':'TLS 证书已验证','authorized':'矿池授权成功','job':'收到有效工作','connecting':'正在连接矿池','reconnect':'连接中断，等待重连','stopped':'本次任务已结束','connection-error':e.message,'worker-stderr':e.message}[e.type];if(text)this.log('内核',text);}
+  else{const text={ 'worker-ready':'CPU / Metal 自检通过','tls-ready':'TLS 证书已验证','tcp-ready':'TCP 兼容连接已建立（非加密）','authorized':'矿池授权成功','job':'收到有效工作','connecting':'正在连接矿池','reconnect':'连接中断，等待重连','stopped':'本次任务已结束','connection-error':e.message,'worker-stderr':e.message}[e.type];if(text)this.log('内核',text);}
   this.update();
  }
  async stop(reason='用户停止'){
