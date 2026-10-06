@@ -814,3 +814,29 @@ DEEP PRL MATRIX OPTIMIZATION 0.1.9 - 2026-10-06
   Local installer is .local/m-series-deep/Gozero-Assistant-Mac-0.1.9-arm64.dmg.
   Research workers stopped. GitHub release, retained README, main and Windows
   checkout untouched. App still ad-hoc signed, without Apple notarization.
+
+
+POST-0.1.9 FOLLOW-UP RESEARCH - 2026-10-06
+- User asked whether further hashrate gains are possible. No new candidate was
+  adopted. Delivered 0.1.9 binaries/core source/builds remain unchanged.
+- PRL 11 shader configurations at 4096-square, plus four hot configurations:
+  cool improvements under 1%; hot paired medians +0.45%, +0.14%, +0.34%.
+  No stable additional gain proven; exploratory intervals all cross zero.
+- New QTC WGSL reductions -9.358%/-7.286%, square carry -0.141%, Karatsuba
+  -30.481%. Each passed CPU digest parity and 64 strict-target triplets.
+  Native Metal mulhi64/mulhi32 prototypes matched exported baseline in 96
+  GPU digest/equal-target checks but slowed -16.55%/-17.43%. No new backend
+  was integrated. Existing production already uses trusted shader options;
+  exporter initially used default checks, corrected BEFORE timing native tests.
+- Important sustained diagnostic: PRL K3 ONLY, fixed buffers, no pool/GUI/
+  Python/adaptive-shape path, 180 seconds on AC. First 3 windows 3.00 TOPS,
+  last 3 windows 2.05 TOPS (-31.7%), final full window 1.96 TOPS. System
+  thermal state nominal -> fair (0 -> 1). Background apps remained open.
+  This rules out pool/GUI scheduling as the sole cause of decline; do NOT
+  assert exclusive thermal causation without power/clock/temperature counters.
+- Research-only tools/logs/generated shaders: .local/m-series-next and remote
+  session/m-series-next. The Naga MSL exporter is an isolated Rust crate there,
+  built offline from the existing pinned cache. No production tree modified.
+- Public FOLLOWUP-20261006.txt and evidence/m3-followup-research.json retain
+  measurements/limits. No release, package or README changes. Research tools
+  stopped; original signed 0.1.9 desktop app verified and reopened idle.

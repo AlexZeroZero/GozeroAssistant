@@ -1,0 +1,41 @@
+Further core investigation against Mac 0.1.9 (2026-10-06)
+
+No new optimization was adopted. The installed 0.1.9 app/core stays unchanged.
+This is research evidence, not a new release or a claim of higher hashrate.
+
+PRL: compared 11 shader configurations at 4096-square/K4096, including
+32/64/128 K staging, smaller threadgroups and streamed operand loading.
+Best cool-run differences were under 1%; deeper staging could be much slower.
+After a 180-second sustained run, repeated four small-tile configurations.
+Candidate paired median gains were 0.45%, 0.14%, 0.34%; paired mean gains
+0.55%, 1.92%, 2.62%. Exploratory bootstrap intervals all cross zero and ignore
+serial correlation. Large individual readings do not establish stable gain.
+None of these candidates was promoted through full production validation.
+
+PRL sustained K3-only test: 64x64/BK32/PF0/half operands, same fixed buffers
+and input, no pool, GUI, Python preparation or adaptive shape changes.
+First three 10-second windows average 3.00 TOPS; last three average 2.05 TOPS
+(-31.7%). Final full window 1.96 TOPS. NSProcessInfo thermalState changed
+from 0 (nominal) to 1 (fair). AC power throughout; other apps were not closed.
+This shows that pool or GUI scheduling is not the sole cause of declining
+throughput. Correlation with thermal state does not prove an exclusive cause;
+no GPU frequency, power or temperature counters were captured. pmset did not
+report a warning. Do not disable thermal protection or promise a cooling gain.
+
+QTC WGSL experiments, same-batch 40 ABBA rounds, following CPU parity and
+64 strict-target triplets: 32-bit correction -9.358%; selected correction
+-7.286%; square carry simplification -0.141%; three-product Karatsuba -30.481%.
+The saved multiply in Karatsuba did not outweigh the added carry/subtraction
+work in measured throughput. Retain the current four-product implementation.
+
+QTC direct native Metal experiments: exported trusted baseline vs 64-bit
+mulhi and explicit 32-bit mulhi products. All pass 96 GPU reference digest/
+equal-target checks (screening, not independent CPU validation). Median wall
+rates 21.888 / 18.302 / 18.097 MH/s; paired mean -16.55% / -17.43%.
+No native backend was integrated. Existing trusted shader options already
+omit redundant runtime bounds/loop checks; there was no new gain to apply.
+
+Raw arrays, sustained windows and statistics: evidence/m3-followup-research.json.
+Private scripts, generated shaders, full logs: .local/m-series-next and the
+same-named remote test-session directory. QTC/PRL production source trees,
+installed app, package, fees, proof/admission gates and mining behavior unchanged.
