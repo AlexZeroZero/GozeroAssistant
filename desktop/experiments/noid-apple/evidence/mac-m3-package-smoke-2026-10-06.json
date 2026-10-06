@@ -1,0 +1,39 @@
+{
+  "packageSha256": "080e57e50ac694bc9523e29214c6a126b4c8a7695ee50ab58d8fcad4a356a442",
+  "extractedPackageTest": "passed",
+  "testResult": {
+    "metalSelftest": "passed",
+    "metalDigestBatch": {
+      "hashesPerSecondWall": 15733.188715105887,
+      "gpuSeconds": 0.0018111666722688824,
+      "wallSeconds": 0.002033917000517249
+    },
+    "gpu": "Apple M3",
+    "workerCount": 1,
+    "count": 32,
+    "pmullAvailable": true,
+    "cpuSingle": {
+      "hashesPerSecond": 28348.91448593326,
+      "checksum": 3025498614,
+      "seconds": 0.0011287910165265203,
+      "backend": "PMULL"
+    },
+    "powerWatts": null,
+    "scope": "offline correctness and synthetic benchmark; no pool shares",
+    "cpuFour": {
+      "seconds": 0.0008872500620782375,
+      "hashesPerSecond": 36066.495081494,
+      "checksum": 3025498614
+    },
+    "os": "Version 26.5.1 (Build 25F80)",
+    "metalCompilation": "runtime-source",
+    "appleFamily1": true,
+    "chip": "Apple M3",
+    "compiler": "21.0.0 (clang-2100.1.1.101)",
+    "cpuSelftest": "passed",
+    "model": "Mac15,12",
+    "unifiedMemory": true,
+    "temperatureC": null
+  },
+  "note": "Launched extracted .command with PATH=/usr/bin:/bin; linked libraries are system frameworks only; no pool connection"
+}

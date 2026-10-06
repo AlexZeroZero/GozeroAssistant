@@ -194,3 +194,55 @@ LAN MAC TEST SETUP — 2026-10-06
   permissions/newlines and honest Windows rejection/diagnostic creation passed.
 - Continue with read-only SSH environment inspection when the user supplies
   the host. Never request passwords/private keys in chat or bypass host checks.
+
+LAN MAC CONNECTED — 2026-10-06
+- User ran Connect-Mac.ps1 interactively and confirmed READY. Dedicated SSH
+  public-key login and host checking now work. Connection/remote session details
+  are in ignored .local/mac-ssh/connection.json; never commit private keys.
+- Real machine: Mac15,12, Apple M3, 16 GB memory, 10-core GPU, macOS 26.5.1
+  build 25F80. system_profiler reports Metal 4; sysctl FEAT_PMULL/FEAT_AES are 1.
+- Existing Python is Intel 3.8.2 under Rosetta. Deployed a SHA256-verified,
+  project-local ARM64 Python 3.12.15 without replacing system/user Python.
+  Pinned download metadata: desktop/macos/python-runtime.json.
+- Native ARM64 Python ran 8/8 reference tests and parameter verification.
+  Tracked evidence: noid-apple/evidence/mac-m3-preflight-2026-10-06.json.
+- User is installing Xcode (estimated a few minutes). Last inspection still
+  found no Xcode app/active developer directory. Installation + first launch
+  and components are required before native/Metal compile. Do not claim these
+  builds or execution succeeded yet.
+- Updated launcher selects the sibling project-local Python runtime. Added
+  package_native.py: refuses to create a native core test ZIP unless both CPU
+  and Metal selftests pass with matching source and binary hashes. It creates
+  a CORE TEST package, not a complete pool miner or Gozero GUI application.
+- Source test kit v3 was transferred/verified/extracted into the session from
+  connection.json. It contains the current build_mac.py and package_native.py.
+  Later local documentation-only changes may be newer than that transferred kit.
+
+M3 NATIVE / METAL VERIFIED — 2026-10-06 (supersedes prior pending-build notes)
+- User-installed Command Line Tools became available. Apple Clang 21 and macOS
+  SDK 26.5 now work. Fixed build_mac.py to pass an explicit -isysroot SDK path;
+  without this, native linking initially failed to locate libc++.
+- Full Xcode / offline metal + metallib tools remain absent. Implemented the
+  official Metal newLibraryWithSource runtime path with flattened local headers.
+  This compiled and executed GPU shaders successfully; no offline metallib claim.
+- On native ARM64 Python: 8 reference tests + 10 portable native differential
+  groups + 10 PMULL differential groups pass. Native host CPU selftest and Metal
+  fixture/carry/overflow/CPU-recheck/strict-target checks pass on this M3.
+- Expanded synthetic benchmark to 4096 candidates; every GPU digest was CPU
+  checked. One run observed ~0.917 MH/s GPU wall rate and ~0.101 MH/s CPU four-state
+  with one worker. These are millisecond-scale synthetic samples, NOT sustained
+  mining rates, pool rates or performance promises. Do not generalize to all M chips.
+- Verified reports are tracked under noid-apple/evidence/mac-m3-*.json. Full
+  diagnostics (including initial failures) were retrieved to ignored
+  desktop/artifacts/mac-m3-session/ on Windows.
+- Built and retrieved desktop/dist/Gozero-NOID-Mac-Core-Test-arm64.zip.
+  SHA256: 080e57e50ac694bc9523e29214c6a126b4c8a7695ee50ab58d8fcad4a356a442.
+  Native executable + Metal source + launcher + licenses + manifests. This is
+  a working CORE SELFTEST package, not a Gozero GUI app or pool-connected miner.
+- Extracted the ZIP in a separate Mac session subfolder and ran its launcher
+  with PATH=/usr/bin:/bin: CPU/Metal pass, exit 0. otool confirms only system
+  framework/library dependencies. No Python/Xcode needed to run the packaged test.
+- Next: sustained backend benchmarks/tuning, actual pool transport and worker
+  scheduling, accepted-share validation with user's test wallet, then Mac UI,
+  telemetry/tray/mini-window and application packaging. Existing Windows release
+  remains untouched. Never promote the core test ZIP as the complete assistant.

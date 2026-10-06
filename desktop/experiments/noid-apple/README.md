@@ -1,9 +1,10 @@
 # Gozero Apple NOID experiment
 
-This directory is a correctness and build preparation checkpoint, not a usable
-miner or a Mac application. Apple M-series base/Pro/Max/Ultra is the target.
-No Apple machine has executed this code. Existing Windows product files and
-released miner choices are not changed by this experiment.
+This directory is a native core selftest checkpoint, not a usable pool miner or
+the complete Mac assistant. Apple M-series base/Pro/Max/Ultra is the target.
+Native CPU/PMULL and runtime-compiled Metal selftests now pass on one Apple M3
+(Mac15,12, 16 GB, 10-core GPU, macOS 26.5.1). Other models remain unverified.
+Existing Windows product files and released miner choices are not changed.
 
 ## What has been verified
 
@@ -15,11 +16,14 @@ random/dense products and squares, basis conversion, permutation, 48 randomized
 cached hashes and 16 interleaved hashes, strict 256-bit little-endian target
 comparison and 64-bit counter boundary handling.
 
-Fourteen simulated protocol tests pass. ARM64 arithmetic objects cross-compile
-to Mach-O, and emitted assembly contains PMULL instructions. Neither the ARM64
-objects nor Metal have executed. The Objective-C++ host has not compiled with
-an Apple SDK. [Recorded evidence](evidence/offline-2026-10-06.json) contains
-compiler/platform identity and source hashes; test duration is not hashrate.
+Fourteen simulated protocol tests pass. After the original Windows validation,
+Apple Clang 21 and macOS SDK 26.5 compiled the native host and libraries on M3.
+Both portable and PMULL libraries passed all ten differential groups on native
+ARM64 Python. Metal runtime source compilation, all six public fixtures, batch
+carry, overflow retries, CPU candidate rechecks and strict target checks passed.
+[Original offline evidence](evidence/offline-2026-10-06.json) and
+[M3 evidence](evidence/mac-m3-selftest-2026-10-06.json) record platform and source
+identity. Short synthetic timing is not a sustained pool hashrate.
 
 ## Sources and reproducible parameters
 
@@ -60,8 +64,9 @@ python desktop/experiments/noid-apple/generate.py
 
 ## Run on an actual Apple Silicon Mac
 
-Use native arm64 Python 3, Xcode/Command Line Tools with Clang, and the Apple
-Metal compiler tooling. From the repository root:
+Use native arm64 Python 3 and Xcode/Command Line Tools with Clang and a macOS
+SDK. The default build uses offline Metal tooling when present, otherwise the
+official Metal runtime source compiler. From the repository root:
 
 ```sh
 python3 desktop/experiments/noid-apple/build_mac.py
@@ -69,17 +74,28 @@ python3 desktop/experiments/noid-apple/build_mac.py --benchmark --count 32
 ```
 
 This checks generated files, builds portable/PMULL libraries and the host, runs
-the independent Python differential suite, compiles a metallib, and executes
+the independent Python differential suite, compiles Metal, and executes
 CPU/Metal selftests. PMULL calls require a successful runtime
 `hw.optional.arm.FEAT_PMULL` query; an absent capability report uses portable
 CPU code. Metal requires an Apple-family GPU. Unknown or missing capabilities
 do not become compatibility claims. Failure returns a nonzero exit status.
 
-For an explicitly CPU-only check when Metal compiler tooling is unavailable:
+To explicitly skip GPU execution:
 
 ```sh
 python3 desktop/experiments/noid-apple/build_mac.py --cpu-only
 ```
+
+Select `--metal-mode runtime` to use `newLibraryWithSource` even if offline
+tools exist, or `--metal-mode offline` to require the offline compiler. Runtime
+mode emits a self-contained `noid-runtime.metal` and records that mode in the
+report; it does not claim a metallib was built.
+
+After CPU and Metal pass, `python3 desktop/macos/package_native.py` creates a
+native core test ZIP. It requires matching verified source/artifact hashes.
+That ZIP needs neither Python nor Xcode to execute; it contains the native
+host, the selected Metal artifact and a `.command` test launcher. It cannot
+connect to a pool and is not a complete Gozero `.app`.
 
 Reports and binaries stay in ignored `artifacts/macos-arm64/`. Preserve
 `portable-tests.json`, `pmull-tests.json` when present, and `selftest.json` with
@@ -117,8 +133,7 @@ The model intentionally has no production wallet and is not wired to the UI.
 
 ## Remaining acceptance gates
 
-1. Compile and execute on real Apple Silicon; fix Apple SDK or Metal errors and
-   retain the exact reports. Test representative base/Pro/Max/Ultra devices
+1. Extend the verified M3 result to representative base/Pro/Max/Ultra devices
    across supported generations before describing any family as verified.
 2. Measure scalar/four-state PMULL and Metal against the pinned upstream CPU
    implementation. Tune only from measured results. Add bounded asynchronous

@@ -1,5 +1,13 @@
 Experimental Apple Silicon NOID development checkpoint, 2026-10-06.
 
+MAC VALIDATION (same day): dedicated SSH works on an Apple M3 / 16 GB / 10-core
+GPU Mac. Apple Clang 21 / macOS SDK 26.5 built the native host and libraries.
+Project-local native ARM64 Python 3.12.15 passed all eight reference tests and
+ten differential test groups for EACH portable and PMULL backend. Metal runtime
+source compilation and GPU selftests pass on this M3. No offline metallib build
+has run. Only short synthetic benchmarks exist, not sustained mining rates.
+Evidence: evidence/mac-m3-selftest-2026-10-06.json and associated CPU reports.
+
 VERIFIED LOCALLY (Windows x64, Clang 18, Python 3.12, Node 24):
 - Deterministic, pinned constants and six public pool/mainnet hash fixtures.
 - Eight Python reference tests; ten compiled C++ differential test groups.
@@ -13,11 +21,12 @@ VERIFIED LOCALLY (Windows x64, Clang 18, Python 3.12, Node 24):
   These objects were not linked or executed on macOS.
 - Reproducible evidence: evidence/offline-2026-10-06.json.
 
-PREPARED, NOT YET VERIFIED ON MAC:
+IMPLEMENTED AND VERIFIED ON THE ABOVE M3:
 - build_mac.py and mac_host.mm: Apple Silicon build/selftest/JSON benchmark.
 - Separate runtime-gated PMULL backend and portable fallback.
 - Metal digest/search kernels, candidate CPU recheck and overflow splitting.
-- Metal compilation, driver execution and all Apple performance are unverified.
+- Metal runtime source compilation and driver execution; full M-family
+  compatibility, offline metallib compilation and sustained mining are unverified.
 
 NOT IMPLEMENTED / NOT CLAIMED:
 - Live pool transport/mining scheduler integration, accepted shares, effective

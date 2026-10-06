@@ -10,10 +10,14 @@ the `.local/github-publish/GozeroAssistant` main checkout from this task.
 
 Target all Apple M-series families, including base/Pro/Max/Ultra, with runtime
 capability checks. This is a target, not a claim of verified compatibility.
-The user has now confirmed an Apple Silicon Mac is available on the LAN and can
-enable SSH. Its address/authentication are still pending; no Mac execution has
-been verified. Do not claim macOS builds, Metal execution, measured Apple
-hashrate, or accepted pool shares without evidence.
+The user has authorized LAN SSH access to an Apple M3 Mac (16 GB, 10-core GPU).
+Dedicated project-local SSH authentication is now verified. Remote work is
+restricted to the Gozero-Mac-Test session directory unless necessary tool setup
+is authorized. Keep private keys and host connection data under ignored .local/.
+Native arm64 builds and CPU/PMULL plus runtime-compiled Metal selftests now pass
+on this one Mac. Do not generalize to the entire M-series family or claim
+accepted pool shares. Only short synthetic benchmark timing exists so far;
+no sustained pool hashrate or power efficiency has been measured.
 
 The source under desktop/experiments/noid-apple is an UNCOMPILED draft at handoff.
 It is not an available miner or release. Validate the exact NOID algorithm and

@@ -1,0 +1,36 @@
+{
+  "recordedAtUTC": "2026-10-06T05:13:05.358154+00:00",
+  "hardware": {
+    "model": "Mac15,12",
+    "chip": "Apple M3",
+    "memoryBytes": 17179869184,
+    "gpuCores": 10,
+    "reportedMetalSupport": "Metal 4"
+  },
+  "os": {
+    "name": "macOS",
+    "version": "26.5.1",
+    "build": "25F80"
+  },
+  "python": {
+    "version": "3.12.15",
+    "machine": "arm64",
+    "runtimeArchiveSha256": "ad8d0c637c0a36b967b310e2c07254f4d2ca8cabaa7699e55ed6290aceb481a2"
+  },
+  "referenceTests": {
+    "count": 8,
+    "passed": true,
+    "generatedParametersCheck": "passed",
+    "transcriptSha256": "48cbc92dd8da2aa4955d9e45a26fab5e711d0342340c4f4011cd6889d1a41821",
+    "testReferenceSha256": "e83a404158599d6668e156ce618e60c638b865979f52d0b4ab65f8e7c8e8341b"
+  },
+  "capabilities": {
+    "FEAT_PMULL": 1,
+    "FEAT_AES": 1
+  },
+  "xcodeAtInspection": "No selected developer directory; installation pending",
+  "nativeCoreCompiled": false,
+  "metalCompiled": false,
+  "metalExecuted": false,
+  "acceptedPoolShares": false
+}

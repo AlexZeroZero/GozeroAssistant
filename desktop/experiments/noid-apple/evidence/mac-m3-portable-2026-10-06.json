@@ -1,0 +1,19 @@
+{
+  "platform": "macOS-26.5.1-arm64-arm-64bit",
+  "machine": "arm64",
+  "python": "3.12.15",
+  "librarySha256": "c26156889661d88abb0fb44e6cd5e8c2d4a995a4277c12e472d0a2000c4e00ad",
+  "tests": 10,
+  "passed": true,
+  "elapsedSeconds": 6.315545499994187,
+  "failures": [],
+  "scope": "Native library differential tests only; no Metal execution or accepted pool shares",
+  "sourceSha256": {
+    "core.h": "2b5f7cce1ac1822f72e22f288ffad9e70802e23595a59d3198280dec4e9faa13",
+    "constants.h": "7f364e85481c4b43efe72f1b760359fee15da14d423d8a145f48a06ba387ff3b",
+    "test_bridge.cpp": "83314540eda0a88b762c32d2193ed458571ae1030bc797dc34816d81bac759ce",
+    "cpu_batch.h": "630f6ba55aa61acdbb1fad6ad0b98f0d62d051c72f4cc07b14e097cfcea370f7",
+    "dispatch.h": "19ccb05c552a38e63150eb7023a1a50e0c94431c42617e60e4e1e179b7ab60e3",
+    "test_core.py": "f3f00156d2498b74c02244d2d0455e33853505443b3e1b4fa3ead4e8d43ce58a"
+  }
+}

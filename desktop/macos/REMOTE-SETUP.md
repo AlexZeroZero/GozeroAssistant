@@ -43,8 +43,8 @@ ssh -i "$env:USERPROFILE\.ssh\gozero_mac" ali@192.168.1.23
 ## Mac 构建环境
 
 - Apple Silicon，原生 arm64 Python 3。
-- Xcode / Command Line Tools。完整 Metal 编译需要带 Metal Toolchain 的 Xcode；
-  仅安装 Command Line Tools 的机器可能没有 Metal 编译器。
+- Xcode / Command Line Tools，包含 Clang 和 macOS SDK。离线生成 metallib
+  需要 Metal Toolchain；没有它时，默认使用系统 Metal 运行时编译接口。
 - 启动一次 Xcode 完成必要组件安装和许可设置。多个 Xcode 并存时，选择正确的
  开发工具目录。
 - 检查：`xcrun --find clang++`、`xcrun -sdk macosx --find metal`、
@@ -53,6 +53,16 @@ ssh -i "$env:USERPROFILE\.ssh\gozero_mac" ali@192.168.1.23
 现代 Xcode 如提示缺失 Metal Toolchain，可在 Xcode 的组件设置安装它；
 支持该命令的 Xcode 也可执行 `xcodebuild -downloadComponent MetalToolchain`。
 本测试包不自动安装系统工具、接受许可或修改系统设置。
+
+已在一台 M3 上验证：Command Line Tools + 系统 Metal 运行时编译可完成
+CPU 和 GPU 自检，不必为了这项自检单独等待完整 Xcode。
+
+注意：`uname -m` 显示 arm64，不代表 `python3` 也是原生 ARM64。请执行
+`python3 -c 'import platform; print(platform.machine())'` 检查；旧 Intel Python
+可能仍通过 Rosetta 运行，无法加载 ARM64 测试库。可以用 `GOZERO_PYTHON`
+指定原生解释器。开发环境也可按 `python-runtime.json` 中固定的 URL / SHA256
+准备独立运行时，解压在测试目录的 `python/` 下，与 `Gozero-Mac-DeveloperKit/`
+并列；启动器会优先使用它，不改动系统 Python。
 
 ## 拷贝与执行
 

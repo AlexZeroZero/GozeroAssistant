@@ -49,12 +49,19 @@ public:
     id<MTLCommandQueue> queue;
     id<MTLComputePipelineState> hashPipeline, searchPipeline;
     double lastGPUSeconds = 0;
-    explicit GPU(NSString* path) {
+    explicit GPU(NSString* path, bool runtimeSource) {
         device = MTLCreateSystemDefaultDevice();
         require(device != nil && [device supportsFamily:MTLGPUFamilyApple1], "Apple-family Metal GPU required");
         queue = [device newCommandQueue]; require(queue != nil, "Metal queue unavailable");
         NSError* error = nil;
-        id<MTLLibrary> library = [device newLibraryWithURL:[NSURL fileURLWithPath:path] error:&error];
+        id<MTLLibrary> library = nil;
+        if (runtimeSource) {
+            NSString* source = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
+            if (!source) throw std::runtime_error(error.localizedDescription.UTF8String ?: "Metal source load failed");
+            MTLCompileOptions* options = [MTLCompileOptions new];
+            options.languageVersion = MTLLanguageVersion2_3;
+            library = [device newLibraryWithSource:source options:options error:&error];
+        } else library = [device newLibraryWithURL:[NSURL fileURLWithPath:path] error:&error];
         if (!library) throw std::runtime_error(error.localizedDescription.UTF8String ?: "metallib load failed");
         hashPipeline = pipeline(library, @"noid_hash");
         searchPipeline = pipeline(library, @"noid_search");
@@ -174,16 +181,17 @@ int main(int argc, char** argv) {
         try {
             bool pmull = pmullAvailable();
             if (argc == 2 && std::string(argv[1]) == "--pmull-available") { puts(pmull ? "true" : "false"); return 0; }
-            bool cpuOnly = false, benchmark = false; W count = 32; NSString* library = nil;
+            bool cpuOnly = false, benchmark = false, runtimeSource = false; W count = 32; NSString* library = nil;
             for (int i = 1; i < argc; ++i) {
                 std::string arg(argv[i]);
                 if (arg == "--cpu-only") cpuOnly = true;
                 else if (arg == "--benchmark") benchmark = true;
                 else if (arg == "--metallib" && i + 1 < argc) library = [NSString stringWithUTF8String:argv[++i]];
+                else if (arg == "--metal-source" && i + 1 < argc) { runtimeSource = true; library = [NSString stringWithUTF8String:argv[++i]]; }
                 else if (arg == "--count" && i + 1 < argc) {
                     std::string value(argv[++i]); size_t consumed = 0; unsigned long parsed = std::stoul(value,&consumed);
                     require(consumed == value.size() && parsed >= 4 && parsed <= 4096 && parsed % 4 == 0, "count must be a multiple of 4 in [4,4096]"); count = static_cast<W>(parsed);
-                } else throw std::runtime_error("Usage: noid-apple-check [--cpu-only | --metallib FILE] [--benchmark --count 32]");
+                } else throw std::runtime_error("Usage: noid-apple-check [--cpu-only | --metallib FILE | --metal-source FILE] [--benchmark --count 32]");
             }
             cpuSelftest(pmull);
             NSMutableDictionary* report = [@{@"scope":@"offline correctness and synthetic benchmark; no pool shares", @"model":sysText("hw.model"),
@@ -206,9 +214,10 @@ int main(int argc, char** argv) {
                 report[@"cpuFour"] = @{@"seconds":@(elapsed), @"hashesPerSecond":@(count / elapsed), @"checksum":@(checksum)};
             }
             if (!cpuOnly) {
-                require(library != nil, "provide --metallib or --cpu-only");
-                GPU gpu(library); gpuSelftest(gpu, pmull);
+                require(library != nil, "provide --metallib, --metal-source or --cpu-only");
+                GPU gpu(library, runtimeSource); gpuSelftest(gpu, pmull);
                 report[@"metalSelftest"] = @"passed"; report[@"gpu"] = gpu.device.name;
+                report[@"metalCompilation"] = runtimeSource ? @"runtime-source" : @"offline-metallib";
                 report[@"appleFamily1"] = @([gpu.device supportsFamily:MTLGPUFamilyApple1]);
                 report[@"unifiedMemory"] = @(gpu.device.hasUnifiedMemory);
                 if (benchmark) {

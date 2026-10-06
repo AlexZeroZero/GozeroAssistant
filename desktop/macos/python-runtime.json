@@ -1,0 +1,12 @@
+{
+  "purpose": "Optional project-local native ARM64 Python for Mac build tests; does not replace system Python",
+  "source": "https://github.com/astral-sh/python-build-standalone",
+  "release": "20261003",
+  "version": "3.12.15",
+  "asset": "cpython-3.12.15+20261003-aarch64-apple-darwin-install_only_stripped.tar.gz",
+  "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20261003/cpython-3.12.15%2B20261003-aarch64-apple-darwin-install_only_stripped.tar.gz",
+  "sha256": "ad8d0c637c0a36b967b310e2c07254f4d2ca8cabaa7699e55ed6290aceb481a2",
+  "bytes": 25013243,
+  "installLayout": "Extract the verified archive into the test-session directory: python/ beside Gozero-Mac-DeveloperKit/",
+  "licenseNote": "Retain runtime-bundled Python and dependency license files. This archive is not included in the source developer kit."
+}

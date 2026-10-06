@@ -1,0 +1,57 @@
+{
+  "metalSelftest": "passed",
+  "metalDigestBatch": {
+    "hashesPerSecondWall": 917459.9615865162,
+    "gpuSeconds": 0.004176791670033708,
+    "wallSeconds": 0.004464500001631677
+  },
+  "gpu": "Apple M3",
+  "workerCount": 1,
+  "count": 4096,
+  "pmullAvailable": true,
+  "cpuSingle": {
+    "hashesPerSecond": 79669.21090422117,
+    "checksum": 3555123813,
+    "seconds": 0.05141258402727544,
+    "backend": "PMULL"
+  },
+  "powerWatts": null,
+  "scope": "offline correctness and synthetic benchmark; no pool shares",
+  "cpuFour": {
+    "seconds": 0.04062450001947582,
+    "hashesPerSecond": 100825.85626989462,
+    "checksum": 3555123813
+  },
+  "os": "Version 26.5.1 (Build 25F80)",
+  "metalCompilation": "runtime-source",
+  "appleFamily1": true,
+  "chip": "Apple M3",
+  "compiler": "21.0.0 (clang-2100.1.1.101)",
+  "cpuSelftest": "passed",
+  "model": "Mac15,12",
+  "unifiedMemory": true,
+  "temperatureC": null,
+  "sourceSha256": {
+    "core.h": "2b5f7cce1ac1822f72e22f288ffad9e70802e23595a59d3198280dec4e9faa13",
+    "cpu_batch.h": "630f6ba55aa61acdbb1fad6ad0b98f0d62d051c72f4cc07b14e097cfcea370f7",
+    "build_mac.py": "0a0ffe4797d38db2f53bd87be308478b7292d00c5085e1c0e874c9c92a38b6bd",
+    "provenance.json": "843ea774edc1d6287c0c522b94b7b59ce1474abe3f354bc81707b5f162381443",
+    "generate.py": "a647dcac416315279ac6cedcf6d2a6b95fcb9c082079983eedef87819004d789",
+    "fixtures.h": "a0a2722c60a4b6caac2c0c8b7fe07e880ae27c9abc8b30127b60b511ecf3f388",
+    "pmull_backend.cpp": "8cf684c40e21e2d293f9eca3a05e5c7098fe62b0adb81ea983148e6709cdf969",
+    "test_core.py": "f3f00156d2498b74c02244d2d0455e33853505443b3e1b4fa3ead4e8d43ce58a",
+    "kernel.metal": "0c0874636fe3775417e95eb9c3092914145326abbcb44433bf32f34fc2585fee",
+    "constants.h": "7f364e85481c4b43efe72f1b760359fee15da14d423d8a145f48a06ba387ff3b",
+    "mac_host.mm": "a4144adfa84791b5c4d8cebc84c0022d66642c801c9971c4ecc5295be71cafc8",
+    "dispatch.h": "19ccb05c552a38e63150eb7023a1a50e0c94431c42617e60e4e1e179b7ab60e3",
+    "test_bridge.cpp": "83314540eda0a88b762c32d2193ed458571ae1030bc797dc34816d81bac759ce",
+    "fixtures.json": "bce819b8b4f55336a272365e09430fd3009b5ce6af35ce0e97c226349891243b"
+  },
+  "binarySha256": {
+    "noid-apple-check": "65d75b8eea0ecc431fee545054dcb0a5ec652bdbc0baee68fb76a07e3a07b60a"
+  },
+  "metalArtifact": {
+    "name": "noid-runtime.metal",
+    "sha256": "f4334c47fdf4b128647c4f3d05732d383cb2fe930169940b6902d19218468278"
+  }
+}

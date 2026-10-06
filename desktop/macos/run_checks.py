@@ -40,11 +40,8 @@ def main():
             raise RuntimeError('请在苹果 M 芯片 Mac 上以原生 arm64 方式运行；Windows / Rosetta 不执行本测试。')
         if not shutil.which('xcrun'):
             raise RuntimeError('未找到 Xcode 工具。请安装 Xcode / Command Line Tools。')
-        if not args.cpu_only:
-            for tool in ('metal', 'metallib'):
-                check = subprocess.run(['xcrun', '-sdk', 'macosx', '--find', tool], capture_output=True, text=True)
-                if check.returncode:
-                    raise RuntimeError('缺少 Metal 编译工具。请安装并选择完整 Xcode 及其 Metal Toolchain，或明确使用 --cpu-only。\n' + check.stderr)
+        # build_mac.py can compile Metal with the system runtime when the
+        # optional offline Metal compiler is absent. CPU-only is never implicit.
         command = [sys.executable, '-u', str(CORE / 'build_mac.py'), '--benchmark', '--count', str(args.count)]
         if args.cpu_only:
             command.append('--cpu-only')
