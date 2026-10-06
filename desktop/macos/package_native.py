@@ -34,13 +34,19 @@ exit "$RESULT"
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--node-archive', type=Path, help='Verified official ARM64 Node archive; include the bounded Mac-local miner')
+    parser.add_argument('--cpu-threads', type=int, choices=range(0,9), default=0, help='Enable CPU+GPU launchers with this many CPU threads')
     args=parser.parse_args()
     package_name='Gozero-NOID-Mac-Miner-arm64' if args.node_archive else NAME
+    if args.cpu_threads:
+        if not args.node_archive:parser.error('--cpu-threads requires --node-archive')
+        package_name='Gozero-NOID-Mac-Miner-CPU-GPU-arm64'
     if platform.system() != 'Darwin' or platform.machine() != 'arm64':
         raise RuntimeError('Package native test binaries only on an Apple Silicon Mac after successful selftests')
     result = json.loads((BUILD / 'selftest.json').read_text())
     if result.get('cpuSelftest') != 'passed' or result.get('metalSelftest') != 'passed':
         raise RuntimeError('Both CPU and Metal selftests must pass before packaging')
+    if args.cpu_threads and result.get('hybridWorkerTests')!='passed':
+        raise RuntimeError('Hybrid worker partition/lifecycle tests must pass before packaging')
     expected = result.get('sourceSha256', {})
     if not expected or any(hashlib.sha256((CORE / name).read_bytes()).hexdigest() != digest for name, digest in expected.items()):
         raise RuntimeError('Missing or stale source verification; rerun build_mac.py')
@@ -68,6 +74,8 @@ def main():
     files['Run-Core-Test.command'] = LAUNCHER.replace('__METAL_FLAG__', flag).replace('__METAL_FILE__', metal_name).encode('utf-8')
     performance = LAUNCHER.replace('内核自检 / 短基准', '内核自检 / 30秒大批次算力测试')
     performance = performance.replace('--benchmark --count 32', '--benchmark --count 4096 --search-seconds 30 --search-batch 65536')
+    if args.cpu_threads:
+        performance=performance.replace('--search-batch 65536','--search-batch 65536 --cpu-threads '+str(args.cpu_threads))
     files['Run-Performance-Test.command'] = performance.replace('__METAL_FLAG__', flag).replace('__METAL_FILE__', metal_name).encode('utf-8')
     files['README.txt'] = ('Gozero NOID Apple Silicon 内核测试包\n\n'
         '这是已通过构建机 CPU / Metal 自检的独立内核测试程序，不是完整 Gozero助手，不能连接矿池。\n'
@@ -107,6 +115,8 @@ RESULT=$?
 if [[ -t 0 && -z "${SSH_CONNECTION:-}" ]]; then read '?按回车关闭窗口。'; fi
 exit "$RESULT"
 '''.encode('utf-8')
+        if args.cpu_threads:
+            files['Run-Mining-Test.command']=files['Run-Mining-Test.command'].replace(b'--seconds 180',('--seconds 180 --cpu-threads '+str(args.cpu_threads)).encode())
         files['README.txt']=('Gozero NOID Apple Silicon 实验挖矿核心\n\n'
             '双击 Run-Mining-Test.command，输入 NOID 公开地址，运行180秒矿池测试。\n'
             'TLS连接、任务调度、Metal计算和CPU校验都在Mac本机执行，无需Windows/SSH控制器。\n'
@@ -119,6 +129,12 @@ exit "$RESULT"
             '这是实验命令行核心，不是完整Gozero助手或长期生产矿工；本轮未集成助手服务费。\n'
             '算力为本地测量，不代表矿池长期有效算力或收益；其他M系列需要实机复测。\n'
             '测试包没有开发者分发签名或公证，不修改系统安全设置。\n').encode('utf-8')
+        if args.cpu_threads:
+            files['README.txt']+=('\nCPU＋GPU 协同版：启动脚本启用 '+str(args.cpu_threads)+' 个 CPU 挖矿线程。\n'
+                'CPU与GPU搜索互不重叠的nonce区间，按实测速率自适应分配；各自算力在运行时单独显示。\n'
+                'CPU占用率不等于GPU利用率；活动监视器的GPU历史记录可单独查看。\n'
+                '更多CPU线程不保证更快；命令行 --cpu-threads 0 可对照纯GPU，范围0至8。\n'
+                '离线JSON的 metalSearch.hashesPerSecondWall 是CPU与GPU总算力；cpuHashes/gpuHashes 分别计数。\n').encode('utf-8')
     files['MANIFEST.json'] = (json.dumps({'type': 'bounded-native-mac-miner' if args.node_archive else 'native-core-selftest-not-mining-app',
         'architecture': arch, 'files': {name: hashlib.sha256(data).hexdigest() for name, data in files.items()}}, indent=2) + '\n').encode()
     out = REPO / 'desktop/dist'; out.mkdir(parents=True, exist_ok=True)

@@ -320,6 +320,63 @@ normally and SSH process inspection confirmed no worker remained.
 the run to the ZIP, controller sources, executable, shader and Node runtime.
 These are finite validation runs, not long-term pool-side rates.
 
+## CPU and GPU utilization
+
+CPU idle percentage is not GPU idle percentage. A 20-second M3 reproduction
+of the GPU-only package measured 1.756842 MH/s, 19.855 GPU execution seconds
+over 20.032 wall seconds (99.12%), and 99% device utilization in steady-state
+`ioreg` samples. This measures device activity, not SIMD occupancy, arithmetic
+efficiency, power, or a proof that the kernel is optimal.
+
+The native worker now supports `--cpu-threads 0..8`. Zero preserves GPU-only
+operation. Nonzero values concurrently search additional, disjoint ranges using
+the runtime-gated PMULL backend and four independent CPU hash states. GCD reuses
+worker threads. Per-batch observed CPU/GPU rates determine the split, with CPU
+scheduling headroom to keep the GPU supplied. Ranges retain the pool namespace;
+results still pass target/range validation and pause/expiry cancellation before
+submission. EOF and the independent lifetime stop the entire native process.
+CPU tasks reserve 64-nonce chunks atomically so faster cores can process more
+chunks without duplicating the work assigned to slower cores.
+
+`miner_cli.cjs --cpu-threads 4` enables this mode for a bounded pool test; its
+live display and JSON report separate useful CPU and GPU hashes. Both use the
+same elapsed wall time, so their reported rates sum to the total. Invalid work
+accounting fails closed. More CPU threads are not automatically faster: the
+chip shares power and memory resources, and scheduling can delay completion.
+
+Reproduce alternating GPU-only / CPU+GPU offline measurements on an idle Mac:
+
+```sh
+python3 benchmark_cooperative_mac.py --threads 4 --seconds 15 --rounds 3 --report artifacts/cpu-gpu-ab.json
+```
+
+The script refuses overlapping miners, samples GPU device utilization and
+process CPU usage, and retains full results. macOS process CPU percentages
+can exceed 100% because 100% represents one core, not the whole chip.
+Build validation includes reference comparisons of all candidates in odd,
+carry-crossing CPU/GPU ranges, strict targets, overflow recovery, and lifecycle.
+`package_native.py --node-archive VERIFIED_ARCHIVE --cpu-threads 4` produces
+`Gozero-NOID-Mac-Miner-CPU-GPU-arm64.zip`, with CPU+GPU mining and offline
+performance launchers. Its native worker partition tests must pass first.
+
+The final nine-sample M3 comparison (three 15-second samples per setting,
+alternating order) measured medians of 1.728417 MH/s GPU-only, 1.765959 MH/s
+with four CPU threads (+2.17%), and 1.690654 MH/s with eight (-2.18%). Throughput
+declined across the sequence; four-thread samples ranged 1.646570–1.946929,
+while eight-thread samples ranged 1.161494–1.851204 MH/s. These results do not
+establish a sustained 10–13% gain or a statistically stable 2.17% improvement.
+The earlier ~1.99 MH/s short samples are not the final performance claim.
+
+The machine identifies as a MacBook Air M3, on AC with low-power mode disabled.
+After the comparison NSProcessInfo reported thermalState=1 (fair); pmset did
+not report a thermal warning. This is not a temperature, power measurement,
+or proof of the sole cause of slowdown. Median process CPU readings were
+330.7% with four threads and 497.6% with eight; steady GPU device readings were
+99% and 94% respectively. More occupied CPU cores did not reliably yield more
+hashes. Keep the CPU+GPU package as an experimental comparison option and
+retain GPU-only as the default CLI behavior. Profile and reduce GPU finite-field
+arithmetic/instruction and register costs for further kernel improvement.
+
 ## Remaining acceptance gates
 
 1. Extend the verified M3 result to representative base/Pro/Max/Ultra devices

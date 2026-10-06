@@ -6,7 +6,7 @@ const {run,validatedConfig}=require('./pool_runner.cjs');
 function check(ok,message){if(!ok)throw Error(message)}
 function parseArgs(argv){
  const options={};
- const allowed=new Set(['wallet','worker','host','port','seconds','batch','native-dir','report']);
+ const allowed=new Set(['wallet','worker','host','port','seconds','batch','native-dir','report','cpu-threads']);
  for(let i=0;i<argv.length;i++){
   const name=argv[i].startsWith('--')?argv[i].slice(2):'';
   check(allowed.has(name)&&i+1<argv.length&&!argv[i+1].startsWith('--')&&options[name]===undefined,'Unknown, duplicate or missing option: '+argv[i]);
@@ -28,19 +28,22 @@ function verifyNative(directory){
 function makeConfig(options,environment=process){
  check(environment.platform==='darwin'&&environment.arch==='arm64','Run this core natively on an Apple Silicon Mac');
  const seconds=Number(options.seconds??180),batch=Number(options.batch??65536);
+ const cpuThreads=Number(options['cpu-threads']??0);
+ check(Number.isInteger(cpuThreads)&&cpuThreads>=0&&cpuThreads<=8,'CPU threads must be 0..8');
  // Validate the user values before reading artifacts or starting any process.
  const config=validatedConfig({pool:'innovlab',host:options.host??'hk2.innovlab.cc',port:Number(options.port??19601),
   wallet:options.wallet,worker:options.worker??'gozero-mac',seconds,batch,command:['pending-native-verification']});
  const native=verifyNative(options['native-dir']??__dirname);
  config.command=[native.executable,'--worker-seconds',String(seconds+30),native.flag,native.metal];
+ if(cpuThreads)config.command.push('--cpu-threads',String(cpuThreads));
  return config;
 }
 async function main(argv){
  const options=parseArgs(argv),config=makeConfig(options);
  const report=path.resolve(options.report??path.join(__dirname,'results','mining-'+new Date().toISOString().replace(/[:.]/g,'-')+'-'+process.pid+'.json'));
- console.log('Gozero NOID Mac 实验挖矿核心：本机 Metal + CPU校验 + TLS；本次最多 '+config.seconds+' 秒，Ctrl+C 停止。');
+ console.log('Gozero NOID Mac 实验挖矿核心：Metal GPU + '+(options['cpu-threads']??0)+' 个 CPU 挖矿线程 + CPU校验 + TLS；本次最多 '+config.seconds+' 秒，Ctrl+C 停止。');
  const summary=await run(config,{reportFile:report,event:event=>{
-  if(event.type==='stats')console.log((event.localHashesPerSecond/1e6).toFixed(3)+' MH/s | 接受 '+event.accepted+' | 拒绝 '+event.rejected);
+  if(event.type==='stats')console.log((event.localHashesPerSecond/1e6).toFixed(3)+' MH/s（GPU '+(event.gpuHashesPerSecond/1e6).toFixed(3)+' + CPU '+(event.cpuHashesPerSecond/1e6).toFixed(3)+'）| 接受 '+event.accepted+' | 拒绝 '+event.rejected);
   else if(['worker-ready','tls-ready','authorized','paused','stopped','worker-stderr'].includes(event.type))console.log(JSON.stringify(event));
  }});
  console.log('报告：'+report);

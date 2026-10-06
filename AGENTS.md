@@ -28,6 +28,14 @@ optimized kernel). A standalone bounded Mac miner ZIP now runs TLS/controller
 and GPU locally: 180-second test, 32 accepted/0 rejected, 1.643 MH/s including
 pauses. See mac-m3-hybrid-research and mac-m3-native-miner evidence. macOS 13.5+
 for the bundled Node runtime; no GUI/production fee integration yet.
+CPU-idle follow-up: GPU-only device utilization was already 99%. Optional
+PMULL CPU+GPU search now exists, with disjoint adaptive ranges and CPU/GPU
+rate reporting. Final warm nine-sample comparison: four CPU threads +2.17%
+median, eight -2.18%, with substantial decline over time. This does NOT prove
+a stable gain. A 180-second cooperative package test accepted 24/24 shares,
+zero rejects, ~1.562 MH/s local average. Preserve GPU-only CLI default and
+the old desktop package. CPU-GPU ZIP is a comparison experiment, not a
+recommended faster replacement. See cpu-gpu-utilization evidence and handoff.
 
 The original handoff describes an uncompiled draft; later checkpoints supersede
 that status. There is now a verified experimental bounded Mac CLI miner, not a

@@ -76,6 +76,10 @@ def main():
     if args.benchmark:
         launch += ['--benchmark', '--count', args.count]
     result = json.loads(run(executable, *launch, capture=True))
+    if metal_artifact:
+        run(sys.executable, 'test_worker.py', '--executable', executable,
+            '--metal-source' if metal_artifact.suffix == '.metal' else '--metallib', metal_artifact)
+        result['hybridWorkerTests'] = 'passed'
     result['sourceSha256'] = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in ROOT.iterdir()
                              if p.is_file() and p.suffix in ('.h', '.cpp', '.mm', '.metal', '.py', '.json', '.cjs')}
     result['binarySha256'] = {executable.name: hashlib.sha256(executable.read_bytes()).hexdigest()}

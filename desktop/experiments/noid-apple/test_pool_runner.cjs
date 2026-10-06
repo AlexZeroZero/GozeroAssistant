@@ -3,7 +3,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict');
 const {EventEmitter}=require('node:events'),{PassThrough}=require('node:stream');
 const {run,validatedConfig}=require('./pool_runner.cjs');
 const config={pool:'innovlab',host:'pool.invalid',port:19601,wallet:'o1'+'q'.repeat(40),worker:'offline',seconds:1,batch:4,command:['fake-worker']};
-function harness({badDigest=false,authorized=true}={}){
+function harness({badDigest=false,authorized=true,accounting={cpuHashes:1,gpuHashes:3}}={}){
  let socket,requests=[],work=0;
  const namespace='0123456789abcdef';
  const job=id=>({method:'mining.notify',params:[{job_id:id,work_domain_id:'ab'.repeat(32),pow_fields_hex:'00'.repeat(256),nonce_field_index:10,nonce_bits:64,nonce_prefix_hex:namespace,share_target_hex:'ff'.repeat(32),block_target_hex:'01'.repeat(32),clean:true,expires_in_seconds:30}]});
@@ -25,7 +25,7 @@ function harness({badDigest=false,authorized=true}={}){
   child.stdin.on('data',data=>{const request=JSON.parse(String(data));const ordinal=++work;
    if(ordinal===1&&!badDigest)frame({method:'mining.pause'});
    setImmediate(()=>{
-    child.stdout.write(JSON.stringify({id:request.id,count:request.count,candidates:[{nonce:request.nonce,cpuDigest:(badDigest?'ff':'00').repeat(32)}]})+'\n');
+    child.stdout.write(JSON.stringify({id:request.id,count:request.count,...accounting,candidates:[{nonce:request.nonce,cpuDigest:(badDigest?'ff':'00').repeat(32)}]})+'\n');
     if(ordinal===1&&!badDigest)frame(job('fresh'));
     if(ordinal===2&&!badDigest)frame({method:'mining.pause'});
    });
@@ -41,7 +41,13 @@ test('bounded input validation',()=>{
 test('full runner discards paused in-flight work and accepts only the fresh job',async()=>{
  const h=harness();const result=await run(config,h);
  assert.equal(result.reason,'duration-limit');assert.equal(result.accepted,1);assert.equal(result.discardedHashes,4);assert.equal(result.error,null);
+ assert.equal(result.cpuHashes,1);assert.equal(result.gpuHashes,3);assert.equal(result.hashes,4);
  const shares=h.requests.filter(x=>x.method==='mining.submit');assert.equal(shares.length,1);assert.equal(shares[0].params[0],'fresh');
+});
+
+test('inconsistent CPU/GPU counters stop before submission',async()=>{
+ const h=harness({accounting:{cpuHashes:4,gpuHashes:4}});const result=await run(config,h);
+ assert.equal(result.reason,'worker-validation-error');assert.match(result.error,/work accounting/);assert.equal(result.submitted,0);
 });
 test('equal-target CPU result stops before any submit',async()=>{
  const h=harness({badDigest:true});const result=await run(config,h);

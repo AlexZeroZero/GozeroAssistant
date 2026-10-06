@@ -7,6 +7,7 @@ test('CLI requires an explicit address, bounded duration and native Apple execut
  assert.throws(()=>makeConfig({}, {platform:'win32',arch:'x64'}),/Apple Silicon/);
  const wallet='o1'+'q'.repeat(40); // Synthetic public-format text, never a payout default.
  for(const seconds of ['0','601','Infinity','1.2'])assert.throws(()=>makeConfig({wallet,seconds},{platform:'darwin',arch:'arm64'}),/duration/);
+ for(const threads of ['-1','9','Infinity','1.2'])assert.throws(()=>makeConfig({wallet,'cpu-threads':threads},{platform:'darwin',arch:'arm64'}),/CPU threads/);
  assert.throws(()=>parseArgs(['--wallet','x','--wallet','y']),/duplicate/);
  assert.throws(()=>parseArgs(['--wallet']),/missing/);
  assert.throws(()=>parseArgs(['--command','arbitrary']),/Unknown/);
@@ -22,6 +23,8 @@ test('native integrity gate binds executable and shader to a successful selftest
   assert.equal(verifyNative(dir).flag,'--metal-source');
   const config=makeConfig({wallet:'o1'+'q'.repeat(40),'native-dir':dir,seconds:'180'},{platform:'darwin',arch:'arm64'});
   assert.deepEqual(config.command,[path.join(dir,'noid-apple-check'),'--worker-seconds','210','--metal-source',path.join(dir,'noid-runtime.metal')]);
+  const hybrid=makeConfig({wallet:'o1'+'q'.repeat(40),'native-dir':dir,'cpu-threads':'4'},{platform:'darwin',arch:'arm64'});
+  assert.deepEqual(hybrid.command.slice(-2),['--cpu-threads','4']);
   fs.appendFileSync(path.join(dir,'noid-runtime.metal'),'changed');assert.throws(()=>verifyNative(dir),/changed/);
   fs.writeFileSync(path.join(dir,'noid-runtime.metal'),metal);manifest.metalSelftest='failed';save();assert.throws(()=>verifyNative(dir),/selftests/);
  }finally{

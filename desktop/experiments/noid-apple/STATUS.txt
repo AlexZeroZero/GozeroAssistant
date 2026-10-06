@@ -1,5 +1,25 @@
 Experimental Apple Silicon NOID development checkpoint, 2026-10-06.
 
+LATEST: CPU/GPU UTILIZATION DIAGNOSIS AND OPTIONAL COOPERATIVE SEARCH
+- GPU-only steady device utilization was 99%; GPU command time ~99.1% of wall
+  time. CPU idle percentage does not measure GPU occupancy or kernel efficiency.
+- Added optional PMULL CPU threads, adaptive disjoint CPU/GPU ranges, atomic
+  64-nonce CPU chunks and separate useful-work counters. GPU-only remains the
+  CLI default; CPU+GPU is an explicit experimental package/option.
+- Final 3 x 15-second samples/mode: GPU median 1.728417 MH/s; 4 CPU threads
+  1.765959 (+2.17%); 8 threads 1.690654 (-2.18%). Strong decline during the
+  sequence prevents claiming a stable improvement. Early ~1.99 peaks are not
+  the final performance claim. CPU occupancy increased without reliable gain.
+- M3 MacBook Air on AC, low-power mode off; thermalState=1 (fair) observed.
+  No temperature/power/instruction-counter measurement establishes sole cause.
+- Packaged 180-second test: 24 submitted/24 accepted/0 rejected, ~1.562 MH/s
+  local average including pauses; confirms correctness, not sustained speedup.
+- 8 reference tests, 30 native differential groups, Metal selftests, 5 worker
+  tests and 22 Node tests on Windows/Mac pass. Experimental CPU-GPU package
+  does not replace the old desktop GPU package or any Windows release.
+- Evidence: mac-m3-cpu-gpu-utilization-2026-10-06.json. Further GPU arithmetic,
+  register and sustained-load profiling remains necessary.
+
 LATEST: AES-TOWER HYBRID + MAC-LOCAL MINER
 - Hybrid partial rounds retain tower-coordinate passive lanes and use sparse
   shift/XOR matrices. Three alternating 15-second A/B samples: prior optimized

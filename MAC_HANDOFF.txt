@@ -359,3 +359,49 @@ AES-TOWER RESEARCH / NATIVE MAC MINER — 2026-10-06
   Further algebra/circuit optimization is needed for a much larger speed jump.
   Validate on additional M chips before claiming family-wide performance, and
   integrate fee handling and long-duration lifecycle before production use.
+
+CPU IDLE DIAGNOSIS / COOPERATIVE EXPERIMENT — 2026-10-06
+- User observed 95% CPU idle. Read-only inspection found no worker active at
+  that instant; the package is bounded to 180 seconds. A new 20-second GPU-only
+  reproduction measured 1.756842 MH/s, GPU device activity 99%, GPU command time
+  19.855/20.032 seconds (~99.1%). CPU idle does not describe GPU utilization.
+  Device activity also does not prove optimal shader instruction efficiency.
+- Added opt-in PMULL CPU search to mac_host.mm: GCD tasks reserve disjoint
+  64-nonce chunks atomically; CPU/GPU share adapts from measured batch times
+  with CPU scheduling headroom. The full reserved range is checked exactly
+  once logically; all candidates retain CPU validation and pool cancellation.
+  Overflow retry GPU time now includes parent/child dispatches correctly.
+- CLI --cpu-threads 0..8; default remains 0. Runtime stats and reports split
+  useful CPU/GPU hashes and reject inconsistent counts. New CPU-GPU package
+  explicitly starts 4 threads; original desktop GPU package remains intact.
+- Final nine alternating 15-second samples of the same binary/shader: medians
+  GPU 1.728417, CPU4+GPU 1.765959 (+2.17%), CPU8+GPU 1.690654 (-2.18%) MH/s.
+  Strong throughput decline across the sequence; no stable speedup claim.
+  CPU4 ranged 1.646570–1.946929; CPU8 ranged 1.161494–1.851204. Early ~1.99
+  short prototype peaks are NOT the sustained result. An earlier static-split
+  A/B run overlapped compilation in its last sample and is excluded.
+- Model identified as MacBook Air M3, 4 P + 4 E cores, AC charged, low-power
+  mode off. NSProcessInfo thermalState=1 (fair) after final A/B and during live
+  run; pmset reported no warning. No temperature/power/hardware-counter causal
+  diagnosis. Median process CPU ~330.7% (4 threads), ~497.6% (8); these are
+  per-core CPU percentages, not whole-machine percentages. GPU medians 99/94%.
+- Build passes 8 reference tests, 30 native differential groups, Metal checks,
+  5 worker tests (chunk coverage, odd/carry partitions, strict targets, EOF,
+  idle deadline, overflow), plus 22 Node tests on Windows/native Mac.
+- Actual extracted cooperative mining launcher: 180.00528175 s, 281,214,976
+  useful hashes (CPU 25,476,044 + GPU 255,738,932), 1.562259581 MH/s including
+  7 pauses/12 jobs; 24 submitted/24 accepted/0 rejected/0 pending, no reconnects.
+  Confirms correctness, not sustained acceleration. Later 30-second GPU-only
+  recovery check: 1.733628 MH/s, not a matched thermal/pooled comparison.
+- New ZIP Gozero-NOID-Mac-Miner-CPU-GPU-arm64.zip SHA256:
+  a55c55f76bb6be041978b6cc58195a7ff51949d2f6dc9827cbc267cf4c904dac.
+  Copied and extracted to /Users/apple/Desktop under its own new name; added
+  TEST-NOTES.txt explaining limited results and retaining the original GPU
+  version. Verified all manifest files, executable permissions and no worker
+  remained. Copy also saved under local desktop/dist. No automatic mining.
+- Evidence: noid-apple/evidence/mac-m3-cpu-gpu-utilization-2026-10-06.json.
+  benchmark_cooperative_mac.py reproduces idle-device A/B with telemetry;
+  --threads 4 8 compares both to GPU-only. No change to consensus shader.
+- Next: profile GPU arithmetic/instruction issue/register costs and explain
+  sustained-load degradation before recommending a replacement miner. Do not
+  turn high CPU usage into a performance claim. No 30–50 MH/s evidence.

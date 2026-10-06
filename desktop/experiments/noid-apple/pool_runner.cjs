@@ -30,11 +30,11 @@ async function run(input,{event=()=>{},reportFile,transport=tls.connect,spawnWor
  const config=validatedConfig(input),started=performance.now();
  const summary={startedAt:new Date().toISOString(),pool:config.pool,host:config.host,port:config.port,worker:config.worker,
   walletSuffix:config.wallet.slice(-8),durationLimitSeconds:config.seconds,tlsVerified:false,authorized:false,
-  hashes:0,discardedHashes:0,accepted:0,rejected:0,submitted:0,pauses:0,jobs:0,reconnects:0,events:[]};
+  hashes:0,cpuHashes:0,gpuHashes:0,discardedHashes:0,accepted:0,rejected:0,submitted:0,pauses:0,jobs:0,reconnects:0,events:[]};
  const log=(type,data={})=>{const row={at:new Date().toISOString(),type,...data};summary.events.push(row);if(summary.events.length>2000)summary.events.shift();event(row)};
  const session=new Session({pool:config.pool,username:config.wallet+'.'+config.worker});
  let socket,worker,ready=false,busy=null,serial=0,attempt=0,closed=false,retryTimer,stopTimer,tickTimer,statsTimer,deadlineTimer;
- let reconnectAt=0,workerDeadline=0,lastStats=0,lastHashes=0,lastPing=0;
+ let reconnectAt=0,workerDeadline=0,lastStats=0,lastHashes=0,lastCPUHashes=0,lastGPUHashes=0,lastPing=0;
  const decoder=new LineDecoder();
  return new Promise(resolve=>{
   const finish=(reason,error)=>{
@@ -91,14 +91,17 @@ async function run(input,{event=()=>{},reportFile,transport=tls.connect,spawnWor
    worker.stdin.on('error',e=>finish('worker-pipe-error',e));
    worker.stderr.on('data',data=>log('worker-stderr',{message:String(data).slice(0,1000)}));
    worker.stdout.on('data',chunk=>{if(closed)return;try{decoder.feed(chunk,response=>{
-    if(response.event==='ready'){check(!ready&&response.cpuSelftest==='passed'&&response.metalSelftest==='passed','worker selftest failed or duplicate ready');ready=true;log('worker-ready',{gpu:response.gpu});connect();return;}
+    if(response.event==='ready'){check(!ready&&response.cpuSelftest==='passed'&&response.metalSelftest==='passed','worker selftest failed or duplicate ready');ready=true;summary.cpuMiningThreads=response.cpuThreads??0;log('worker-ready',{gpu:response.gpu,cpuThreads:summary.cpuMiningThreads});connect();return;}
     if(response.event==='lifetime-ended'){finish('worker-lifetime-ended');return;}
     check(busy&&response.id===busy.id,'unexpected worker response');const {ticket}=busy;busy=null;
     if(ticket.signal.aborted){summary.discardedHashes+=ticket.count;return;}
     const verified=verifiedCandidates(response,ticket);
+    const cpuHashes=response.cpuHashes??0,gpuHashes=response.gpuHashes??ticket.count;
+    check(Number.isInteger(cpuHashes)&&Number.isInteger(gpuHashes)&&cpuHashes>=0&&gpuHashes>=0&&cpuHashes+gpuHashes===ticket.count,'invalid CPU/GPU work accounting');
     const completed=session.complete(ticket,verified.result,verified.hash);
     if(completed.discarded){summary.discardedHashes+=ticket.count;return;}
     summary.hashes+=ticket.count;
+    summary.cpuHashes+=cpuHashes;summary.gpuHashes+=gpuHashes;
     for(const request of completed.requests)send(request);
    });setImmediate(pump)}catch(e){finish('worker-validation-error',e)}});
    worker.once('error',e=>finish('worker-start-error',e));worker.once('exit',(code,signal)=>{if(!closed)finish('worker-exit',Error('worker exited '+code+' '+signal))});
@@ -108,7 +111,7 @@ async function run(input,{event=()=>{},reportFile,transport=tls.connect,spawnWor
     if(session.authorized&&performance.now()-lastPing>60000){lastPing=performance.now();send(session.request('mining.ping',[]))}
     pump();
    }catch(e){finish('session-error',e)}},50);
-   lastStats=performance.now();statsTimer=setInterval(()=>{const now=performance.now();log('stats',{localHashesPerSecond:(summary.hashes-lastHashes)/((now-lastStats)/1000),hashes:summary.hashes,accepted:session.accepted,rejected:session.rejected});lastHashes=summary.hashes;lastStats=now},10000);
+   lastStats=performance.now();statsTimer=setInterval(()=>{const now=performance.now(),elapsed=(now-lastStats)/1000;log('stats',{localHashesPerSecond:(summary.hashes-lastHashes)/elapsed,cpuHashesPerSecond:(summary.cpuHashes-lastCPUHashes)/elapsed,gpuHashesPerSecond:(summary.gpuHashes-lastGPUHashes)/elapsed,hashes:summary.hashes,accepted:session.accepted,rejected:session.rejected});lastHashes=summary.hashes;lastCPUHashes=summary.cpuHashes;lastGPUHashes=summary.gpuHashes;lastStats=now},10000);
    deadlineTimer=setTimeout(()=>finish('duration-limit'),config.seconds*1000);
   }catch(e){finish('startup-error',e)}
  });

@@ -12,6 +12,10 @@
 #include <poll.h>
 #include <unistd.h>
 #include <cerrno>
+#include <dispatch/dispatch.h>
+#include <exception>
+#include <memory>
+#include <atomic>
 #define GZ_FORCE_PORTABLE 1
 #include "dispatch.h"
 #include "cpu_batch.h"
@@ -134,9 +138,12 @@ public:
         require(count <= request.count, "invalid GPU match count");
         if (count > capacity) {
             require(request.count > 1, "unsplittable overflow");
+            double parentTime=lastGPUSeconds;
             Request left = request, right = request; left.count = request.count / 2;
             right.nonce = nonceAt(request.nonce, left.count); right.count -= left.count;
-            auto a = search(left, target, capacity, accelerated), b = search(right, target, capacity, accelerated);
+            auto a = search(left, target, capacity, accelerated);double leftTime=lastGPUSeconds;
+            auto b = search(right, target, capacity, accelerated);
+            lastGPUSeconds+=parentTime+leftTime;
             a.insert(a.end(), b.begin(), b.end()); return a;
         }
         std::vector<U> result(count); std::memcpy(result.data(), candidates.contents, sizeof(U) * count);
@@ -147,6 +154,98 @@ public:
                     "GPU candidate outside nonce range");
             require(below(cpuHash(request.prepared, nonce, accelerated), target), "GPU candidate failed CPU recheck");
         }
+        return result;
+    }
+};
+
+// GCD reuses system worker threads. Every CPU subrange is disjoint from the
+// GPU range and from other CPU tasks; all tasks finish before a job can change.
+class CPUSearch {
+    dispatch_group_t group;
+    std::vector<std::vector<U>> candidates;
+    std::vector<std::exception_ptr> errors;
+    std::vector<double> durations;
+    std::atomic<unsigned> next{0};
+public:
+    explicit CPUSearch(const Request& request, Digest target, unsigned threads, bool accelerated)
+        : group(dispatch_group_create()), candidates(threads), errors(threads), durations(threads) {
+        require(threads > 0 && threads <= 8 && validRange(request.nonce,request.count), "invalid CPU search");
+        auto queue = dispatch_get_global_queue(QOS_CLASS_USER_INITIATED,0);
+        const double launched=seconds();
+        for(unsigned t=0;t<threads;++t) {
+            // Copy the immutable request into each block; only this task writes
+            // its own result slot. Dispatch completion publishes the writes.
+            dispatch_group_async(group,queue,^{
+                try {
+                    // M chips have performance and efficiency cores. Small
+                    // atomic reservations let faster cores take more work.
+                    for(;;) {
+                        unsigned begin=next.fetch_add(64,std::memory_order_relaxed);
+                        if(begin>=request.count)break;
+                        unsigned end=std::min(begin+64,request.count);
+                        for(unsigned i=begin;i<end;) {
+                            U nonces[4]; Digest digests[4];
+                            unsigned n=std::min(4u,end-i);
+                            for(unsigned j=0;j<n;++j) nonces[j]=nonceAt(request.nonce,i+j);
+                            if(n==4 && accelerated) gz_pmull_hash4(&request.prepared,nonces,digests);
+                            else for(unsigned j=0;j<n;++j) digests[j]=cpuHash(request.prepared,nonces[j],accelerated);
+                            for(unsigned j=0;j<n;++j) if(below(digests[j],target)) {
+                                require(candidates[t].size()<1024,"CPU candidate output limit exceeded");
+                                candidates[t].push_back(nonces[j]);
+                            }
+                            i+=n;
+                        }
+                    }
+                } catch(...) {errors[t]=std::current_exception();}
+                durations[t]=seconds()-launched;
+            });
+        }
+    }
+    ~CPUSearch() {dispatch_group_wait(group,DISPATCH_TIME_FOREVER);}
+    std::vector<U> finish(double& elapsed) {
+        dispatch_group_wait(group,DISPATCH_TIME_FOREVER);
+        std::vector<U> out;elapsed=0;
+        for(size_t t=0;t<candidates.size();++t) {
+            if(errors[t]) std::rethrow_exception(errors[t]);
+            elapsed=std::max(elapsed,durations[t]);
+            out.insert(out.end(),candidates[t].begin(),candidates[t].end());
+        }
+        return out;
+    }
+};
+
+class HybridSearch {
+    GPU& gpu;
+    unsigned threads;
+    bool accelerated;
+    double cpuRate, gpuRate=1750000;
+public:
+    unsigned lastCPUCount=0,lastGPUCount=0;
+    double lastCPUSeconds=0,lastGPUSeconds=0;
+    HybridSearch(GPU& g,unsigned n,bool a):gpu(g),threads(n),accelerated(a),cpuRate(n*75000.0) {
+        require(n<=8 && (!n || a),"CPU mining requires PMULL and at most 8 threads");
+    }
+    std::vector<U> search(const Request& request,Digest target,unsigned capacity) {
+        require(validRange(request.nonce,request.count),"invalid hybrid search range");
+        // Leave CPU scheduling headroom to avoid stalling the GPU on a straggler.
+        // Rates adapt to the actual chip and thermal conditions, not its name.
+        double share=threads ? std::min(0.40,0.85*cpuRate/(gpuRate+0.85*cpuRate)) : 0;
+        lastCPUCount=static_cast<unsigned>(request.count*share);
+        lastCPUCount-=lastCPUCount%4;
+        lastGPUCount=request.count-lastCPUCount;
+        lastCPUSeconds=0;
+        Request gpuRequest=request;gpuRequest.count=lastGPUCount;
+        Request cpuRequest=request;cpuRequest.nonce=nonceAt(request.nonce,lastGPUCount);cpuRequest.count=lastCPUCount;
+        std::unique_ptr<CPUSearch> cpu;
+        if(lastCPUCount)cpu=std::make_unique<CPUSearch>(cpuRequest,target,threads,accelerated);
+        auto result=gpu.search(gpuRequest,target,capacity,accelerated);
+        lastGPUSeconds=gpu.lastGPUSeconds;
+        if(cpu) {
+            auto extra=cpu->finish(lastCPUSeconds);
+            result.insert(result.end(),extra.begin(),extra.end());
+            if(lastCPUSeconds>0)cpuRate=0.8*cpuRate+0.2*lastCPUCount/lastCPUSeconds;
+        }
+        if(lastGPUSeconds>0)gpuRate=0.8*gpuRate+0.2*lastGPUCount/lastGPUSeconds;
         return result;
     }
 };
@@ -235,9 +334,10 @@ static unsigned jsonNumber(NSDictionary* object, NSString* key, unsigned low, un
     double n=[value doubleValue]; require(n>=low && n<=high && n==static_cast<unsigned>(n),"invalid worker integer");
     return static_cast<unsigned>(n);
 }
-static void workerLoop(GPU& gpu, bool accelerated, unsigned lifetime) {
+static void workerLoop(GPU& gpu, bool accelerated, unsigned lifetime, unsigned cpuThreads) {
     const double deadline=seconds()+lifetime;
-    emitJSON(@{@"event":@"ready",@"cpuSelftest":@"passed",@"metalSelftest":@"passed",@"gpu":gpu.device.name,@"maxBatch":@65536});
+    HybridSearch search(gpu,cpuThreads,accelerated);
+    emitJSON(@{@"event":@"ready",@"cpuSelftest":@"passed",@"metalSelftest":@"passed",@"gpu":gpu.device.name,@"maxBatch":@65536,@"cpuThreads":@(cpuThreads)});
     std::string pending, previousHeader; Prepared prepared;
     while(seconds()<deadline) {
         pollfd descriptor={STDIN_FILENO,POLLIN,0};
@@ -272,7 +372,7 @@ static void workerLoop(GPU& gpu, bool accelerated, unsigned lifetime) {
                 // limits output, and live pool targets are many orders smaller.
                 if(previousHeader!=fields.UTF8String) {prepared=prepare(header);previousHeader=fields.UTF8String;}
                 double start=seconds();
-                auto candidates=gpu.search({prepared,nonce,count},target,capacity,accelerated);
+                auto candidates=search.search({prepared,nonce,count},target,capacity);
                 require(candidates.size()<=1024,"worker candidate output limit exceeded");
                 NSMutableArray* values=[NSMutableArray array];
                 for(U candidate:candidates) {
@@ -280,7 +380,8 @@ static void workerLoop(GPU& gpu, bool accelerated, unsigned lifetime) {
                     require(below(digest,target),"worker CPU verification failed");
                     [values addObject:@{@"nonce":encodeHex(&candidate,sizeof(candidate)),@"cpuDigest":encodeHex(&digest,sizeof(digest))}];
                 }
-                emitJSON(@{@"id":@(idValue),@"count":@(count),@"elapsedSeconds":@(seconds()-start),@"candidates":values});
+                emitJSON(@{@"id":@(idValue),@"count":@(count),@"elapsedSeconds":@(seconds()-start),@"candidates":values,
+                    @"cpuHashes":@(search.lastCPUCount),@"gpuHashes":@(search.lastGPUCount),@"gpuSeconds":@(search.lastGPUSeconds)});
             }
         }
     }
@@ -293,11 +394,15 @@ int main(int argc, char** argv) {
             bool pmull = pmullAvailable();
             if (argc == 2 && std::string(argv[1]) == "--pmull-available") { puts(pmull ? "true" : "false"); return 0; }
             bool cpuOnly = false, benchmark = false, runtimeSource = false; W count = 32; NSString* library = nil; unsigned workerSeconds=0;
-            unsigned searchSeconds=0, searchBatch=65536, groupWidth=0;
+            unsigned searchSeconds=0, searchBatch=65536, groupWidth=0, cpuThreads=0;
             for (int i = 1; i < argc; ++i) {
                 std::string arg(argv[i]);
                 if (arg == "--cpu-only") cpuOnly = true;
                 else if (arg == "--benchmark") benchmark = true;
+                else if (arg == "--cpu-threads" && i+1<argc) {
+                    std::string value(argv[++i]);size_t used=0;unsigned long n=std::stoul(value,&used);
+                    require(used==value.size() && n<=8,"CPU threads must be 0..8");cpuThreads=n;
+                }
                 else if ((arg == "--search-seconds" || arg == "--search-batch" || arg == "--threadgroup") && i+1<argc) {
                     std::string value(argv[++i]); size_t used=0; unsigned long n=std::stoul(value,&used);
                     unsigned limit=arg=="--search-seconds" ? 60 : arg=="--search-batch" ? 65536 : 1024;
@@ -316,14 +421,14 @@ int main(int argc, char** argv) {
                 else if (arg == "--count" && i + 1 < argc) {
                     std::string value(argv[++i]); size_t consumed = 0; unsigned long parsed = std::stoul(value,&consumed);
                     require(consumed == value.size() && parsed >= 4 && parsed <= 4096 && parsed % 4 == 0, "count must be a multiple of 4 in [4,4096]"); count = static_cast<W>(parsed);
-                } else throw std::runtime_error("Usage: noid-apple-check [--cpu-only | --metallib FILE | --metal-source FILE] [--benchmark --count 32] [--search-seconds 1..60 --search-batch 1..65536 --threadgroup N] [--worker-seconds 1..900]");
+                } else throw std::runtime_error("Usage: noid-apple-check [--cpu-only | --metallib FILE | --metal-source FILE] [--benchmark --count 32] [--search-seconds 1..60 --search-batch 1..65536 --threadgroup N] [--worker-seconds 1..900] [--cpu-threads 0..8]");
             }
-            require(!cpuOnly || (!searchSeconds && !groupWidth),"search/threadgroup options require Metal");
+            require(!cpuOnly || (!searchSeconds && !groupWidth && !cpuThreads),"search/threadgroup/CPU mining options require Metal");
             cpuSelftest(pmull);
             if(workerSeconds) {
                 require(!cpuOnly && !benchmark && !searchSeconds && library!=nil,"worker requires Metal and no benchmark flag");
                 GPU gpu(library,runtimeSource); gpu.groupWidth=groupWidth; gpuSelftest(gpu,pmull);
-                workerLoop(gpu,pmull,workerSeconds); return 0;
+                workerLoop(gpu,pmull,workerSeconds,cpuThreads); return 0;
             }
             NSMutableDictionary* report = [@{@"scope":@"offline correctness and synthetic benchmark; no pool shares", @"model":sysText("hw.model"),
                 @"chip":sysText("machdep.cpu.brand_string"), @"os":NSProcessInfo.processInfo.operatingSystemVersionString,
@@ -356,23 +461,27 @@ int main(int argc, char** argv) {
                 report[@"threadExecutionWidth"] = @(gpu.searchPipeline.threadExecutionWidth);
                 report[@"maxThreadsPerThreadgroup"] = @(gpu.searchPipeline.maxTotalThreadsPerThreadgroup);
                 report[@"threadgroup"] = @(groupWidth ? groupWidth : gpu.searchPipeline.threadExecutionWidth);
+                report[@"cpuMiningThreads"] = @(cpuThreads);
                 if(searchSeconds) {
                     // A nontrivial target forces the real search path. All candidates
                     // are CPU checked; full digest checks remain outside timing.
                     Digest target={{0,0,0,0},{0,0,0,0x0000ffffu}};
                     Request batch=request; batch.count=searchBatch;
-                    for(unsigned i=0;i<8;++i) {gpu.search(batch,target,256,pmull);batch.nonce=nonceAt(batch.nonce,batch.count);}
-                    double start=seconds(), gpuTime=0; unsigned long long hashes=0, batches=0, candidates=0;
+                    HybridSearch search(gpu,cpuThreads,pmull);
+                    for(unsigned i=0;i<8;++i) {search.search(batch,target,256);batch.nonce=nonceAt(batch.nonce,batch.count);}
+                    double start=seconds(), gpuTime=0; unsigned long long hashes=0, batches=0, candidates=0,cpuHashes=0,gpuHashes=0;
                     while(seconds()-start<searchSeconds) {
                         @autoreleasepool {
-                            candidates+=gpu.search(batch,target,256,pmull).size();gpuTime+=gpu.lastGPUSeconds;
+                            candidates+=search.search(batch,target,256).size();gpuTime+=search.lastGPUSeconds;
+                            cpuHashes+=search.lastCPUCount;gpuHashes+=search.lastGPUCount;
                             hashes+=batch.count;++batches;batch.nonce=nonceAt(batch.nonce,batch.count);
                         }
                     }
                     double wall=seconds()-start;
                     report[@"metalSearch"] = @{@"wallSeconds":@(wall),@"gpuSeconds":@(gpuTime),@"hashes":@(hashes),
                         @"batches":@(batches),@"batch":@(searchBatch),@"cpuCheckedCandidates":@(candidates),
-                        @"hashesPerSecondWall":@(hashes/wall),@"hashesPerSecondGPU":gpuTime>0?@(hashes/gpuTime):[NSNull null],@"warmupBatches":@8};
+                        @"cpuHashes":@(cpuHashes),@"gpuHashes":@(gpuHashes),@"gpuBusyFraction":@(gpuTime/wall),
+                        @"hashesPerSecondWall":@(hashes/wall),@"hashesPerSecondGPU":gpuTime>0?@(gpuHashes/gpuTime):[NSNull null],@"warmupBatches":@8};
                 }
                 if (benchmark) {
                     double start = seconds(); auto output = gpu.hashes(request); double wall = seconds() - start;
