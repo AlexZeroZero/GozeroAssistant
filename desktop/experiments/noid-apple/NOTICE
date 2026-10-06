@@ -1,0 +1,25 @@
+Gozero Apple NOID experiment
+Copyright (C) 2026 Gozero contributors
+
+Consensus parameters, binary-field representation, Poseidon2b permutation,
+PoW domain IV and digest layout are derived from proof-native/parano1d:
+https://github.com/proof-native/parano1d
+Pinned commit: d1a7e8b0816b29029e2066bf9a974253bb4a07c8
+Copyright (C) 2026 Paranoid Zero
+Licensed under Apache License 2.0 (LICENSE-Apache-2.0.txt).
+Upstream describes its hardware field code as ported from hekate-math.
+
+This modified, independent C++/Metal implementation adds 32-bit carryless
+arithmetic, nibble lookup linear transforms, a cached five-permutation prefix,
+candidate-only GPU output and offline validation/build harnesses. It is not an
+upstream release. The Python reference is intentionally bit-serial and uses
+dense matrices to independently check the optimized arithmetic and transforms.
+
+Public pool vectors and protocol documentation:
+https://noid.suprnova.cc/stratum/noid-poseidon2b-vectors.json
+https://noid.suprnova.cc/stratum/stratum-protocol.md
+https://noid.innovlab.cc/
+Pool fixtures are unchanged source data; generated fixtures only normalize the
+header/nonce layout. One upstream flat_mul_samples entry labels square(b) as
+square(a); tests document the discrepancy rather than changing the source.
+No proprietary miner code or binaries are incorporated.

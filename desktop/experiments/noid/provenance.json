@@ -7,7 +7,9 @@
   "changes": "Independent CUDA miner and C# Windows host based on pinned Apache-2.0 consensus parameters. Adds prefix-state caching, linear transforms, native NOID Stratum, failover, TLS verification, per-session nonce allocation and NVML thermal protection. Version 0.2.2 replaces bit-serial field multiplication with interleaved-bit integer products and Karatsuba composition, increases adaptive nonce batches, and adds independent GPU arithmetic differential checks. No proprietary miner code or binaries incorporated.",
   "protocol": "https://noid.suprnova.cc/stratum/stratum-protocol.md",
   "vectors": "https://noid.suprnova.cc/stratum/noid-poseidon2b-vectors.json",
-  "vectorsSha256": "5352e81d6420042b0c9105dd7086086a8b441ed37080a12c1d3878204764354d",
+  "vectorsSha256": "1c118575a53e4822d5eb7844eed58cd02b14414a6fdb86ba89015b126c16f542",
+  "historicalCRLFVectorsSha256": "5352e81d6420042b0c9105dd7086086a8b441ed37080a12c1d3878204764354d",
+  "macBranchNote": "Historical Windows provenance, not Mac capabilities. Vector bytes now use Git canonical LF for portable integrity checks; JSON values are unchanged.",
   "supportsMergedMining": false,
   "supportsPoolMining": true,
   "version": "0.2.2"

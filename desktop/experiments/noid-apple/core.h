@@ -26,8 +26,8 @@ struct Prepared { State prefix; U suffix[5]; };
 struct Digest { U a, b; };
 #include "constants.h"
 
-inline U gx(U a, U b) { return {a.x ^ b.x, a.y ^ b.y, a.z ^ b.z, a.w ^ b.w}; }
-inline W hi(W a, W b) {
+static inline U gx(U a, U b) { return {a.x ^ b.x, a.y ^ b.y, a.z ^ b.z, a.w ^ b.w}; }
+static inline W hi(W a, W b) {
 #ifdef __METAL_VERSION__
     return mulhi(a, b);
 #else
@@ -36,7 +36,7 @@ inline W hi(W a, W b) {
 }
 struct Pair { W lo, hi; };
 // Bit planes prevent integer-product carries crossing the retained parity bits.
-inline Pair cl32(W a, W b) {
+static inline Pair cl32(W a, W b) {
     W av[4] = {a & 0x11111111u, a & 0x22222222u, a & 0x44444444u, a & 0x88888888u};
     W bv[4] = {b & 0x11111111u, b & 0x22222222u, b & 0x44444444u, b & 0x88888888u};
     Pair p = {0, 0};
@@ -51,18 +51,18 @@ inline Pair cl32(W a, W b) {
     }
     return p;
 }
-inline U cl64(W a0, W a1, W b0, W b1) {
+static inline U cl64(W a0, W a1, W b0, W b1) {
     Pair l = cl32(a0, b0), h = cl32(a1, b1), m = cl32(a0 ^ a1, b0 ^ b1);
     return {l.lo, l.hi ^ m.lo ^ l.lo ^ h.lo, h.lo ^ m.hi ^ l.hi ^ h.hi, h.hi};
 }
-inline U reduce(U l, U h) {
+static inline U reduce(U l, U h) {
     W c = (h.w >> 31) ^ (h.w >> 30) ^ (h.w >> 25);
     return {l.x ^ h.x ^ (h.x << 1) ^ (h.x << 2) ^ (h.x << 7) ^ c ^ (c << 1) ^ (c << 2) ^ (c << 7),
             l.y ^ h.y ^ (h.y << 1) ^ (h.y << 2) ^ (h.y << 7) ^ (h.x >> 31) ^ (h.x >> 30) ^ (h.x >> 25),
             l.z ^ h.z ^ (h.z << 1) ^ (h.z << 2) ^ (h.z << 7) ^ (h.y >> 31) ^ (h.y >> 30) ^ (h.y >> 25),
             l.w ^ h.w ^ (h.w << 1) ^ (h.w << 2) ^ (h.w << 7) ^ (h.z >> 31) ^ (h.z >> 30) ^ (h.z >> 25)};
 }
-inline U gm(U a, U b) {
+static inline U gm(U a, U b) {
 #ifdef GZ_PMULL
     unsigned long long a0 = a.x | (static_cast<unsigned long long>(a.y) << 32);
     unsigned long long a1 = a.z | (static_cast<unsigned long long>(a.w) << 32);
@@ -79,17 +79,17 @@ inline U gm(U a, U b) {
     return reduce({l.x,l.y,l.z ^ m.x,l.w ^ m.y},{h.x ^ m.z,h.y ^ m.w,h.z,h.w});
 #endif
 }
-inline W spread16(W x) {
+static inline W spread16(W x) {
     x &= 65535; x = (x | (x << 8)) & 0x00ff00ffu;
     x = (x | (x << 4)) & 0x0f0f0f0fu;
     x = (x | (x << 2)) & 0x33333333u;
     return (x | (x << 1)) & 0x55555555u;
 }
-inline U square(U a) {
+static inline U square(U a) {
     return reduce({spread16(a.x),spread16(a.x >> 16),spread16(a.y),spread16(a.y >> 16)},
                   {spread16(a.z),spread16(a.z >> 16),spread16(a.w),spread16(a.w >> 16)});
 }
-inline U linear(U a, W index) {
+static inline U linear(U a, W index) {
 #ifdef GZ_PMULL
     return gm(a, MDS_COEFFICIENTS[index]);
 #else
@@ -99,13 +99,13 @@ inline U linear(U a, W index) {
     return result;
 #endif
 }
-inline U basis(U a, GZ_TABLE U* table) {
+static inline U basis(U a, GZ_TABLE U* table) {
     U result = {0,0,0,0}; W words[4] = {a.x,a.y,a.z,a.w};
     for (W j = 0; j < 4; ++j)
         for (W i = 0; i < 32; ++i) if ((words[j] >> i) & 1) result = gx(result,table[j * 32 + i]);
     return result;
 }
-inline void mix(GZ_THREAD State& s, bool full) {
+static inline void mix(GZ_THREAD State& s, bool full) {
     if (!full) {
         U sum = gx(gx(s.v[0],s.v[1]),gx(s.v[2],s.v[3]));
         for (W i = 0; i < 4; ++i) s.v[i] = gx(sum,linear(s.v[i],i + 2));
@@ -119,8 +119,8 @@ inline void mix(GZ_THREAD State& s, bool full) {
     s.v[2] = gx(gx(a,gx(b2,b)),gx(gx(c4,c),gx(gx(d4,d2),d)));
     s.v[3] = gx(gx(a,b),gx(c4,gx(d4,d2)));
 }
-inline U sbox(U x) { U x2 = square(x); return gm(gm(x,x2),square(x2)); }
-inline void permute(GZ_THREAD State& s) {
+static inline U sbox(U x) { U x2 = square(x); return gm(gm(x,x2),square(x2)); }
+static inline void permute(GZ_THREAD State& s) {
     mix(s,true);
     for (W r = 0; r < 66; ++r) {
         bool full = r < 4 || r >= 62;
@@ -128,7 +128,7 @@ inline void permute(GZ_THREAD State& s) {
         mix(s,full);
     }
 }
-inline Prepared prepare(GZ_THREAD const U* header) {
+static inline Prepared prepare(GZ_THREAD const U* header) {
     Prepared p; p.prefix = {{{0,0,0,0},{0,0,0,0},IV[0],IV[1]}};
     for (W i = 0; i < 10; i += 2) {
         p.prefix.v[0] = gx(p.prefix.v[0],basis(header[i],T2F));
@@ -138,13 +138,13 @@ inline Prepared prepare(GZ_THREAD const U* header) {
     for (W i = 0; i < 5; ++i) p.suffix[i] = basis(header[i+11],T2F);
     return p;
 }
-inline Digest hashPrepared(GZ_THREAD const Prepared& p, U nonce) {
+static inline Digest hashPrepared(GZ_THREAD const Prepared& p, U nonce) {
     State s = p.prefix;
     s.v[0] = gx(s.v[0],basis(nonce,T2F)); s.v[1] = gx(s.v[1],p.suffix[0]); permute(s);
     for (W i = 1; i < 5; i += 2) { s.v[0] = gx(s.v[0],p.suffix[i]); s.v[1] = gx(s.v[1],p.suffix[i+1]); permute(s); }
     return {basis(s.v[0],F2T),basis(s.v[1],F2T)};
 }
-inline bool below(Digest d, Digest target) {
+static inline bool below(Digest d, Digest target) {
     W a[8] = {d.a.x,d.a.y,d.a.z,d.a.w,d.b.x,d.b.y,d.b.z,d.b.w};
     W b[8] = {target.a.x,target.a.y,target.a.z,target.a.w,target.b.x,target.b.y,target.b.z,target.b.w};
     for (int i = 7; i >= 0; --i) if (a[i] != b[i]) return a[i] < b[i];

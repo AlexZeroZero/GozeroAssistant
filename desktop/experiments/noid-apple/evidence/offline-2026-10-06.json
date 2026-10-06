@@ -1,0 +1,55 @@
+{
+  "recordedAtUTC": "2026-10-06T04:54:29.747747+00:00",
+  "compiler": "Android (12470979, based on r522817c) clang version 18.0.3 (https://android.googlesource.com/toolchain/llvm-project d8003a456d14a3deb8054cdaa529ffbf02d9b262)",
+  "native": {
+    "platform": "Windows-11-10.0.26100-SP0",
+    "machine": "AMD64",
+    "python": "3.12.10",
+    "librarySha256": "32afaba61a2e941207d46e7be16b74c831be932ac119a4646e4b9481ab35be90",
+    "tests": 10,
+    "passed": true,
+    "elapsedSeconds": 6.9060000000172295,
+    "failures": [],
+    "scope": "Native library differential tests only; no Metal execution or accepted pool shares",
+    "sourceSha256": {
+      "core.h": "2b5f7cce1ac1822f72e22f288ffad9e70802e23595a59d3198280dec4e9faa13",
+      "constants.h": "7f364e85481c4b43efe72f1b760359fee15da14d423d8a145f48a06ba387ff3b",
+      "test_bridge.cpp": "83314540eda0a88b762c32d2193ed458571ae1030bc797dc34816d81bac759ce",
+      "cpu_batch.h": "630f6ba55aa61acdbb1fad6ad0b98f0d62d051c72f4cc07b14e097cfcea370f7",
+      "dispatch.h": "19ccb05c552a38e63150eb7023a1a50e0c94431c42617e60e4e1e179b7ab60e3",
+      "test_core.py": "f3f00156d2498b74c02244d2d0455e33853505443b3e1b4fa3ead4e8d43ce58a"
+    }
+  },
+  "referenceTests": 8,
+  "poolStateTests": "passed; offline simulated messages only",
+  "arm64CrossCompile": {
+    "objects": [
+      "test_bridge",
+      "pmull_backend"
+    ],
+    "pmullAssemblyInstructions": 27,
+    "macOSLinking": false,
+    "executed": false
+  },
+  "macOSHostCompiled": false,
+  "metalCompiled": false,
+  "metalExecuted": false,
+  "acceptedPoolShares": false,
+  "sourceSha256": {
+    "build_mac.py": "a3952aa9315a50aab14aaa3a7d774482e5bd42c5005e924d556c24d967e41bc6",
+    "constants.h": "7f364e85481c4b43efe72f1b760359fee15da14d423d8a145f48a06ba387ff3b",
+    "core.h": "2b5f7cce1ac1822f72e22f288ffad9e70802e23595a59d3198280dec4e9faa13",
+    "cpu_batch.h": "630f6ba55aa61acdbb1fad6ad0b98f0d62d051c72f4cc07b14e097cfcea370f7",
+    "dispatch.h": "19ccb05c552a38e63150eb7023a1a50e0c94431c42617e60e4e1e179b7ab60e3",
+    "fixtures.h": "a0a2722c60a4b6caac2c0c8b7fe07e880ae27c9abc8b30127b60b511ecf3f388",
+    "generate.py": "a647dcac416315279ac6cedcf6d2a6b95fcb9c082079983eedef87819004d789",
+    "kernel.metal": "0c0874636fe3775417e95eb9c3092914145326abbcb44433bf32f34fc2585fee",
+    "mac_host.mm": "e4bdc3b06ca0555d7e432707db77c08c395b0ffc417712b810bc5965425e8ae3",
+    "pmull_backend.cpp": "8cf684c40e21e2d293f9eca3a05e5c7098fe62b0adb81ea983148e6709cdf969",
+    "pool_session.cjs": "b68742595fa54dce88810414c9d99c411ed9b85125f7603331fcec7939d414e9",
+    "test_bridge.cpp": "83314540eda0a88b762c32d2193ed458571ae1030bc797dc34816d81bac759ce",
+    "test_core.py": "f3f00156d2498b74c02244d2d0455e33853505443b3e1b4fa3ead4e8d43ce58a",
+    "test_pool_session.cjs": "295bb200aa00cdfa0e7915eb1f3efcd4f9cf05f2c5d85a2462f6ece9d1ea3360",
+    "validate_windows.py": "7d8d9c9fd995ccd9b419c7e1e7ff9d440ae145d27eefe603d6e0caa5a1e9035b"
+  }
+}

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Freestanding ABI for independent Python tests, never connects to a pool.
 #include "core.h"
+#include "cpu_batch.h"
+#include "dispatch.h"
 #ifdef _WIN32
 #define EXPORT extern "C" __declspec(dllexport)
 #else
@@ -13,3 +15,6 @@ EXPORT void gz_permute(State* state) { permute(*state); }
 EXPORT void gz_hash(const U* header,Digest* out) { Prepared p = prepare(header); *out = hashPrepared(p,header[10]); }
 EXPORT void gz_cached(const U* header,const U* nonce,Digest* out) { Prepared p = prepare(header); *out = hashPrepared(p,*nonce); }
 EXPORT int gz_below(const Digest* digest,const Digest* target) { return below(*digest,*target); }
+EXPORT void gz_cached4(const U* header,const U* nonces,Digest* out) { Prepared p = prepare(header); hashPrepared4(p,nonces,out); }
+EXPORT int gz_range(const U* nonce,W count) { return validRange(*nonce,count); }
+EXPORT void gz_nonce(const U* nonce,W index,U* out) { *out = nonceAt(*nonce,index); }

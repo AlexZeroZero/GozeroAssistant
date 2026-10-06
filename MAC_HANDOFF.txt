@@ -155,3 +155,25 @@ PRODUCT CONTEXT NEEDED FOR MAC ONLY
   modified fee logic. Current NOID service wallet is already in product source.
 - Do not copy operator test wallets or historical server passwords into this
   handoff or public fixtures. Use explicitly designated public test vectors.
+
+MAC BRANCH CHECKPOINT — 2026-10-06 (supersedes initial draft status above)
+- Continued only in this isolated checkout; no production UI/miner changes.
+- desktop/experiments/noid-apple/README.md and STATUS.txt now describe current
+  scope, exact reproduction commands and outstanding acceptance gates.
+- Added NOTICE, Mac-specific provenance and deterministic generated constants
+  and six hash fixtures. Fixed cross-platform fixture integrity by pinning Git
+  canonical LF bytes; original CRLF vector hash is retained as historical data.
+- Eight Python reference tests, ten compiled portable C++ differential groups,
+  and fourteen offline pool-state tests pass. Evidence with source hashes is
+  saved at noid-apple/evidence/offline-2026-10-06.json.
+- Added four-state interleaving, shared C++/Metal dispatch ABI/range guards and
+  verified nonce carry/overflow behavior. Separate PMULL code cross-compiles
+  into ARM64 Mach-O objects with PMULL instructions present. No ARM execution.
+- Prepared build_mac.py, runtime-gated PMULL backend and Objective-C++ host
+  selftest/JSON benchmark. These Apple SDK / Metal builds remain UNVERIFIED.
+- pool_session.cjs is an offline protocol state model only. Covers immediate
+  pause cancellation, authorization, clean/new jobs, expiry, namespace, bounded
+  frames, overflow retries, CPU verification and a final pre-send gate. No live
+  transport/scheduler exists, and no accepted shares or Apple rates are claimed.
+- Next requires real Mac compilation/Metal validation, measured tuning, live
+  pool integration/acceptance, then Gozero macOS app adapters and packaging.

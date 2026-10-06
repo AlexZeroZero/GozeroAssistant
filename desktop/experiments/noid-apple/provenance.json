@@ -1,0 +1,18 @@
+{
+  "status": "experimental-offline-validation-no-macos-runtime-evidence",
+  "upstream": "https://github.com/proof-native/parano1d",
+  "commit": "d1a7e8b0816b29029e2066bf9a974253bb4a07c8",
+  "license": "Apache-2.0",
+  "referenceDirectory": "../noid",
+  "constantsSha256": "c21f52c480690972d35652d16e7223f7be4fcee109648a925ee41eee1ae8baf5",
+  "vectorsSha256": "1c118575a53e4822d5eb7844eed58cd02b14414a6fdb86ba89015b126c16f542",
+  "byteConvention": "Git canonical LF; .gitattributes prevents Windows CRLF conversion of reference and generated files",
+  "handoffCRLFVectorsSha256": "5352e81d6420042b0c9105dd7086086a8b441ed37080a12c1d3878204764354d",
+  "vectors": "https://noid.suprnova.cc/stratum/noid-poseidon2b-vectors.json",
+  "protocol": "https://noid.suprnova.cc/stratum/stratum-protocol.md",
+  "target": "macOS arm64 Apple M-series base/Pro/Max/Ultra, subject to runtime capability and real-device validation",
+  "supportsPoolMining": false,
+  "macOSBuildVerified": false,
+  "metalExecutionVerified": false,
+  "acceptedPoolSharesVerified": false
+}
