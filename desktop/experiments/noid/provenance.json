@@ -1,0 +1,14 @@
+{
+  "status": "native-pool-miner-beta",
+  "upstream": "https://github.com/proof-native/parano1d",
+  "commit": "d1a7e8b0816b29029e2066bf9a974253bb4a07c8",
+  "license": "Apache-2.0",
+  "copyright": "Copyright (C) 2026 Paranoid Zero. Hardware field code ported from hekate-math.",
+  "changes": "Independent CUDA miner and C# Windows host based on pinned Apache-2.0 consensus parameters. Adds prefix-state caching, linear transforms, native NOID Stratum, failover, TLS verification, per-session nonce allocation and NVML thermal protection. Version 0.2.2 replaces bit-serial field multiplication with interleaved-bit integer products and Karatsuba composition, increases adaptive nonce batches, and adds independent GPU arithmetic differential checks. No proprietary miner code or binaries incorporated.",
+  "protocol": "https://noid.suprnova.cc/stratum/stratum-protocol.md",
+  "vectors": "https://noid.suprnova.cc/stratum/noid-poseidon2b-vectors.json",
+  "vectorsSha256": "5352e81d6420042b0c9105dd7086086a8b441ed37080a12c1d3878204764354d",
+  "supportsMergedMining": false,
+  "supportsPoolMining": true,
+  "version": "0.2.2"
+}

@@ -1,0 +1,8 @@
+Experimental Apple Silicon NOID source draft, 2026-10-06.
+
+Not compiled, tested or benchmarked. Not a distributable mining executable.
+See root MAC_HANDOFF.txt for source provenance, known gaps and next checks.
+Generate constants before compiling. A macOS host and pool adapter still need
+implementation. A real Mac is needed for Metal verification and performance.
+
+Keep this experiment separate from the released Windows miner choices.

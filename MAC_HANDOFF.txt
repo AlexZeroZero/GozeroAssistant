@@ -1,0 +1,157 @@
+Gozero助手 macOS / Apple Silicon — project handoff
+Saved: 2026-10-06, Asia/Shanghai
+
+ISOLATION
+Checkout: D:/网格化指数系统/gozero-macos
+Branch: codex/macos-apple-silicon
+Base: a7497b8524018535bdbde7f956135a3be9089c4c
+Repository: https://github.com/AlexZeroZero/GozeroAssistant
+Windows baseline: Beta 1.02 / build 1.0.11.
+The branch is local. Nothing from this Mac work has been published or released.
+The original chat keeps all its history. This handoff selects the Mac segment;
+it does not claim that historical messages have been moved or deleted.
+
+USER REQUESTS FROM THE REQUESTED CONVERSATION BOUNDARY (in order)
+1. “能否编译一个苹果M系列芯片的 NOID挖矿核心锄头、然后制作一版本MAC M芯片版本的 Gozero助手呢”
+2. Asked which Mac/model would be available for compiling/testing; user answered:
+   “全系M芯片都支持”. This defines the target and does not provide a test Mac.
+3. “我认为有必要参考 https://noid.innovlab.cc/ 和另外几个矿池的核心锄头、参照算法来写优化一个苹果 M系列芯片的挖矿锄头”
+4. “请将这个MAC版本的GOzero助手 单独开一个项目分支、以免后面任务忘记、另外本窗口的 从能否编译一个苹果M系列芯片的 NOID挖矿核心锄头、然后制作一版本MAC M芯片版本的 Gozero助手呢 这段开始建立分支、之前的任务记录保留在这个窗口”
+
+CURRENT STATUS — DO NOT OVERSTATE
+- Research is partially complete. No Mac was provided; current host is Windows.
+- Four uncompiled prototype files were written immediately before the branch
+  request: core.h, kernel.metal, generate.py, test_bridge.cpp under
+  desktop/experiments/noid-apple. No tests have run against them yet.
+- constants.h / fixtures.json have NOT been generated. No Mac host program,
+  pool transport, packaging, app hardware port or full miner exists for Mac yet.
+- core.h draft: GF(2^128), 32-bit word GPU path, ARM64 PMULL CPU path,
+  bit-interleaved carryless multiply, dedicated square, sparse MDS transforms,
+  cached first five nonce-independent sponge permutations (three remain per
+  candidate), strict little-endian target comparison.
+- kernel.metal draft: batched digest kernel and candidate-only search kernel;
+  counter low64, namespace high64. Host must reject low64 counter overflow,
+  reset result counters, handle output overflow by splitting/retrying, validate
+  found candidates on CPU and discard cancelled/expired job results.
+- The PMULL draft has not implemented upstream's four-state interleaving yet.
+  No Metal compile/benchmark, correctness or performance claims are warranted.
+- Old Windows self miner was removed from the product because user measured
+  about 10 MH/s versus about 70 MH/s with a third-party miner on RTX 3090.
+  Do not reintroduce it into the Windows product or promise Apple parity.
+
+RESEARCH / SOURCES (fetched 2026-10-06)
+1. Innovlab https://noid.innovlab.cc/
+   Its /app.js?v=0.1.94-gb-recommended contains endpoint/protocol documentation.
+   Local snapshot: .local/noid-mac-research/innovlab_js.txt (ignored by Git).
+   Recommends INVminer, GB Parano1d Miner and Fl4shMiner.
+   NOID endpoints: eu2.innovlab.cc, eu.innovlab.cc, hk2.innovlab.cc,
+   hk.innovlab.cc, us.innovlab.cc, us2.innovlab.cc, ru.innovlab.cc,
+   stratum.innovlab.cc; TLS port 19601. These are documented endpoints;
+   connection and accepted-share tests have NOT been performed for Mac.
+   Stratum: newline JSON; 4 MiB hard line limit; subscribe -> authorize ->
+   notify -> submit. mining.pause requires immediate work cancellation until
+   new notify. Complete handshake within 60 seconds; fully silent sessions may
+   close after 600 seconds. Bounded reconnect/backoff required.
+   Notify uses object in params[0], nonce_field_index 10, nonce_bits 64,
+   256-byte pow_fields_hex, 32-byte LE targets, namespace verbatim in nonce
+   high 8 bytes; submit [job_id, nonce_32hex, work_domain_id].
+   Optional miner.stats reports display rate, not evidence of accepted work.
+
+2. INVminer https://github.com/getrigeos/INVminer-Release
+   Latest observed v0.1.85; binary-only per release description; no source
+   offered for independent rebuild. Linux x86_64 CUDA12/13 assets; no Mac.
+   NOID CPU mode --cpu-only; NOID fee 1%, QUAN fee 2% (upstream statements).
+
+3. GB Miner https://github.com/gustlborg/gb-parano1d-miner
+   Latest observed v2.17.9. Repo tree has README.md and LICENSE only.
+   Proprietary, binary-only; Windows/Linux/HiveOS CUDA. No Mac asset.
+   Public docs mention per-GPU-architecture kernels, tuning for hash/W,
+   failover and restoring user settings. Their speed claims are not verified.
+   Documents Innovlab/Suprnova Stratum and parano1d/ariabrain HTTP pools;
+   the HTTP pool endpoints have not yet been verified. Do not guess them.
+   Research used public README/license, not analysis of their binary.
+
+4. Suprnova https://noid.suprnova.cc/StartMining
+   Recommends Suprminer v1.9.27 and Fl4shMiner v1.5.0 (versions checked).
+   Observed Windows/Linux assets, no macOS versions.
+   Protocol https://noid.suprnova.cc/stratum/stratum-protocol.md
+   Vectors https://noid.suprnova.cc/stratum/noid-poseidon2b-vectors.json
+   EU noid.suprnova.cc; APAC stratum-apac.suprnova.cc;
+   US stratum-us.suprnova.cc; EU2 stratum-eu2.suprnova.cc.
+   TCP3337 / TLS3341. Same named parano1d-stratum-v1 protocol. Treat each pool's
+   optional lifecycle and timeout rules separately, test both adapters.
+   Do not disable certificate checks or silently assume TLS/TCP equivalence.
+
+5. Reusable public consensus implementation
+   https://github.com/proof-native/parano1d
+   Apache-2.0, Copyright (C) 2026 Paranoid Zero.
+   Main commit verified: d1a7e8b0816b29029e2066bf9a974253bb4a07c8
+   noid_poseidon2b/src/batch_aarch64.rs is the key Apple CPU reference:
+   NEON/PMULL, four interleaved independent permutations, aes target feature.
+   batch.rs dispatches by noid_core::cpu::pmull_available().
+   noid_core::hardware::clmul_gcm_pmull supplies field multiplication.
+   Other paths: noid_chain/src/consensus/pow.rs; noid_miner/src/pow.rs;
+   noid_poseidon2b/src/native/{permutation,compression,digest,domain}.rs;
+   bench_prover/benches/{poseidon2b_kernel,poseidon_pow_mining}.rs.
+   No public Metal backend found in inspected tree. ARM CPU implementation
+   does not imply an Apple GPU miner or a ready-made pool client.
+
+REFERENCE FIXTURES
+Copied minimal old experiment reference files into desktop/experiments/noid:
+reference.py, test_reference.py, constants.json, pool-vectors.json,
+provenance.json, LICENSE-Apache-2.0.txt.
+These are INPUTS for the Mac experiment. provenance.json describes the OLD
+Windows experiment; do not treat its native-pool-miner-beta status as Mac status.
+Pinned vector bytes SHA256:
+5352e81d6420042b0c9105dd7086086a8b441ed37080a12c1d3878204764354d
+Fresh fetched pool vector bytes SHA256:
+1c118575a53e4822d5eb7844eed58cd02b14414a6fdb86ba89015b126c16f542
+JSON compared semantically equal; whitespace change, not algorithm change.
+Existing reference test notes pool vector #2 labels square(a), but supplied
+value equals square(b). Preserve upstream fixture and document this discrepancy.
+
+NEXT WORK
+1. Generate constants and add complete Apache license/NOTICE and Mac-specific
+   provenance. Validate draft against all pool/mainnet vectors and randomized
+   independent Python reference; validate multiply, square, basis, cached
+   headers, namespace, strict target, overflow/cancellation behavior.
+2. CPU backend: PMULL, four-state interleaving, bounded worker count/runtime
+   capabilities; benchmark against official ARM path. Metal backend: 32-bit
+   lane arithmetic, limited registers/table costs, shared buffers, adaptive
+   dispatch, candidate-only output and asynchronous completion. Measure before
+   deciding which candidate is actually faster. No fabricated speed estimates.
+3. Create macOS ARM64 host/selftest/benchmark with JSON output, record model,
+   GPU family, OS, build, workload, wall/GPU time, energy when observable.
+   Test vector gate precedes mining. CPU must recheck GPU-found candidates.
+4. Implement pool sessions; mine only current authorized jobs; correct pause,
+   clean, expiry, reconnect and nonce namespace. Test accepted shares and
+   pool-side effective hashrate over meaningful duration, not UI counters alone.
+5. Port Electron assistant hardware discovery/process management/tray/mini
+   window/native kernel installation and ARM64 packaging. Current Windows-only
+   paths include desktop/src/hardware.cjs, miner.cjs and scripts/package.py.
+   Public macOS APIs may not expose temperature/clocks/power on every model;
+   show unavailable rather than inventing a measurement. Apple Silicon unified
+   memory GPU differs from Windows NVIDIA PCI/VRAM assumptions.
+6. A Mac/Xcode SDK and real M-series hardware are needed for Metal compilation,
+   execution, accepted-share/performance validation and eventual .app/.dmg.
+   ARM64 CI can help with builds; it does not by itself validate GPU mining.
+7. No publishing/replacing Windows release or automatic production activation
+   is authorized by the current request to split the project.
+
+LOCAL TOOLING
+No clang/g++ on PATH, but an existing Clang 18 was located (not used yet):
+C:/Program Files/Unity/Hub/Editor/6000.3.23f1/Editor/Data/PlaybackEngines/AndroidPlayer/NDK/toolchains/llvm/prebuilt/windows-x86_64/bin/clang++.exe
+ld.lld.exe is alongside it. Could test freestanding arithmetic DLL on Windows
+and compile ARM64 object for syntax checking. Neither is a Metal/Mac runtime.
+Python urllib works; bs4 absent. Optional research proxy on this host is
+http://127.0.0.1:7897. Do not place credentials in code, logs or public commits.
+
+PRODUCT CONTEXT NEEDED FOR MAC ONLY
+- Gozero助手 is a compact mining UI with dashboard, pool/engine selection,
+  device telemetry, mini floating window/tray, fees and multilingual text.
+- Keep existing Windows behavior out of Mac changes; add platform adapters.
+- Existing 0.5% service fee disclosure and logic remain part of product;
+  do not claim on-chain fee payouts have been validated. This task has not
+  modified fee logic. Current NOID service wallet is already in product source.
+- Do not copy operator test wallets or historical server passwords into this
+  handoff or public fixtures. Use explicitly designated public test vectors.
