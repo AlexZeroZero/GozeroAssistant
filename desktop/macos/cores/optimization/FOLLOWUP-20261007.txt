@@ -1,0 +1,71 @@
+Sustained PRL pipeline and cache reuse investigation (2026-10-07)
+
+No candidate was adopted. Desktop 0.1.9 and its production core are unchanged.
+One base Apple M3 MacBook Air, 16 GB, AC power; other apps remained open.
+QTC was not changed or retested in this pass. Earlier QTC arithmetic experiments
+and their negative results are recorded in FOLLOWUP-20261006.txt.
+
+The tests continuously refill each completed lane, as the real pool runtime
+does. Earlier 0.1.9 release comparisons drained both lanes before refilling;
+their absolute rates must not be compared directly with these. Hard-target
+offline jobs exercise preparation, dispatch, scanning and release, without
+pool traffic or expected proofs. Full-pipeline rates include complete wall
+time and drain the last jobs before ending each sample.
+
+Continuous pipeline screening: eight forward/reverse rounds after 60s warmup,
+3s per sample, K4096. Baseline is 4096-square, two slots, intensity100.
+Candidate                         Paired mean change   Positive pairs
+Three slots                            +0.55%               4/8
+Intensity90                           -17.34%               0/8
+Intensity80                           -27.80%               0/8
+2048-square, three slots                -2.15%               0/8
+Baseline median: 2.714 TOPS. GPU command interval coverage median: 99.12%.
+Coverage is NOT ALU utilization. Short reduced-duty tests do not answer whether
+much longer low-intensity operation could improve thermal equilibrium.
+
+CPU preparation: fresh B generation and commitment use AES-128-CTR, keyed
+BLAKE3 and Rayon. Each worker-count setting ran in a separate persistent
+process; only one was actively tested on the GPU at a time. Shape4096-square,
+two slots, intensity100. The actual native default thread count was not read.
+Eight short paired rounds: 4 workers +0.64%, 2 workers -0.35%, 1 worker -2.43%.
+One worker reduced CPU seconds per operation, meriting a longer check.
+Longer check: four alternating default/one-worker pairs, 40s per sample,
+320s total after 20s warmup. One worker lost all four pairs: mean -5.32%,
+median -2.04%, range -16.01% to -1.20%. Aggregate wall rates: 2.234 -> 2.109
+TOPS. CPU seconds per tera-operation fell by paired mean 58.37%; preparation
+median increased from 12.58ms to 17.87ms. Reduced CPU time is not a power
+measurement and did not produce a hashrate gain. Keep the existing default.
+
+Matrix aspect ratio: equal work per job, K4096, two slots, eight paired rounds
+after 20s warmup; 4s per sample. Relative to 4096x4096, 8192x2048 averaged
++2.02% but won only 4/8 pairs (range -5.69% to +10.24%). 2048x8192 averaged
+-0.30%, winning 3/8 pairs. Absolute rate drift was substantial. No repeatable
+advantage established; neither shape was promoted to production/proof testing.
+
+K3 shader experiment: grouped tile traversal to improve cache reuse. Matrix
+arithmetic, rank folding, transcript and bounds were untouched. Four variants
+grouped 2/4/8/16 tile rows. Each mapping was enumerated over 99 grid dimensions
+to check bijection and range, including partial groups. Baseline and all four
+variants each passed 93 oracle cases across three existing vector sets
+(465 total), including limit values and overflow checks. These are isolated
+shader checks, not replacement production admission or external acceptance.
+Thirty alternating timing rounds at 4096-square gave paired mean changes:
+group2 +0.098%, group4 +0.052%, group8 +0.146%, group16 -0.190%.
+All median kernel rates were approximately 3.00 TOPS; this is GPU-only timing
+on fixed buffers. No useful additional gain to promote to a release.
+
+Interpretation: more queued jobs or more active CPU cores are not sufficient
+to increase throughput. The existing continuous pipeline already leaves very
+few gaps between GPU commands. That does not prove the kernel is optimal.
+The current evidence cannot separate GPU frequency/power management, memory
+contention and background load; thermal state alone cannot identify the cause.
+There is no new measured pool-side hashrate or external PRL accepted share.
+
+Raw samples, warmups, exact methodology, hashes and restoration status:
+evidence/m3-sustained-pipeline-research.json. Private scripts, generated shaders
+and full logs: .local/m-series-sustain and the remote session's same-named folder.
+An initial stream harness formatting error was fixed and the test rerun fully;
+it did not affect production code. All research workers are now stopped.
+The installed 0.1.9 signature was verified and the desktop app reopened idle.
+Settings, fees, proof/admission guards, continuous mining, packages, GitHub,
+retained README and the separate Windows checkout remain unchanged.

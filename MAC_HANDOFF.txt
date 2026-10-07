@@ -840,3 +840,34 @@ POST-0.1.9 FOLLOW-UP RESEARCH - 2026-10-06
 - Public FOLLOWUP-20261006.txt and evidence/m3-followup-research.json retain
   measurements/limits. No release, package or README changes. Research tools
   stopped; original signed 0.1.9 desktop app verified and reopened idle.
+
+
+SUSTAINED PIPELINE / CACHE REUSE RESEARCH - 2026-10-07
+- User requested continued hashrate research. No new candidate adopted; installed
+  0.1.9 and all production source/binaries remain unchanged. QTC not retested.
+- PRL uses continuous per-lane refill in these tests, matching pool_runtime.
+  Previous release benchmark used waves; do not compare absolute rates across
+  methods. All new pipeline samples use hard target, no pool/expected proofs.
+- After warmup, eight alternating short rounds: three slots +0.55% paired mean
+  (4/8 positive); intensity90 -17.34%; intensity80 -27.80%; small/three slots
+  -2.15%. Baseline GPU command interval coverage ~99.12%, NOT ALU utilization.
+- Rayon worker screen: 4/2/1 workers +0.64%/-0.35%/-2.43%. One worker reduced
+  CPU work, so extended to four 40s default/one-worker pairs (320s timed).
+  All four pairs slower: mean -5.32%, median -2.04%. CPU seconds per operation
+  down58.37%, not a watt measurement. Keep default; actual default worker count
+  was not instrumented. Preparation is overlapped with GPU execution.
+- Equal-work matrix aspect ratios: 8192x2048 +2.02% but only4/8 positive;
+  2048x8192 -0.30%, 3/8 positive. Large drift; no stable gain established.
+- New isolated K3 grouped tile traversal variants (row groups2/4/8/16) each
+  passed93 oracle cases; baseline also93 (465 total). Bijection enumeration
+  checked99 grid shapes each. Thirty alternating timing rounds per variant:
+  paired means +0.098%/+0.052%/+0.146%/-0.190%. No useful gain adopted; these
+  shader-only checks do not replace G3 admission, proof or pool verification.
+- AC power, other apps open, coarse thermalState mostly fair; no clock/watt/
+  temperature counters. No new external PRL acceptance or pool-side rate.
+- Public: optimization/FOLLOWUP-20261007.txt and evidence/
+  m3-sustained-pipeline-research.json (104 pipeline samples, 150 K3 timings).
+  Private scripts/logs/shaders: .local/m-series-sustain and remote same folder.
+  Initial stream harness duplicate-key reporting failure was fixed and rerun;
+  production untouched. All research processes stopped. Signed desktop0.1.9
+  verified and reopened idle. Settings/fees/README/packages/GitHub untouched.
