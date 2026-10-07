@@ -1,0 +1,93 @@
+{
+  "version": "0.1.9",
+  "releaseId": 404660109,
+  "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/mac-v0.1.2",
+  "sourceTag": "mac-v0.1.9",
+  "sourceCommit": "9ce217693aaea0ea0e4357c3d1091d37a410e636",
+  "formalRelease": true,
+  "releaseBodyAndURLPreserved": true,
+  "readmeAndUserScreenshotsPreserved": true,
+  "otherReleasesAndWindowsMainUnchanged": true,
+  "assets": {
+    "BUILD-MANIFEST.json": {
+      "sha256": "sha256:bc6db809e0bc0859ba37df5db1d2432da0b1b35f3547f344c7273110356c524a",
+      "bytes": 3237190,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/BUILD-MANIFEST.json"
+    },
+    "CURRENT-VERSION.txt": {
+      "sha256": "sha256:4090f8fe9606e28d415ca675c5f7fc41bf61c4a4e8bff271560df32501e20e2e",
+      "bytes": 3033,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/CURRENT-VERSION.txt"
+    },
+    "Gozero-Assistant-Mac-0.1.2-arm64.zip": {
+      "sha256": "sha256:434e885fae50e995e8f5c62f769f75bc52de0d96806b39286b2abaa6dbe69c29",
+      "bytes": 471247875,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Assistant-Mac-0.1.2-arm64.zip"
+    },
+    "Gozero-Assistant-Mac-0.1.6-arm64.dmg": {
+      "sha256": "sha256:bb31bc7275cfd6a0e8ecbc21b08f3c0a17bee47b03e4bc71a9702006e6a86653",
+      "bytes": 584656303,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Assistant-Mac-0.1.6-arm64.dmg"
+    },
+    "Gozero-Assistant-Mac-0.1.9-arm64.dmg": {
+      "sha256": "sha256:bb31bc7275cfd6a0e8ecbc21b08f3c0a17bee47b03e4bc71a9702006e6a86653",
+      "bytes": 584656303,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Assistant-Mac-0.1.9-arm64.dmg"
+    },
+    "README-MAC.txt": {
+      "sha256": "sha256:b32ec664b0d0596241ddd2cb7384e59614f87502665a4af492eec372a9d6f7d4",
+      "bytes": 2309,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/README-MAC.txt"
+    },
+    "SHA256SUMS.txt": {
+      "sha256": "sha256:126e7ae409cd3c7f4a2100853e0290aca766a36b2a9af20bb3e371951482c05b",
+      "bytes": 815,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/SHA256SUMS.txt"
+    },
+    "user-logs.jpg": {
+      "sha256": "sha256:1442a797b348054c320bbc3f7be4ad8f440060be77ab3b805b3e2001e15459ab",
+      "bytes": 274265,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/user-logs.jpg"
+    },
+    "user-mining.jpg": {
+      "sha256": "sha256:45bb1f95526f9562d1997ddddd7186b3f06041fc1a4ffc8977b0863106490a63",
+      "bytes": 132442,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/user-mining.jpg"
+    },
+    "VALIDATION.json": {
+      "sha256": "sha256:1030f87673c81844b6e6e82fd6a2ec2c25ae4c62c803bf37996ffe8dcb9f90b2",
+      "bytes": 3170,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/VALIDATION.json"
+    }
+  },
+  "publicDownloadChecks": [
+    {
+      "name": "Gozero-Assistant-Mac-0.1.9-arm64.dmg",
+      "bytes": 584656303,
+      "sha256": "bb31bc7275cfd6a0e8ecbc21b08f3c0a17bee47b03e4bc71a9702006e6a86653",
+      "publicDownloadVerified": true,
+      "seconds": 37.59
+    },
+    {
+      "name": "Gozero-Assistant-Mac-0.1.2-arm64.zip",
+      "bytes": 471247875,
+      "sha256": "434e885fae50e995e8f5c62f769f75bc52de0d96806b39286b2abaa6dbe69c29",
+      "publicDownloadVerified": true,
+      "seconds": 33.27
+    },
+    {
+      "name": "CURRENT-VERSION.txt",
+      "bytes": 3033,
+      "sha256": "4090f8fe9606e28d415ca675c5f7fc41bf61c4a4e8bff271560df32501e20e2e",
+      "publicDownloadVerified": true,
+      "seconds": 1.2
+    },
+    {
+      "name": "README-MAC.txt",
+      "bytes": 2309,
+      "sha256": "b32ec664b0d0596241ddd2cb7384e59614f87502665a4af492eec372a9d6f7d4",
+      "publicDownloadVerified": true,
+      "seconds": 1.05
+    }
+  ]
+}

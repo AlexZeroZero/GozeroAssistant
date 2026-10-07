@@ -871,3 +871,42 @@ SUSTAINED PIPELINE / CACHE REUSE RESEARCH - 2026-10-07
   Initial stream harness duplicate-key reporting failure was fixed and rerun;
   production untouched. All research processes stopped. Signed desktop0.1.9
   verified and reopened idle. Settings/fees/README/packages/GitHub untouched.
+
+
+OFFICIAL MAC 0.1.9 PUBLICATION - 2026-10-07
+- User explicitly authorized publishing this validated version as the official
+  GitHub release. Completed on AlexZeroZero/GozeroAssistant, release404660109,
+  title: Gozero助手 Mac 0.1.9 · 正式版 · NOID / QTC / PRL. Not a prerelease.
+- Original release URL/tag mac-v0.1.2 retained for compatibility. Its annotated
+  tag now points at source9ce217693aaea0ea0e4357c3d1091d37a410e636, also preserved
+  by the independent annotated mac-v0.1.9 tag. Old actual mac-v0.1.5/0.1.6 tags
+  unchanged. Mac source branch pushed; Windows/main and other releases verified
+  unchanged. Do not repoint the actual version tags during later publications.
+- Canonical installer: Gozero-Assistant-Mac-0.1.9-arm64.dmg. Existing ZIP name
+  Gozero-Assistant-Mac-0.1.2-arm64.zip and DMG name
+  Gozero-Assistant-Mac-0.1.6-arm64.dmg now both deliver the same0.1.9 app.
+  Compatibility DMG is byte-identical to the canonical DMG. Asset labels explain
+  compatibility names. All new assets were staged and hash checked before old
+  assets were renamed/replaced; superseded temporary assets were then removed.
+- Release body and original links preserved byte-for-byte; README-MAC.txt and
+  the two user JPGs preserve their existing asset IDs and hashes. They remain
+  historical notes/screenshots, including outdated feature text and ZIP hash.
+  CURRENT-VERSION.txt explicitly distinguishes these from current0.1.9 facts.
+  Updated BUILD-MANIFEST.json, VALIDATION.json, CURRENT-VERSION.txt, SHA256SUMS.txt.
+- Published current limitations: only base M3 tested; QTC has one observed
+  accepted external share; PRL external acceptance still unverified, despite
+  G3, official Rust proof and local mock validation. Ad-hoc signed, not notarized.
+  NOID macOS13.5+, QTC/PRL macOS14+; no multi-day stability/earnings guarantee.
+- Rechecked original binaries without rebuilding: app version and signature,
+  DMG integrity, all19390 manifest entries in both source app and downloaded ZIP,
+  and absence of user settings/SSH key in ZIP. No desktop/profile modification.
+  Public DMG and compatibility ZIP were fully downloaded and SHA256 checked;
+  public CURRENT-VERSION and README downloads also matched. All10 release assets
+  have expected GitHub SHA256/size; other release records/assets and main checked.
+- ZIP SHA256434e885fae50e995e8f5c62f769f75bc52de0d96806b39286b2abaa6dbe69c29.
+  DMG SHA256bb31bc7275cfd6a0e8ecbc21b08f3c0a17bee47b03e4bc71a9702006e6a86653.
+  Public evidence: gui/evidence/mac-release-0.1.9.json. Publication scripts,
+  snapshots/backups and full verification: ignored .local/release-0.1.9.
+  Upload initially slow through process proxy; incomplete new uploads retried
+  successfully via direct connection. Public download faster via existing proxy.
+  System proxy settings and stored credentials were not changed.
