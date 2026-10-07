@@ -1,0 +1,21 @@
+{
+  "releaseUrl": "https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/mac-v0.1.2",
+  "sourceCommit": "3b04c60550e3be2b2641c86bdd0b8b3b55e4d11a",
+  "images": [
+    {
+      "name": "PRL-hashrate.png",
+      "sha256": "a829c45357701a1eafcd8c16786d366a9f369a0217d30fd7b83d066a2905a8e9",
+      "url": "https://raw.githubusercontent.com/AlexZeroZero/GozeroAssistant/3b04c60550e3be2b2641c86bdd0b8b3b55e4d11a/docs/screenshots/mac-0.1.9/PRL-hashrate.png"
+    },
+    {
+      "name": "QTC-hashrate.png",
+      "sha256": "d0e8a7811ad37f341c53f9bf5ddbfb49d6af75c215c76b78b22fd7aa01cfd6f9",
+      "url": "https://raw.githubusercontent.com/AlexZeroZero/GozeroAssistant/3b04c60550e3be2b2641c86bdd0b8b3b55e4d11a/docs/screenshots/mac-0.1.9/QTC-hashrate.png"
+    }
+  ],
+  "onlyScreenshotSectionAdded": true,
+  "originalBodyPreserved": true,
+  "installersReadmeAndOriginalImagesUnchanged": true,
+  "checksumsUpdated": true,
+  "imagesDownloadedAndVerified": true
+}

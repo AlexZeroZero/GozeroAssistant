@@ -910,3 +910,23 @@ OFFICIAL MAC 0.1.9 PUBLICATION - 2026-10-07
   Upload initially slow through process proxy; incomplete new uploads retried
   successfully via direct connection. Public download faster via existing proxy.
   System proxy settings and stored credentials were not changed.
+
+RELEASE PRL/QTC SCREENSHOTS - 2026-10-07
+- User explicitly requested PRL/QTC hashrate screenshots inside release content.
+  This authorizes a targeted addition to the previously preserved release body.
+- Added one original 0.1.9 M3 GUI QA screenshot per coin in the existing real
+  screenshots section: PRL 1.261 TMAC/s, 0 submitted/accepted/rejected; QTC
+  21.574 MH/s, 1 submitted/accepted, 0 rejected. Captured2026-10-06 around29s;
+  local short-run samples, not sustained pool settlement rates. Wallet fields
+  already hidden by the QA GUI. No image pixels or mining figures were changed.
+- Captions disclose PRL external acceptance remains unverified and different
+  rate units. QTC original screenshot still has the earlier pending-validation
+  header; caption explains its1 accepted share and the corrected release text.
+- Original body outside this insertion, existing two owner JPGs, README and
+  installers unchanged. Added PRL-hashrate.png/QTC-hashrate.png release assets
+  and SHA256SUMS entries. Images also committed under docs/screenshots/mac-0.1.9;
+  body embeds immutable raw URLs at3b04c60550e3be2b2641c86bdd0b8b3b55e4d11a.
+- Public image downloads and hashes verified, release body/API assets checked.
+  Evidence: gui/evidence/mac-release-0.1.9-screenshots.json. Private snapshots,
+  scripts and source QA files: .local/release-0.1.9-screenshots.
+  Actual version/compatibility source tags were not changed in this operation.
