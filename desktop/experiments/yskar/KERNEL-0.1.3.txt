@@ -1,0 +1,70 @@
+YSR CUDA 0.1.3 / Gozero Windows 1.0.16 — 2026-10-07
+
+Changes:
+- Per-device calibration covers 64/128/256/512 threads and 4/8/16 blocks per SM
+  for both validated arithmetic paths. Median samples and a reverse-order final
+  pass replace the old fastest-of-three selection. A <2% timing difference keeps
+  the best old launch topology. Timing noise and driver clocks can still vary.
+- Reuses native argument memory. Async counter clear, launch and blocking result
+  copy replace the extra whole-context fence. Work is counted only AFTER the
+  blocking result copy confirms completion. Targets upload only on change.
+- Keeps the 80ms adaptive target, raises maximum range from 134217728 to
+  268435456 nonces for faster GPUs. Repeated overflow ranges are not double-counted.
+- Reuses the already verified CPU digest in the queue wait loop. Keeps an
+  independent verification at actual submission.
+- Logs distinguish expired jobs and retargeted candidates. stale = their sum;
+  neither is a pool rejection. Submission exceptions and overflow retries are
+  counted separately. Work preceding an idle poll is no longer discarded from
+  the local rate interval.
+
+Unchanged: SHA-256d consensus, upstream sources/provenance, fee wallets and fee
+scheduler, configured temperature cutoff, performance budget and GPU identity.
+No overclocking or removal of protections. UI 100% remains 90% host duty; this is
+not a hard GPU utilization/power cap because previously queued GPU work can run.
+
+Validation:
+- Native GPU selftest: 17 independent hash vectors, 144 complete candidate sets
+  across both variants, all thread shapes, single/multi-block tails, high nonce,
+  equality and result overflow. Actual reusable batch runner is exercised.
+- Additional instruction/word-comparison and paired-nonce experiments passed
+  differential hashes but did not establish a stable performance advantage.
+  They are retained as experiments and NOT selected by the production core.
+- 120 automated application/protocol checks passed.
+- Local HTTP mock integration with the app's balanced process guard accepted
+  436 independently checked nonces across two job headers; zero invalid hashes.
+  It exercised easy-target overflow, a same-job difficulty update, job rollover,
+  stop-file exit and session close. These are simulated-pool checks, not rewards.
+- Four-language UI smoke verified core installation and no automatic mining.
+
+Live comparison: RTX 5060 Laptop GPU, same pool/device, 100% mode/90% host duty.
+ABBA order, 90 seconds each, first 15 seconds omitted; cooldown between runs.
+Short local hashrates are not long-term, difficulty-weighted pool-effective rates.
+Accepted counts alone cannot measure speed because the pool uses variable difficulty.
+The initial app parser excluded rate lines containing the new 'retargeted' field.
+It was fixed and regression-tested. All four comparison rates below are derived
+identically from preserved native logs and replayed through actual app ingestion;
+the original raw capture is retained, including its missing UI telemetry samples.
+core-012-A1: median 1417.54 MH/s; mean 1377.46; samples 37; accepted 17 / rejected 0; peak 88 C.
+core-013-B1: median 1437.96 MH/s; mean 1406.41; samples 37; accepted 18 / rejected 0; peak 89 C.
+core-013-B2: median 1462.39 MH/s; mean 1424.78; samples 37; accepted 17 / rejected 0; peak 89 C.
+core-012-A2: median 1422.85 MH/s; mean 1432.94; samples 37; accepted 18 / rejected 0; peak 88 C.
+
+Mean of two run medians: old 1420.19, new 1450.17 MH/s; difference +2.11%.
+
+Launch and stop records:
+NVIDIA GeForce RTX 5060 Laptop GPU · 04:18:49 CUDA launch · variant=rolling16 SM=26 threads=256 blocks=208 registers=38 localBytes=0 adaptive batch target=80ms
+NVIDIA GeForce RTX 5060 Laptop GPU · 04:20:19 YSR stopping · accepted=17 rejected=0 stale=163
+NVIDIA GeForce RTX 5060 Laptop GPU · 04:20:51 CUDA launch · variant=rolling16 SM=26 threads=256 blocks=208 registers=38 localBytes=0 adaptive batch target=80ms calibrationMs=19.89 baselineMs=19.89
+NVIDIA GeForce RTX 5060 Laptop GPU · 04:22:18 YSR stopping · accepted=18 rejected=0 stale=189 expired=181 retargeted=8 overflowRetries=0 submitErrors=0
+NVIDIA GeForce RTX 5060 Laptop GPU · 04:22:43 CUDA launch · variant=rolling16 SM=26 threads=256 blocks=416 registers=38 localBytes=0 adaptive batch target=80ms calibrationMs=20.40 baselineMs=21.39
+NVIDIA GeForce RTX 5060 Laptop GPU · 04:24:10 YSR stopping · accepted=17 rejected=0 stale=162 expired=155 retargeted=7 overflowRetries=0 submitErrors=0
+NVIDIA GeForce RTX 5060 Laptop GPU · 04:24:32 CUDA launch · variant=rolling16 SM=26 threads=256 blocks=208 registers=38 localBytes=0 adaptive batch target=80ms
+NVIDIA GeForce RTX 5060 Laptop GPU · 04:26:02 YSR stopping · accepted=18 rejected=0 stale=130
+
+Limits: no local RTX 3090. User's 2.58 GH/s screenshot was core 0.1.2 with an
+incomplete first averaging window. No promised 3090 increase or official-GUI
+parity follows from this local comparison. All test miners were stopped.
+Reproduction: compare_tuning.py [--pair]; compare-scheduling.cjs with explicit
+GOZER_YSR_LIVE=1, GOZER_YSR_TUNING_COMPARE=1 and GOZER_TEST_GPU_UUID.
+Evidence: .local/yskar-research/tuning-live-comparison.json, tuning-013.json,
+pair-013.json. Test profiles are isolated; default user wallet remains blank.

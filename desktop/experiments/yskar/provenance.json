@@ -1,0 +1,13 @@
+{
+  "project": "https://github.com/dabitlex/YSKAR",
+  "commit": "a1e068ec6b4b529cc730406ae48d7f5bcb4ee9e3",
+  "license": "MIT",
+  "status": "integration-research-not-a-released-miner",
+  "files": {
+    "LICENSE": "90c82e03b5724f71c16b6847eaad91e3f770474e1c85af57991682d46dbcd59a",
+    "miner/src/header.mjs": "1f42cfefa61e501c2dad377b5ae7acc4da0b1788ab3bf659e16b393eed5c7295",
+    "miner/miner.57f237a2a4.wasm": "57f237a2a44da916b31dfc9fd4e56d4cdee67a20398dcd01e5524cefdb0e4f8b",
+    "node-core/gpu/yskar_sha256.h": "c93cc26c5859249b7917fde025e6191b43e1389d77ed25381f8d5fb9327641c1",
+    "node-core/gpu/yskar_gpu.cu": "cf6c2890c3b01fc0c71e4756e86787b872c5ef13af69682a6b233920ae5c0c58"
+  }
+}

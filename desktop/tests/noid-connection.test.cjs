@@ -2,7 +2,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),net=require('node:net');
 const {prepare,probe,dnsAnswers,publicIPv4,resolveOfficial}=require('../src/noid-connection.cjs');
 const {validate}=require('../src/config.cjs'),{argsFor}=require('../src/miner.cjs');
-const wallet='o1mlk6uluf2dghqzz0etew4u9wq6clnnr4y4wuv20q2m255mj9crjquzyr4r';
+const wallet='o1666egg8r9aeedd0p6fgdn0mjhqg3wk33ages082pky567u65dslq7k03qa';
 const cfg=()=>validate({coin:'NOID',noidConnection:'compatible',wallets:{NOID:wallet},kernels:{NOID:'suprminer-noid-1.9.27'}});
 test('DNS accepts matching answers and CNAMEs but rejects unrelated/private addresses',()=>{
  const host='noid.suprnova.cc',base={Status:0,Question:[{name:host+'.',type:1}]};

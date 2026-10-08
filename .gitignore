@@ -13,3 +13,7 @@ settings.json
 service-fee-ledger.json
 desktop/vendor/*.exe
 desktop/native/*.exe
+
+# CPU mining binaries and sources are distributed as a separate optional release.
+desktop/native/zcd/
+desktop/native/noid/

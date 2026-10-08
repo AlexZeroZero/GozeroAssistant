@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "offline": true,
+  "poolConnected": false,
+  "device": "NVIDIA GeForce RTX 5060 Laptop GPU",
+  "hashChecks": 65,
+  "targetChecks": 4,
+  "upstreamCommit": "a1e068ec6b4b529cc730406ae48d7f5bcb4ee9e3",
+  "ptxSha256": "f892aeb91c41479f3372995669f38bff6fe9d033d0d767f6f768dfc515e29b31",
+  "scope": "SHA-256d functions only; not a packaged miner or hashrate benchmark"
+}

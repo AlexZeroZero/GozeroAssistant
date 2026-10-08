@@ -1,8 +1,13 @@
 'use strict';
 const {poolChoices,poolUrls}=require('./pool-catalog.cjs');
+const {PUBLIC_API:YSR_API,LEGACY_API:YSR_LEGACY_API}=require('./ysr-protocol.cjs');
 const ORIGIN='https://pool.kryptex.com',INTERVAL=60000;
 function accountFor(config){
  const coin=config.coin,wallet=config.wallets?.[coin]||'';
+ if(coin==='ZCD')return{coin,source:'Zycord',reason:'ZCD 矿池账本接口待适配；填入矿池后可挖矿，余额与支付请到该矿池查询'};
+ // The Gozero mining gateway does not expose /account (verified 404). This is
+ // explicitly the official chain ledger, not a gateway-specific payout balance.
+ if(coin==='YSR'){if(!require('./ysr.cjs').validAddress(wallet))return{coin,reason:'保存有效 YSR 地址后查询链上收益'};const pool=config.pools.YSR;if(![YSR_API,YSR_LEGACY_API].includes(pool))return{coin,reason:'自定义 YSR 节点暂未适配账本查询'};return{coin,wallet,api:YSR_LEGACY_API,key:coin+':'+pool+':'+wallet,source:'YSKAR 节点',page:'https://www.yskar.app/explorer#adr-'+encodeURIComponent(wallet)}}
  if(coin==='NOID'){if(!require('./noid.cjs').validWallet(wallet))return{coin,reason:'保存有效 NOID 地址后查询 Suprnova 账本'};const urls=poolUrls(config),supported=urls.some(url=>{const h=new URL(url).hostname;return h==='noid.suprnova.cc'||/^stratum-(apac|us|eu2)\.suprnova\.cc$/.test(h)});if(!supported)return{coin,reason:'当前矿池尚未适配地址账本接口'};return{coin,wallet,key:coin+':'+wallet,source:'Suprnova',mixed:urls.some(url=>!new URL(url).hostname.endsWith('.suprnova.cc')),page:'https://noid.suprnova.cc/YourStats#noid/dashboard?address='+encodeURIComponent(wallet)}}
  if(!['PRL','QTC'].includes(coin))return{coin,reason:'此币种矿池账本接口尚未适配'};
  if(!wallet)return{coin,reason:'保存收款地址后自动查询矿池账本'};
@@ -41,6 +46,8 @@ class PoolAccount{
   if(c.attempt!==null&&this.clock()-c.attempt<INTERVAL)return this.snapshot();
   c.attempt=this.clock();
   const work=async()=>{
+   if(a.coin==='YSR'){try{const raw=JSON.parse((await this.request(a.api+'/api/v2/account/'+encodeURIComponent(a.wallet),{maxBytes:512*1024,timeout:12000})).toString('utf8'));if(this.stopped)return;const data=require('./ysr.cjs').account(raw,a.wallet);for(const kind of ['balance','stats','payouts'])c[kind]={value:data[kind],at:this.clock(),error:null}}catch{if(!this.stopped)for(const kind of ['balance','stats','payouts'])c[kind]={...c[kind],error:'YSR 节点账本暂不可用'}}return}
+
    if(a.coin==='NOID'){const base='https://noid.suprnova.cc/api/pools/noid/miners/'+encodeURIComponent(a.wallet);await Promise.all([['balance','stats'],['payouts']].map(async kinds=>{try{const raw=JSON.parse((await this.request(base+(kinds[0]==='payouts'?'/payments':''),{maxBytes:512*1024,timeout:12000})).toString('utf8'));if(this.stopped)return;for(const kind of kinds)c[kind]={value:require('./noid.cjs').account(kind,raw),at:this.clock(),error:null}}catch{if(!this.stopped)for(const kind of kinds)c[kind]={...c[kind],error:'NOID 矿池接口暂不可用'}}}));return}
    await Promise.all(['balance','stats','payouts'].map(async kind=>{
     const address=encodeURIComponent(a.wallet),route=kind==='balance'?`balance/${address}`:kind==='stats'?`payouts/${address}/stats`:`payouts/${address}?page=1`;

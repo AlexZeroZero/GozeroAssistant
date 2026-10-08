@@ -1,0 +1,64 @@
+YSKAR (YSR) — Gozero Windows integration / 2026-10-07
+
+Status: integrated in local Windows build 1.0.12 (Beta 1.02). Not published to GitHub.
+Mining test wallet and temporary 0.5% software fee wallet:
+ysr1m6fp4w5hfjnpsxld9tnmx7e2p2sfejp9kqwkhg
+Public application defaults keep the user wallet blank.
+
+Source: https://github.com/dabitlex/YSKAR
+Pinned commit: a1e068ec6b4b529cc730406ae48d7f5bcb4ee9e3
+License: MIT, Copyright (c) 2026 The YSKAR developers.
+Pool: https://yskar-main.dynv6.net
+
+Implementation:
+- Gozero YSR CUDA 0.1.0 uses upstream SHA-256d functions and a new C# HTTPS host.
+- Custom 136-byte LE header, extranonce at 120, nonce at 128; inclusive BE target.
+- Midstate caching reduces per-nonce work to two SHA-256 compressions.
+- Raw difficulty u32 is preserved after consensus v4; difficultyWert is for estimates.
+- Bounded candidate list with overflow retry and submission backpressure.
+- CPU rehash before submission, job/session invalidation and VarDiff target changes.
+- Separate HTTP session per GPU; UUID resolved explicitly through CUDA Driver API.
+- HTTPS certificate validation, bounded API requests, reconnect and backup URLs.
+- Start-time GPU self-tests; verified bundled files; explicit start and stop.
+- Assistant performance budget, temperature protection and five/ten-minute averages.
+- 0.5% disclosed time-sharing fee; mining and benchmarks accrue the same ledger.
+- Network difficulty/hashrate/reward refresh, gross YSR/day and 7/30-day projections.
+- No verified USD price feed: USD price and net dollar income remain unavailable.
+- Address ledger shows on-chain balance and returned reward history, not withdrawal balance.
+
+Evidence:
+1. Official WASM genesis test and 32 header variants match Node SHA-256d.
+2. Offline RTX 5060 Laptop GPU test: 65 hash vectors and four target comparisons passed.
+3. Full host startup: 17 independent hash vectors and search/nonce/equality tests passed.
+4. Revised host live test through the real assistant Miner and ProcessGuard:
+   service phase 15 accepted shares, resumed user phase 12 accepted shares;
+   zero pool rejects in either phase; peak sampled GPU temperature 83 C.
+   A synthetic accrued balance in an isolated test profile exercised the 60-second fee phase.
+   User phase resumed automatically; explicit stop ended all test miner processes.
+   Local candidates invalidated by VarDiff/job changes: 85 + 71 (not pool rejects).
+   During stable service-phase samples, local completed-work rate about 0.81-0.85 GH/s.
+   User-phase rate varied around 0.57-0.74 GH/s under dynamic performance control.
+   These are short local measurements, not sustained pool-effective hashrate or a GPU ranking.
+5. Production protocol, app integration and regression tests: 116 passed.
+6. Electron smoke: local install, live network data, four language switches and no auto-start passed.
+7. Fee unit test separately verifies restoration of a different user wallet.
+
+Limits:
+- NVIDIA SM 8.0+ (RTX 30 and newer), CUDA 13-compatible driver required.
+- Only one RTX 5060 Laptop was physically tested; mixed/multi-GPU hardware not physically tested.
+- CPU and AMD mining not integrated. Mac branch untouched.
+- No separate payout verification: test and service wallet are currently the same.
+- Existing wallet balance and reward history predate tests and cannot be attributed to these runs.
+- Official node fee was 1% at research time, separate from the app fee.
+- Miner and application binaries remain unsigned; no antivirus-clearance claim.
+
+Build: python desktop/experiments/yskar/build.py --stage
+Offline protocol tests: node --test desktop/experiments/yskar/protocol.test.cjs
+Live test script: live-integration.cjs; requires explicit environment opt-in and GPU UUID.
+Local detailed evidence: .local/yskar-research/live-integration.json
+UI evidence: desktop/artifacts/ysr/ui-result.json and screenshots.
+
+Final package: desktop/dist/GozerAssistant-1.0.12-win-x64.zip
+SHA256: 57195b63e095e0769ffaf1e8c4f761c5f730324df9893f28bc4b061d2f21b635
+145 packaged file hashes verified; ZIP CRC passed; packaged YSR GPU selftest passed.
+Additional YSR upload-queue regression passed; YSR device records are local-only pending server support.

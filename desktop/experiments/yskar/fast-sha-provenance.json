@@ -1,0 +1,6 @@
+{
+  "generatedSourceSha256": "2f491dc52d877eaf7ef54e5ad4660fff9a5e0a53191ca6ba6cdaffc0ce0a5ff5",
+  "generatorSha256": "8475a7cdfd8ce6f67a92a69200aa0eea3ece0fb8252c3792c7ebd59af5cf6371",
+  "upstreamCommit": "a1e068ec6b4b529cc730406ae48d7f5bcb4ee9e3",
+  "method": "rolling 16-word SHA-256 schedule; 64 unrolled rounds; unchanged double-SHA-256 and 136-byte header"
+}

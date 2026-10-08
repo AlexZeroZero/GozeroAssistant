@@ -2,6 +2,77 @@
  'use strict';
  // Source phrase | English | Japanese | Russian. Technical IDs, input values and miner output are preserved.
  const rows=`
+官网 ↗|Website ↗|公式サイト ↗|Сайт ↗
+填写并保存矿池地址后可启动|Enter and save a pool address to start|プールアドレスを入力・保存して開始|Введите и сохраните адрес пула для запуска
+ZCD · CPU 矿池挖矿|ZCD · CPU pool mining|ZCD · CPUプール採掘|ZCD · CPU-майнинг в пуле
+矿池密码|Pool password|プールパスワード|Пароль пула
+未配置矿池|Pool not configured|プール未設定|Пул не задан
+等待矿池任务 / RandomX 预热|Waiting for pool job / RandomX warm-up|プールジョブ待機 / RandomX準備中|Ожидание задания пула / прогрев RandomX
+XMRig 内核费 1% · 软件服务费 0.5%|XMRig fee 1% · App fee 0.5%|XMRig手数料1%・アプリ手数料0.5%|Комиссия XMRig 1% · Приложения 0.5%
+ZCD · CPU RandomX v2（rx/2）；填写主矿池及备用矿池后启动，无需本地全节点。|ZCD · CPU RandomX v2 (rx/2). Set primary and backup pools to start. No local full node required.|ZCD · CPU RandomX v2（rx/2）。メイン・予備プールを設定して開始。ローカルフルノードは不要です。|ZCD · CPU RandomX v2 (rx/2). Укажите основной и резервные пулы. Локальный полный узел не нужен.
+填写矿池提供的 Stratum 地址；支持 TCP / TLS 和两个备用地址。收款地址使用 02 开头的永久地址。|Enter the pool's Stratum address. TCP / TLS and two backups supported. Use a persistent payout address starting with 02.|プールのStratumアドレスを入力。TCP / TLSと予備2件に対応。02で始まる永久受取アドレスを使用。|Введите Stratum-адрес пула. TCP / TLS и два резервных адреса. Для выплат — постоянный адрес с 02.
+ZCD 矿池账本接口待适配；填入矿池后可挖矿，余额与支付请到该矿池查询|ZCD pool account API pending. Configure a pool to mine; check balance and payments on that pool.|ZCDプール台帳APIは未対応。プール設定後に採掘可能。残高・支払はプールで確認してください。|API баланса пула ZCD ещё не подключён. Настройте пул; баланс и выплаты смотрите на его сайте.
+请先填写 ZCD 主矿池地址|Enter a ZCD primary pool address first|ZCDメインプールを先に入力してください|Сначала укажите основной пул ZCD
+ZCD 矿池密码格式无效|Invalid ZCD pool password format|ZCDプールパスワードの形式が無効|Неверный формат пароля пула ZCD
+挖矿设备类型|Mining device type|採掘デバイス種別|Тип устройства майнинга
+搜索币种 / 名称 / 算法|Search coin / name / algorithm|通貨・名前・アルゴリズムを検索|Поиск монеты / названия / алгоритма
+选择挖矿币种|Select mining coin|採掘する通貨を選択|Выбор монеты
+没有匹配币种|No matching coins|一致する通貨なし|Совпадений нет
+CPU 线程|CPU threads|CPUスレッド|Потоки CPU
+0 = 自动预留线程|0 = Auto, reserve threads|0 = 自動、余裕を確保|0 = Авто, резерв потоков
+本机节点 · SOLO|Local node · SOLO|ローカルノード · SOLO|Локальный узел · SOLO
+内存需求 ≥ 4 GiB 可用|Requires ≥ 4 GiB free RAM|空きメモリ ≥ 4 GiB 必要|Требуется ≥ 4 GiB свободной RAM
+CPU 温度 / 功耗：未接入|CPU temperature / power: unavailable|CPU温度・電力：未対応|Температура / мощность CPU: недоступны
+设备运行明细|Device activity|デバイス稼働状況|Работа устройств
+所选设备功耗|Selected device power|選択デバイスの消費電力|Мощность выбранных устройств
+CPU 聚合任务 · 不影响 GPU 选择|One CPU job · GPU selection preserved|CPU集約タスク・GPU選択を保持|Задача CPU · Выбор GPU сохранён
+CPU 按逻辑线程分配，100%档可使用全部线程和 CPU 配额；不修改频率或电压。|CPU modes use logical threads; 100% permits all threads and the full CPU budget. No clock or voltage changes.|CPUは論理スレッド数で配分。100%では全スレッドとCPU枠を使用可能。周波数・電圧は変更しません。|Режимы CPU используют логические потоки; 100% разрешает все потоки и полный лимит CPU. Частоты и напряжение не меняются.
+未识别到可用 CPU|No available CPU detected|利用可能なCPUが未検出|Доступный CPU не обнаружен
+节点已停止|Node stopped|ノード停止中|Узел остановлен
+节点已同步|Node synchronized|ノード同期済み|Узел синхронизирован
+正在同步区块|Syncing blocks|ブロック同期中|Синхронизация блоков
+节点暂不可用|Node unavailable|ノード利用不可|Узел недоступен
+等待节点 / RandomX 预热|Waiting for node / RandomX warm-up|ノード待機 / RandomX準備中|Ожидание узла / прогрев RandomX
+内核费 0% · 软件服务费 0.5%|Miner fee 0% · App fee 0.5%|コア手数料0%・アプリ手数料0.5%|Комиссия ядра 0% · Приложения 0.5%
+ZCD · CPU RandomX / SOLO；仅接受永久地址（02 开头），首次同步和数据集初始化需要时间。|ZCD · CPU RandomX / SOLO. Persistent (02) addresses only. Initial sync and dataset setup take time.|ZCD · CPU RandomX / SOLO。永久アドレス（02）のみ。初回同期とデータセット初期化には時間が必要です。|ZCD · CPU RandomX / SOLO. Только постоянные адреса (02). Начальная синхронизация и подготовка требуют времени.
+单挖奖励需等待 240 个区块成熟；当前未接入价格和收益源，不显示虚构收益。|Solo rewards mature after 240 blocks. Price and income sources are not connected; no simulated returns.|単独採掘報酬は240ブロック後に成熟。価格・収益ソース未接続のため推測値は表示しません。|Награда SOLO созревает через 240 блоков. Источники цены и дохода не подключены; фиктивных данных нет.
+ZCD 当前未接入价格和收益源|ZCD price and income sources unavailable|ZCDの価格・収益ソース未接続|Источники цены и дохода ZCD недоступны
+永久服务费地址待配置|Persistent fee address pending|手数料用永久アドレス未設定|Ожидается постоянный адрес комиссии
+等待同步 / RandomX 预热|Waiting for sync / RandomX warm-up|同期待機 / RandomX準備中|Ожидание синхронизации / прогрев RandomX
+ZCD 为全节点单挖；奖励由区块直接结算，余额和成熟情况请在官方钱包查看|ZCD uses full-node solo mining. Check block rewards, balance and maturity in the official wallet.|ZCDはフルノード単独採掘。報酬・残高・成熟状況は公式ウォレットで確認できます。|ZCD — SOLO на полном узле. Награды, баланс и созревание смотрите в официальном кошельке.
+校验通过 · ZCD|Verified · ZCD|検証済み · ZCD|Проверено · ZCD
+ZCD 需要 02 开头的 32 字节永久地址，不能使用一次性地址|ZCD requires a 32-byte persistent address starting with 02, not a one-shot address.|ZCDには02で始まる32バイトの永久アドレスが必要です。使い捨てアドレスは不可。|ZCD нужен постоянный 32-байтовый адрес с 02, не одноразовый.
+ZCD 服务费永久地址待配置，暂不可启动|ZCD persistent fee address is pending; start unavailable.|ZCD手数料用永久アドレス未設定のため起動できません。|Постоянный адрес комиссии ZCD не задан; запуск недоступен.
+ZCD 至少需要 4 GiB 可用内存及实时内存读数|ZCD requires at least 4 GiB free RAM and live memory readings.|ZCDには4 GiB以上の空きメモリとリアルタイム計測が必要です。|ZCD требует 4 GiB свободной RAM и актуальные показания памяти.
+有效设备运行时间|active device runtime|デバイスの有効稼働時間|активное время устройств
+预估毛产币 / 日|Estimated gross coins / day|推定総産出量 / 日|Ожидаемые монеты / день до комиссий
+美元毛收益（币价未接入）|Gross USD (price unavailable)|総収益 USD（価格未取得）|Доход USD (нет цены)
+7日产币推算|7-day coin estimate|7日間の推定産出量|Монеты за 7 дней (прогноз)
+30日产币推算|30-day coin estimate|30日間の推定産出量|Монеты за 30 дней (прогноз)
+预估毛产币 / 日 · 未扣费用 · 非矿池结算|Estimated gross coins/day · Before fees · Not pool settlement|推定総産出量/日・手数料控除前・プール決済ではありません|Прогноз монет/день · До комиссий · Не расчёт пула
+校验通过 · YSR|Verified · YSR|検証済み · YSR|Проверено · YSR
+内核费 0% · 软件服务费 0.5% · 矿池费以节点为准|Engine 0% · App 0.5% · Pool fee set by node|カーネル 0%・ソフト 0.5%・プール料金はノード準拠|Ядро 0% · Приложение 0,5% · Комиссия пула по узлу
+YSR：NVIDIA RTX 30 或更新显卡；HTTP 矿池独立会话，候选份额 CPU 复核；CPU / AMD 挖矿尚未开放。|YSR: NVIDIA RTX 30 or newer; individual HTTP sessions, CPU-verified shares. CPU / AMD mining not enabled.|YSR：NVIDIA RTX 30 以降。HTTP 個別セッション、CPU によるシェア検証。CPU / AMD 採掘は未対応。|YSR: NVIDIA RTX 30 и новее; отдельные HTTP-сессии, проверка шар на CPU. Майнинг CPU / AMD не включён.
+链上余额|On-chain balance|オンチェーン残高|Баланс в блокчейне
+待确认（未提供）|Pending (unavailable)|未確定（未提供）|Ожидается (нет данных)
+返回记录收益|Rewards in returned records|取得記録内の報酬|Награды в полученных записях
+近7日（未提供）|7 days (unavailable)|7日間（未提供）|7 дней (нет данных)
+近30日（未提供）|30 days (unavailable)|30日間（未提供）|30 дней (нет данных)
+直接入账 / 无门槛|Direct credit / No threshold|直接入金 / 下限なし|Прямое зачисление / Без порога
+奖励记录|Reward records|報酬記録|Записи о наградах
+链上奖励记录 · 最近10笔|On-chain rewards · Latest 10|オンチェーン報酬・直近10件|Награды в блокчейне · Последние 10
+YSR 奖励随区块直接入账；仅列出节点返回的奖励记录，非全部历史收益，也不能单独归因于本次测试。|YSR rewards are credited directly in blocks. Only returned records are listed, not full history or earnings attributable to this test.|YSR 報酬はブロックで直接入金。取得記録のみで全履歴ではなく、本テスト単独の成果でもありません。|Награды YSR зачисляются в блоках. Показаны только полученные записи, не вся история и не доход только этого теста.
+节点未返回奖励记录。|Node returned no reward records.|ノードに報酬記録がありません。|Узел не вернул записи о наградах.
+区块直接入账|Direct block credit|ブロック直接入金|Зачисление в блоке
+YSKAR 官方节点|YSKAR official node|YSKAR 公式ノード|Официальный узел YSKAR
+YSKAR 节点|YSKAR node|YSKAR ノード|Узел YSKAR
+YSR 当前难度 × SHA-256d 尝试次数估算；随机出块，非保证收益|Estimate from YSR difficulty and SHA-256d attempts; random blocks, no guaranteed earnings|YSR 難易度と SHA-256d 試行回数から推定。出块は確率的で収益保証なし|Расчёт по сложности YSR и попыткам SHA-256d; блоки случайны, доход не гарантирован
+保存有效 YSR 地址后查询链上收益|Save a valid YSR address to query on-chain rewards|有効な YSR アドレスを保存して報酬を照会|Сохраните адрес YSR для запроса наград
+自定义 YSR 节点暂未适配账本查询|Custom YSR node ledger queries are not yet supported|独自 YSR ノードの台帳照会は未対応|Запросы баланса к своим узлам YSR пока не поддерживаются
+YSR 节点账本暂不可用|YSR ledger temporarily unavailable|YSR 台帳は一時利用不可|Реестр YSR временно недоступен
+链上余额及返回的奖励记录，非待提现账本|On-chain balance and returned rewards, not pending withdrawals|オンチェーン残高と取得報酬。出金待ち残高ではありません|Баланс в блокчейне и награды, не ожидающие вывода средства
+本次返回奖励记录|Returned reward records|今回取得した報酬記録|Полученные записи о наградах
+软件费与内核费、矿池费分开：YSR CUDA 0%，Suprminer 0%，Fl4shMiner 3%；KRig在Kryptex池0%，其他池最低3%；电费另算。停止任务或明确退出程序会结束用户与服务时段的所有任务；关闭X收起窗口后任务继续。|App, engine and pool fees are separate: YSR CUDA 0%, Suprminer 0%, Fl4shMiner 3%; KRig 0% on Kryptex, at least 3% elsewhere. Electricity is additional. Stop or Quit ends all tasks; closing X keeps mining.|ソフト・カーネル・プール料金は別：YSR CUDA 0%、Suprminer 0%、Fl4shMiner 3%、KRig は Kryptex 0%、他は最低3%。電気代は別。停止・終了で全タスク終了、X収納時は継続。|Комиссии раздельны: YSR CUDA 0%, Suprminer 0%, Fl4shMiner 3%; KRig на Kryptex 0%, иначе минимум 3%. Электричество отдельно. Стоп/Выход завершают задачи; X оставляет майнинг работать.
 NOID 已启用自动连接：原始连接失败后尝试兼容 TCP（非加密）|NOID auto connection enabled: try unencrypted TCP if the original connection fails.|NOID 自動接続を有効化：元の接続失敗時は暗号化なし TCP を試行。|NOID: включено автоподключение с резервным TCP без шифрования.
 自研 NOID 内核已移除，默认使用 Suprminer|Custom NOID engine removed; Suprminer is the default.|自製 NOID カーネルを削除。標準は Suprminer。|Собственное ядро NOID удалено; по умолчанию Suprminer.
 软件费与内核费、矿池费分开：Suprminer 0%，Fl4shMiner 3%；KRig在Kryptex池0%，其他池最低3%；电费另算。停止任务或明确退出程序会结束用户与服务时段的所有任务；关闭X收起窗口后任务继续。|App, engine and pool fees are separate: Suprminer 0%, Fl4shMiner 3%; KRig 0% on Kryptex, at least 3% elsewhere. Electricity is additional. Stop or Quit ends all tasks; closing the window keeps tasks running.|ソフト・カーネル・プール料金は別です。Suprminer 0%、Fl4shMiner 3%、KRig は Kryptex 0%、他は最低3%。電気代は別。停止・終了で全タスク終了、Xで収納した場合は継続。|Комиссии приложения, ядра и пула раздельны: Suprminer 0%, Fl4shMiner 3%; KRig 0% на Kryptex, минимум 3% на других пулах. Электричество отдельно. Стоп и Выход завершают задачи; закрытие окна оставляет их работать.
@@ -31,7 +102,6 @@ Suprminer：驱动需 ≥ 610；兼容模式启动前检测备用节点，运行
 Suprminer 1.9.27 · 官方下载|Suprminer 1.9.27 · Official download|Suprminer 1.9.27 · 公式ダウンロード|Suprminer 1.9.27 · Официальная загрузка
 Fl4shMiner 1.5.0 · 官方下载|Fl4shMiner 1.5.0 · Official download|Fl4shMiner 1.5.0 · 公式ダウンロード|Fl4shMiner 1.5.0 · Официальная загрузка
 下载并安装|Download and install|ダウンロード・インストール|Скачать и установить
-内核费 0% · 软件服务费 0.5%|Kernel fee 0%; app fee 0.5%|カーネル 0%、ソフト利用料 0.5%|Комиссия ядра 0%; приложения 0.5%
 内核费 3% · 软件服务费 0.5%|Kernel fee 3%; app fee 0.5%|カーネル 3%、ソフト利用料 0.5%|Комиссия ядра 3%; приложения 0.5%
 Suprminer：驱动需 ≥ 610；仅使用主矿池，不自动切换备用节点。|Suprminer: driver ≥ 610; primary pool only, no backup failover.|Suprminer：ドライバー ≥ 610。メインプールのみ、予備へ自動切替なし。|Suprminer: драйвер ≥ 610; только основной пул, без автоматического резерва.
 Fl4shMiner：可能要求关闭 AI / 调试应用；拒绝启动时请查看日志。|Fl4shMiner may require closing AI / debugging apps; check logs if startup is refused.|Fl4shMiner：AI・デバッグアプリの終了が必要な場合があります。起動拒否はログを確認。|Fl4shMiner может потребовать закрыть ИИ / отладчики; при отказе проверьте журнал.
@@ -754,6 +824,23 @@ Gozero 全节点|Gozero full node|Gozeroフルノード|Полный узел Go
 安装、选卡、挖矿、收益、性能预算与托盘操作统一按当前版本说明|Updated installation, GPU selection, mining, income, performance and tray instructions|導入・GPU選択・採掘・収益・性能・トレイ操作を現行版に統一|Инструкции установки, выбора GPU, майнинга, дохода, нагрузки и трея обновлены
 `;
  const catalog=Object.create(null);
+ catalog['Gozero XMRig 内核费 0% · 软件服务费 0.5%']=['Gozero XMRig fee 0% · App fee 0.5%','Gozero XMRig 手数料 0% · ソフト手数料 0.5%','Gozero XMRig: 0% · Комиссия приложения: 0.5%'];
+ catalog['默认推荐 · Gozero XMRig CPU · 内核费 0%']=['Recommended · Gozero XMRig CPU · Miner fee 0%','推奨 · Gozero XMRig CPU · 採掘手数料 0%','Рекомендуется · Gozero XMRig CPU · Комиссия ядра 0%'];
+ catalog['Gozero XMRig CPU 6.26.0-cpu.2 · 内核费 0%']=['Gozero XMRig CPU 6.26.0-cpu.2 · Miner fee 0%','Gozero XMRig CPU 6.26.0-cpu.2 · 採掘手数料 0%','Gozero XMRig CPU 6.26.0-cpu.2 · Комиссия ядра 0%'];
+ catalog['官方 XMRig 6.26.0 · 内核费 1%']=['Official XMRig 6.26.0 · Miner fee 1%','公式 XMRig 6.26.0 · 採掘手数料 1%','Официальный XMRig 6.26.0 · Комиссия ядра 1%'];
+
+ catalog['工作台']=['Workbench','ワークベンチ','Рабочая панель'];
+ catalog['0 = 按性能档位自动']=['0 = follow performance mode','0 = 性能モードに連動','0 = по режиму нагрузки'];
+ catalog['CPU 线程已按档位设置']=['CPU threads set for this mode','モードに応じて CPU スレッドを設定','Потоки CPU настроены по режиму'];
+ catalog['CPU 挖矿中：停止后可切换线程档位']=['CPU mining: stop to change thread mode','CPU 採掘中：停止後にスレッドモードを変更','Остановите CPU-майнинг для смены числа потоков'];
+
+ catalog["请填写 ZCD 的 02 永久收款地址"]=["Enter a ZCD 02 permanent payout address", "ZCD の 02 永久受取アドレスを入力", "Введите постоянный адрес ZCD с префиксом 02"];
+ catalog["01 是一次性地址，不能挖矿；请从钱包获取 02 永久地址"]=["01 is one-time; obtain a permanent 02 address from your wallet", "01 は使い捨てです。ウォレットから 02 永久アドレスを取得してください", "01 — одноразовый адрес; получите в кошельке постоянный адрес 02"];
+ catalog["仅支持 02 永久收款地址（可带 0x 前缀）"]=["Only permanent 02 addresses are supported (optional 0x prefix)", "02 永久アドレスのみ対応（0x 接頭辞は任意）", "Допустим только постоянный адрес 02 (префикс 0x необязателен)"];
+ catalog["地址不完整或含非法字符：02 开头，共 64 位十六进制字符"]=["Invalid format: 02 followed by 62 hexadecimal characters", "形式不正：02 に続けて 62 桁の16進数が必要です", "Неверный формат: 02 и ещё 62 шестнадцатеричных символа"];
+ catalog["02 永久地址格式正确"]=["02 permanent address format is correct", "02 永久アドレスの形式は正しいです", "Формат постоянного адреса 02 верен"];
+ catalog["填写 0x02… 永久收款地址"]=["Enter a permanent 0x02… payout address", "0x02… 永久受取アドレスを入力", "Постоянный адрес выплат 0x02…"];
+
  catalog['租赁市场']=['Rentals','レンタル市場','Аренда'];
  catalog['新增GPU / CPU租赁市场，实时价格与详细参数、租金试算']=['New GPU / CPU rental market with current quotes, specifications and cost estimates','GPU / CPUレンタル市場、現在価格・詳細仕様・料金試算を追加','Новый рынок аренды GPU / CPU: цены, характеристики и расчёт стоимости'];
  catalog['新增4090、5090、3090、RTX PRO 6000快捷筛选']=['Added quick filters for 4090, 5090, 3090 and RTX PRO 6000','4090・5090・3090・RTX PRO 6000のクイックフィルターを追加','Добавлены фильтры 4090, 5090, 3090 и RTX PRO 6000'];

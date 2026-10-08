@@ -1,0 +1,26 @@
+[
+  {
+    "name": "toolchain",
+    "url": "https://github.com/brechtsanders/winlibs_mingw/releases/download/16.2.0posix-14.0.0-ucrt-r2/winlibs-x86_64-posix-seh-gcc-16.2.0-mingw-w64ucrt-14.0.0-r2.zip",
+    "sha256": "d5dbafc4a170e762ca6143151ec918fb9e2c72736fb14cd704abebc6bdd5276a",
+    "publisherChecksum": true
+  },
+  {
+    "name": "cmake",
+    "url": "https://github.com/Kitware/CMake/releases/download/v4.4.4/cmake-4.4.4-windows-x86_64.zip",
+    "sha256": "bace36e94b31c68ab6fa295f26dfa11219e0701cf7c94b0284a7d1cb13dac536",
+    "publisherChecksum": true
+  },
+  {
+    "name": "source",
+    "url": "https://codeload.github.com/xmrig/xmrig/zip/b2ca72480c58d197e18c885d9fc1a0c8d517e60a",
+    "sha256": "3a78ed88e06c78ed47fbb74a890fb9b354c3cd514215d8bac85b2cb06a926eac",
+    "publisherChecksum": false
+  },
+  {
+    "name": "deps",
+    "url": "https://codeload.github.com/xmrig/xmrig-deps/zip/ddfb65ec8bf4803a6c1c2037969546d018c76b54",
+    "sha256": "a1ccc0e2fe6d538455e11261a8e0a4ebfc59029b4b02395473cf9f953a3dac6a",
+    "publisherChecksum": false
+  }
+]

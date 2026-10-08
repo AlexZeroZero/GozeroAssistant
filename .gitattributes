@@ -2,3 +2,9 @@
 *.png binary
 *.ico binary
 *.ptx binary
+
+# Preserve pinned byte hashes across Windows checkouts.
+/desktop/native/ysr/** -text
+/desktop/experiments/yskar/upstream/** -text
+*.exe binary
+*.wasm binary

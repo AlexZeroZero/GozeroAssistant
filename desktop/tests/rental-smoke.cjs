@@ -7,12 +7,18 @@ async function run(win,getState){
  await js("Object.defineProperty(document,'hidden',{configurable:true,get:()=>false});showView('rentals')");
  const wait=async()=>{for(let i=0;i<240;i++){if(await js("!document.querySelector('#rentals').classList.contains('rental-busy')"))return;await sleep(100)}throw Error('Rental UI timeout')};
  await wait();
- assert.equal(await js("document.querySelectorAll('.rental-card').length"),6);
+ assert.ok(await js("document.querySelectorAll('.rental-card').length>0"));
  assert.equal(await js("[...document.querySelectorAll('.rental-model')].every(n=>n.textContent.includes('RTX 4090')&&!n.textContent.includes('Laptop'))"),true);
  for(const language of ['zh-CN','en','ja','ru']){
   await js(`gozer.language('${language}')`);await sleep(140);
   const metrics=await js("({language:document.documentElement.lang,viewOverflow:document.querySelector('#rentals').scrollWidth-document.querySelector('#rentals').clientWidth,navOverflow:document.querySelector('nav').scrollWidth-document.querySelector('nav').clientWidth,mainScroll:document.querySelector('main').scrollHeight-document.querySelector('main').clientHeight,height:innerHeight,statusBottom:document.querySelector('.rental-statusbar').getBoundingClientRect().bottom,footerTop:document.querySelector('footer').getBoundingClientRect().top})");
   report.push(metrics);await fs.writeFile(path.join(out,language+'-gpu.png'),(await win.webContents.capturePage()).toPNG());
+ }
+ for(const [width,height] of [[1000,760],[1400,940],[720,540]]){
+  win.setContentSize(width,height);await sleep(450);await wait();
+  const fit=await js("({count:document.querySelectorAll('.rental-card').length,columns:getComputedStyle(document.querySelector('#rental-list')).gridTemplateColumns.split(' ').length,rows:getComputedStyle(document.querySelector('#rental-list')).gridTemplateRows.split(' ').length,overflow:document.querySelector('main').scrollHeight-document.querySelector('main').clientHeight})");
+  assert.equal(fit.count,fit.columns*fit.rows,'available offers fill resized page');assert.ok(fit.overflow<=2);
+  report.push({width,height,...fit});await fs.writeFile(path.join(out,'resize-'+width+'.png'),(await win.webContents.capturePage()).toPNG());
  }
  await js("gozer.language('zh-CN')");await sleep(140);await js("document.querySelector('.rental-card').click()");await sleep(140);
  assert.equal(await js("document.querySelector('#rental-detail').hidden"),false);await fs.writeFile(path.join(out,'gpu-detail.png'),(await win.webContents.capturePage()).toPNG());

@@ -89,8 +89,16 @@ def main():
         default_app.unlink()
     app_dir = target/'resources/app'
     app_dir.mkdir(parents=True, exist_ok=True)
+    # Rebuilding the same version must not retain an older bundled CPU miner.
+    excluded_cpu = app_dir/'native/zcd'
+    if excluded_cpu.exists():
+        if excluded_cpu.is_symlink() or not excluded_cpu.resolve().is_relative_to(target.resolve()):
+            raise RuntimeError('Unsafe stale CPU kernel path')
+        shutil.rmtree(excluded_cpu)
     for folder in ['src','renderer','assets','vendor','native']:
-        shutil.copytree(ROOT/folder, app_dir/folder, dirs_exist_ok=True, ignore=shutil.ignore_patterns('noid') if folder == 'native' else None)
+        shutil.copytree(ROOT/folder, app_dir/folder, dirs_exist_ok=True, ignore=shutil.ignore_patterns('noid','zcd') if folder == 'native' else None)
+    if any(p.name.lower() == 'xmrig.exe' for p in target.rglob('*')):
+        raise RuntimeError('XMRig must be downloaded on demand, never bundled')
     shutil.copy2(ROOT/'package.json', app_dir/'package.json')
     exe = target/'GozerAssistant.exe'
     (target/'electron.exe').replace(exe)

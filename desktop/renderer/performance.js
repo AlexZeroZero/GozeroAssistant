@@ -10,5 +10,12 @@
   const label={eco:'节能',balanced:'均衡',high:'高性能'}[mode];
   return{percent,mode,label,text:label+' · '+percent+'%'};
  }
- return{describe};
+ function cpuThreadBudget(device,value){
+  const logical=Math.max(1,Math.floor(Number(device?.logical)||1));
+  const maximum=logical;
+  const percent=describe(value).percent;
+  // CPU modes budget logical threads, including SMT / Hyper-Threading.
+  return Math.max(1,Math.min(maximum,Math.floor(logical*percent/100)));
+ }
+ return{describe,cpuThreadBudget};
 });

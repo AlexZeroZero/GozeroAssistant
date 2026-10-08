@@ -1,0 +1,157 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -239,17 +239,6 @@
+ add_executable(${CMAKE_PROJECT_NAME} ${HEADERS} ${SOURCES} ${SOURCES_OS} ${HEADERS_CRYPTO} ${SOURCES_CRYPTO} ${SOURCES_SYSLOG} ${TLS_SOURCES} ${XMRIG_ASM_SOURCES})
+ target_link_libraries(${CMAKE_PROJECT_NAME} ${XMRIG_ASM_LIBRARY} ${OPENSSL_LIBRARIES} ${UV_LIBRARIES} ${EXTRA_LIBS} ${CPUID_LIB} ${ARGON2_LIBRARY} ${ETHASH_LIBRARY} ${GHOSTRIDER_LIBRARY})
+ 
+-if (WIN32)
+-    if (NOT ARM_TARGET)
+-        add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/bin/WinRing0/WinRing0x64.sys" $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
+-    endif()
+-
+-    add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/scripts/benchmark_1M.cmd" $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
+-    add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/scripts/benchmark_10M.cmd" $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
+-    add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/scripts/pool_mine_example.cmd" $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
+-    add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/scripts/solo_mine_example.cmd" $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
+-    add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/scripts/rtm_ghostrider_example.cmd" $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
+-endif()
+ 
+ if (CMAKE_CXX_COMPILER_ID MATCHES Clang AND CMAKE_BUILD_TYPE STREQUAL Release AND NOT CMAKE_GENERATOR STREQUAL Xcode)
+     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_STRIP} "$<TARGET_FILE:${CMAKE_PROJECT_NAME}>")
+--- a/src/crypto/common/VirtualMemory_win.cpp
++++ b/src/crypto/common/VirtualMemory_win.cpp
+@@ -72,78 +72,19 @@
+     tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+ 
+     if (!LookupPrivilegeValue(nullptr, SE_LOCK_MEMORY_NAME, &(tp.Privileges[0].Luid))) {
++        CloseHandle(token);
+         return FALSE;
+     }
+ 
+     BOOL rc = AdjustTokenPrivileges(token, FALSE, (PTOKEN_PRIVILEGES) &tp, 0, nullptr, nullptr);
+     if (!rc || GetLastError() != ERROR_SUCCESS) {
++        CloseHandle(token);
+         return FALSE;
+     }
+ 
+     CloseHandle(token);
+ 
+     return TRUE;
+-}
+-
+-
+-static LSA_UNICODE_STRING StringToLsaUnicodeString(LPCTSTR string) {
+-    LSA_UNICODE_STRING lsaString;
+-
+-    const auto dwLen = (DWORD) wcslen(string);
+-    lsaString.Buffer = (LPWSTR) string;
+-    lsaString.Length = (USHORT)((dwLen) * sizeof(WCHAR));
+-    lsaString.MaximumLength = (USHORT)((dwLen + 1) * sizeof(WCHAR));
+-    return lsaString;
+-}
+-
+-
+-static BOOL ObtainLockPagesPrivilege() {
+-    HANDLE token;
+-    PTOKEN_USER user = nullptr;
+-
+-    if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token)) {
+-        DWORD size = 0;
+-
+-        GetTokenInformation(token, TokenUser, nullptr, 0, &size);
+-        if (size) {
+-            user = (PTOKEN_USER) LocalAlloc(LPTR, size);
+-        }
+-
+-        GetTokenInformation(token, TokenUser, user, size, &size);
+-        CloseHandle(token);
+-    }
+-
+-    if (!user) {
+-        return FALSE;
+-    }
+-
+-    LSA_HANDLE handle;
+-    LSA_OBJECT_ATTRIBUTES attributes;
+-    ZeroMemory(&attributes, sizeof(attributes));
+-
+-    BOOL result = FALSE;
+-    if (LsaOpenPolicy(nullptr, &attributes, POLICY_ALL_ACCESS, &handle) == 0) {
+-        LSA_UNICODE_STRING str = StringToLsaUnicodeString(_T(SE_LOCK_MEMORY_NAME));
+-
+-        if (LsaAddAccountRights(handle, user->User.Sid, &str, 1) == 0) {
+-            LOG_NOTICE("Huge pages support was successfully enabled, but reboot required to use it");
+-            result = TRUE;
+-        }
+-
+-        LsaClose(handle);
+-    }
+-
+-    LocalFree(user);
+-    return result;
+-}
+-
+-
+-static BOOL TrySetLockPagesPrivilege() {
+-    if (SetLockPagesPrivilege()) {
+-        return TRUE;
+-    }
+-
+-    return ObtainLockPagesPrivilege() && SetLockPagesPrivilege();
+ }
+ 
+ 
+@@ -236,7 +177,7 @@
+ void xmrig::VirtualMemory::osInit(size_t hugePageSize)
+ {
+     if (hugePageSize) {
+-        hugepagesAvailable = TrySetLockPagesPrivilege();
++        hugepagesAvailable = SetLockPagesPrivilege();
+     }
+ }
+ 
+--- a/src/crypto/randomx/jit_compiler_x86.cpp
++++ b/src/crypto/randomx/jit_compiler_x86.cpp
+@@ -207,14 +207,14 @@
+ 	}
+ 
+ 	void JitCompilerX86::enableWriting() const {
+-		uint8_t* p1 = alignToPage(code, 4096);
+-		uint8_t* p2 = code + CodeSize;
++		uint8_t* p1 = allocatedCode;
++		uint8_t* p2 = allocatedCode + allocatedSize;
+ 		xmrig::VirtualMemory::protectRW(p1, p2 - p1);
+ 	}
+ 
+ 	void JitCompilerX86::enableExecution() const {
+-		uint8_t* p1 = alignToPage(code, 4096);
+-		uint8_t* p2 = code + CodeSize;
++		uint8_t* p1 = allocatedCode;
++		uint8_t* p2 = allocatedCode + allocatedSize;
+ 		xmrig::VirtualMemory::protectRX(p1, p2 - p1);
+ 	}
+ 
+--- a/src/donate.h
++++ b/src/donate.h
+@@ -37,8 +37,8 @@
+  * If you plan on changing donations to 0%, please consider making a one-off donation to my wallet:
+  * XMR: 48edfHu7V9Z84YzzMa6fUueoELZ9ZRXq9VetWzYGzKt52XU5xvqgzYnDK9URnRoJMk1j8nLwEVsaSWJ4fhdUyZijBGUicoD
+  */
+-constexpr const int kDefaultDonateLevel = 1;
+-constexpr const int kMinimumDonateLevel = 1;
++constexpr const int kDefaultDonateLevel = 0;
++constexpr const int kMinimumDonateLevel = 0;
+ 
+ 
+ #endif // XMRIG_DONATE_H
+--- a/src/version.h
++++ b/src/version.h
+@@ -10,7 +10,7 @@
+ 
+ #define APP_ID        "xmrig"
+ #define APP_NAME      "XMRig"
+-#define APP_DESC      "XMRig miner"
++#define APP_DESC      "XMRig CPU miner - Gozero source build"
+ #define APP_VERSION   "6.26.0"
+ #define APP_DOMAIN    "xmrig.com"
+ #define APP_SITE      "www.xmrig.com"

@@ -2,8 +2,8 @@
 (()=>{
  const root=document.getElementById('rentals'),api=window.gozer,t=window.GozerRentalText;
  const $=s=>root.querySelector(s),all=s=>root.querySelectorAll(s),el=(tag,cls,value)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(value!==undefined)n.textContent=value;return n};
- const defaults={kind:'gpu',provider:'all',model:'RTX 4090',q:'',country:'',sort:'perGpu',rental:'on_demand',page:1,minVram:'',minRam:'',minCount:'',minThreads:'',maxPrice:'',brand:''};
- let form={...defaults},data=null,selected=null,selectedKey=null,active=false,busy=false,requestID=0,timer,debounce,lastGoodKey='',first=true;
+ const defaults={kind:'gpu',provider:'all',model:'RTX 4090',q:'',country:'',sort:'perGpu',rental:'on_demand',page:1,limit:6,minVram:'',minRam:'',minCount:'',minThreads:'',maxPrice:'',brand:''};
+ let form={...defaults},data=null,selected=null,selectedKey=null,active=false,busy=false,requestID=0,timer,debounce,lastGoodKey='',first=true,resizeTimer;
  const number=v=>typeof v==='number'&&Number.isFinite(v)?v.toLocaleString('en-US',{maximumFractionDigits:2}):'—';
  const money=v=>typeof v==='number'&&Number.isFinite(v)?'$'+(Math.round((v+1e-9)*100)/100).toFixed(2):'—';
  const labelProvider=id=>id==='clore'?'Clore':'Vast.ai';
@@ -34,14 +34,14 @@
  }
  function renderCards(){
   const list=$('#rental-list'),rows=data?.items||[];
-  if(!data){if(busy){list.replaceChildren(...Array.from({length:6},()=>{const n=el('div','rental-skeleton');n.append(el('i'),el('i'),el('i'));return n}))}else list.replaceChildren(el('div','rental-empty',t('error')));return}
+  if(!data){if(busy){list.replaceChildren(...Array.from({length:form.limit},()=>{const n=el('div','rental-skeleton');n.append(el('i'),el('i'),el('i'));return n}))}else list.replaceChildren(el('div','rental-empty',t('error')));return}
   if(!rows.length){list.replaceChildren(el('div','rental-empty',t(data.loading?'loading':'empty')));return}
   // Refresh updates the existing cards in place. Filter changes alone reset their ordering.
   const existing=new Map([...list.children].map(n=>[n.dataset.key,n]));
   const next=[];for(const x of rows){const fresh=card(x),old=existing.get(x.key);if(old){if(old.innerHTML!==fresh.innerHTML)old.replaceChildren(...fresh.childNodes);old.title=fresh.title;old.setAttribute('aria-pressed',fresh.getAttribute('aria-pressed'));old.onclick=fresh.onclick;next.push(old)}else next.push(fresh)}
   next.forEach((n,i)=>{if(list.children[i]!==n)list.insertBefore(n,list.children[i]||null)});while(list.children.length>next.length)list.lastChild.remove();
  }
- function render(){labels();summary();renderCards();$('#rental-result-count').textContent=t('matches',{n:number(data?.total)});$('#rental-page').textContent=`${data?.page||form.page} / ${data?.pages||'—'}`;
+ function render(){labels();summary();renderCards();$('#rental-result-count').textContent=t('matches',{n:number(data?.total),limit:form.limit});$('#rental-page').textContent=`${data?.page||form.page} / ${data?.pages||'—'}`;
   $('#rental-prev').disabled=busy||!data||data.page<=1;$('#rental-next').disabled=busy||!data||data.page>=data.pages;$('#rental-refresh').disabled=busy;$('#rental-status').classList.toggle('rental-warning',!!data?.stale);
   $('#rental-status').textContent=busy?t('loading'):data?.stale?t('stale'):data?`${t('updated')} ${new Date(data.at).toLocaleTimeString(GozerI18n.locale,{hour12:false})}`:t('error');root.classList.toggle('rental-busy',busy);
  }
@@ -53,7 +53,7 @@
    if(newKey===beforeKey&&previous){const order=new Map(previous.items.map((x,i)=>[x.key,i]));next.items.sort((a,b)=>(order.get(a.key)??100)-(order.get(b.key)??100))}
    data=next;lastGoodKey=newKey;if(data.page>data.pages){form.page=data.pages;busy=false;return refresh()}updateRegions();
   }catch{if(id!==requestID)return;data=newKey===beforeKey&&previous?{...previous,stale:true}:null}
-  finally{if(id===requestID){busy=false;render();clearTimeout(timer);if(active&&!document.hidden)timer=setTimeout(refresh,data?.loading?5000:60000)}}
+  finally{if(id===requestID){busy=false;render();clearTimeout(timer);if(active&&!document.hidden)timer=setTimeout(refresh,newKey!==key()?0:data?.loading?5000:60000)}}
  }
  function change(){clearTimeout(debounce);clearTimeout(timer);++requestID;busy=false;form.page=1;closeDetail();data=null;lastGoodKey='';refresh()}
  function openDetail(x){selected=x;selectedKey=x.key;$('#rental-detail').hidden=false;$('#rental-detail').style.left='';$('#rental-detail').style.top='';renderDetail();renderCards();$('#rental-dialog-close').focus()}
@@ -68,13 +68,13 @@
  }
  function cost(){if(!selected)return;const x=selected,h=Number($('#rental-duration').value),base=x.price!==null&&h>0?x.price*h/24:null,fee=x.provider==='clore'&&base!==null?base*.05:0;$('#rental-cost').textContent=money(base===null?null:base+fee);$('#rental-cost-note').textContent=(x.provider==='clore'?`${t('rent')} ${money(base)} + 5% ${t('baseFee')} ${money(fee)}. ${t('cloreNote')}`:t('vastNote'))+(form.rental==='spot'?' '+t('spotNote'):'');}
  async function openLink(id){try{await api?.rentalOpen(id)}catch{window.toast?.(t('error'))}}
- all('[data-rkind]').forEach(b=>b.onclick=()=>{form={...defaults,kind:b.dataset.rkind,model:b.dataset.rkind==='gpu'?'RTX 4090':'',sort:b.dataset.rkind==='gpu'?'perGpu':'price'};sync();change()});
+ all('[data-rkind]').forEach(b=>b.onclick=()=>{form={...defaults,limit:form.limit,kind:b.dataset.rkind,model:b.dataset.rkind==='gpu'?'RTX 4090':'',sort:b.dataset.rkind==='gpu'?'perGpu':'price'};sync();change()});
  all('[data-rprovider]').forEach(b=>b.onclick=()=>{form.provider=b.dataset.rprovider;change()});
  all('[data-rmodel]').forEach(b=>b.onclick=()=>{form.model=b.dataset.rmodel==='pro'?'':b.dataset.rmodel;form.q=b.dataset.rmodel==='pro'?'RTX PRO 6000':'';$('#rental-search').value=form.q;change()});
  $('#rental-search').oninput=e=>{form.q=e.target.value.slice(0,80);form.model='';++requestID;busy=false;clearTimeout(debounce);debounce=setTimeout(change,350)};
  for(const [id,k]of [['region','country'],['sort','sort'],['type','rental'],['vram','minVram'],['ram','minRam'],['count','minCount'],['threads','minThreads'],['max','maxPrice'],['brand','brand']])$('#rental-'+id).onchange=e=>{form[k]=['minVram','minRam','minCount','minThreads','maxPrice'].includes(k)&&e.target.value!==''?Number(e.target.value):e.target.value;change()};
  $('#rental-more').onclick=()=>{const open=$('#rental-advanced').hidden;$('#rental-advanced').hidden=!open;$('#rental-more').setAttribute('aria-expanded',String(open))};
- $('#rental-reset').onclick=()=>{const kind=form.kind;form={...defaults,kind,model:'',sort:kind==='gpu'?'perGpu':'price'};sync();change()};
+ $('#rental-reset').onclick=()=>{const kind=form.kind;form={...defaults,limit:form.limit,kind,model:'',sort:kind==='gpu'?'perGpu':'price'};sync();change()};
  $('#rental-prev').onclick=()=>{form.page--;closeDetail();refresh()};$('#rental-next').onclick=()=>{form.page++;closeDetail();refresh()};$('#rental-refresh').onclick=refresh;
  all('[data-rlink]').forEach(b=>b.onclick=()=>openLink(b.dataset.rlink));$('#rental-site').onclick=()=>openLink(form.kind);
  $('#rental-dialog-close').onclick=closeDetail;$('#rental-duration').onchange=cost;
@@ -82,8 +82,22 @@
  const dialog=$('#rental-detail'),handle=$('#rental-drag');let drag=null;
  handle.onpointerdown=e=>{if(e.target.closest('button'))return;drag={x:e.clientX,y:e.clientY,left:dialog.offsetLeft,top:dialog.offsetTop};handle.setPointerCapture(e.pointerId)};
  handle.onpointermove=e=>{if(!drag)return;dialog.style.left=Math.max(0,Math.min(innerWidth-dialog.offsetWidth,drag.left+e.clientX-drag.x))+'px';dialog.style.top=Math.max(62,Math.min(innerHeight-dialog.offsetHeight-20,drag.top+e.clientY-drag.y))+'px'};handle.onpointerup=handle.onpointercancel=()=>drag=null;
+ function fitList(){
+  if(!active)return false;
+  const list=$('#rental-list'),width=list.clientWidth,height=list.clientHeight;
+  if(!width||!height)return false;
+  const columns=Math.max(1,Math.min(8,Math.floor((width+4)/304)));
+  const rows=Math.max(1,Math.min(Math.floor(96/columns),Math.floor((height+4)/78)));
+  list.style.setProperty('--rental-columns',columns);list.style.setProperty('--rental-rows',rows);
+  const limit=columns*rows;
+  if(limit===form.limit)return false;
+  form.page=Math.floor((form.page-1)*form.limit/limit)+1;form.limit=limit;
+  return true;
+ }
+ const resizeObserver=new ResizeObserver(()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(fitList()&&!busy)refresh()},250)});
+ resizeObserver.observe($('#rental-list'));
  function sync(){$('#rental-search').value=form.q;$('#rental-max').value=form.maxPrice;labels()}
- document.addEventListener('gozer-view',e=>{active=e.detail==='rentals';if(active){if(first){first=false;refresh()}else refresh()}else{clearTimeout(timer);clearTimeout(debounce);closeDetail()}});
+ document.addEventListener('gozer-view',e=>{active=e.detail==='rentals';if(active){fitList();if(first){first=false;refresh()}else refresh()}else{clearTimeout(timer);clearTimeout(debounce);closeDetail()}});
  document.addEventListener('visibilitychange',()=>{clearTimeout(timer);if(!document.hidden&&active)refresh()});
  document.addEventListener('gozer-language',()=>{render();renderDetail()});
  sync();render();

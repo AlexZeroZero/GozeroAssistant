@@ -16,7 +16,14 @@ async function installKernel({dir,exe,metadata,request,update,log,extractArchive
  const zip=path.join(dir,'download.zip');let received=0,total=null,lastBucket=-1,lastLog=0;
  const stage=(name,message,error=null)=>{update({stage:name,received,total,error,version:metadata.version});log('安装',message)};
  try{
-  await fs.mkdir(dir,{recursive:true});stage('connecting','连接 '+(metadata.name||'KRig')+' '+metadata.version+' 官方下载源');
+  await fs.mkdir(dir,{recursive:true});stage('connecting',metadata.bundled?'校验随附内核文件':'连接 '+(metadata.name||'KRig')+' '+metadata.version+' 下载源');
+  if(metadata.bundled){
+   if(metadata.bundleDirectory!=='ysr'||!metadata.files)throw Error('内置内核元数据无效');
+   stage('verifying','校验内置开源内核 '+metadata.name);const source=path.join(__dirname,'../native',metadata.bundleDirectory);
+   const files=[];for(const [name,expected] of Object.entries(metadata.files)){if(path.basename(name)!==name)throw Error('无效内核文件名');const body=await fs.readFile(path.join(source,name));if(hash(body)!==expected)throw Error('内置内核文件校验失败：'+name);files.push([name,body])}
+   stage('extracting','安装内置开源内核');for(const [name,body] of files){const tmp=path.join(dir,name+'.tmp');await fs.writeFile(tmp,body);await fs.rename(tmp,path.join(dir,name))}
+   stage('ready','可用内核：'+metadata.name+' '+metadata.version+'；尚未启动挖矿');return true;
+  }
   const body=await request(metadata.url,{maxBytes:100*1024*1024,timeout:120000,onProgress:p=>{
    received=p.received;total=p.total;update({stage:'downloading',received,total,error:null,version:metadata.version});
    const bucket=total?Math.floor(received/total*10):0;

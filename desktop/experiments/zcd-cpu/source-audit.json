@@ -1,0 +1,12 @@
+{
+  "changedFiles": [
+    "CMakeLists.txt",
+    "src/crypto/common/VirtualMemory_win.cpp",
+    "src/crypto/randomx/jit_compiler_x86.cpp",
+    "src/donate.h",
+    "src/version.h"
+  ],
+  "upstreamDonationPercent": 0,
+  "secureJitAllocationFix": true,
+  "driverInstalled": false
+}

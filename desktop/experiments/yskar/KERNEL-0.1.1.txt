@@ -1,0 +1,45 @@
+YSR CUDA 0.1.1 / Gozero Windows 1.0.14 — 2026-10-07
+
+Trigger: user RTX 3090 remained around 580-594 MH/s at applied 100% mode,
+versus a separate official GUI screenshot at 922.07 MH/s (GPU only).
+The 1.0.13 scheduling correction alone has not resolved that user's comparison.
+
+Changes:
+- Job midstate/target in broadcast constant memory, following upstream GPU design.
+- SM-count-sized grid and strided nonce loops rather than one thread per nonce.
+- Brief per-device choice of 128/256 threads; startup logs SM/grid/thread shape.
+- Adaptive approximately 80 ms batches, removing the previous 4,194,304 limit.
+  Growth is bounded to 2x and 134,217,728 total nonces; easy targets constrain size.
+- Preserve complete candidate counting, 64-slot overflow retry and CPU verification.
+- Startup validation: 17 independent hash vectors, 34 complete strided candidate
+  sets checked against CPU SHA-256d, inclusive target, high nonce and overflow tests.
+- Preserve explicit start/stop, 0.5% disclosed scheduler, 90 C default protection.
+- Migrate an explicitly selected 0.1.0 engine to updated default without resetting
+  user wallets, performance or temperature settings. New engine must be installed.
+
+Local evidence (RTX 5060 Laptop, driver 596.08; not RTX 3090):
+Offline 2-second throughput samples, common compiler and pinned SHA implementation:
+  Old one-nonce loop, 4M batch: 968.48 MH/s
+  Old one-nonce loop, 64M batch: 989.30 MH/s
+  Pinned official strided kernel: 1158.23 MH/s
+  Bounded candidate strided kernel, 128 threads: 1147.67 MH/s
+  Bounded candidate strided kernel, 256 threads: 1068.03 MH/s
+These sequential short samples are not official GUI or pool-effective measurements.
+
+Live application comparison, 45 seconds each, first 15 seconds excluded, same
+100% setting (90% host scheduling budget), cooling between cases:
+  Engine 0.1.0: median 945.34 MH/s; 15 accepted / 0 rejected; peak sampled 83 C.
+  Engine 0.1.1: median 1131.75 MH/s; 14 accepted / 0 rejected; peak sampled 88 C.
+New run selected SM=26, threads=256, blocks=208. Local discarded candidates were
+66 and 87 respectively, primarily invalidated by VarDiff/job changes, not rejects.
+All owned test miners were stopped after testing.
+
+119 automated regression tests passed. Electron local-install, live network and
+four-language smoke tests are run separately. Packaged native files are SHA256-pinned.
+The official GUI binary and a RTX 3090 were not available for a controlled local
+comparison. No parity guarantee or claim that the user's 3090 issue is fully fixed.
+
+Evidence: .local/yskar-research/batch-comparison.json and core-comparison.json.
+Reproduce offline: python desktop/experiments/yskar/compare_batches.py
+Reproduce live: compare-scheduling.cjs with GOZER_YSR_CORE_COMPARE=1 and existing
+explicit live-test opt-in/GPU UUID settings. Never runs as part of automatic tests.

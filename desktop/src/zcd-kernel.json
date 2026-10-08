@@ -1,0 +1,19 @@
+{
+  "id": "xmrig-zcd-6.26.0",
+  "name": "XMRig · ZCD",
+  "version": "6.26.0",
+  "url": "https://github.com/xmrig/xmrig/releases/download/v6.26.0/xmrig-6.26.0-windows-x64.zip",
+  "sha256": "bba8097cb37d9b458a1cb1137876b27cde6740d17fe4ccbc086ba07d87d9e147",
+  "exe": "xmrig.exe",
+  "exeSha256": "6fa80698d7268f6e88aa88c06fb27ee99e1bcee747c2e76911e6206a5b1aeeb3",
+  "archiveRoot": "xmrig-6.26.0/",
+  "files": {
+    "xmrig.exe": "6fa80698d7268f6e88aa88c06fb27ee99e1bcee747c2e76911e6206a5b1aeeb3"
+  },
+  "source": "https://github.com/xmrig/xmrig/releases/tag/v6.26.0",
+  "sourceCode": "https://github.com/xmrig/xmrig/tree/v6.26.0",
+  "license": "GPL-3.0",
+  "captureOutput": true,
+  "kernelFee": 0.01,
+  "hardware": "CPU"
+}

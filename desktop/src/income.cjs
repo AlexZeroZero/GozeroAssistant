@@ -6,14 +6,14 @@ const finite=v=>typeof v==='number'&&Number.isFinite(v)&&v>=0;
 function matchDevice(device,rows){const key=canonical(device.name);const matches=rows.filter(r=>r.kind==='GPU'&&canonical(r.name)===key);return matches.length===1?matches[0]:null}
 function evaluate(data,hardware,config,benchmark=null,networks=[]){
  const {RATE,kernelFee}=require('./service-fee.cjs');const devices=hardware.gpus.filter(d=>config.selected.includes(d.id));
- return{at:data?.receivedAt||null,sources:data?.sources||[],fx:data?.fx||null,coins:['PRL','QTC','TSC','NOID'].map(coin=>{
-  const n=networks.find(n=>n.coin===coin),rows=devices.map(d=>{
-   const ref=matchDevice(d,data?.devices||[]),p=ref?.profiles?.find(p=>p.coin===coin),m=benchmark?.coin===coin?benchmark.devices.find(x=>x.id===d.id):null,manual=config.manualInputs?.[coin]?.[d.id];
+ return{at:data?.receivedAt||null,sources:data?.sources||[],fx:data?.fx||null,coins:['PRL','QTC','TSC','NOID','YSR','ZCD'].map(coin=>{
+  const n=networks.find(n=>n.coin===coin),rows=(coin==='ZCD'?require('./mining-devices.cjs').miningDevices({coin},hardware):devices).map(d=>{
+   const ref=coin==='ZCD'?null:matchDevice(d,data?.devices||[]),p=ref?.profiles?.find(p=>p.coin===coin),m=benchmark?.coin===coin?benchmark.devices.find(x=>x.id===d.id):null,manual=config.manualInputs?.[coin]?.[d.id];
    const unit=coin==='TSC'?'N/s':'H/s',measured=!!(m&&finite(m.hash)&&(m.unit||'H/s')===unit),typed=!measured&&!!manual;
    const model=n?.models?matchDevice(d,n.models.map(r=>({...r,kind:'GPU'}))):null;
    const hash=measured?m.hash:typed?manual.hash:(model?.hash??p?.hash??null),watts=measured?(finite(m.watts)?m.watts:null):typed?manual.watts:(model?.watts??p?.watts??null);
    let dailyCoins=null,gross=null,source=null,at=null,stale=false,basis=null;
-   if(finite(hash)&&finite(n?.coinsPerUnitDay)&&n.unit===unit){dailyCoins=hash*n.coinsPerUnitDay;gross=finite(n.price)?dailyCoins*n.price:null;source=n.basis;at=n.referenceAt;stale=!!n.referenceStale||!!n.priceStale||(coin!=='TSC'&&!!n.networkStale);basis=n.basis}
+   if(finite(hash)&&finite(n?.coinsPerUnitDay)&&n.unit===unit){dailyCoins=hash*n.coinsPerUnitDay;gross=finite(n.price)?dailyCoins*n.price:null;source=n.basis;at=n.referenceAt;stale=!!n.referenceStale||(coin!=='YSR'&&!!n.priceStale)||(coin!=='TSC'&&!!n.networkStale);basis=n.basis}
    else if(p&&finite(p.grossUsd)&&finite(hash)&&p.hash>0&&p.unit===unit){gross=p.grossUsd*hash/p.hash;dailyCoins=finite(p.dailyCoins)?p.dailyCoins*hash/p.hash:null;source=p.source||ref.source;at=p.at||ref.at;stale=!!p.stale||!!ref.stale||Date.now()-(at||0)>900000;basis='来源同算法单位算力收益 × 本机/输入/参考算力'}
    return{id:d.id,name:d.name,matched:gross!==null,algorithm:n?.algorithm||p?.algorithm||null,hash,unit,watts:finite(watts)?watts:null,gross,dailyCoins,measured,manual:typed,source,sourceUrl:n?.sourceUrl||ref?.sourceUrl||null,at,stale,basis};
   });

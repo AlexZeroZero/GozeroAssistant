@@ -1,0 +1,32 @@
+{
+  "checks": [
+    {
+      "flags": [
+        "--version"
+      ],
+      "exitCode": 0,
+      "stdout": "XMRig 6.26.0\r\n built on Oct  8 2026 with GCC 16.2.0\r\n features: 64-bit AES\r\n\r\nlibuv/1.51.0\r\nOpenSSL/3.0.16\r\nhwloc/2.12.1\r\n",
+      "stderr": "",
+      "timedOut": false,
+      "passed": true,
+      "elapsedSeconds": 0.031
+    },
+    {
+      "flags": [
+        "--config",
+        "C:\\Users\\ALIENWARE\\AppData\\Local\\GozeroBuild\\xmrig-cpu-6.26.0\\output\\dry-run.json",
+        "--dry-run"
+      ],
+      "exitCode": 0,
+      "stdout": " * ABOUT        XMRig/6.26.0 gcc/16.2.0 (built for Windows x86-64, 64 bit)\r\r\n * LIBS         libuv/1.51.0 OpenSSL/3.0.16 hwloc/2.12.1\r\r\n * HUGE PAGES   unavailable\r\r\n * 1GB PAGES    unavailable\r\r\n * CPU          Intel(R) Core(TM) Ultra 9 275HX (1) 64-bit AES VM\r\r\n                L2:40.0 MB L3:36.0 MB 24C/24T NUMA:1\r\r\n * MEMORY       21.5/47.5 GB (45%)\r\r\n * DONATE       0%\r\r\n * ASSEMBLY     auto:intel\r\r\n * POOL #1      127.0.0.1:1 algo rx/2\r\r\n * COMMANDS     'h' hashrate, 'p' pause, 'r' resume, 's' results, 'c' connection\r\r\n[2026-10-08 12:06:50.551]  config   OK\r\r\n",
+      "stderr": "",
+      "timedOut": false,
+      "passed": true,
+      "elapsedSeconds": 0.047
+    }
+  ],
+  "miningStarted": false,
+  "poolAcceptanceTested": false,
+  "antivirusClearance": "not established",
+  "performanceTested": false
+}

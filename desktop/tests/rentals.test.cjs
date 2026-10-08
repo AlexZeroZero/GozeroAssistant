@@ -2,6 +2,15 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {Rentals,query,apiUrl,normalize,externalLink,LINKS,TTL}=require('../src/rentals.cjs');
 const fixture={items:[{id:42,provider:'vast',gpu:'RTX 4090',count:2,gpuMemory:24,ram:64,cpu:'CPU',effectiveVcpus:16,country:'JP',wholeAvailable:true,prices:{on_demand:{USD:12},spot:{USD:8}},reliability:.999,maxHours:168,source_url:'javascript:alert(1)'}],summary:{machines:10,available:5,models:2,lowest_per_gpu:6},total:7,page:1,pages:2,updated_at:1700000000,countries:['JP','US']};
+
+test('rental page capacity is bounded and preserved through the API and normalization',()=>{
+ for(const limit of [1,6,12,48,96]){
+  const q=query({limit});assert.equal(new URL(apiUrl(q)).searchParams.get('limit'),String(limit));
+  const raw={...fixture,pages:undefined,total:120,items:Array.from({length:120},(_,i)=>({...fixture.items[0],id:i+1}))};
+  const result=normalize(raw,q);assert.equal(result.items.length,limit);assert.equal(result.pages,Math.ceil(120/limit));
+ }
+ for(const limit of [0,97,1.5,Infinity,'12'])assert.throws(()=>query({limit}));
+});
 test('rental queries use only fixed catalogue URLs and bounded validated parameters',()=>{
  const q=query({kind:'gpu',model:'RTX 4090',q:'a&provider=evil',sort:'priceDesc'}),u=new URL(apiUrl(q));assert.equal(u.origin,'https://gozero.trade');assert.equal(u.pathname,'/api/gpu-rentals');assert.equal(u.searchParams.get('q'),'a&provider=evil');assert.equal(u.searchParams.get('provider'),'all');assert.equal(u.searchParams.get('model'),'RTX 4090');assert.equal(u.searchParams.get('limit'),'6');assert.equal(u.searchParams.get('income'),'0');
  for(const bad of [{kind:'file'},{provider:'__proto__'},{model:'javascript:'},{sort:'random'},{country:'JP&x=1'},{q:'a'.repeat(81)},{q:'a\n'},{page:0},{page:1.5},{minRam:-2},{maxPrice:Infinity},{minThreads:'64'}])assert.throws(()=>query(bad));

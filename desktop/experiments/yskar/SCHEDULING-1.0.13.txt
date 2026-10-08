@@ -1,0 +1,41 @@
+YSR performance correction — Windows build 1.0.13
+Date: 2026-10-07
+
+Root cause
+ProcessGuard already gates host submission time using the selected performance
+budget (75 -> 68%; 100 -> 90%). The YSR hardware-monitor path also decreased
+this duty based on whole-GPU utilization. Driver utilization includes queued GPU
+work and other applications and is not a measurement of this process's duty.
+This feedback repeatedly reduced duty to 42-58% in the old 75% test.
+
+Change
+YSR, like NOID, now retains its explicit time budget. Applying a different mode
+still changes duty. GPU disappearance, missing temperature, sensor timeout and
+configured temperature threshold still stop the owned miner. No power limits,
+clock settings, SHA-256d functions, reported-hash arithmetic, wallets or fees changed.
+Native core is byte-for-byte identical to 1.0.12 (Gozero YSR CUDA 0.1.0):
+aa8d78e6731d36e75960ed29cb7f54f71e5322e8c000ea91e9fd3165d2c888da
+
+Local live comparison
+GPU: NVIDIA GeForce RTX 5060 Laptop GPU; driver 596.08.
+45 seconds per case; warmup first 15 seconds excluded from sampled statistics.
+Cases run sequentially, cooling between cases; isolated profiles and same pool.
+These short local completed-work samples are not five-minute pool-effective rates.
+
+Case       Median MH/s    Mean MH/s    Duty range    Peak C    Accepted / rejected
+Old 75%       536.88        546.10        42-58         78          15 / 0
+Fixed 75%     783.92        760.72        68            75          13 / 0
+Fixed 100%    953.25        947.62        90            86          15 / 0
+
+The test reproduced the reported approximately 500 MH/s condition and showed
+the corrected high-performance setting near the user's reported 900-1000 range.
+The official GUI binary was not run in this comparison, and the user's GPU model
+was not confirmed; this is not proof of parity on all GPUs or a controlled GUI A/B.
+Pinned official CUDA and GUI accounting sources were read for comparison.
+The 100% setting still reserves 10% host scheduling time as requested previously.
+
+All three test sessions stopped normally; no test miner was left running.
+Detail: .local/yskar-research/scheduling-comparison.json
+Reproduction: compare-scheduling.cjs (explicit live-test opt-in and GPU UUID).
+Regression covers repeated 100% load, manual mode changes, thermal stop and stale
+sensor stop. No official GPU code was represented as a newly optimized algorithm.

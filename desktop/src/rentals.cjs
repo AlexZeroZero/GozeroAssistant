@@ -12,12 +12,13 @@ function query(input={}){
  if(typeof q.q!=='string'||q.q.length>80||/[\u0000-\u001f\u007f]/.test(q.q))throw Error('Invalid search');q.q=q.q.trim();
  if(typeof q.country!=='string'||!/^([A-Z]{2})?$/.test(q.country))throw Error('Invalid country');
  if(!Number.isSafeInteger(q.page)||q.page<1||q.page>10000)throw Error('Invalid page');
+ q.limit=input.limit??6;if(!Number.isSafeInteger(q.limit)||q.limit<1||q.limit>96)throw Error('Invalid page size');
  for(const k of ['minVram','minRam','minCount','minThreads','maxPrice']){const v=input[k]??'';if(v!==''&&(typeof v!=='number'||!Number.isFinite(v)||v<0||v>1000000))throw Error('Invalid '+k);q[k]=v}
  if(q.kind==='cpu'&&q.sort==='perGpu')q.sort='price';
  return q;
 }
 function apiUrl(q){
- const p=new URLSearchParams({provider:q.provider,q:q.q,country:q.country,sort:q.sort,currency:'USD',rental:q.rental,available:'1',page:String(q.page),limit:'6',maxPrice:String(q.maxPrice),minRam:String(q.minRam)});
+ const p=new URLSearchParams({provider:q.provider,q:q.q,country:q.country,sort:q.sort,currency:'USD',rental:q.rental,available:'1',page:String(q.page),limit:String(q.limit),maxPrice:String(q.maxPrice),minRam:String(q.minRam)});
  if(q.kind==='gpu'){p.set('model',q.model);p.set('minVram',String(q.minVram));p.set('minCount',String(q.minCount));p.set('income','0')}
  else{p.set('minThreads',String(q.minThreads));p.set('brand',q.brand);p.set('scope','all')}
  return 'https://gozero.trade/api/'+q.kind+'-rentals?'+p;
@@ -25,7 +26,7 @@ function apiUrl(q){
 function normalize(raw,q,now=Date.now()){
  if(!raw||!Array.isArray(raw.items)||raw.items.length>200)throw Error('Invalid rental response');
  const seen=new Set();
- const items=raw.items.slice(0,6).flatMap(x=>{
+ const items=raw.items.slice(0,q.limit).flatMap(x=>{
   const provider=x.provider||'clore',id=String(x.id??'');
   if(!['clore','vast'].includes(provider)||!/^\d{1,20}$/.test(id))return[];
   const key=provider+':'+id;if(seen.has(key))return[];seen.add(key);
@@ -34,7 +35,7 @@ function normalize(raw,q,now=Date.now()){
  });
  const total=finite(raw.total)??items.length;
  const s=raw.summary||{};
- return{kind:q.kind,items,total,page:finite(raw.page)||q.page,pages:Math.max(1,finite(raw.pages)||Math.ceil(total/6)),summary:{machines:finite(s.machines),available:finite(s.available),models:finite(s.models),lowest:finite(q.kind==='gpu'?s.lowest_per_gpu:s.lowest_machine)},countries:(Array.isArray(raw.countries)?raw.countries:[]).slice(0,250).map(c=>typeof c==='string'?c:typeof c?.code==='string'?c.code:'').filter(c=>/^[A-Z]{2}$/.test(c)),at:finite(raw.updated_at)?raw.updated_at*1000:now,fetchedAt:now,stale:!!raw.stale,loading:!!raw.loading,sources:(raw.sources||[]).slice(0,4).map(s=>({provider:text(s.provider,16),status:text(s.status,32),limited:!!s.limited})),error:null};
+ return{kind:q.kind,items,total,page:finite(raw.page)||q.page,pages:Math.max(1,finite(raw.pages)||Math.ceil(total/q.limit)),summary:{machines:finite(s.machines),available:finite(s.available),models:finite(s.models),lowest:finite(q.kind==='gpu'?s.lowest_per_gpu:s.lowest_machine)},countries:(Array.isArray(raw.countries)?raw.countries:[]).slice(0,250).map(c=>typeof c==='string'?c:typeof c?.code==='string'?c.code:'').filter(c=>/^[A-Z]{2}$/.test(c)),at:finite(raw.updated_at)?raw.updated_at*1000:now,fetchedAt:now,stale:!!raw.stale,loading:!!raw.loading,sources:(raw.sources||[]).slice(0,4).map(s=>({provider:text(s.provider,16),status:text(s.status,32),limited:!!s.limited})),error:null};
 }
 class Rentals{
  constructor(request,clock=Date.now){this.request=request;this.clock=clock;this.cache=new Map();this.pending=new Map()}

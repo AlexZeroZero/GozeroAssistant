@@ -2,7 +2,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),fs=requir
 const {DEFAULT,validate,ConfigStore}=require('../src/config.cjs'),{choices,resolve}=require('../src/kernel-catalog.cjs'),{argsFor}=require('../src/miner.cjs');
 test('legacy settings choose recommended kernel; per-coin manual choice persists independently',async t=>{
  const dir=await fs.mkdtemp(path.join(os.tmpdir(),'gozer-kernel-choice-'));t.after(()=>fs.rm(dir,{recursive:true,force:true}));
- const old=structuredClone(DEFAULT);delete old.kernels;assert.deepEqual(validate(old).kernels,{PRL:'auto',QTC:'auto',TSC:'auto',NOID:'auto'});
+ const old=structuredClone(DEFAULT);delete old.kernels;assert.deepEqual(validate(old).kernels,{PRL:'auto',QTC:'auto',TSC:'auto',NOID:'auto',YSR:'auto',ZCD:'auto'});
  const store=new ConfigStore(dir);await store.save({...old,kernels:{PRL:'krig-1.5.4',QTC:'auto',TSC:'auto'}});const next=new ConfigStore(dir);await next.load();assert.equal(next.value.kernels.PRL,'krig-1.5.4');assert.equal(next.value.kernels.QTC,'auto');
 });
 test('disabled experimental, unsupported coin and arbitrary kernel IDs cannot reach launch resolution',()=>{

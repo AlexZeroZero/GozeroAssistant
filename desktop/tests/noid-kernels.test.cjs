@@ -3,7 +3,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const {validate}=require('../src/config.cjs'),{resolve}=require('../src/kernel-catalog.cjs');
 const {argsFor,Miner}=require('../src/miner.cjs'),{kernelFee}=require('../src/service-fee.cjs');
 const kernels=Object.values(require('../src/noid-kernels.json'));
-const wallet='o1mlk6uluf2dghqzz0etew4u9wq6clnnr4y4wuv20q2m255mj9crjquzyr4r';
+const wallet='o1666egg8r9aeedd0p6fgdn0mjhqg3wk33ages082pky567u65dslq7k03qa';
 const config=k=>validate({coin:'NOID',wallets:{NOID:wallet},kernels:{NOID:k.id}});
 const gpu=()=>({vendor:'NVIDIA',pci:'01:00.0',architecture:'Ampere',driver:'610.62',sensors:{uuid:'GPU-12345678-1234-1234-1234-123456789abc',at:Date.now(),temp:60}});
 test('two official NOID engines resolve independently with correct pool, wallet and fee dialects',()=>{

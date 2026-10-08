@@ -1,0 +1,24 @@
+{
+  "id": "gozero-xmrig-cpu-6.26.0-2",
+  "name": "Gozero XMRig CPU",
+  "version": "6.26.0-cpu.2",
+  "exe": "xmrig.exe",
+  "exeSha256": "ef35e9b20ac6fef60194bb3d6b62f63696fc665bd061073ec6f92252611f7d0c",
+  "files": {
+    "xmrig.exe": "ef35e9b20ac6fef60194bb3d6b62f63696fc665bd061073ec6f92252611f7d0c",
+    "LICENSE-XMRig.txt": "589ed823e9a84c56feb95ac58e7cf384626b9cbf4fda2a907bc36e103de1bad2",
+    "NOTICE.txt": "182ed7c31f053b9b24dd4425426d5add52d46ba25afff34a40323a638e1a72b6",
+    "build-record.json": "1f39264d2edfa9ff4da8c6fbb91591385ffaed4045f6da5771c56fec48a56797",
+    "source-changes.patch": "7ac9f7b4d107170c11520f5898aa57d7ec2c5ad2c55ab2047e5b8d2330864f51"
+  },
+  "source": "https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/xmrig-cpu-6.26.0-cpu.2",
+  "license": "GPL-3.0-or-later",
+  "captureOutput": true,
+  "kernelFee": 0,
+  "hardware": "CPU",
+  "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/xmrig-cpu-6.26.0-cpu.2/Gozero-XMRig-CPU-6.26.0-cpu.2-win-x64.zip",
+  "sha256": "cad2c8eec2fcbd8a6e744c663d32b1163d2e24bcb15b21bfc94311a822db236f",
+  "archiveRoot": "",
+  "sourceCode": "https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/xmrig-cpu-6.26.0-cpu.2",
+  "upstreamSource": "https://github.com/xmrig/xmrig/tree/b2ca72480c58d197e18c885d9fc1a0c8d517e60a"
+}

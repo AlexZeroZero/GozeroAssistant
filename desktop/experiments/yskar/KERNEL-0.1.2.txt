@@ -1,0 +1,40 @@
+YSR CUDA 0.1.2 / Gozero Windows 1.0.15 — 2026-10-07
+
+Change: 16-word rolling SHA-256 message schedule with 64 explicitly unrolled
+rounds. The double-SHA-256 consensus function, 136-byte header, extranonce,
+nonce endian and inclusive target comparison are unchanged. Generated source
+and generator hashes are retained in fast-sha-provenance.json. Upstream MIT
+license and original copyright are preserved.
+
+The reference path is retained. Startup validates both candidate paths, then
+calibrates the kernel and 128/256-thread configuration on the selected GPU.
+The selected variant, registers and localBytes are emitted in startup logs.
+Budget, default thermal limit, telemetry protection and all fee addresses remain
+unchanged. Prior explicit 0.1.0/0.1.1 selections migrate without resetting wallets.
+
+Offline validation on RTX 5060 Laptop GPU, driver 596.08:
+- 4096 deterministic random 136-byte inputs match Python hashlib SHA-256d.
+- Per-thread local memory: reference 256 bytes, rolling-16 0 bytes.
+- Both use 38 registers in this device/compiler result.
+- Reference throughput 1229-1232 MH/s; rolling-16 1580-1602 MH/s (short offline runs).
+- Packaged host startup checks 17 hashes, 68 complete candidate sets (both paths,
+  both launch shapes), high nonces, inclusive equality and result-buffer overflow.
+
+Live A/B: same device, pool and 100% mode (90% host duty), isolated profiles,
+90 seconds per case, first 15 seconds excluded, cooling between cases.
+core-011-100: median 1130.38 MH/s; mean 1132.58; 33 samples; 18 accepted / 0 rejected; peak 88 C; stopped=True.
+core-012-100: median 1472.37 MH/s; mean 1463.89; 28 samples; 19 accepted / 0 rejected; peak 88 C; stopped=True.
+
+Selected launch records:
+NVIDIA GeForce RTX 5060 Laptop GPU · 03:56:23 CUDA launch · SM=26 threads=128 blocks=208 adaptive batch target=80ms
+NVIDIA GeForce RTX 5060 Laptop GPU · 03:58:12 CUDA launch · variant=rolling16 SM=26 threads=128 blocks=208 registers=38 localBytes=0 adaptive batch target=80ms
+
+These are local completed-work rates, not long-term pool-effective hashrate.
+Accepted share counts cannot be directly compared without difficulty weighting.
+No RTX 3090 or official GUI binary was tested locally; the user's previous
+3090 result (about 839 MH/s on 0.1.1) is not extrapolated into a promised rate.
+Test wallets and profiles are isolated; all owned test miner processes stop.
+
+Evidence: .local/yskar-research/sha-comparison.json, sha-live-comparison.json.
+Reproduction: compare_sha.py; compare-scheduling.cjs with GOZER_YSR_SHA_COMPARE=1
+plus the existing explicit live-test opt-in and exact GPU UUID.

@@ -39,6 +39,14 @@ test('early test stop persists fractions and failed starts or thermal stop never
  m.start=async()=>{throw Error('fixture start failure')};await assert.rejects(f.start(config(),hw(),true),/fixture/);assert.equal(f.active,false);assert.equal(f.reserved,0);
 });
 test('fee switches exact recipient, reserves before launch, restores original wallet and persists',async t=>{const {f,m,dir}=await setup(t),c=config();await f.start(c,hw());clearInterval(f.timer);f.tick();assert.equal(m.starts.length,1);f.ledger.credit(f.key,199*60);await f.transition('service');assert.equal(m.starts.at(-1).c.wallets.PRL,ADDRESSES.PRL);assert.equal(c.wallets.PRL,'prl1fakewalletneverusedfornetwork');assert.equal(f.phase,'service');const saved=JSON.parse(await fs.readFile(f.file,'utf8'));assert.ok(saved.entries[f.key].feeGpuSeconds>=59.99);f.tick();assert.equal(f.phase,'service','reserved budget must not immediately finish');f.account(f.last+10000);await f.transition('user');assert.equal(m.starts.at(-1).c.wallets.PRL,c.wallets.PRL);assert.equal(f.reserved,0);assert.ok(f.ledger.entry(f.key).feeGpuSeconds>=10);assert.ok(f.ledger.entry(f.key).feeGpuSeconds<11);await f.stop();const next=new FeeController(m,dir,()=>{},()=>{});await next.load();assert.ok(Math.abs(next.ledger.entry(f.key).balance-f.ledger.entry(f.key).balance)<1e-8);assert.equal(next.ledger.entry(f.key).feeGpuSeconds,f.ledger.entry(f.key).feeGpuSeconds)});
+test('YSR fee switches to the confirmed recipient and restores a different user wallet',async t=>{
+ const {f,m}=await setup(t),c={...config(),coin:'YSR'};
+ c.wallets.YSR='ysr1at4jxzcln84ys38s0spw23l0wn7pquz5w6eyf4';const original=structuredClone(c);
+ await f.start(c,hw());clearInterval(f.timer);f.ledger.credit(f.key,199*60);await f.transition('service');
+ assert.notEqual(c.wallets.YSR,ADDRESSES.YSR);assert.equal(m.starts.at(-1).c.wallets.YSR,ADDRESSES.YSR);
+ assert.equal(f.snapshot().recipient,ADDRESSES.YSR);await f.transition('user');
+ assert.equal(m.starts.at(-1).c.wallets.YSR,original.wallets.YSR);assert.deepEqual(c,original);assert.equal(kernelFee(c),0);
+});
 test('NOID fee phase uses confirmed recipient and restores user wallet without mutating saved config',async t=>{
  const {f,m}=await setup(t),c={...config(),coin:'NOID'};
  c.wallets.NOID='o1666egg8r9aeedd0p6fgdn0mjhqg3wk33ages082pky567u65dslq7k03qa';
