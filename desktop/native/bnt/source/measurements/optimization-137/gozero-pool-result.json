@@ -1,0 +1,14 @@
+{
+  "program": "Gozero 0.2.1",
+  "threads": 4,
+  "engine": "stream",
+  "pages": "off",
+  "url": "stratum+tcp://bnt.pool.gozero.trade:14444",
+  "hashes": 459,
+  "accepted": 4,
+  "rejected": 0,
+  "submitted": 4,
+  "staleComputed": 16,
+  "seconds": 90.64745469999998,
+  "hps": 5.06357295435456
+}

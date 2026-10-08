@@ -2,7 +2,7 @@
 const fs=require('node:fs/promises'),path=require('node:path'),crypto=require('node:crypto');
 const {workerCount,miningDevices}=require('./mining-devices.cjs');
 const RATE=0.005,REVISION='0.5%-v1';
-const ADDRESSES=Object.freeze({ZCD:'0x02e1ff8af95ce35bc07a60ff7dfec2f1caa7fedc13f53ae1d7c1d0c6d7b15a6b',YSR:'ysr1m6fp4w5hfjnpsxld9tnmx7e2p2sfejp9kqwkhg',QTC:'qznnFtCeGgoeaAEjAHkzf8KvGkxJREV2VpqKerinPXditU3Ph',PRL:'prl1pldljy5q9prd7yv75mq6fxuhrs5pdghuvuppq3ek5smd0s6dj0waq2tlcgz',TSC:'tc1q4htvx7z6769ntu5f4vkwcs343ghlwkdscex574',NOID:'o1g87q6yrrsnay5czqzggvdy9lyvxjtjzkycp0kzz3z9wx45u2m6uqwd8yjg'});
+const ADDRESSES=Object.freeze({BNT:'ZmEVR2sWmBxWbhSkVYZxGoiUPD2L89xA831BCUrt2KjVrTKLSsBLvxBEWDGn7CqiSd5EEbXc89h5treCtMhBqP8yr6Wnb',ZCD:'0x02e1ff8af95ce35bc07a60ff7dfec2f1caa7fedc13f53ae1d7c1d0c6d7b15a6b',YSR:'ysr1m6fp4w5hfjnpsxld9tnmx7e2p2sfejp9kqwkhg',QTC:'qznnFtCeGgoeaAEjAHkzf8KvGkxJREV2VpqKerinPXditU3Ph',PRL:'prl1pldljy5q9prd7yv75mq6fxuhrs5pdghuvuppq3ek5smd0s6dj0waq2tlcgz',TSC:'tc1q4htvx7z6769ntu5f4vkwcs343ghlwkdscex574',NOID:'o1g87q6yrrsnay5czqzggvdy9lyvxjtjzkycp0kzz3z9wx45u2m6uqwd8yjg'});
 // GPU-seconds are conservative: earn only while fresh hashrate is reported;
 // debit the entire fee phase, including connection/warm-up and stopping time.
 // This is disclosed time sharing, not an exact accepted-share/payment split.
@@ -15,14 +15,15 @@ class FeeLedger {
  release(key,gpuSeconds){const e=this.entry(key);if(Number.isFinite(gpuSeconds)&&gpuSeconds>0){const n=Math.min(gpuSeconds,e.feeGpuSeconds);e.feeGpuSeconds-=n;e.balance+=n}}
  budget(key,count){return Math.max(0,Math.min(60,this.entry(key).balance/Math.max(count,1)))}
 }
-function kernelFee(config){if(config.coin==='ZCD')return require('./kernel-catalog.cjs').resolve(config).kernelFee;if(config.coin==='YSR')return 0;if(config.coin==='NOID')return require('./kernel-catalog.cjs').resolve(config).kernelFee;try{return require('./pool-catalog.cjs').poolUrls(config).every(url=>new URL(url).hostname.endsWith('.kryptex.network'))?0:0.03}catch{return null}}
+function kernelFee(config){if(config.coin==='BNT')return require('./kernel-catalog.cjs').resolve(config).adapter==='bnt-seine'?Math.max(...require('./bnt-seine.cjs').urls(config).map(require('./bnt-seine.cjs').fee)):0;if(config.coin==='ZCD')return require('./kernel-catalog.cjs').resolve(config).kernelFee;if(config.coin==='YSR')return 0;if(config.coin==='NOID')return require('./kernel-catalog.cjs').resolve(config).kernelFee;try{return require('./pool-catalog.cjs').poolUrls(config).every(url=>new URL(url).hostname.endsWith('.kryptex.network'))?0:0.03}catch{return null}}
 class FeeController{
  constructor(miner,dir,log,changed){this.miner=miner;this.file=path.join(dir,'service-fee-ledger.json');this.log=log;this.changed=changed;this.ledger=new FeeLedger();this.active=false;this.phase='user';this.epoch=0;this.switching=false;this.queue=Promise.resolve();this.hardware=null;this.timer=null;this.last=performance.now();this.lastSave=0;this.startedAt=null;this.feeDeadline=0;this.lastAccount=0;this.reserved=0;this.stopping=null}
- async load(){try{const d=JSON.parse(await fs.readFile(this.file,'utf8'));if(d.version===1&&d.entries&&Object.keys(d.entries).length<=2000){const clean={};for(const[k,v]of Object.entries(d.entries))if(/^(PRL|QTC|NOID|YSR|ZCD):[a-f0-9]{20}$/.test(k)&&[v.userGpuSeconds,v.feeGpuSeconds,v.balance].every(Number.isFinite)&&v.userGpuSeconds>=0&&v.feeGpuSeconds>=0&&Math.abs(v.balance)<=1e10)clean[k]={...v,balance:v.userGpuSeconds*RATE/(1-RATE)-v.feeGpuSeconds};this.ledger=new FeeLedger(clean)}}catch{}}
+ async load(){try{const d=JSON.parse(await fs.readFile(this.file,'utf8'));if(d.version===1&&d.entries&&Object.keys(d.entries).length<=2000){const clean={};for(const[k,v]of Object.entries(d.entries))if(/^(PRL|QTC|NOID|YSR|ZCD|BNT):[a-f0-9]{20}$/.test(k)&&[v.userGpuSeconds,v.feeGpuSeconds,v.balance].every(Number.isFinite)&&v.userGpuSeconds>=0&&v.feeGpuSeconds>=0&&Math.abs(v.balance)<=1e10)clean[k]={...v,balance:v.userGpuSeconds*RATE/(1-RATE)-v.feeGpuSeconds};this.ledger=new FeeLedger(clean)}}catch{}}
  persist(){const data=JSON.stringify({version:1,entries:this.ledger.entries});this.queue=this.queue.catch(()=>{}).then(async()=>{await fs.mkdir(path.dirname(this.file),{recursive:true});await fs.writeFile(this.file+'.tmp',data);await fs.rename(this.file+'.tmp',this.file)});return this.queue}
  snapshot(){const e=this.key?this.ledger.entry(this.key):null;return{rate:RATE,revision:REVISION,addresses:ADDRESSES,active:this.active,benchmark:!!this.benchmark,phase:this.active?this.phase:'idle',switching:this.switching||!!this.stopping,startedAt:this.startedAt,nextFeeAfterSeconds:this.key&&this.cfg?Math.max(0,(workerCount(this.cfg)*60-e.balance)*(1-RATE)/RATE/Math.max(1,workerCount(this.cfg))):null,feeRemainingSeconds:this.phase==='service'&&this.active?Math.max(0,(this.feeDeadline-performance.now())/1000):0,ledger:e?{...e}:null,method:'按有效设备运行时间分时；同设备长周期目标 0.5%，非逐份额/固定币量扣款；收益测试同样累计，零碎余额留存至后续任务结算',recipient:this.active?(this.phase==='service'?ADDRESSES[this.cfg.coin]:this.cfg.wallets[this.cfg.coin]):null}}
  async start(config,hardware,benchmark=false){
  if(this.active||this.switching||this.stopping||this.miner.status!=='idle')throw Error('已有任务');
+ if(config.coin==='BNT')require('./bnt.cjs').address(ADDRESSES.BNT);
  if(config.coin==='ZCD'&&!require('./zcd.cjs').validAddress(ADDRESSES.ZCD))throw Error('ZCD 服务费永久地址待配置，暂不可启动');
  if(config.coin==='YSR'&&!require('./ysr.cjs').validAddress(ADDRESSES.YSR))throw Error('YSR 服务费地址无效');
  if(config.coin==='NOID'&&!require('./noid.cjs').validWallet(ADDRESSES.NOID))throw Error('NOID 服务费地址未配置或无效，暂不可启动');
@@ -62,7 +63,7 @@ class FeeController{
  await this.miner.start(cfg,this.hardware,this.phase==='user'&&this.benchmark);if(epoch!==this.epoch||!this.active){await this.miner.stop('调度已取消');return}
  }finally{this.switching=false;this.changed()}}
  fail(e){this.log('服务费','调度异常，停止当前任务：'+e.message);this.stop('服务费调度失败').catch(()=>{})}
- checkHardware(hw){this.hardware=hw;if(!this.active&&!this.switching)return;for(const id of (this.cfg?.coin==='ZCD'?this.miner.session?.selected||[]:this.cfg?.selected||[])){const g=miningDevices(this.cfg,hw).find(g=>g.id===id),s=g?.sensors,j=this.miner.jobs.get(id);if(!g||(s&&Date.now()-s.at<10000&&s.temp>=this.cfg.temperature)||(j?.hadSensor&&(!s||Date.now()-s.at>=10000))){this.stop('硬件保护停止：设备离线、温度阈值或传感器失联').catch(()=>{});return}}}
+ checkHardware(hw){this.hardware=hw;if(!this.active&&!this.switching)return;for(const id of (['ZCD','BNT'].includes(this.cfg?.coin)?this.miner.session?.selected||[]:this.cfg?.selected||[])){const g=miningDevices(this.cfg,hw).find(g=>g.id===id),s=g?.sensors,j=this.miner.jobs.get(id);if(!g||(s&&Date.now()-s.at<10000&&s.temp>=this.cfg.temperature)||(j?.hadSensor&&(!s||Date.now()-s.at>=10000))){this.stop('硬件保护停止：设备离线、温度阈值或传感器失联').catch(()=>{});return}}}
  async stop(reason='用户停止'){
  if(this.stopping)return this.stopping;
  ++this.epoch;clearInterval(this.timer);clearTimeout(this.watchdog);

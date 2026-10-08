@@ -74,6 +74,16 @@ test('NOID benchmark settles accrued fee to confirmed address then returns to ti
  assert.equal(m.starts.at(-1).c.wallets.NOID,c.wallets.NOID);assert.equal(m.starts.at(-1).c.kernels.NOID,choice);await f.stop();
  }
 });
+test('BNT uses confirmed 0.5% destination, restores wallet, persists a distinct CPU ledger',async t=>{
+ const {f,m,dir}=await setup(t),c={...config(),coin:'BNT',selected:[],cpuThreads:2};
+ c.wallets.BNT='BntUserFixtureNeverTransmitted';const original=structuredClone(c);
+ assert.equal(require('../src/bnt.cjs').address(ADDRESSES.BNT),ADDRESSES.BNT);
+ await f.start(c,hw());clearInterval(f.timer);f.ledger.credit(f.key,199*60);await f.transition('service');
+ assert.equal(m.starts.at(-1).c.wallets.BNT,ADDRESSES.BNT);assert.equal(m.starts.at(-1).c.cpuThreads,2);
+ assert.equal(f.snapshot().rate,.005);assert.equal(f.snapshot().recipient,ADDRESSES.BNT);
+ await f.transition('user');assert.equal(m.starts.at(-1).c.wallets.BNT,c.wallets.BNT);assert.deepEqual(c,original);assert.equal(kernelFee(c),0);
+ await f.stop();const restored=new FeeController(m,dir,()=>{},()=>{});await restored.load();assert.ok(restored.ledger.entries[f.key]);
+});
 test('crash recovery cannot replay an already reserved service minute',async t=>{const {f,m,dir}=await setup(t);await f.start(config(),hw());clearInterval(f.timer);f.ledger.credit(f.key,199*60);await f.transition('service');const recovered=new FeeController(m,dir,()=>{},()=>{});await recovered.load();assert.ok(recovered.ledger.budget(f.key,1)<.1)});
 test('missing/frozen telemetry and long sleeps do not earn user-time fee credit',async t=>{const {f,m}=await setup(t);await f.start(config(),hw());clearInterval(f.timer);m.jobs.get(id).telemetry.at=Date.now()-30000;f.account(f.last+1000);assert.equal(f.ledger.entry(f.key).balance,0);m.jobs.get(id).telemetry.at=Date.now();f.account(f.last+60000);assert.equal(f.ledger.entry(f.key).balance,0)});
 test('user stop and thermal protection during a fee transition never relaunch a miner',async t=>{for(const thermal of [false,true]){const {f,m}=await setup(t);await f.start(config(),hw());clearInterval(f.timer);f.ledger.credit(f.key,199*60);let release;const original=m.stop.bind(m);let first=true;m.stop=async reason=>{if(first){first=false;await new Promise(r=>release=r)}await original(reason)};const changing=f.transition('service');await new Promise(r=>setImmediate(r));if(thermal){f.checkHardware({gpus:[{id,sensors:{at:Date.now(),temp:90}}]});await f.stopping}else await f.stop();release();await changing;assert.equal(m.starts.length,1);assert.equal(f.active,false);assert.equal(m.status,'idle')}});

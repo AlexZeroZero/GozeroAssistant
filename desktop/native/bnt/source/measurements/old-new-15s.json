@@ -1,0 +1,71 @@
+{
+  "cpu": "Intel(R) Core(TM) Ultra 9 275HX",
+  "totalMemory": 50957336576,
+  "at": "2026-10-08T11:20:41.021Z",
+  "method": "old/new/new/old; 4 workers; full 2 GiB golden warm-up before each 15 s window; offline hashes only",
+  "rows": [
+    {
+      "version": "old",
+      "plan": {
+        "engine": "gozero",
+        "threads": 4,
+        "performance": 100,
+        "pages": "off",
+        "affinity": false
+      },
+      "hashes": 72,
+      "seconds": 15.4598579,
+      "hs": 4.6572222038269135,
+      "largePageWorkers": 0,
+      "boundWorkers": 0
+    },
+    {
+      "version": "new",
+      "plan": {
+        "engine": "prefetch",
+        "threads": 4,
+        "pages": "off",
+        "affinity": true,
+        "performance": 100
+      },
+      "hashes": 75,
+      "seconds": 15.680569200000003,
+      "hs": 4.782988417795848,
+      "largePageWorkers": 0,
+      "boundWorkers": 4
+    },
+    {
+      "version": "new",
+      "plan": {
+        "engine": "prefetch",
+        "threads": 4,
+        "pages": "off",
+        "affinity": true,
+        "performance": 100
+      },
+      "hashes": 70,
+      "seconds": 15.317952100000003,
+      "hs": 4.569800901608661,
+      "largePageWorkers": 0,
+      "boundWorkers": 4
+    },
+    {
+      "version": "old",
+      "plan": {
+        "engine": "gozero",
+        "threads": 4,
+        "performance": 100,
+        "pages": "off",
+        "affinity": false
+      },
+      "hashes": 60,
+      "seconds": 15.137668499999993,
+      "hs": 3.9636214594587997,
+      "largePageWorkers": 0,
+      "boundWorkers": 0
+    }
+  ],
+  "oldHs": 4.310421831642857,
+  "newHs": 4.676394659702255,
+  "percent": 8.490417930161431
+}

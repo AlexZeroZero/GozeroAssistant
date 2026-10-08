@@ -1,0 +1,66 @@
+[
+  {
+    "binary": "baseline",
+    "threads": 8,
+    "cpus": [
+      0,
+      1,
+      10,
+      11,
+      12,
+      13,
+      22,
+      23
+    ],
+    "hashes": 146,
+    "seconds": 20.680696700000002,
+    "hps": 7.059723476337235,
+    "header": "0c31567ba0c5ea0f34597ea3c8ed12375c81a6cbf0153a5f84a9cef3183d6287acd1f61b40658aafd4f91e43688db2d7fc21466b90b5daff24496e93b8dd02274c7196bbe0052a4f7499bee3082d52779cc1e60b30557a9fc4e90e33"
+  },
+  {
+    "binary": "shipped",
+    "threads": 8,
+    "cpus": [
+      0,
+      1,
+      10,
+      11,
+      12,
+      13,
+      22,
+      23
+    ],
+    "hashes": 130,
+    "seconds": 20.5821227,
+    "hps": 6.316160966235033,
+    "header": "0c31567ba0c5ea0f34597ea3c8ed12375c81a6cbf0153a5f84a9cef3183d6287acd1f61b40658aafd4f91e43688db2d7fc21466b90b5daff24496e93b8dd02274c7196bbe0052a4f7499bee3082d52779cc1e60b30557a9fc4e90e33"
+  },
+  {
+    "binary": "shipped",
+    "threads": 4,
+    "cpus": [
+      0,
+      1,
+      10,
+      11
+    ],
+    "hashes": 108,
+    "seconds": 20.539347799999994,
+    "hps": 5.258200068066428,
+    "header": "0c31567ba0c5ea0f34597ea3c8ed12375c81a6cbf0153a5f84a9cef3183d6287acd1f61b40658aafd4f91e43688db2d7fc21466b90b5daff24496e93b8dd02274c7196bbe0052a4f7499bee3082d52779cc1e60b30557a9fc4e90e33"
+  },
+  {
+    "binary": "baseline",
+    "threads": 4,
+    "cpus": [
+      0,
+      1,
+      10,
+      11
+    ],
+    "hashes": 96,
+    "seconds": 20.432912599999998,
+    "hps": 4.698302287066015,
+    "header": "0c31567ba0c5ea0f34597ea3c8ed12375c81a6cbf0153a5f84a9cef3183d6287acd1f61b40658aafd4f91e43688db2d7fc21466b90b5daff24496e93b8dd02274c7196bbe0052a4f7499bee3082d52779cc1e60b30557a9fc4e90e33"
+  }
+]

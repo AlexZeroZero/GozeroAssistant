@@ -1,0 +1,43 @@
+{
+  "blocknet": {
+    "repository": "https://github.com/blocknetprivacy/core",
+    "archiveCommit": "89e1aebdbbb5e11ad1d4196d9472c5f8b0956177",
+    "archiveSha256": "a6938cf4813b245d476c31c5a542111d5ac211e13992db51f6e94db4597cac1f",
+    "powSha256": "edf5e236ae3dd61c72eaaf98bf9c6f0bb2460f3cd065ecf02626b887041da158",
+    "license": "BSD-3-Clause"
+  },
+  "argon2": {
+    "repository": "https://github.com/P-H-C/phc-winner-argon2",
+    "tag": "20190702",
+    "archiveSha256": "506a80b90ac3ca8407636f3b26b7fed87a55f2f1275cde850cd6698903c4f008",
+    "license": "Apache-2.0 OR CC0-1.0"
+  },
+  "changes": [
+    "Public PoW workspace reuse; omit redundant wipe",
+    "Runtime AVX2 detection with SSE2 fallback",
+    "One-lane, one-pass index specialization",
+    "Optional four-block look-ahead prefetch in the data-independent half",
+    "AVX-512F reference/specialized/prefetch paths with CPU and OS dispatch checks",
+    "Windows CPU-set topology and processor-group-aware binding",
+    "Optional existing-privilege large pages, NUMA-preferred allocation, normal-page fallback",
+    "Assistant offline tuning with full-memory known-answer checks and repeated candidate/baseline measurements",
+    "Optional AVX2 stream path: reusable 4 MiB index cache, inlined compression, first-half lookahead and second-half mid-compression L1 prefetch; old compute paths preserved"
+  ],
+  "consensus": {
+    "argon2": "id",
+    "version": 19,
+    "memoryKiB": 2097152,
+    "iterations": 1,
+    "lanes": 1,
+    "outputBytes": 32,
+    "nonce": "uint64 little-endian",
+    "salt": "92-byte block header"
+  },
+  "schedulingReference": {
+    "repository": "https://github.com/zpalmtree/seine",
+    "tag": "v0.2.15",
+    "file": "pow-kernel/src/fixed_argon.rs",
+    "license": "BSD-3-Clause",
+    "usage": "Scheduling inspiration; Gozero C implementation retains PHC compression and independently implements cached indexes and mid-compression prefetch."
+  }
+}

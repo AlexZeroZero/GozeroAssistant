@@ -1,68 +1,59 @@
-# Gozero Assistant · Beta 1.02 (1.0.27)
+# Gozero Assistant · Beta 1.02 (1.0.38)
 
 **English** | [简体中文](README.zh-CN.md)
 
-A compact Windows GPU / CPU mining assistant with hardware monitoring, a mining workbench, earnings estimates, a rental marketplace, and a floating desktop monitor. **Now includes YSR (GPU) and ZCD (CPU)**, alongside PRL, QTC, and NOID.
+A compact Windows GPU / CPU mining assistant with hardware monitoring, independent GPU + CPU tasks, pool account data, a rental marketplace and a floating desktop monitor.
 
-[Download for Windows](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.27-beta) · [User guide (Chinese)](desktop/QUICKSTART.txt) · [Build guide (Chinese)](desktop/README.md) · [Website](https://gozero.trade/)
+[Download for Windows](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.38-beta) · [Website](https://gozero.trade/) · [User guide](desktop/QUICKSTART.txt) · [Build guide](desktop/README.md)
 
 ## Download and upgrade
 
-Download `GozerAssistant-1.0.27-win-x64.zip`, verify it against the accompanying SHA256 checksum, extract the entire archive into a new folder, and run `GozerAssistant.exe`. Before upgrading, exit the old version from its system tray menu. Existing wallet addresses, pool settings, and preferences remain stored locally. The app does not start mining automatically.
+Download `GozerAssistant-1.0.38-win-x64.zip`, verify the accompanying SHA256 checksum, extract the entire archive to a new folder and run `GozerAssistant.exe`. Exit the old app from its tray menu before upgrading. Existing local wallet/pool settings are preserved. Mining never starts automatically on app launch.
 
-The display version remains **Beta 1.02**; the internal build version is **1.0.27**.
+The display version remains **Beta 1.02**; the internal update version is **1.0.38**.
 
-## Release highlights
+## What's new
 
-- **GPU + CPU mining:** run one GPU coin (PRL, QTC, NOID, or YSR, with one or more GPUs) alongside ZCD on the CPU. Each task has its own wallet, pools, kernel, performance budget, start/stop controls, hashrate history, and logs.
-- **Independent accounting:** GPU and CPU rates remain separate. Both tasks accrue the existing 0.5% software fee independently through the same persisted ledger; old balances are preserved.
-- **Compact adaptive workbench:** stacked task cards in the small window, side-by-side cards when widened, plus a floating monitor showing both tasks.
-- **Light-theme readability:** corrected selected and disabled buttons, input fields, logs, hardware values, and floating-window text.
-- **Simplified navigation:** removed the earnings-test page and test buttons. Normal hashrate monitoring, supported pool account data, and earnings estimates remain. Electricity, pool fee, and measured system power settings moved to Preferences.
-- **On-demand CPU engines:** the app does not bundle XMRig. Download the source-built Gozero engine or official XMRig explicitly from the workbench. CPU budgets use logical threads; Chinese, English, Japanese, and Russian interfaces are available.
+- **YSR / ZCD / BNT Gozero Pool accounts:** read-only public-address queries show pool-side hashrate estimates, workers, accepted/rejected shares, balances and paginated payments. The GPU + CPU workbench has separate account buttons for each task.
+- **Correct accounting:** YSR full-chain balance and indexed pool rewards are separate. ZCD/BNT show available unpaid, immature, reserved and confirmed paid amounts separately. BNT immature amounts remain explicitly labeled as variable PPLNS estimates.
+- **Exact amounts and reliable refresh:** 8-decimal integer-string/BigInt conversion; mining polls about every 30s and accounts every 60s. Errors back off and retain data as stale; unknown metrics stay unavailable. Custom pools are not attributed to Gozero Pool.
+- **BNT CPU engines:** Gozero Blocknet CPU 0.2.1 is recommended; Seine 0.2.15 can be downloaded and selected. The official Core 0.20.0 full-node download is listed separately; it requires chain sync and cannot run as a workbench pool worker.
+- **BNT tuning and memory budgeting:** threads depend on available RAM and logical CPUs, with system headroom. Optional large-page setup and measured auto-tuning are available for the Gozero kernel. The new AVX2 stream path is a candidate, not an unconditional default.
 
-| Coin | Hardware / algorithm | Engine and default connection |
+| Coin | Hardware / algorithm | Engine / default connection |
 | --- | --- | --- |
-| ZCD | CPU / RandomX v2 | Gozero XMRig CPU (0% engine fee) or official XMRig (1% engine fee); `stratum+tcp://zcd.pool.gozero.trade:3333` |
-| YSR | NVIDIA SM 8.0+ / SHA-256d | Gozero YSR CUDA 0.1.3; `https://ysr.pool.gozero.trade:8443` |
-| NOID | Supported NVIDIA GPUs / Poseidon2b | Suprminer or Fl4shMiner; automatic primary / backup connection selection |
-| PRL / QTC | GPUs supported by the upstream miner | KRig; selectable regional nodes and backup pools |
+| BNT | CPU / Argon2id, 2 GiB per thread | Gozero Blocknet CPU or optional Seine; `stratum+tcp://bnt.pool.gozero.trade:14444` |
+| ZCD | CPU / RandomX v2 | Gozero XMRig CPU or official XMRig; `stratum+tcp://zcd.pool.gozero.trade:3333` |
+| YSR | NVIDIA SM 8.0+ / SHA-256d | Gozero YSR CUDA; `https://ysr.pool.gozero.trade:8443` |
+| NOID | Supported NVIDIA GPUs / Poseidon2b | Suprminer or Fl4shMiner; primary / backup selection |
+| PRL / QTC | Upstream-supported GPUs | KRig; regional and backup pool options |
 
-YSR requires a CUDA 13-compatible driver; AMD and CPU mining are not enabled for YSR in this release. TSC mining is not yet available on Windows. ZCD requires at least 4 GiB of available memory. Using every thread does not guarantee the highest hashrate: results depend on the CPU, cache, memory, and system scheduling.
+YSR requires a CUDA 13-compatible driver; AMD/CPU YSR and Windows TSC mining are not enabled. ZCD needs at least 4 GiB available RAM. BNT reserves roughly 2 GiB + 128 MiB per thread plus system headroom; more threads do not always mean more hashrate.
 
-<a id="新版界面截图"></a>
+## Current interface
 
-## Screenshots
+These **1.0.38 screenshots show real read-only pool data for a configured public test address while local mining is idle**. Pool estimates and past ledger amounts do not establish new earnings or local mining speed.
 
-These are actual **1.0.27 idle-state screenshots**. Values are not simulated mining results; the light-theme preview also demonstrates disabled controls. No pool-accepted shares or earnings are claimed by these images.
+![BNT pool account with separate unpaid, estimated, reserved and paid balances](docs/screenshots/pool-bnt-en-1.0.38.png)
 
-### GPU + CPU workbench · dark theme
+![BNT account in the light theme](docs/screenshots/pool-bnt-light-en-1.0.38.png)
 
-![Independent GPU and CPU tasks in the compact workbench](docs/screenshots/dual-dark-en-1.0.27.png)
+![ZCD exact decimal ledger and worker estimates](docs/screenshots/pool-zcd-zh-1.0.38.png)
 
-### GPU + CPU workbench · light theme
+## Other features
 
-![Readable light-theme controls and separate task cards](docs/screenshots/dual-light-en-1.0.27.png)
+- Independent GPU + CPU configurations, start/stop controls, logs and five-/ten-minute hashrate averages. Rates from different algorithms are not added together.
+- Hardware inventory, supported live sensors, a draggable floating monitor, system tray controls and a 90°C default GPU protection threshold. CPU temperature and power monitoring are not integrated.
+- Chinese, English, Japanese and Russian interfaces; dark and light themes.
+- Clore / Vast.ai GPU and CPU rental listings, model filters and rental estimates. The app does not rent or pay automatically.
 
-### Floating monitor
+[Clore referral](https://clore.ai/register?ref_id=ebgzlv4d) · [Vast.ai referral](https://cloud.vast.ai/?ref_id=133254)
 
-![Compact floating monitor with separate GPU and CPU status](docs/screenshots/floating-dual-1.0.27.png)
+## Fees and verification limits
 
-## More features
+Gozero charges a disclosed **0.5% mining-time service fee**. This is not an exact per-coin payout deduction. Engine fees, pool fees and electricity costs are separate. Gozero BNT has 0% engine fee; original Seine has **2.5%** (1% on bntpool.com/subdomains). Original XMRig has 1%; the optional Gozero CPU build has 0% engine fee.
 
-- GPU, CPU, memory, motherboard, BIOS, and supported sensor readings. Unavailable values display as “—”.
-- Five- or ten-minute average hashrates, recent sample charts, mining logs, and GPU temperature protection (90°C by default). CPU temperature and power monitoring are not integrated; CPU temperature protection is not provided.
-- Earnings estimates and address ledgers for supported pools. ZCD price, earnings, and pool settlement data are not yet integrated.
-- A draggable floating monitor and system tray controls showing hashrate, performance mode, system load, and stopped status.
-- Clore / Vast.ai GPU and CPU rental listings, quick filters for the 4090 / 5090 / 3090 / RTX PRO 6000, hardware details, and rental cost estimates. The app provides listings and links; it does not rent or pay automatically.
-
-[Clore referral link](https://clore.ai/register?ref_id=ebgzlv4d) · [Vast.ai referral link](https://cloud.vast.ai/?ref_id=133254)
-
-## Fees and validation scope
-
-The assistant charges a **0.5% service fee** during mining, accumulated through time sharing. This is not an exact deduction from the number of coins earned. Miner engine fees, pool fees, and electricity costs are separate.
-
-145 automated tests passed, including dual-task scheduling, fee persistence, 128-logical-thread configuration, and owned-process stop isolation. Dual-mode, light-theme, and ZCD UI checks passed. **Real-pool simultaneous GPU + CPU mining has not been tested in this release round.** CPU temperature and power monitoring remain unavailable. See the [validation record](desktop/VALIDATION.md) for scope and package checks.
+182 automated tests and real read-only pool/API UI checks passed. **Seine's launch inside the Assistant was blocked on the test host (Windows error 5 and a Tencent security prompt); its end-to-end in-app mining has not been accepted there.** No security settings were bypassed. BNT performance gains vary by device and thread count; no 3995WX or AVX-512 improvement is promised. See [validation scope](desktop/VALIDATION.md).
 
 ## Source and building
 
@@ -72,8 +63,6 @@ cd GozeroAssistant
 python desktop/scripts/package.py
 ```
 
-Requires Windows x64, Python 3.11+, and the .NET Framework C# compiler. Tests require Node.js 22+. The build downloads and verifies a pinned Electron version; it does not start mining. See the [build guide (Chinese)](desktop/README.md).
+Windows x64, Python 3.11+ and the .NET Framework C# compiler are required. Tests require Node.js 22+. The build verifies a pinned Electron runtime and does not start mining.
 
-Gozero-authored assistant code is licensed under [MIT](LICENSE). Upstream YSR code retains its MIT license; Quantus-derived code retains Apache-2.0. See [third-party notices](desktop/THIRD-PARTY.md).
-
-Gozero XMRig CPU is based on XMRig and follows GPL-3.0-or-later; it is not an independently developed algorithm implementation. [Optional CPU engine downloads and complete corresponding source](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/xmrig-cpu-6.26.0-cpu.2). KRig, Suprminer, Fl4shMiner, and XMRig are downloaded only at the user's request; XMRig is not bundled with the assistant. Mining software may trigger antivirus detection; this project does not promise detection-free binaries.
+Assistant code is [MIT](LICENSE). Upstream components retain their own licenses; see [third-party notices](desktop/THIRD-PARTY.md). Gozero XMRig follows GPL-3.0-or-later: [optional engine and corresponding source](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/xmrig-cpu-6.26.0-cpu.2). KRig, Suprminer, Fl4shMiner, XMRig and Seine download only at the user's request. Mining software can trigger antivirus detection; no detection-free guarantee is made.

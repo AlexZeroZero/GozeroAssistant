@@ -4,6 +4,7 @@ const ID='krig-1.5.4';
 const NOID_KERNELS=require('./noid-kernels.json');
 const YSR_KERNEL=require('./ysr-kernel.json');
 function choices(coin){
+ if(coin==='BNT'){const k=require('./bnt-kernel.json');return[{id:'auto',label:'默认推荐 · Gozero Blocknet CPU '+k.version,disabled:false},{id:k.id,label:'Gozero Blocknet CPU · AVX2 / AVX-512 / SSE2 · 内核费 0%',disabled:false},{id:require('./bnt-seine-kernel.json').id,label:'Seine 0.2.15 · CPU · 内核费 2.5%（bntpool 1%）',disabled:false}]}
  if(coin==='ZCD')return[{id:'auto',label:'默认推荐 · Gozero XMRig CPU · 内核费 0%',disabled:false},{id:require('./zcd-local-kernel.json').id,label:'Gozero XMRig CPU 6.26.0-cpu.2 · 内核费 0%',disabled:false},{id:'xmrig-zcd-6.26.0',label:'官方 XMRig 6.26.0 · 内核费 1%',disabled:false}];
  if(coin==='YSR')return[{id:'auto',label:'默认推荐 · Gozero YSR CUDA '+YSR_KERNEL.version,disabled:false},{id:YSR_KERNEL.id,label:'Gozero YSR CUDA '+YSR_KERNEL.version+' · 开源内置',disabled:false}];
  if(coin==='NOID')return[{id:'auto',label:'默认推荐 · Suprminer 1.9.27',disabled:false},...Object.values(NOID_KERNELS).map(k=>({id:k.id,label:k.name+' '+k.version+' · 官方下载',disabled:false}))];
@@ -18,6 +19,7 @@ function validChoice(coin,id){return choices(coin).some(c=>!c.disabled&&c.id===i
 function resolve(config){
  const selection=config.kernels?.[config.coin]??'auto';
  if(!validChoice(config.coin,selection))throw Error('该币种不支持所选内核');
+ if(config.coin==='BNT')return{...(selection===require('./bnt-seine-kernel.json').id?require('./bnt-seine-kernel.json'):require('./bnt-kernel.json')),selection};
  if(config.coin==='ZCD')return{...(selection==='xmrig-zcd-6.26.0'?require('./zcd-kernel.json'):require('./zcd-local-kernel.json')),selection};
  if(config.coin==='YSR')return{...require('./ysr-kernel.json'),selection};
  if(config.coin==='NOID')return{...(NOID_KERNELS[selection]||NOID_KERNELS['suprminer-noid-1.9.27']),selection};

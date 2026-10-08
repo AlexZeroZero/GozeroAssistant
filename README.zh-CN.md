@@ -1,66 +1,57 @@
-# Gozero助手 · Beta 1.02（1.0.27）
+# Gozero助手 · Beta 1.02（1.0.38）
 
 [English](README.md) | **简体中文**
 
-紧凑型 Windows GPU / CPU 挖矿助手：硬件监测、挖矿工作台、收益参考、租赁市场与桌面悬浮监控。**现已接入 YSR（GPU）和 ZCD（CPU）**，同时支持 PRL、QTC、NOID。
+紧凑型 Windows GPU / CPU 挖矿助手，提供硬件监测、GPU＋CPU 独立双挖、矿池账本、租赁市场与桌面悬浮监控。
 
-[下载 Windows 版](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.27-beta) · [使用指南](desktop/QUICKSTART.txt) · [构建说明](desktop/README.md) · [官网](https://gozero.trade/)
+[下载 Windows 版](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.38-beta) · [官网](https://gozero.trade/) · [使用指南](desktop/QUICKSTART.txt) · [构建说明](desktop/README.md)
 
-## 下载与更新
+## 下载与升级
 
-下载 `GozerAssistant-1.0.27-win-x64.zip`，核对随附 SHA256，完整解压至新文件夹，运行 `GozerAssistant.exe`。升级前从托盘退出旧版；已有钱包、矿池和配置保存在本机。程序不会自动开始挖矿。
+下载 `GozerAssistant-1.0.38-win-x64.zip`，核对随附 SHA256，完整解压到新目录，运行 `GozerAssistant.exe`。升级前从托盘退出旧版。已有钱包、矿池与设置保留；程序不会自动开始挖矿。显示版本仍为 **Beta 1.02**，内部版本 **1.0.38**。
 
-显示版本保持 **Beta 1.02**，内部构建版本 **1.0.27**。
+## 本版更新
 
-## 本版重点
+- **YSR / ZCD / BNT 矿池查询**：接入 Gozero Pool 的公开地址接口，显示矿池估算算力、Worker、接受/拒绝份额、余额和分页支付记录。双挖模式可分别查看 GPU / CPU 任务账本。
+- **区分金额性质**：YSR 全链余额与本池已索引奖励分开；ZCD/BNT 分别显示可用未支付、待成熟、支付预留、累计已支付。BNT 待成熟明确标注 PPLNS 可变预估。
+- **精确金额与缓存**：8位最小单位整数字符串 / BigInt 换算；算力约30秒、账本约60秒刷新。错误时退避并保留缓存，未知值不补零，自定义矿池不冒充 Gozero 收益。
+- **BNT 多内核**：默认 Gozero Blocknet CPU 0.2.1，新增 Seine 0.2.15 按需下载和选择；官方 Core 0.20.0 单列下载，属于需同步链的全节点程序，不能作为工作台矿池内核。
+- **BNT 性能与内存**：按可用内存和逻辑线程设置预算，预留系统空间；支持大页设置及自研内核自动调优。新增 AVX2 stream 为实测候选，保留原默认路径。
 
-- **GPU＋CPU双挖**：一组GPU（PRL / QTC / NOID / YSR，支持多卡）与ZCD CPU同时运行；两路独立配置钱包、矿池、内核、性能预算，独立启停、算力曲线与日志。
-- **分别统计与计费**：不同算法不合计算力；两路分别累计原有0.5%软件服务费，共享持久化账本并保留旧余额。
-- **紧凑布局**：小窗口上下排列，拉宽后并排显示；悬浮卡片同时显示GPU和CPU状态。
-- **浅色主题修复**：提高选中按钮、禁用控件、输入框、日志、硬件参数及悬浮窗文字的可读性。
-- **移除收益测试**：取消独立板块与测试按钮，保留工作台正常算力监控、矿池账本和收益估算；电价、矿池费、整机功耗参数移至“偏好与保护”。
-- **CPU内核按需下载**：不随软件打包XMRig；用户可选择下载Gozero自编译版或官方版。线程预算按逻辑线程计算；保留中英日俄四语界面。
-
-| 币种 | 计算设备 / 算法 | 内核与默认连接 |
+| 币种 | 设备 / 算法 | 内核与默认矿池 |
 | --- | --- | --- |
-| ZCD | CPU / RandomX v2 | Gozero XMRig CPU（内核费0%）或官方XMRig（内核费1%）；`stratum+tcp://zcd.pool.gozero.trade:3333` |
-| YSR | NVIDIA SM 8.0+ / SHA-256d | Gozero YSR CUDA 0.1.3；`https://ysr.pool.gozero.trade:8443` |
-| NOID | 受支持的NVIDIA GPU / Poseidon2b | Suprminer或Fl4shMiner；自动主备连接适配 |
-| PRL / QTC | 上游支持的GPU | KRig；可选择地区节点与备用矿池 |
+| BNT | CPU / Argon2id，每线程2 GiB | 自研核心或 Seine；`stratum+tcp://bnt.pool.gozero.trade:14444` |
+| ZCD | CPU / RandomX v2 | Gozero XMRig CPU 或官方 XMRig；`stratum+tcp://zcd.pool.gozero.trade:3333` |
+| YSR | NVIDIA SM 8.0+ / SHA-256d | Gozero YSR CUDA；`https://ysr.pool.gozero.trade:8443` |
+| NOID | 受支持 NVIDIA / Poseidon2b | Suprminer 或 Fl4shMiner，支持主备选择 |
+| PRL / QTC | 上游支持的 GPU | KRig，支持地区节点和备用矿池 |
 
-YSR要求兼容CUDA 13的驱动；本版YSR未开放AMD或CPU挖矿。TSC Windows挖矿入口暂未开放。ZCD至少需要4 GiB可用内存；线程开满并不保证获得最高算力，实际表现取决于CPU、缓存、内存与系统调度。
+YSR 需要兼容 CUDA 13 的驱动，未开放 AMD/CPU；TSC Windows 未开放。ZCD 至少需要4 GiB可用内存；BNT 约2 GiB＋128 MiB/线程并预留系统内存。线程越多不一定越快。
 
-## 新版界面截图
+## 当前界面
 
-以下为 **1.0.27真实待机界面截图**，浅色图同时展示禁用控件效果；未填入模拟算力、收益或钱包余额，不代表矿池有效份额验收。
+以下是 **1.0.38 的真实公开地址查询截图**。本机处于待机，数值来自矿池估算与既有账本，不代表新增收益或本机实时算力。
 
-### GPU＋CPU工作台 · 深色
+![ZCD 矿池余额与份额](docs/screenshots/pool-zcd-zh-1.0.38.png)
 
-![双挖工作台：独立配置、启停与算力统计](docs/screenshots/dual-dark-zh-1.0.27.png)
+![YSR 链上余额与本池已索引奖励](docs/screenshots/pool-ysr-zh-1.0.38.png)
 
-### GPU＋CPU工作台 · 浅色
+![BNT 浅色账本](docs/screenshots/pool-bnt-light-en-1.0.38.png)
 
-![浅色主题：选中及禁用控件保持清晰](docs/screenshots/dual-light-zh-1.0.27.png)
+## 其它功能
 
-### 双路悬浮监控
+- GPU＋CPU 两路独立钱包、矿池、内核、启停与日志，不合计不同算法算力；提供5/10分钟均值。
+- 硬件扫描、支持的实时传感器、可拖拽悬浮窗、托盘操作；GPU温度保护默认90°C。CPU温度与功耗尚未接入。
+- 中文、英文、日文、俄文；深色与浅色主题。
+- Clore / Vast.ai GPU、CPU租赁报价与型号筛选；软件不会自动租赁或支付。
 
-![GPU与CPU分别显示的悬浮卡片](docs/screenshots/floating-dual-1.0.27.png)
+[Clore 推荐链接](https://clore.ai/register?ref_id=ebgzlv4d) · [Vast.ai 推荐链接](https://cloud.vast.ai/?ref_id=133254)
 
-## 更多功能
+## 费用与验证范围
 
-- GPU、CPU、内存、主板、BIOS与受支持的传感器读取；未知值显示“—”。
-- 5/10分钟算力均值、近期采样曲线、挖矿日志、显卡温度保护（默认90°C）。CPU温度和功耗尚未接入，不宣称CPU温度保护。
-- 收益参考与已接入矿池的地址账本；ZCD价格、收益和矿池结算数据尚未接入。
-- 可拖动悬浮卡片与托盘；突出算力、当前模式、系统负载和停止状态。
-- Clore / Vast.ai GPU和CPU租赁查询，4090 / 5090 / 3090 / RTX PRO 6000快捷筛选、参数窗及租金试算；只查询和跳转，不自动租赁。
+助手收取公开的 **0.5% 分时服务费**，不是按实际币数精确扣款；内核费、矿池费和电费另计。自研 BNT 内核费0%；原版 Seine 内核费 **2.5%**（bntpool域名1%）。官方 XMRig 1%，Gozero CPU版内核费0%。
 
-[Clore推荐链接](https://clore.ai/register?ref_id=ebgzlv4d) · [Vast.ai推荐链接](https://cloud.vast.ai/?ref_id=133254)
-
-## 服务费与验证范围
-
-助手服务费为 **0.5%**，挖矿任务适用，按运行时间分时累计，不是按实际产币量精确扣款。内核费、矿池费及电费另计。
-
-145项自动化测试通过，覆盖双任务调度、账本持久化、128逻辑线程配置及进程停止隔离；双挖、浅色主题和ZCD界面检查通过。**本轮尚未进行真实矿池GPU＋CPU同时挖矿实测。** CPU温度与功耗仍未接入。完整范围及安装包校验见[验证记录](desktop/VALIDATION.md)。
+182项自动测试与真实只读接口/UI验证通过。**Seine 在测试机内从助手启动时被 Windows 拒绝（错误码5），用户确认腾讯管家弹出拦截；助手内实挖尚未验收通过。** 未绕过安全软件。BNT性能依设备和线程数变化，不承诺3995WX或AVX-512提升。详见[验证记录](desktop/VALIDATION.md)。
 
 ## 开源与构建
 
@@ -70,8 +61,6 @@ cd GozeroAssistant
 python desktop/scripts/package.py
 ```
 
-需要Windows x64、Python 3.11+和.NET Framework C#编译器；测试需Node.js 22+。构建会下载并校验固定版本Electron，不会开始挖矿。详见[构建说明](desktop/README.md)。
+需要 Windows x64、Python 3.11+、.NET Framework C#编译器；测试需要Node.js22+。构建校验固定版本Electron，不启动挖矿。
 
-助手自有代码采用[MIT](LICENSE)；YSR上游代码保留MIT，Quantus派生代码保留Apache-2.0。[第三方组件说明](desktop/THIRD-PARTY.md)。
-
-Gozero XMRig CPU基于XMRig，遵循GPL-3.0-or-later，并非从零编写的独立算法实现。[独立内核下载及完整对应源码](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/xmrig-cpu-6.26.0-cpu.2)。KRig、Suprminer、Fl4shMiner和XMRig均需用户主动下载；XMRig不随助手安装包分发。挖矿程序可能触发杀毒软件检测，项目不提供“免报毒”承诺。
+助手代码采用[MIT](LICENSE)，第三方组件保留各自许可证，见[第三方说明](desktop/THIRD-PARTY.md)。Gozero XMRig遵循GPL-3.0-or-later，[内核与对应源码](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/xmrig-cpu-6.26.0-cpu.2)。KRig、Suprminer、Fl4shMiner、XMRig、Seine均由用户手动下载；不承诺免报毒。

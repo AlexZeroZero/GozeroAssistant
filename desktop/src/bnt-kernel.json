@@ -1,0 +1,18 @@
+{
+  "id": "gozero-bnt-0.2.1",
+  "name": "Gozero Blocknet CPU",
+  "version": "0.2.1",
+  "exe": "GozeroBlocknetCore.exe",
+  "exeSha256": "979af5ca8bc5d69047fb2dff709898c2da819466381987390d09df9b4ad0a77c",
+  "bundled": true,
+  "bundleDirectory": "bnt",
+  "files": {
+    "GozeroBlocknetCore.exe": "979af5ca8bc5d69047fb2dff709898c2da819466381987390d09df9b4ad0a77c",
+    "LICENSE": "4988825f151634ad9d8056e0f8b33ff7e442ce2394eb1f8b9746670ab103bbb2",
+    "README.md": "0c82201ce98b3a1ffd75ee135318b231450dbda774b6426bc0721a78b41a1178",
+    "REPORT.zh-CN.md": "15e932a8223bda702e21bf59434fd065d5eebbfe55e8b264fda115c83ebc0534",
+    "sources.json": "41280181345d8ca9f1667b33912a178a80abf41e8073d0ab8b8a53fa86431002"
+  },
+  "source": "https://github.com/AlexZeroZero/GozeroAssistant",
+  "kernelFee": 0
+}

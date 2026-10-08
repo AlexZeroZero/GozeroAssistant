@@ -1,0 +1,95 @@
+{
+  "at": "2026-10-08T13:16:51.928574+00:00",
+  "cpu": "Intel Core Ultra 9 275HX",
+  "threads": 4,
+  "logicalCpuMask": [
+    0,
+    1,
+    10,
+    11
+  ],
+  "pages": "regular",
+  "warmupSeconds": 60,
+  "measurementSeconds": 60,
+  "metric": "All completed hashes / actual elapsed including in-flight completion",
+  "binaries": {
+    "baseline": "7002c108e855632c96a3f4dda28d61c89e9bd53fe843b27248c0124c8fdb2b4a",
+    "stream": "edc69d054f01036d49d9037668d2daeea5cf2f0121491c6c11e8ef227d20cf71",
+    "seine": "10e039799413f49499d5df57199f8896fc98ae005a27fc914b477c79f680fa0d"
+  },
+  "runs": [
+    {
+      "kind": "baseline",
+      "file": "confirm-1-baseline.json",
+      "verifiedMask": 3075,
+      "hashes": 287,
+      "seconds": 60.799185699999995,
+      "hps": 4.7204579583703214,
+      "header": "0c31567ba0c5ea0f34597ea3c8ed12375c81a6cbf0153a5f84a9cef3183d6287acd1f61b40658aafd4f91e43688db2d7fc21466b90b5daff24496e93b8dd02274c7196bbe0052a4f7499bee3082d52779cc1e60b30557a9fc4e90e33"
+    },
+    {
+      "kind": "stream",
+      "file": "confirm-2-stream.json",
+      "verifiedMask": 3075,
+      "hashes": 295,
+      "seconds": 60.54691439999999,
+      "hps": 4.872254893966984,
+      "header": "0c31567ba0c5ea0f34597ea3c8ed12375c81a6cbf0153a5f84a9cef3183d6287acd1f61b40658aafd4f91e43688db2d7fc21466b90b5daff24496e93b8dd02274c7196bbe0052a4f7499bee3082d52779cc1e60b30557a9fc4e90e33"
+    },
+    {
+      "kind": "seine",
+      "file": "confirm-3-seine.json",
+      "verifiedMask": 3075,
+      "hashes": 300,
+      "seconds": 60.5095086,
+      "hps": 4.957898468208681,
+      "displayCountedHps": 4.891793155299232,
+      "lateHashes": 4
+    },
+    {
+      "kind": "seine",
+      "file": "confirm-4-seine.json",
+      "verifiedMask": 3075,
+      "hashes": 304,
+      "seconds": 60.5160698,
+      "hps": 5.023459074667139,
+      "displayCountedHps": 4.957360928947835,
+      "lateHashes": 4
+    },
+    {
+      "kind": "stream",
+      "file": "confirm-5-stream.json",
+      "verifiedMask": 3075,
+      "hashes": 284,
+      "seconds": 60.3421965,
+      "hps": 4.706490921324019,
+      "header": "0c31567ba0c5ea0f34597ea3c8ed12375c81a6cbf0153a5f84a9cef3183d6287acd1f61b40658aafd4f91e43688db2d7fc21466b90b5daff24496e93b8dd02274c7196bbe0052a4f7499bee3082d52779cc1e60b30557a9fc4e90e33"
+    },
+    {
+      "kind": "baseline",
+      "file": "confirm-6-baseline.json",
+      "verifiedMask": 3075,
+      "hashes": 279,
+      "seconds": 60.7660379,
+      "hps": 4.591380475704835,
+      "header": "0c31567ba0c5ea0f34597ea3c8ed12375c81a6cbf0153a5f84a9cef3183d6287acd1f61b40658aafd4f91e43688db2d7fc21466b90b5daff24496e93b8dd02274c7196bbe0052a4f7499bee3082d52779cc1e60b30557a9fc4e90e33"
+    }
+  ],
+  "summary": [
+    {
+      "kind": "baseline",
+      "meanHs": 4.655919217037578,
+      "samples": 2
+    },
+    {
+      "kind": "stream",
+      "meanHs": 4.789372907645502,
+      "samples": 2
+    },
+    {
+      "kind": "seine",
+      "meanHs": 4.99067877143791,
+      "samples": 2
+    }
+  ]
+}

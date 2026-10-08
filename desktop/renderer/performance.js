@@ -17,5 +17,9 @@
   // CPU modes budget logical threads, including SMT / Hyper-Threading.
   return Math.max(1,Math.min(maximum,Math.floor(logical*percent/100)));
  }
- return{describe,cpuThreadBudget};
+ function bntThreadBudget(limit,value){
+  const maximum=Number.isInteger(limit)&&limit>0?limit:0;
+  return maximum?Math.max(1,Math.floor(maximum*describe(value).percent/100)):0;
+ }
+ return{describe,cpuThreadBudget,bntThreadBudget};
 });

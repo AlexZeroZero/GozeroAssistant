@@ -1,0 +1,35 @@
+/* More room for configuration; the log fills the remaining workbench. */
+#mining .mining-config{border-color:color-mix(in srgb,var(--purple) 50%,var(--line));border-radius:5px;padding-block:3px;background:linear-gradient(110deg,var(--soft),transparent 70%),var(--panel)}
+#mining .config-row{min-height:29px;height:auto;padding-block:3px}
+#mining .address-row{min-height:34px}
+#mining .address-row>input{height:28px;font-size:13px}
+#mining .config-row>label{font-size:11px}
+#mining .kernel-row{flex-wrap:wrap;gap:5px}
+#mining #kernel-state{font-size:10px}
+#mining .mining-workspace{flex:1 1 auto}
+#mining .workbench-log{flex:1 0 96px;min-height:96px;max-height:35%}
+#mining .mining-stats strong{font-size:24px;line-height:27px}
+#mining .fixed-note{height:auto;max-height:38px}
+.library-mode-link{margin-left:auto}.workbench-modes .mode-note{display:none}
+.library-tabs{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0}.library-tabs button{font-weight:700;height:29px}.library-tabs button.active{background:var(--soft);border-color:var(--purple);color:var(--purple)}
+.library-info{display:flex;gap:10px;align-items:center;padding:8px 0}.library-info button{margin-left:auto;height:30px}.library-info>b{font-size:15px}
+.library-kernel{padding:10px;border-radius:6px;margin-bottom:7px}.library-head{display:flex;gap:9px;align-items:center}.library-head>b{font-size:14px}.library-head>span{color:var(--muted);font-size:12px}.library-head>button{margin-left:auto;height:31px;min-width:110px}.library-kernel progress{width:100%;height:6px;accent-color:var(--purple)}.library-kernel .note{overflow-wrap:anywhere;font-size:11px}.coin-caption #kernel-library-open{margin-left:auto;font-size:11px}
+@media(min-width:1000px){#mining .address-row>input{font-size:14px}.mining-config{padding:6px}.library-body{max-width:1100px;margin:auto}}
+/* Prominent CPU memory control, with stable sizing and no idle animation. */
+.large-pages-row{display:flex;align-items:center;flex-wrap:wrap;gap:7px;padding:6px 8px;margin:4px 0;border:1px solid color-mix(in srgb,var(--purple) 48%,var(--line));border-radius:7px;background:linear-gradient(105deg,var(--soft),var(--panel));font-size:12px;color:var(--text)}
+.large-pages-row[hidden]{display:none}
+.large-pages-row button{height:30px;padding:0 10px;flex-shrink:0;font-size:12px;border-radius:5px}
+.large-pages-row .large-pages-enable{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-width:158px;height:36px;padding:0 15px;font-size:14px;font-weight:750;letter-spacing:.2px;color:#fff;border:1px solid #b59aef;background:linear-gradient(115deg,#8255c9,#6234a4);box-shadow:0 2px 7px #4c277b33}
+.large-pages-row .large-pages-enable::before{content:'▦';font-size:20px;line-height:1}
+.large-pages-row .large-pages-enable:hover:not(:disabled){background:linear-gradient(115deg,#9364de,#7544ba);border-color:#d1baff}
+.large-pages-row .large-pages-enable:focus-visible{outline:2px solid var(--purple);outline-offset:3px}
+.large-pages-row .large-pages-enable:disabled{opacity:.72;box-shadow:none}
+.large-pages-row[data-phase=pending] .large-pages-enable{opacity:1;background:var(--raised);color:var(--purple);border-color:var(--purple)}
+.large-pages-row[data-phase=available] .large-pages-enable:disabled{opacity:1;background:var(--soft);color:var(--green);border-color:var(--green)}
+.large-pages-row[data-phase=available] .large-pages-enable:disabled::before{content:'✓'}
+.large-pages-row>span{flex:1;min-width:125px;line-height:1.5;overflow-wrap:anywhere}
+.large-pages-row[data-phase=pending]>span{color:var(--purple);font-weight:600}
+.large-pages-row[data-phase=available]>span{color:var(--green)}
+#settings .large-pages-row{margin:7px}
+body.light .large-pages-row .large-pages-enable:not(:disabled){color:#fff;background:linear-gradient(115deg,#7843b6,#5c2d98);border-color:#713dae}
+body.light .large-pages-row .large-pages-enable:hover:not(:disabled){background:linear-gradient(115deg,#6c37a8,#502484)}

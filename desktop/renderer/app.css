@@ -8,3 +8,5 @@
 #wallet[aria-invalid="true"]{border-color:#f07484;box-shadow:inset 0 0 0 1px #f0748444}
 
 .estimate-settings .config-line{height:auto;min-height:32px;flex-wrap:wrap;padding:6px;gap:6px 12px}.estimate-settings .config-line label{white-space:nowrap}
+
+.bnt-tuning{display:flex;gap:6px;align-items:center;min-height:26px;padding:3px 5px;}.bnt-tuning[hidden]{display:none}.bnt-tuning span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

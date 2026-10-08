@@ -3,7 +3,7 @@ const {poolChoices,poolUrls}=require('./pool-catalog.cjs');
 const {PUBLIC_API:YSR_API,LEGACY_API:YSR_LEGACY_API}=require('./ysr-protocol.cjs');
 const ORIGIN='https://pool.kryptex.com',INTERVAL=60000;
 function accountFor(config){
- const coin=config.coin,wallet=config.wallets?.[coin]||'';
+ const coin=config.coin,wallet=config.wallets?.[coin]||'';const gozero=require('./gozero-account.cjs').identify(config);if(gozero)return gozero;
  if(coin==='ZCD')return{coin,source:'Zycord',reason:'ZCD 矿池账本接口待适配；填入矿池后可挖矿，余额与支付请到该矿池查询'};
  // The Gozero mining gateway does not expose /account (verified 404). This is
  // explicitly the official chain ledger, not a gateway-specific payout balance.
@@ -33,14 +33,14 @@ function normalize(kind,data){
  })};
 }
 class PoolAccount{
- constructor(request,changed=()=>{},clock=Date.now){this.request=request;this.changed=changed;this.clock=clock;this.cache=new Map();this.current={reason:'保存收款地址后自动查询矿池账本'};this.stopped=false}
- configure(config){this.current=accountFor(config);this.refresh().catch(()=>{});this.changed()}
+ constructor(request,changed=()=>{},clock=Date.now){this.request=request;this.changed=changed;this.clock=clock;this.gozero=new (require('./gozero-account.cjs').GozeroAccount)(request,changed,clock);this.cache=new Map();this.current={reason:'保存收款地址后自动查询矿池账本'};this.stopped=false}
+ configure(config){this.current=accountFor(config);this.gozero.configure(this.current);this.refresh().catch(()=>{});this.changed()}
  snapshot(){
-  const a=this.current,c=this.cache.get(a.key),now=this.clock();
+  const a=this.current;if(a.adapter==='gozero')return this.gozero.snapshot(a);const c=this.cache.get(a.key),now=this.clock();
   return{coin:a.coin,source:a.source||'Kryptex',supported:!!a.key,reason:a.reason||null,address:a.wallet?`${a.wallet.slice(0,8)}…${a.wallet.slice(-6)}`:null,mixed:!!a.mixed,loading:!!c?.pending,sections:Object.fromEntries(['balance','stats','payouts'].map(k=>{const d=c?.[k];return[k,d?{...d,stale:!!d.error||!d.at||now-d.at>180000}:null]}))};
  }
  async refresh(){
-  const a=this.current;if(!a.key||this.stopped)return this.snapshot();
+  const a=this.current;if(!a.key||this.stopped)return this.snapshot();if(a.adapter==='gozero'){await this.gozero.refresh(a);return this.snapshot()}
   let c=this.cache.get(a.key);if(!c){c={attempt:null};this.cache.set(a.key,c);if(this.cache.size>6)this.cache.delete(this.cache.keys().next().value)}
   if(c.pending)return c.pending;
   if(c.attempt!==null&&this.clock()-c.attempt<INTERVAL)return this.snapshot();
@@ -58,7 +58,8 @@ class PoolAccount{
   c.pending=work().finally(()=>{c.pending=null;if(!this.stopped)this.changed()});this.changed();await c.pending;return this.snapshot();
  }
  url(){if(!this.current.page)throw Error('当前地址暂无已适配账单页面');return this.current.page}
- start(){this.timer=setInterval(()=>this.refresh().catch(()=>{}),INTERVAL)}
- stop(){this.stopped=true;clearInterval(this.timer);this.cache.clear()}
+ async setPage(page){const a=this.current;if(a.adapter!=='gozero')throw Error('当前来源不支持翻页');await this.gozero.setPage(a,page);return this.snapshot()}
+ start(){this.timer=setInterval(()=>this.refresh().catch(()=>{}),5000)}
+ stop(){this.stopped=true;clearInterval(this.timer);this.cache.clear();this.gozero.stop()}
 }
 module.exports={PoolAccount,accountFor,normalize};

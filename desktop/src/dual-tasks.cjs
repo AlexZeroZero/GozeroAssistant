@@ -15,7 +15,7 @@ function normalizeProfiles(base,profiles,validate){
  for(const id of ['gpu','cpu']){
   const input=profiles[id];if(input!==undefined&&(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!PROFILE_KEYS.includes(k))))throw Error('任务配置字段无效');
   const cfg=validate({...taskConfig({...base,taskProfiles:undefined},id),...input});
-  if(id==='cpu'?cfg.coin!=='ZCD':!GPU_COINS.includes(cfg.coin))throw Error('币种与设备任务不匹配');
+  if(id==='cpu'?!['ZCD','BNT'].includes(cfg.coin):!GPU_COINS.includes(cfg.coin))throw Error('币种与设备任务不匹配');
   result[id]=Object.fromEntries(PROFILE_KEYS.map(k=>[k,cfg[k]]));
  }
  return result;

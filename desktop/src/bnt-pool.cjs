@@ -1,0 +1,35 @@
+'use strict';
+// Seine v0.2.15 public wire protocol; independently implemented transport.
+// BigInt preserves the entire uint64 nonce range assigned by the pool.
+const net=require('node:net'),tls=require('node:tls');
+const {EventEmitter}=require('node:events');
+const {hideNetworkAddresses}=require('./log-privacy.cjs');
+const MAX64=(1n<<64n)-1n;
+const CAPABILITIES=['login_negotiation','submit_claimed_hash'];
+function parse(raw){return JSON.parse(raw,(key,value,context)=>['nonce_start','nonce_end'].includes(key)?BigInt(typeof value==='string'?value:context?.source??String(value)):value)}
+function job(p){
+ if(!p||typeof p.job_id!=='string'||!p.job_id.length||p.job_id.length>128||! /^[a-f0-9]{184}$/i.test(p.header_base)||! /^[a-f0-9]{64}$/i.test(p.target)||!Number.isSafeInteger(p.height)||p.height<0)throw Error('BNT 矿池任务格式无效');
+ const start=BigInt(p.nonce_start),end=BigInt(p.nonce_end);if(start<0n||end>MAX64||start>end||BigInt('0x'+p.target)===0n)throw Error('BNT nonce 范围或目标无效');
+ return{id:p.job_id,header:p.header_base,target:p.target,next:start,end,height:p.height};
+}
+function submission(id,j,nonce,hash){if(!Number.isSafeInteger(id)||! /^[a-f0-9]{64}$/i.test(hash)||typeof nonce!=='bigint'||nonce<0n||nonce>MAX64)throw Error('Invalid BNT submission');return '{"id":'+id+',"method":"submit","params":{"job_id":'+JSON.stringify(j)+',"nonce":'+nonce+',"claimed_hash":'+JSON.stringify(hash)+',"miner_version":"Gozero-0.2.0","backend":"cpu"}}\n'}
+class Pool extends EventEmitter {
+ constructor(urls,address,worker,options={}){super();Object.assign(this,{urls,address,worker});this.options={connectMs:10000,loginMs:20000,jobMs:30000,retryMs:5000,retryMaxMs:60000,...options};this.stopped=false;this.index=0;this.seq=2;this.pending=new Map();this.generation=0;this.failures=0;this.connection={stage:'idle',message:'等待连接'}}
+ log(message){this.emit('log',hideNetworkAddresses(message))}
+ status(stage,message,extra={}){this.connection={...this.connection,...extra,stage,message:hideNetworkAddresses(message)};this.emit('state',this.snapshot())}
+ snapshot(){return{...this.connection}}
+ connect(){if(this.stopped||this.socket&&!this.socket.destroyed)return;const u=new URL(this.urls[this.index++%this.urls.length]),host=u.hostname.replace(/^\[|\]$/g,'');this.log('连接 '+u.host);this.logged=false;this.job=null;this.status('connecting','正在连接矿池 TCP 端口',{endpoint:hideNetworkAddresses(u.host),retryAt:null});const generation=++this.generation;const opts={host,port:+u.port,autoSelectFamily:true,autoSelectFamilyAttemptTimeout:500};const s=this.socket=u.protocol==='stratum+ssl:'?tls.connect({...opts,...(!net.isIP(host)?{servername:host}:{})}):net.connect(opts);s.setEncoding('utf8');s.setNoDelay(true);let buffer='',deadline,watch;
+ const arm=(ms,message)=>{clearTimeout(deadline);deadline=setTimeout(()=>s.destroy(Error(message)),ms)};
+ s.setKeepAlive(true,15000);arm(this.options.connectMs,'TCP 连接超时：'+u.host+' · 尚未发送钱包登录，请检查该端口的网络可达性');
+ s.on('lookup',(error,ip)=>{if(!error&&ip){this.status('connecting','已解析域名，正在连接 TCP');this.log('域名解析完成 · '+host)}});
+ s.once('connect',()=>{this.status(u.protocol==='stratum+ssl:'?'tls':'login',u.protocol==='stratum+ssl:'?'TCP 已连接，等待 TLS':'TCP 已连接，等待登录响应');this.log('TCP 已连接 '+u.host);arm(this.options.loginMs,u.protocol==='stratum+ssl:'?'TLS 握手超时':'矿池登录响应超时：TCP 已连通，服务器未确认登录')});
+ s.once(u.protocol==='stratum+ssl:'?'secureConnect':'connect',()=>{this.status('login','已发送登录，等待矿池确认');arm(this.options.loginMs,'矿池登录响应超时：TCP 已连通，服务器未确认登录');s.write(JSON.stringify({id:1,method:'login',params:{address:this.address,worker:this.worker,protocol_version:2,capabilities:CAPABILITIES}})+'\n')});
+ s.on('data',data=>{if(this.stopped||generation!==this.generation)return;buffer+=data;try{let at;while((at=buffer.indexOf('\n'))>=0){if(at>8192)throw Error('矿池消息过大');const line=buffer.slice(0,at);buffer=buffer.slice(at+1);if(!line.trim())continue;const m=parse(line);if(m.id===1){if(m.error||String(m.status).toLowerCase()!=='ok')throw Error('矿池拒绝登录：'+String(m.error||m.status));if((m.result?.required_capabilities||[]).some(c=>!CAPABILITIES.includes(c)))throw Error('矿池要求不支持的协议功能');this.logged=true;this.log('BNT 矿池登录成功');if(this.job){clearTimeout(deadline);this.status('work','已收到矿池任务')}else{this.status('waiting_job','已登录，等待矿池下发任务');arm(this.options.jobMs,'已登录但矿池未下发任务，重新连接')}}else if(m.method==='job'){const next=job(m.params);if(this.job?.id===next.id){if(this.job.header!==next.header||this.job.target!==next.target||this.job.end!==next.end)throw Error('矿池复用了不一致的任务编号');continue}this.job=next;if(this.logged){clearTimeout(deadline);this.status('work','已收到矿池任务')}this.emit('job',next);}else if(this.pending.has(m.id)){this.pending.delete(m.id);const accepted=!m.error&&(typeof m.result?.accepted==='boolean'?m.result.accepted:String(m.status).toLowerCase()==='ok');if(accepted)this.failures=0;this.emit('share',accepted,m.error||m.result?.status||'');}}if(buffer.length>8192)throw Error('矿池消息过大')}catch(e){s.destroy(e)}});
+ s.on('error',e=>{const message=e.message||e.code;this.status('error',message);this.log(message)});s.on('close',()=>{clearTimeout(deadline);clearInterval(watch);if(generation!==this.generation)return;this.logged=false;this.job=null;this.pending.clear();this.emit('offline');if(!this.stopped){const delay=Math.min(this.options.retryMaxMs,this.options.retryMs*2**Math.min(this.failures++,5));const message='连接中断 · '+Math.ceil(delay/1000)+' 秒后重试'+(this.urls.length>1?' / 下一备用节点':'');this.status('retry',message,{retryAt:Date.now()+delay});this.log(message);if(!this.stopped)this.retry=setTimeout(()=>this.connect(),delay)}});
+ watch=setInterval(()=>{for(const at of this.pending.values())if(Date.now()-at>30000){s.destroy(Error('份额确认超时，重新连接'));break}},5000);this.clearConnectionTimers=()=>{clearTimeout(deadline);clearInterval(watch)};
+ }
+ submit(j,n,h){if(!this.logged||this.job!==j||this.pending.size>=16)return false;const id=this.seq++;this.pending.set(id,Date.now());this.socket.write(submission(id,j.id,n,h));return true}
+ stop(){this.stopped=true;this.logged=false;this.job=null;clearTimeout(this.retry);this.clearConnectionTimers?.();this.socket?.destroy();this.status('stopped','已停止连接')}
+}
+function probe(config,{log=()=>{},timeout=45000,signal}={}){require('./bnt.cjs').address(config.wallets.BNT);return new Promise((resolve,reject)=>{const p=new Pool(require('./pool-catalog.cjs').poolUrls(config),config.wallets.BNT,config.worker);let done=false;const finish=(error)=>{if(done)return;done=true;clearTimeout(timer);signal?.removeEventListener('abort',abort);const result={...p.snapshot(),protocol:'Blocknet Stratum v2',jobReceived:!!p.job};p.stop();error?reject(error):resolve(result)};const abort=()=>finish(Error('连接检测已取消'));const timer=setTimeout(()=>finish(Error('检测超时：'+p.connection.message)),timeout);if(signal?.aborted)return abort();signal?.addEventListener('abort',abort,{once:true});p.on('log',log);p.on('state',s=>{if(s.stage==='work')finish()});p.connect()})}
+module.exports={Pool,parse,job,submission,probe};

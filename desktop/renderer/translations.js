@@ -2,6 +2,71 @@
  'use strict';
  // Source phrase | English | Japanese | Russian. Technical IDs, input values and miner output are preserved.
  const rows=`
+单位|Unit|単位|Единица
+可用未支付|Available unpaid|利用可能・未払い|Доступно к выплате
+待成熟收益|Immature rewards|未成熟報酬|Незрелые награды
+待成熟 / 预估|Immature / estimated|未成熟 / 推定|Незрелые / оценка
+支付预留|Reserved payout|支払い予約額|Резерв выплаты
+成熟确认数|Maturity blocks|成熟ブロック数|Блоки до зрелости
+矿池估算|Pool estimate|プール推定値|Оценка пула
+在线 Worker|Online workers|オンライン Worker|Работники онлайн
+Worker 明细|Worker details|Worker 詳細|Сведения о работниках
+矿池未返回 Worker 记录。|The pool returned no worker records.|プールから Worker 記録が返されていません。|Пул не вернул записей о работниках.
+Worker 是矿池会话，不等于物理设备数量。|Workers are pool sessions, not physical device counts.|Worker はプールのセッションで、物理デバイスの数ではありません。|Работники — сессии пула, а не число физических устройств.
+本池已索引奖励|Indexed pool rewards|インデックス済みプール報酬|Награды пула в индексе
+已索引区块|Indexed blocks|インデックス済みブロック|Блоки в индексе
+矿池区块|Pool blocks|プールのブロック|Блоки пула
+链查询深度|Chain scan depth|チェーン照会深度|Глубина сканирования
+结算方式|Settlement|決済方式|Расчёт
+区块奖励直付|Direct block rewards|ブロック報酬の直接払い|Прямые награды блока
+奖励索引尚不完整，金额仅覆盖已索引区块。|The reward index is incomplete; amounts cover indexed blocks only.|報酬のインデックスは未完了です。金額は登録済みブロックのみ対象です。|Индекс наград неполон; суммы охватывают только проиндексированные блоки.
+矿池自动支付暂未启用|Automatic pool payouts are disabled|プールの自動支払いは無効です|Автовыплаты пула отключены
+支付窗口|Payout window|支払い期間|Окно выплат
+查询中|Querying|照会中|Запрос
+算力30秒 / 账本60秒|Hashrate 30s / ledger 60s|算力30秒 / 台帳60秒|Хешрейт 30с / баланс 60с
+矿池估算不等于本机实时算力|Pool estimates differ from local live hashrate|プール推定値はローカルのリアルタイム算力と異なります|Оценка пула отличается от локального хешрейта
+其它矿池收益不在本账本内|Other pools are excluded from this ledger|他のプールの収益は含まれません|Доход других пулов не включён
+本池链上奖励记录|This pool's on-chain rewards|このプールのオンチェーン報酬|Награды этого пула в блокчейне
+记录覆盖不完整，请以矿池说明为准。|Record coverage is incomplete; see the pool's explanation.|記録の対象範囲は未完了です。プールの説明を確認してください。|Охват записей неполон; см. пояснение пула.
+已广播 / 待确认|Broadcast / unconfirmed|送信済み / 未承認|Отправлено / не подтверждено
+已签名 / 未支付|Signed / unpaid|署名済み / 未払い|Подписано / не выплачено
+已预留 / 未支付|Reserved / unpaid|予約済み / 未払い|Зарезервировано / не выплачено
+链上奖励|On-chain reward|オンチェーン報酬|Награда в блокчейне
+GPU 矿池账本|GPU pool ledger|GPU プール台帳|Баланс GPU-пула
+CPU 矿池账本|CPU pool ledger|CPU プール台帳|Баланс CPU-пула
+保存有效收款地址后查询矿池账本|Save a valid payout address to query the pool ledger|有効な受取アドレスを保存してプール台帳を照会|Сохраните адрес выплат для запроса баланса пула
+矿池数据暂不可用|Pool data is temporarily unavailable|プールのデータは一時的に利用できません|Данные пула временно недоступны
+支付规则|Payout policy|支払い規則|Правила выплат
+待成熟为当前 PPLNS 预估，可能变化；这里只显示矿池账本余额，不是隐私钱包全链余额。|Immature rewards are a variable PPLNS estimate. This is the pool ledger, not the private wallet's full-chain balance.|未成熟報酬は変動する PPLNS 推定値です。プール台帳であり、ウォレット全体のオンチェーン残高ではありません。|Незрелые награды — изменяемая оценка PPLNS. Это баланс пула, а не полный баланс приватного кошелька.
+本池收入仅筛选返回的最近40条链上交易；余额为该地址全链余额，不是矿池待支付余额。|Recent pool rewards cover only the latest 40 returned transactions; balance is the address's full-chain balance, not unpaid pool funds.|最近の報酬は返された直近40件の取引のみ対象です。残高はアドレスの全チェーン残高で、プールの未払い金ではありません。|Недавние награды охватывают последние 40 транзакций; баланс относится ко всему блокчейну, а не к невыплаченным средствам пула.
+这是矿池账本余额，不是钱包全链余额。|This is the pool ledger balance, not the full-chain wallet balance.|これはプール台帳残高で、全チェーンのウォレット残高ではありません。|Это баланс пула, а не полный баланс кошелька в блокчейне.
+已安装|Installed|インストール済み|Установлено
+Windows 拒绝启动 Seine（错误码 5）。请查看安全软件拦截记录或文件权限；已停止任务。|Windows denied starting Seine (error 5). Check security software records or file permissions; the task has stopped.|Windows が Seine の起動を拒否しました（エラー 5）。セキュリティソフトの履歴またはファイル権限を確認してください。タスクは停止しました。|Windows запретила запуск Seine (ошибка 5). Проверьте журнал защиты и права файла; задача остановлена.
+官方全节点|Official full node|公式フルノード|Официальный полный узел
+下载 Windows 原版 ↗|Download Windows original ↗|Windows 原版をダウンロード ↗|Скачать оригинал для Windows ↗
+发布页 / 校验值 ↗|Release / checksums ↗|リリース / チェックサム ↗|Релиз / контрольные суммы ↗
+全节点单挖 · 需要同步区块链；不能作为工作台矿池内核启动。|Full-node solo mining. Blockchain sync required; cannot start as a workbench pool miner.|フルノードのソロ採掘。ブロックチェーン同期が必要です。ワークベンチのプール用マイナーとしては起動できません。|Соло-майнинг полного узла. Нужна синхронизация блокчейна; не запускается как пуловое ядро в рабочей панели.
+Seine 原版 GitHub · 内核费 2.5%（bntpool 1%）· 软件服务费 0.5% · SHA256 校验|Seine upstream GitHub · Kernel fee 2.5% (bntpool 1%) · App fee 0.5% · SHA256 verified|Seine 公式 GitHub · カーネル料 2.5%（bntpool 1%）· アプリ料 0.5% · SHA256 検証|Seine GitHub автора · Сбор ядра 2,5% (bntpool 1%) · Сбор приложения 0,5% · Проверка SHA256
+Seine 内核费 2.5%（bntpool 1%）· 软件服务费 0.5%|Seine kernel fee 2.5% (bntpool 1%) · App fee 0.5%|Seine カーネル料 2.5%（bntpool 1%）· アプリ料 0.5%|Сбор Seine 2,5% (bntpool 1%) · Сбор приложения 0,5%
+内核费 2.5%（bntpool 1%）|Kernel fee 2.5% (bntpool 1%)|カーネル料 2.5%（bntpool 1%）|Сбор ядра 2,5% (bntpool 1%)
+自动调优仅适用于 Gozero BNT 内核|Auto-tuning is only available for the Gozero BNT kernel|自動調整は Gozero BNT カーネルのみ対応|Автонастройка доступна только для ядра Gozero BNT
+Seine 0.2.15 仅支持 stratum+tcp 矿池地址|Seine 0.2.15 supports only stratum+tcp pool addresses|Seine 0.2.15 は stratum+tcp のプールのみ対応|Seine 0.2.15 поддерживает только адреса пула stratum+tcp
+请先下载并安装 Seine 内核|Download and install the Seine kernel first|まず Seine カーネルをダウンロードしてインストールしてください|Сначала скачайте и установите ядро Seine
+Seine 运行失败|Seine stopped with an error|Seine 実行エラー|Ошибка работы Seine
+Seine 连续 90 秒未恢复矿池任务，切换备用地址|Seine: no pool work recovered for 90 seconds; switching backup|Seine：90秒間プールの作業が復旧しないため予備アドレスに切り替えます|Seine: задания пула не восстановлены за 90 секунд; переход к резервному адресу
+币种与内核库|Coins and kernels|通貨とマイナー|Монеты и ядра
+内核库 ↗|Kernels ↗|マイナー ↗|Ядра ↗
+返回工作台|Back to Workbench|ワークベンチへ|К рабочей панели
+挖矿期间可查看其他币种和安装其他内核；当前任务继续运行。|Browse coins and install other kernels while the current task continues.|実行中のタスクを維持して他の通貨のマイナーをインストールできます。|Просматривайте монеты и устанавливайте другие ядра, не останавливая текущую задачу.
+配置此币种挖矿|Configure this coin|この通貨を設定|Настроить монету
+已有挖矿任务运行。请先停止当前任务，再切换币种启动；下载内核不会停止当前任务。|A task is running. Stop it before starting another coin. Kernel downloads do not stop mining.|タスク実行中です。別の通貨を開始する前に停止してください。ダウンロードは採掘を停止しません。|Задача уже запущена. Остановите её перед сменой монеты. Загрузка ядра не останавливает майнинг.
+随附开源核心 · SHA256 校验|Bundled open-source core · SHA256 verified|付属オープンソース · SHA256 検証|Встроенное открытое ядро · SHA256
+官方 GitHub 下载 · SHA256 双重校验|Official GitHub · Archive and binary SHA256 checks|公式 GitHub · SHA256 二重検証|Официальный GitHub · Двойная проверка SHA256
+尚未安装|Not installed|未インストール|Не установлено
+重新安装|Reinstall|再インストール|Переустановить
+直连官方 GitHub 下载源|Direct connection to official GitHub|公式 GitHub に直接接続|Прямое подключение к GitHub
+BNT 服务费地址待配置|BNT service-fee address pending|BNT 手数料アドレス未設定|Адрес комиссии BNT не настроен
+BNT 价格和收益源尚未接入|BNT price and revenue data unavailable|BNT 価格・収益データ未接続|Данные цены и дохода BNT недоступны
 选好设备，进入工作台配置挖矿|Select devices, then configure mining in Workbench|デバイスを選び、ワークベンチで採掘を設定|Выберите устройства и настройте майнинг в рабочей панели
 工作台 ↗|Workbench ↗|ワークベンチ ↗|Рабочая панель ↗
 收益估算参数|Earnings estimate settings|収益推定設定|Параметры расчёта дохода
@@ -883,5 +948,53 @@ Gozero 全节点|Gozero full node|Gozeroフルノード|Полный узел Go
  catalog['新增4090、5090、3090、RTX PRO 6000快捷筛选']=['Added quick filters for 4090, 5090, 3090 and RTX PRO 6000','4090・5090・3090・RTX PRO 6000のクイックフィルターを追加','Добавлены фильтры 4090, 5090, 3090 и RTX PRO 6000'];
  catalog['Clore / Vast.ai跳转使用官方推荐链接；版本更新为Beta 1.01']=['Clore / Vast.ai use official referral links; updated to Beta 1.01','Clore / Vast.aiは公式紹介リンクを使用。Beta 1.01に更新','Clore / Vast.ai используют официальные реферальные ссылки; версия Beta 1.01'];
  for(const line of rows.trim().split('\n')){const [key,...values]=line.split('|');if(values.length!==3||values.some(v=>!v))throw Error('Invalid translation: '+key);if(catalog[key])throw Error('Duplicate translation: '+key);catalog[key]=values}
+ catalog['等待矿池']=['Waiting for pool','プール待機','Ожидание пула'];
+ catalog['计算初始化']=['Initializing compute','計算初期化','Инициализация'];
+ catalog['已收到矿池任务']=['Pool job received','ジョブ受信済み','Задание получено'];
+ catalog['已发送登录，等待矿池确认']=['Login sent, awaiting confirmation','ログイン送信済み、応答待機','Запрос входа отправлен'];
+ catalog['已登录，等待矿池下发任务']=['Logged in, awaiting pool work','ログイン済み、ジョブ待機','Вход выполнен, ожидание задания'];
+ catalog['正在连接矿池 TCP 端口']=['Connecting to pool TCP port','プールの TCP 接続中','Подключение к TCP-порту пула'];
+ catalog['已解析域名，正在连接 TCP']=['DNS resolved, connecting TCP','名前解決完了、TCP 接続中','DNS разрешён, подключение TCP'];
+ catalog['连接中断']=['Connection lost','接続切断','Соединение разорвано'];
+ catalog['秒后重试']=['seconds until retry','秒後に再試行','сек. до повтора'];
+ catalog['BNT 登录及任务接收通过']=['BNT login and work verified','BNT ログインとジョブ確認済み','Вход и задание BNT проверены'];
+ catalog['BNT 每线程 2 GiB + 128 MiB 开销']=['BNT: 2 GiB + 128 MiB overhead per thread','BNT: スレッド毎に 2 GiB + 128 MiB','BNT: 2 GiB + 128 MiB на поток'];
+ catalog['系统预留']=['System reserve','システム予約','Резерв системы'];
+ catalog['预计占用']=['Estimated memory','推定使用量','Оценка памяти'];
+ catalog['上限']=['Limit','上限','Лимит'];
+ catalog['内存预算不足或线程超限，请重新应用档位']=['Insufficient RAM or too many threads; reapply the mode','メモリ不足またはスレッド超過。モードを再適用してください','Недостаточно памяти или слишком много потоков; примените режим заново'];
+ catalog['自动调优']=['Auto-tune','自動調整','Автонастройка'];
+ catalog['取消调优']=['Cancel tuning','調整を中止','Отменить настройку'];
+ catalog['离线计算对比 · 约5–15分钟 · 完成后应用']=['Offline comparison · about 5–15 min · apply on completion','オフライン比較 · 約5～15分 · 完了後適用','Офлайн-сравнение · около 5–15 мин · применить по завершении'];
+ catalog['准备调优']=['Preparing tuning','調整を準備中','Подготовка настройки'];
+ catalog['当前配置基线']=['Current baseline','現在設定の基準','Текущая база'];
+ catalog['计算路径对比']=['Engine comparison','計算経路比較','Сравнение реализаций'];
+ catalog['线程数对比']=['Thread comparison','スレッド数比較','Сравнение потоков'];
+ catalog['最佳并发复核']=['Concurrency recheck','並列数の再確認','Повторная проверка'];
+ catalog['大页与核心分配']=['Large pages / CPU placement','ラージページ・コア配置','Большие страницы / ядра'];
+ catalog['持续复测']=['Sustained recheck','継続測定','Длительная проверка'];
+ catalog['已应用调优配置']=['Tuning profile applied','調整設定を適用済み','Настройки применены'];
+ catalog['BNT 调优已取消']=['BNT tuning cancelled','BNT 調整を中止しました','Настройка BNT отменена'];
+ catalog['完整算法校验']=['Full consensus verification','完全なアルゴリズム検証','Полная проверка алгоритма'];
+ catalog["开启大页内存"]=["Enable large pages", "ラージページを有効化", "Включить большие страницы"];
+ catalog["正在检测大页权限"]=["Checking large-page access", "権限を確認中", "Проверка прав"];
+ catalog["大页未授权"]=["Large pages: not permitted", "ラージページ権限なし", "Нет разрешения на большие страницы"];
+ catalog["需注销重登或重启电脑"]=["Sign out and back in, or restart Windows", "サインアウト・再ログインまたは再起動が必要", "Выйдите и войдите снова или перезагрузите ПК"];
+ catalog["大页可分配"]=["Large-page allocation available", "ラージページ割り当て可能", "Большие страницы доступны"];
+ catalog["已授权，当前大页分配失败"]=["Permitted; allocation currently failed", "権限あり・割り当て失敗", "Разрешено, но выделение не удалось"];
+ catalog["大页状态读取失败"]=["Cannot read large-page status", "状態を取得できません", "Не удалось получить статус"];
+ catalog["大页待生效"]=["Large pages: sign-in required", "再ログイン待ち", "Ожидается повторный вход"];
+ catalog["大页已开启"]=["Large pages enabled", "ラージページ有効", "Большие страницы включены"];
+ catalog["实际大页线程"]=["Workers using large pages", "実際のラージページ使用スレッド", "Потоки с большими страницами"];
+ catalog["检测"]=["Check", "確認", "Проверить"];
+ catalog["权限可用不代表全部内存分配成功；BNT 以实际大页线程数为准，ZCD 以内核日志为准。"]=["Permission does not guarantee allocation. Check actual BNT workers or ZCD miner logs.", "権限があっても割り当てを保証しません。BNT の実使用数または ZCD ログを確認してください。", "Разрешение не гарантирует выделение. Проверяйте число потоков BNT или журнал ZCD."];
+ catalog["为当前 Windows 账户开启锁定内存页权限？"]=["Allow the current Windows account to lock pages in memory?", "現在の Windows アカウントにメモリ内ページのロックを許可しますか？", "Разрешить текущей учётной записи Windows блокировку страниц в памяти?"];
+ catalog["将弹出管理员授权。只添加大页所需权限，不修改虚拟内存大小。成功后可能需要注销重登或重启电脑；不会自动重启。"]=["Windows will request administrator consent. Only the large-page right is added; paging-file size is unchanged. Sign out and back in or restart Windows if needed. No automatic restart.", "管理者の承認が必要です。ラージページ権限のみ追加し、仮想メモリのサイズは変更しません。必要に応じて再ログインまたは再起動してください。自動再起動はしません。", "Windows запросит разрешение администратора. Добавляется только право больших страниц; размер файла подкачки не меняется. Может потребоваться повторный вход или перезагрузка. Автоматической перезагрузки нет."];
+ catalog["请先停止全部任务再设置大页"]=["Stop all tasks before configuring large pages", "全タスクを停止してください", "Сначала остановите все задачи"];
+ catalog["大页权限已设置，请注销重登或重启电脑"]=["Permission saved; sign out and back in or restart Windows", "権限を設定しました。再ログインまたは再起動してください", "Право сохранено; войдите заново или перезагрузите ПК"];
+ catalog["大页权限已设置；实际分配以挖矿日志为准"]=["Permission saved; check miner logs for actual allocation", "権限設定済み。実際の割り当てはログを確認してください", "Право сохранено; фактическое выделение смотрите в журнале"];
+ catalog["已取消管理员授权"]=["Administrator consent cancelled", "管理者の承認をキャンセルしました", "Разрешение администратора отменено"];
+ catalog["大页设置失败"]=["Large-page setup failed", "ラージページ設定失敗", "Ошибка настройки больших страниц"];
+ catalog["继续"]=["Continue", "続行", "Продолжить"];
  return Object.freeze(catalog);
 });

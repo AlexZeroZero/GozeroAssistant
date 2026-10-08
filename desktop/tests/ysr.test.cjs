@@ -20,13 +20,13 @@ test('YSR new default migrates old profiles once and preserves custom pools and 
  assert.equal((await new ConfigStore(dir).load()).pools.YSR,original.pools.YSR);
 });
 
-test('YSR gateway mining retains official chain ledger queries and isolates pool caches',async()=>{
+test('YSR Gozero pool routes to the portal while the official legacy node retains chain queries',async()=>{
  const {PoolAccount,accountFor}=require('../src/pool-account.cjs');
  const config=validate({coin:'YSR',wallets:{YSR:wallet}}),calls=[];
  const a=new PoolAccount(async url=>{calls.push(url);return Buffer.from(JSON.stringify({address:wallet,balance:'0',history:[]}))});
- a.configure(config);await a.refresh();assert.equal(calls[0],ysr.LEGACY_API+'/api/v2/account/'+wallet);assert.equal(a.snapshot().source,'YSKAR 节点');
- a.configure({...config,pools:{...config.pools,YSR:ysr.LEGACY_API}});await a.refresh();assert.equal(calls[1],ysr.LEGACY_API+'/api/v2/account/'+wallet);
- assert.equal(a.cache.size,2);assert.equal(a.snapshot().sections.balance.value.confirmed,0);
+ a.configure(config);await a.refresh();assert.ok(calls.every(u=>u.startsWith('https://pool.gozero.trade/portal-api/ysr/')));assert.equal(a.snapshot().source,'Gozero Pool');
+ a.configure({...config,pools:{...config.pools,YSR:ysr.LEGACY_API}});await a.refresh();assert.equal(calls.at(-1),ysr.LEGACY_API+'/api/v2/account/'+wallet);
+ assert.equal(a.cache.size,1);assert.equal(a.snapshot().sections.balance.value.confirmed,0);
  assert.ok(accountFor({...config,pools:{YSR:'https://ysr.pool.gozero.trade.evil.example:8443'}}).reason);
  a.stop();
 });

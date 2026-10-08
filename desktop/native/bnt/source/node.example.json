@@ -1,0 +1,9 @@
+{
+  "exe": "./GozeroBlocknetCore.exe",
+  "endpoint": "http://127.0.0.1:8332",
+  "cookieFile": "C:/YOUR_BLOCKNET_DATA_DIRECTORY/api.cookie",
+  "address": "REPLACE_WITH_YOUR_CHECKSUMMED_MAINNET_ADDRESS",
+  "threads": 1,
+  "engine": "prefetch",
+  "seconds": 120
+}

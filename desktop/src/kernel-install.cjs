@@ -18,17 +18,21 @@ async function installKernel({dir,exe,metadata,request,update,log,extractArchive
  try{
   await fs.mkdir(dir,{recursive:true});stage('connecting',metadata.bundled?'校验随附内核文件':'连接 '+(metadata.name||'KRig')+' '+metadata.version+' 下载源');
   if(metadata.bundled){
-   if(metadata.bundleDirectory!=='ysr'||!metadata.files)throw Error('内置内核元数据无效');
+   if(!['ysr','bnt'].includes(metadata.bundleDirectory)||!metadata.files)throw Error('内置内核元数据无效');
    stage('verifying','校验内置开源内核 '+metadata.name);const source=path.join(__dirname,'../native',metadata.bundleDirectory);
    const files=[];for(const [name,expected] of Object.entries(metadata.files)){if(path.basename(name)!==name)throw Error('无效内核文件名');const body=await fs.readFile(path.join(source,name));if(hash(body)!==expected)throw Error('内置内核文件校验失败：'+name);files.push([name,body])}
    stage('extracting','安装内置开源内核');for(const [name,body] of files){const tmp=path.join(dir,name+'.tmp');await fs.writeFile(tmp,body);await fs.rename(tmp,path.join(dir,name))}
    stage('ready','可用内核：'+metadata.name+' '+metadata.version+'；尚未启动挖矿');return true;
   }
-  const body=await request(metadata.url,{maxBytes:100*1024*1024,timeout:120000,onProgress:p=>{
+  let body;for(let attempt=0;attempt<3;attempt++){
+  received=0;total=null;lastBucket=-1;
+  if(attempt)stage('connecting','重试 '+(attempt+1)+'/3 · '+(attempt===1?'直连官方 GitHub 下载源':'连接官方内核下载源'));
+  try{body=await request(metadata.url,{direct:attempt===1,maxBytes:256*1024*1024,timeout:300000,connectTimeout:15000,stallTimeout:25000,onProgress:p=>{
    received=p.received;total=p.total;update({stage:'downloading',received,total,error:null,version:metadata.version});
    const bucket=total?Math.floor(received/total*10):0;
    if(bucket!==lastBucket||Date.now()-lastLog>=5000){lastBucket=bucket;lastLog=Date.now();log('安装','下载 '+(received/1048576).toFixed(1)+' MB'+(total?' / '+(total/1048576).toFixed(1)+' MB · '+Math.min(100,Math.floor(received/total*100))+'%':''))}
-  }});
+  }});break}catch(e){if(attempt===2)throw Error('下载失败（已重试系统网络和直连）：'+e.message);log('安装','下载连接失败，将切换线路重试：'+e.message)}
+  }
   received=body.length;stage('verifying','下载完成，校验压缩包 SHA256');
   if(hash(body)!==metadata.sha256)throw Error('内核下载 SHA256 不匹配，未安装');
   await fs.writeFile(zip,body);stage('extracting','完整性通过，正在使用内置组件解压内核');await extractArchive(zip,dir,metadata.exeSha256,metadata);

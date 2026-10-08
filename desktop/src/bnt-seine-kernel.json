@@ -1,0 +1,23 @@
+{
+  "id": "seine-bnt-0.2.15",
+  "name": "Seine",
+  "version": "0.2.15",
+  "adapter": "bnt-seine",
+  "exe": "seine.exe",
+  "exeSha256": "10e039799413f49499d5df57199f8896fc98ae005a27fc914b477c79f680fa0d",
+  "sha256": "f779f013ea91f329fc481a7c302e727e2c839ac004dbfd8e4b216f59fd425cfb",
+  "files": {
+    "NVIDIA-CUDA-NVRTC-LICENSE.txt": "e2c71babfd18a8e69542dd7e9ca018f9caa438094001a58e6bc4d8c999bf0d07",
+    "nvrtc-builtins64_128.dll": "96a28201dbffd4eff6dc93f310417b981bf7a141d46f2839036f5dbfd83b33ae",
+    "nvrtc64_120_0.dll": "ec2a860422b7d0396b45c29a1848faecc3788041ba52f166f0fc52c1b47e8245",
+    "README.md": "02e343107ddd06bc656848df4a0a4510b5352a6cd54eaac79124ff99fb25c1b0",
+    "SEINE-LICENSE.txt": "02719505f6b0b0112699a30fcf4a86944620ac3af8538f5cdb33de368d62d491",
+    "seine.exe": "10e039799413f49499d5df57199f8896fc98ae005a27fc914b477c79f680fa0d",
+    "SHA256SUMS.txt": "ad2f8a3d534b7494937040d3a554a6ab3fa1221d1d625107e8ee3dd3faca6e36"
+  },
+  "archiveRoot": "",
+  "url": "https://github.com/zpalmtree/seine/releases/download/v0.2.15/seine-windows-x86_64.zip",
+  "source": "https://github.com/zpalmtree/seine/releases/tag/v0.2.15",
+  "captureOutput": true,
+  "kernelFee": 0.025
+}

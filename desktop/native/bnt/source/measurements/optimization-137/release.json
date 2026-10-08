@@ -1,0 +1,10 @@
+{
+  "appVersion": "1.0.37",
+  "kernelVersion": "0.2.1",
+  "exeSha256": "979af5ca8bc5d69047fb2dff709898c2da819466381987390d09df9b4ad0a77c",
+  "benchmarkExeSha256": "edc69d054f01036d49d9037668d2daeea5cf2f0121491c6c11e8ef227d20cf71",
+  "differenceFromBenchmark": "Non-AVX2 cleanup guard only; no changes to stream hashing; final binary revalidated in post-results and pool check",
+  "sourceSha256": "15fc5b8fa93dfbe5aa0ce013af01d7847b35ad51d106573ca6b63d03f70fd6e0",
+  "accepted": 4,
+  "rejected": 0
+}

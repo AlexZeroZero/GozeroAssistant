@@ -73,6 +73,7 @@ def main():
     subprocess.run([str(csc), '/nologo', '/target:exe', '/platform:x64', '/optimize+', '/r:System.IO.Compression.dll', '/r:System.IO.Compression.FileSystem.dll', r'/out:vendor\ExtractKernel.exe', r'scripts\ExtractKernel.cs'], cwd=ROOT, check=True)
     subprocess.run([str(csc), '/nologo', '/target:exe', '/platform:x64', '/optimize+', '/r:System.Web.Extensions.dll', '/r:System.IO.Compression.dll', '/r:System.IO.Compression.FileSystem.dll', r'/out:vendor\ExtractBundle.exe', r'scripts\ExtractBundle.cs'], cwd=ROOT, check=True)
     subprocess.run([str(csc), '/nologo', '/target:exe', '/platform:x64', '/optimize+', '/r:System.Web.Extensions.dll', r'/out:native\GozerQtcCore.exe', r'native\GozerQtcCore.cs'], cwd=ROOT, check=True)
+    subprocess.run([str(csc), '/nologo', '/target:exe', '/platform:x64', '/optimize+', '/r:System.Web.Extensions.dll', r'/out:vendor\LargePages.exe', r'scripts\LargePages.cs'], cwd=ROOT, check=True)
     package = json.loads((ROOT/'package.json').read_text(encoding='utf-8'))
     app_version = package['version']
     name = f'GozerAssistant-{app_version}-win-x64'
@@ -97,8 +98,8 @@ def main():
         shutil.rmtree(excluded_cpu)
     for folder in ['src','renderer','assets','vendor','native']:
         shutil.copytree(ROOT/folder, app_dir/folder, dirs_exist_ok=True, ignore=shutil.ignore_patterns('noid','zcd') if folder == 'native' else None)
-    if any(p.name.lower() == 'xmrig.exe' for p in target.rglob('*')):
-        raise RuntimeError('XMRig must be downloaded on demand, never bundled')
+    if any(p.name.lower() in ('xmrig.exe','seine.exe') for p in target.rglob('*')):
+        raise RuntimeError('Third-party CPU miners must be downloaded on demand, never bundled')
     shutil.copy2(ROOT/'package.json', app_dir/'package.json')
     exe = target/'GozerAssistant.exe'
     (target/'electron.exe').replace(exe)
@@ -109,7 +110,8 @@ def main():
     manifest = {'version':app_version,'displayVersion':package.get('displayVersion',app_version),'channel':package.get('releaseChannel','development'), 'runtime':{'version':VERSION,'url':RUNTIME_URL,'sha256':RUNTIME_HASH}, 'files':{str(p.relative_to(target)):digest(p) for p in target.rglob('*') if p.is_file() and p.name!='SHA256.json'}}
     (target/'SHA256.json').write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding='utf-8')
     output = ROOT/'dist'/(name+'.zip')
-    with zipfile.ZipFile(output,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
+    # Vendored license files may carry reproducible Unix-epoch timestamps.
+    with zipfile.ZipFile(output,'w',zipfile.ZIP_DEFLATED,compresslevel=6,strict_timestamps=False) as z:
         for file in sorted(target.rglob('*')):
             if file.is_file():
                 z.write(file, str(file.relative_to(target.parent)))
