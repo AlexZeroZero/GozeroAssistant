@@ -1,66 +1,70 @@
-# Gozero助手 · Beta 1.02（1.0.24）
+# Gozero Assistant · Beta 1.02 (1.0.24)
 
-紧凑型 Windows GPU / CPU 挖矿助手：硬件监测、挖矿工作台、收益参考、租赁市场与桌面悬浮监控。**现已接入 YSR（GPU）和 ZCD（CPU）**，同时支持 PRL、QTC、NOID。
+**English** | [简体中文](README.zh-CN.md)
 
-[下载 Windows 版](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.24-beta) · [使用指南](desktop/QUICKSTART.txt) · [构建说明](desktop/README.md) · [官网](https://gozero.trade/)
+A compact Windows GPU / CPU mining assistant with hardware monitoring, a mining workbench, earnings estimates, a rental marketplace, and a floating desktop monitor. **Now includes YSR (GPU) and ZCD (CPU)**, alongside PRL, QTC, and NOID.
 
-## 下载与更新
+[Download for Windows](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.24-beta) · [User guide (Chinese)](desktop/QUICKSTART.txt) · [Build guide (Chinese)](desktop/README.md) · [Website](https://gozero.trade/)
 
-下载 `GozerAssistant-1.0.24-win-x64.zip`，核对随附 SHA256，完整解压至新文件夹，运行 `GozerAssistant.exe`。升级前从托盘退出旧版；已有钱包、矿池和配置保存在本机。程序不会自动开始挖矿。
+## Download and upgrade
 
-显示版本保持 **Beta 1.02**，内部构建版本 **1.0.24**。
+Download `GozerAssistant-1.0.24-win-x64.zip`, verify it against the accompanying SHA256 checksum, extract the entire archive into a new folder, and run `GozerAssistant.exe`. Before upgrading, exit the old version from its system tray menu. Existing wallet addresses, pool settings, and preferences remain stored locally. The app does not start mining automatically.
 
-## 本版重点
+The display version remains **Beta 1.02**; the internal build version is **1.0.24**.
 
-- **ZCD / Zycord**：CPU RandomX v2（rx/2）矿池挖矿，强制校验02永久地址，支持主矿池与两个备用矿池。
-- **YSR / YSKAR**：GPU SHA-256d，接入 Gozero YSR CUDA 内核、网络数据及矿池工作台。
-- **CPU线程修正**：按逻辑线程数分配。64核128线程的50% / 75% / 100%档对应64 / 96 / 128线程；100%允许全部线程及完整CPU配额，支持手动设置线程。
-- **XMRig按需下载**：主程序不包含XMRig；用户点击“下载并安装”后，分别从官方或Gozero GitHub获取内核，显示进度并验证SHA256。
-- **日志与算力修复**：ZCD读取XMRig原生日志，并独立采集启动诊断；恢复工作台算力、曲线与运行日志的数据通道。
-- GPU / CPU币种筛选和搜索；租赁列表随窗口尺寸自动填充；中、英、日、俄四种界面语言。
+## Release highlights
 
-| 币种 | 计算设备 / 算法 | 内核与默认连接 |
+- **ZCD / Zycord:** CPU pool mining with RandomX v2 (`rx/2`), mandatory validation of permanent `02` payout addresses, and support for a primary pool plus two backups.
+- **YSR / YSKAR:** GPU SHA-256d mining through Gozero YSR CUDA, with network data and a pool workbench.
+- **Corrected CPU thread budgets:** modes now use logical threads. On a 64-core / 128-thread CPU, 50% / 75% / 100% selects 64 / 96 / 128 threads. The 100% mode permits all threads and the full CPU quota. Manual thread settings are also supported.
+- **XMRig downloads on demand:** XMRig is not included in the app package. Clicking “Download and install” retrieves the selected engine from the official XMRig or Gozero GitHub release, with progress reporting and SHA256 verification.
+- **Restored ZCD logs and hashrate reporting:** the app reads XMRig's native log file and captures startup diagnostics separately, supplying the workbench's hashrate, chart, and mining logs.
+- GPU / CPU coin filters and search, a rental list that adapts to window size, and Chinese, English, Japanese, and Russian interfaces.
+
+| Coin | Hardware / algorithm | Engine and default connection |
 | --- | --- | --- |
-| ZCD | CPU / RandomX v2 | Gozero XMRig CPU（内核费0%）或官方XMRig（内核费1%）；`stratum+tcp://zcd.pool.gozero.trade:3333` |
-| YSR | NVIDIA SM 8.0+ / SHA-256d | Gozero YSR CUDA 0.1.3；`https://ysr.pool.gozero.trade:8443` |
-| NOID | 受支持的NVIDIA GPU / Poseidon2b | Suprminer或Fl4shMiner；自动主备连接适配 |
-| PRL / QTC | 上游支持的GPU | KRig；可选择地区节点与备用矿池 |
+| ZCD | CPU / RandomX v2 | Gozero XMRig CPU (0% engine fee) or official XMRig (1% engine fee); `stratum+tcp://zcd.pool.gozero.trade:3333` |
+| YSR | NVIDIA SM 8.0+ / SHA-256d | Gozero YSR CUDA 0.1.3; `https://ysr.pool.gozero.trade:8443` |
+| NOID | Supported NVIDIA GPUs / Poseidon2b | Suprminer or Fl4shMiner; automatic primary / backup connection selection |
+| PRL / QTC | GPUs supported by the upstream miner | KRig; selectable regional nodes and backup pools |
 
-YSR要求兼容CUDA 13的驱动；本版YSR未开放AMD或CPU挖矿。TSC Windows挖矿入口暂未开放。ZCD至少需要4 GiB可用内存；线程开满并不保证获得最高算力，实际表现取决于CPU、缓存、内存与系统调度。
+YSR requires a CUDA 13-compatible driver; AMD and CPU mining are not enabled for YSR in this release. TSC mining is not yet available on Windows. ZCD requires at least 4 GiB of available memory. Using every thread does not guarantee the highest hashrate: results depend on the CPU, cache, memory, and system scheduling.
 
-## 新版界面截图
+<a id="新版界面截图"></a>
 
-以下为 **1.0.24软件真实界面的待机截图**，展示配置和功能布局；没有填入模拟算力、虚构收益或钱包余额，不代表矿池有效份额验收。
+## Screenshots
 
-### ZCD · CPU工作台
+These are **actual idle-state screenshots from version 1.0.24**, showing configuration and layout in the Chinese interface. They contain no simulated hashrates, invented earnings, or wallet balances, and do not demonstrate pool-accepted shares. The app also supports an English interface.
 
-![ZCD CPU工作台：逻辑线程预算、02永久地址与手动下载内核](docs/screenshots/zcd-workbench-1.0.24.png)
+### ZCD · CPU workbench
 
-### YSR · GPU工作台
+![ZCD CPU workbench: logical thread budget, permanent 02 address, and on-demand engine installation](docs/screenshots/zcd-workbench-1.0.24.png)
 
-![YSR GPU工作台：CUDA内核与Gozero矿池](docs/screenshots/ysr-workbench-1.0.24.png)
+### YSR · GPU workbench
 
-### 设备总览
+![YSR GPU workbench: CUDA engine and Gozero pool](docs/screenshots/ysr-workbench-1.0.24.png)
 
-![Gozero助手1.0.24设备总览](docs/screenshots/hardware-overview-1.0.24.png)
+### Hardware overview
 
-## 更多功能
+![Gozero Assistant 1.0.24 hardware overview](docs/screenshots/hardware-overview-1.0.24.png)
 
-- GPU、CPU、内存、主板、BIOS与受支持的传感器读取；未知值显示“—”。
-- 5/10分钟算力均值、近期采样曲线、挖矿日志、显卡温度保护（默认90°C）。CPU温度和功耗尚未接入，不宣称CPU温度保护。
-- 收益参考、收益测试与已接入矿池的地址账本；ZCD价格、收益和矿池结算数据尚未接入。
-- 可拖动悬浮卡片与托盘；突出算力、当前模式、系统负载和停止状态。
-- Clore / Vast.ai GPU和CPU租赁查询，4090 / 5090 / 3090 / RTX PRO 6000快捷筛选、参数窗及租金试算；只查询和跳转，不自动租赁。
+## More features
 
-[Clore推荐链接](https://clore.ai/register?ref_id=ebgzlv4d) · [Vast.ai推荐链接](https://cloud.vast.ai/?ref_id=133254)
+- GPU, CPU, memory, motherboard, BIOS, and supported sensor readings. Unavailable values display as “—”.
+- Five- or ten-minute average hashrates, recent sample charts, mining logs, and GPU temperature protection (90°C by default). CPU temperature and power monitoring are not integrated; CPU temperature protection is not provided.
+- Earnings estimates, mining benchmarks, and address ledgers for supported pools. ZCD price, earnings, and pool settlement data are not yet integrated.
+- A draggable floating monitor and system tray controls showing hashrate, performance mode, system load, and stopped status.
+- Clore / Vast.ai GPU and CPU rental listings, quick filters for the 4090 / 5090 / 3090 / RTX PRO 6000, hardware details, and rental cost estimates. The app provides listings and links; it does not rent or pay automatically.
 
-## 服务费与验证范围
+[Clore referral link](https://clore.ai/register?ref_id=ebgzlv4d) · [Vast.ai referral link](https://cloud.vast.ai/?ref_id=133254)
 
-助手服务费为 **0.5%**，挖矿和收益测试均适用，按运行时间分时累计，不是按实际产币量精确扣款。内核费、矿池费及电费另计。
+## Fees and validation scope
 
-137项自动化测试通过，覆盖128逻辑线程配置和CPU100%配额；四语界面测试通过。自编译CPU内核的离线日志与算力读取实测通过；官方XMRig在本机被系统拒绝启动，未完成本轮实机验证。ZCD尚未完成矿池有效份额与结算验收。不同硬件、长期运行、收益和杀毒软件兼容性不作保证。
+The assistant charges a **0.5% service fee** during both mining and mining benchmarks, accumulated through time sharing. This is not an exact deduction from the number of coins earned. Miner engine fees, pool fees, and electricity costs are separate.
 
-## 开源与构建
+137 automated tests passed, including 128-logical-thread configuration and a 100% CPU quota; interface tests passed in all four languages. The source-built CPU engine passed local offline logging and hashrate tests. The official XMRig binary was blocked from starting by the local system, so its live execution was not verified in this round. ZCD pool-accepted shares and settlement have not yet been validated. Compatibility across hardware and antivirus products, long-term stability, and earnings are not guaranteed.
+
+## Source and building
 
 ```powershell
 git clone https://github.com/AlexZeroZero/GozeroAssistant.git
@@ -68,8 +72,8 @@ cd GozeroAssistant
 python desktop/scripts/package.py
 ```
 
-需要Windows x64、Python 3.11+和.NET Framework C#编译器；测试需Node.js 22+。构建会下载并校验固定版本Electron，不会开始挖矿。详见[构建说明](desktop/README.md)。
+Requires Windows x64, Python 3.11+, and the .NET Framework C# compiler. Tests require Node.js 22+. The build downloads and verifies a pinned Electron version; it does not start mining. See the [build guide (Chinese)](desktop/README.md).
 
-助手自有代码采用[MIT](LICENSE)；YSR上游代码保留MIT，Quantus派生代码保留Apache-2.0。[第三方组件说明](desktop/THIRD-PARTY.md)。
+Gozero-authored assistant code is licensed under [MIT](LICENSE). Upstream YSR code retains its MIT license; Quantus-derived code retains Apache-2.0. See [third-party notices](desktop/THIRD-PARTY.md).
 
-Gozero XMRig CPU基于XMRig，遵循GPL-3.0-or-later，并非从零编写的独立算法实现。[独立内核下载及完整对应源码](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/xmrig-cpu-6.26.0-cpu.2)。KRig、Suprminer、Fl4shMiner和XMRig均需用户主动下载；XMRig不随助手安装包分发。挖矿程序可能触发杀毒软件检测，项目不提供“免报毒”承诺。
+Gozero XMRig CPU is based on XMRig and follows GPL-3.0-or-later; it is not an independently developed algorithm implementation. [Optional CPU engine downloads and complete corresponding source](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/xmrig-cpu-6.26.0-cpu.2). KRig, Suprminer, Fl4shMiner, and XMRig are downloaded only at the user's request; XMRig is not bundled with the assistant. Mining software may trigger antivirus detection; this project does not promise detection-free binaries.
