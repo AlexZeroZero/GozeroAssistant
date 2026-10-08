@@ -20,8 +20,8 @@ async function run(win,getState){
  }
  await js("(async()=>{await gozer.language('zh-CN');state=await gozer.bootstrap();GozerI18n.setLocale('zh-CN');showView('mining');render()})()");
  await fs.writeFile(path.join(out,'ysr-workbench.png'),(await win.webContents.capturePage()).toPNG());
- await js("showView('earnings');render()");assert.equal(await js("document.querySelectorAll('#profit-cards [data-coin=YSR]').length"),1);
- await fs.writeFile(path.join(out,'ysr-earnings.png'),(await win.webContents.capturePage()).toPNG());
+ await js("showView('mining');render()");assert.equal(await js("document.querySelectorAll('#mining-net').length"),1);
+ await fs.writeFile(path.join(out,'ysr-estimate.png'),(await win.webContents.capturePage()).toPNG());
  await fs.writeFile(path.join(out,'ui-result.json'),JSON.stringify({passed:true,coin:'YSR',installed:getState().kernel.installed,miningStarted:false,liveNetwork:network,languages:['zh-CN','en','ja','ru']},null,2));
 }
 module.exports={run};

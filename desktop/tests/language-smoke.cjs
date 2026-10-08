@@ -20,7 +20,7 @@ async function run(win,getState,floating){
   assert.equal(await js("languageProbe.wallet===document.querySelector('#wallet')"),true);
   assert.equal(await js("languageProbe.gpu===document.querySelector('.gpu-row')"),true);
   assert.equal(await js("document.querySelector('nav [data-view=mining]').textContent"),'ϟ '+t('挖矿工作台',language));
-  for(const view of ['overview','earnings','mining','logs','settings','information']){
+  for(const view of ['overview','mining','logs','settings','information']){
    await js(`showView('${view}')`);await sleep(70);
    const metrics=await js(`({width:innerWidth,height:innerHeight,overflow:document.querySelector('#${view}').scrollWidth-document.querySelector('#${view}').clientWidth,navOverflow:document.querySelector('nav').scrollWidth-document.querySelector('nav').clientWidth})`);
    report.push({language,view,...metrics});

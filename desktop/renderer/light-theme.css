@@ -1,0 +1,88 @@
+/* Shared light palette, loaded last by the main window and floating monitor.
+   Disabled controls retain readable text; borders/fill communicate availability. */
+body.light {
+  color-scheme: light;
+  --bg: #f6f5f9;
+  --panel: #ffffff;
+  --raised: #efebf4;
+  --line: #d2c9dd;
+  --text: #2b2236;
+  --muted: #62566f;
+  --purple: #6d369e;
+  --green: #196b52;
+  --red: #a52e4d;
+  --soft: #ede5f6;
+  color: var(--text);
+}
+body.light input,
+body.light select,
+body.light textarea { color: var(--text); }
+body.light input::placeholder,
+body.light textarea::placeholder { color: #72657e; opacity: 1; }
+body.light input:disabled,
+body.light select:disabled,
+body.light textarea:disabled {
+  color: #51465e;
+  -webkit-text-fill-color: #51465e;
+  opacity: 1;
+  background-color: #f0edf4;
+  border-color: #d2c9dd;
+}
+body.light input[type=range],
+body.light input[type=checkbox] { accent-color: var(--purple); }
+body.light button:disabled {
+  opacity: 1;
+  color: #6b6078;
+  background: #eae5ef;
+  border-color: #d3cadf;
+  cursor: default;
+}
+body.light .primary { color: #fff; background: #7543a2; border-color: #7543a2; }
+body.light .primary:hover:not(:disabled) { color: #fff; background: #603386; }
+body.light .primary:disabled { color: #685777; background: #e0d5ed; border-color: #cebfdf; }
+body.light .danger { color: var(--red); border-color: #b3677d; }
+body.light .danger:disabled { color: #775763; border-color: #d8c6cd; background: #efe7eb; }
+body.light .workbench-modes button.active,
+body.light .dual-log-head button.active,
+body.light .coin-filters button[aria-pressed=true] {
+  color: #60308e;
+  background: #e6d9f3;
+  border-color: #9473b1;
+  opacity: 1;
+  font-weight: 600;
+}
+body.light .field > .value { color: #52366f; }
+body.light .field > .value[data-missing=true] { color: var(--muted); }
+body.light .vendor { color: #3d5f23; background: #eaf1df; border-color: #b8cca3; }
+body.light .vendor.amd { color: #88482b; background: #f8ebe4; border-color: #d9b5a4; }
+body.light .vendor.intel { color: #315c86; background: #e6eef7; border-color: #acc2db; }
+body.light .wallet-validation[data-status=error] { color: var(--red); }
+body.light .wallet-validation[data-status=valid] { color: var(--green); }
+body.light #wallet[aria-invalid=true] { border-color: var(--red); box-shadow: inset 0 0 0 1px #a52e4d33; }
+body.light .noid-spec > b,
+body.light .noid-requirements summary::before,
+body.light .noid-requirements summary span { color: var(--purple); }
+body.light .noid-requirements small { color: var(--muted); }
+body.light #coin-empty { color: #85500c; }
+body.light .dual-log-row b { color: #634280; }
+body.light .dual-head .task-kind,
+body.light .dual-metrics strong { color: #653492; }
+body.light .cpu .task-kind,
+body.light .cpu .dual-metrics strong { color: #246672; }
+body.light .dual-chart path { stroke: #7542aa; }
+body.light .cpu .dual-chart path { stroke: #267886; }
+body.light .dual-card { background: #fcfaff; }
+body.light .dual-card.cpu { background: #f4fafb; }
+body.light .network-card.stale,
+body.light .average-stale,
+body.light.stale .profits { opacity: 1; }
+body.light .hot { color: #b6203c !important; }
+body.light .warm { color: #89500b !important; }
+body.light #hash-chart { background: repeating-linear-gradient(to bottom,transparent 0,transparent 14px,#4f356b12 15px,transparent 16px); }
+body.light #mini-dual label,
+body.light #mini-dual small { color: var(--muted); }
+body.light #mini-dual strong { color: var(--purple); }
+body.light #mini-cpu strong { color: #246672; }
+body.light .budget[data-mode=high] { color: #89500b; background: #f5e9d9; }
+body.light footer button { color: var(--purple); }
+body.light #rental-detail { box-shadow: 0 8px 25px #36204326; }

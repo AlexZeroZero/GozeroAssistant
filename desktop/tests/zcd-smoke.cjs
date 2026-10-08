@@ -24,7 +24,7 @@ async function run(win,getState){
  for(const value of ['', '0x01'+'a'.repeat(62), '03'+'a'.repeat(62), '02'+'a'.repeat(61), '02'+'g'.repeat(62)]){
   await js(`$('#wallet').value=${JSON.stringify(value)};$('#wallet').dispatchEvent(new Event('input'));render()`);
   assert.equal(await js("$('#wallet').value"),value);
-  assert.equal(await js("['#save-mining','#start','#benchmark'].every(id=>$(id).disabled)"),true);
+  assert.equal(await js("['#save-mining','#start'].every(id=>$(id).disabled)"),true);
   assert.equal(await js("(async()=>{try{await saveMining();return false}catch{return true}})()"),true);
   assert.equal(getState().config.wallets.ZCD,'');
  }
@@ -56,7 +56,7 @@ async function run(win,getState){
  await js("(async()=>{state=await gozer.bootstrap();await gozer.language('zh-CN');await chooseCoin('YSR');state=await gozer.bootstrap();render()})()");
  assert.equal(await js("$('#cpu-options').hidden"),true);assert.equal(await js("$('#pool-row').hidden"),false);assert.equal(await js("$('#pool').value"),'https://ysr.pool.gozero.trade:8443');assert.deepEqual(getState().config.selected,original);
  assert.equal(await js("$('#wallet-validation').hidden"),true);assert.equal(await js("$('#wallet').validationMessage"),'');assert.equal(await js("$('#save-mining').disabled"),false);
- await js("(async()=>{await chooseCoin('ZCD');showView('earnings');render()})()");await fs.writeFile(path.join(dir,'earnings.png'),(await win.webContents.capturePage()).toPNG());
+ await js("(async()=>{await chooseCoin('ZCD');showView('settings');render()})()");await fs.writeFile(path.join(dir,'estimate-settings.png'),(await win.webContents.capturePage()).toPNG());
  await fs.writeFile(path.join(dir,'result.json'),JSON.stringify({passed:true,installed:true,miningStarted:false,languages:4,cpuGpuSwitch:true,coinSearch:true},null,2));
  if(process.env.GOZER_RELEASE_SHOTS==='1'){
   const shots=path.resolve(__dirname,'../artifacts/release-1.0.24');await fs.mkdir(shots,{recursive:true});win.setSize(1000,880);

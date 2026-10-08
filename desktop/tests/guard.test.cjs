@@ -2,6 +2,22 @@ const{test}=require('node:test'),assert=require('node:assert/strict'),fs=require
 const GUARD=path.resolve(__dirname,'../vendor/ProcessGuard.exe');
 async function until(fn,ms=5000){const end=Date.now()+ms;while(Date.now()<end){const value=await fn();if(value)return value;await new Promise(r=>setTimeout(r,80))}throw Error('Timed out')}
 const alive=pid=>{try{process.kill(pid,0);return true}catch{return false}};
+
+test('two real owned processes run together; stopping the CPU guard leaves the GPU worker alive and writing',async()=>{
+ if(process.platform!=='win32')return;
+ const dir=await fs.mkdtemp(path.join(os.tmpdir(),'gozero-dual-guard-')),workers=[];
+ try{
+  for(const kind of ['gpu','cpu']){
+   const capturePath=path.join(dir,kind+'.log'),g=spawn(GUARD,[String(process.pid)],{windowsHide:true,stdio:['pipe','pipe','pipe']}),w={g,capturePath,pid:null};workers.push(w);
+   let fragment='';g.stdout.on('data',d=>{const lines=(fragment+d).split('\n');fragment=lines.pop();for(const line of lines)try{w.pid=JSON.parse(line).pid||w.pid}catch{}});g.stderr.resume();
+   g.stdin.write(JSON.stringify({exe:process.execPath,cwd:dir,capturePath,duty:kind==='cpu'?100:90,...(kind==='cpu'?{cpuOnly:true}:{}),args:['-e',"console.log('started');setInterval(()=>console.log('tick'),40)"]})+'\n');
+  }
+  await until(async()=>workers.every(w=>w.pid&&alive(w.pid))&&(await Promise.all(workers.map(w=>fs.readFile(w.capturePath,'utf8').catch(()=>'')))).every(s=>s.includes('tick')));
+  workers[1].g.stdin.end('stop\n');await until(()=>!alive(workers[1].pid));const before=(await fs.stat(workers[0].capturePath)).size;
+  await until(async()=>alive(workers[0].pid)&&(await fs.stat(workers[0].capturePath)).size>before);
+  workers[0].g.stdin.end('stop\n');await until(()=>!alive(workers[0].pid));
+ }finally{for(const w of workers)w.g.kill();await new Promise(r=>setTimeout(r,150));await fs.rm(dir,{recursive:true,force:true})}
+});
 test('captured console preserves stdout/stderr, isolates CUDA UUID, and still kills the owned child',async()=>{
  if(process.platform!=='win32')return;
  const dir=await fs.mkdtemp(path.join(os.tmpdir(),'gozero-中文 capture-')),capturePath=path.join(dir,'output.log');let guard,pid;

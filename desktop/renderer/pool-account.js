@@ -1,6 +1,5 @@
 (()=>{
  const panels=[...document.querySelectorAll('[data-pool-account]')];
- const earnings=document.createElement('article');earnings.className='panel pool-account';document.querySelector('#earnings').append(earnings);panels.push(earnings);
  const fields=[['已确认余额','balance','confirmed'],['待确认收益','balance','pending'],['累计已支付','stats','paid'],['近7日收益','stats','week'],['近30日收益','stats','month'],['支付门槛','balance','threshold']];
  const amount=n=>typeof n!=='number'?'—':n>0&&n<1e-8?n.toExponential(3):n.toLocaleString('en-US',{maximumFractionDigits:8});
  for(const panel of panels){

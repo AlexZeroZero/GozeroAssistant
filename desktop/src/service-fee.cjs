@@ -61,7 +61,7 @@ class FeeController{
  if(this.phase==='user')this.log('服务费','恢复用户收款地址；软件服务时段已结束');
  await this.miner.start(cfg,this.hardware,this.phase==='user'&&this.benchmark);if(epoch!==this.epoch||!this.active){await this.miner.stop('调度已取消');return}
  }finally{this.switching=false;this.changed()}}
- fail(e){this.log('服务费','调度异常，停止全部任务：'+e.message);this.stop('服务费调度失败').catch(()=>{})}
+ fail(e){this.log('服务费','调度异常，停止当前任务：'+e.message);this.stop('服务费调度失败').catch(()=>{})}
  checkHardware(hw){this.hardware=hw;if(!this.active&&!this.switching)return;for(const id of (this.cfg?.coin==='ZCD'?this.miner.session?.selected||[]:this.cfg?.selected||[])){const g=miningDevices(this.cfg,hw).find(g=>g.id===id),s=g?.sensors,j=this.miner.jobs.get(id);if(!g||(s&&Date.now()-s.at<10000&&s.temp>=this.cfg.temperature)||(j?.hadSensor&&(!s||Date.now()-s.at>=10000))){this.stop('硬件保护停止：设备离线、温度阈值或传感器失联').catch(()=>{});return}}}
  async stop(reason='用户停止'){
  if(this.stopping)return this.stopping;

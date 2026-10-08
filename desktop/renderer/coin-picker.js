@@ -37,7 +37,7 @@
   text('#measured-net','ZCD 当前未接入价格和收益源');
   const invalidThreads=s.config.cpuThreads>(d?.maxThreads||0);
   const noFee=!s.serviceFee?.addresses?.ZCD;
-  if(!d||invalidThreads||noFee||!s.config.pools.ZCD){$('#start').disabled=true;$('#benchmark').disabled=true;}
+  if(!d||invalidThreads||noFee||!s.config.pools.ZCD){$('#start').disabled=true;}
   if(!s.config.pools.ZCD&&s.miner.status==='idle')text('#run-status','填写并保存矿池地址后可启动');
   if(noFee)text('#zcd-note','永久服务费地址待配置');
   if(s.miner.session?.benchmark&&s.miner.status!=='idle'&&!s.miner.session.measurementAt)text('#run-status','等待矿池任务 / RandomX 预热');

@@ -1,3 +1,14 @@
+# 1.0.27 release validation (2026-10-08)
+
+- 145 automated tests passed, covering dual-task isolation, start/stop cancellation, shared fee ledger persistence, logical-thread budgets, and owned-process cleanup.
+- Dual-workbench, light-theme, and ZCD UI smoke checks passed in isolated profiles. The theme and dual-mode checks exercised Chinese, English, Japanese, and Russian interfaces. No miners were started by these UI checks.
+- The earnings-test page, its navigation entry, and workbench test buttons were removed. Normal hashrate monitoring, pool account data, and earnings estimates remain; estimate settings moved to Preferences.
+- Two harmless real child processes verified stop isolation; this does not establish mining performance. Real-pool simultaneous GPU + CPU mining has not been tested in this round.
+- Windows ZIP CRC and all 155 payload hashes verified. Source files in the package match the published source. XMRig remains an explicit on-demand download, not a bundled executable.
+- ZIP SHA256: `d6a39dfbcde52b75ec0096eb43c2957146feb0d09ab5d30d42088c97d0c31efe` (158,796,291 bytes).
+
+Earlier validation records follow; their scope applies to the stated versions only.
+
 # 1.0.24 发布验证（2026-10-08）
 
 - 137项自动化测试通过；覆盖64核128逻辑线程的64/96/128线程档位、128线程内核配置、CPU100%配额以及GPU原有90%上限。

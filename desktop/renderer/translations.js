@@ -2,6 +2,43 @@
  'use strict';
  // Source phrase | English | Japanese | Russian. Technical IDs, input values and miner output are preserved.
  const rows=`
+选好设备，进入工作台配置挖矿|Select devices, then configure mining in Workbench|デバイスを選び、ワークベンチで採掘を設定|Выберите устройства и настройте майнинг в рабочей панели
+工作台 ↗|Workbench ↗|ワークベンチ ↗|Рабочая панель ↗
+收益估算参数|Earnings estimate settings|収益推定設定|Параметры расчёта дохода
+待机 · 服务费0.5%|Idle · Service fee 0.5%|待機 · サービス料0.5%|Ожидание · Сервисный сбор 0,5%
+软件服务费0.5%，按有效运行时间累计；服务时段临时切换收款地址，结束后恢复你的钱包。停止任务同时停止计费调度，未结算余额保留。|The 0.5% software fee accrues on effective runtime. Fee periods temporarily switch the payout address, then restore your wallet. Stopping the task stops fee scheduling; unsettled balances are retained.|ソフトウェア料0.5%は有効稼働時間に基づいて累積します。手数料期間中のみ受取先を変更し、終了後にウォレットを復元します。タスク停止で徴収も停止し、未精算分は保持します。|Сбор 0,5% начисляется за эффективное время работы. На время сбора адрес выплаты меняется, затем восстанавливается ваш кошелёк. Остановка задачи прекращает сбор; остаток сохраняется.
+线程|Threads|スレッド|Потоки
+设置|Settings|設定|Настройки
+请先保存配置再切换币种|Save changes before switching coin|変更を保存してから通貨を切替|Сохраните изменения перед сменой монеты
+此任务忙，请稍候|This task is busy|タスク処理中です|Задача занята
+请先停止此任务再修改配置|Stop this task before editing|タスクを停止してから変更|Остановите задачу перед изменением
+GPU挖矿|GPU mining|GPU採掘|GPU-майнинг
+CPU挖矿|CPU mining|CPU採掘|CPU-майнинг
+GPU＋CPU双挖|GPU + CPU|GPU＋CPU併用|GPU + CPU
+独立任务 · 独立统计|Separate tasks · Separate rates|独立タスク・個別統計|Раздельные задачи и статистика
+分别保存配置后启动|Save each configuration before starting|各設定を保存して開始|Сохраните настройки перед запуском
+GPU / CPU 独立启停 · 不同算法不合计算力|Independent GPU / CPU controls · Rates kept separate|GPU / CPU個別操作・算力は別表示|Независимое управление GPU / CPU · Скорости раздельно
+▶ 启动全部|▶ Start all|▶ すべて開始|▶ Запустить всё
+实时算力|Live hashrate|リアルタイム算力|Текущий хешрейт
+5分钟均值|5 min average|5分平均|Среднее за 5 мин
+10分钟均值|10 min average|10分平均|Среднее за 10 мин
+5分钟|5 min|5分|5 мин
+10分钟|10 min|10分|10 мин
+等待采样|Awaiting samples|サンプル待機|Ожидание замеров
+02 永久收款地址|02 persistent wallet address|02永続受取アドレス|Постоянный адрес 02
+主网收款地址|Mainnet wallet address|メインネット受取アドレス|Адрес основной сети
+矿池 / 设备设置|Pool / device settings|プール・デバイス設定|Настройки пула / устройств
+主矿池|Primary pool|メインプール|Основной пул
+算力周期|Average window|平均期間|Период усреднения
+重新下载|Re-download|再ダウンロード|Скачать заново
+内核未安装|Kernel not installed|カーネル未導入|Ядро не установлено
+有未保存的修改|Unsaved changes|未保存の変更|Есть несохранённые изменения
+本期暂估|Provisional|暫定値|Предварительно
+▶ 启动|▶ Start|▶ 開始|▶ Старт
+接受|Accepted|承認|Принято
+拒绝|Rejected|拒否|Отклонено
+双挖模式请使用各任务的保存配置；全局设置需先退出双挖|Use each task's Save in dual mode; exit dual mode to edit global settings|併用モードは各タスクで保存。全体設定はモード切替後に変更|В двойном режиме сохраняйте задачи отдельно; общие настройки доступны после смены режима
+请先停止全部任务再切换模式|Stop all tasks before switching mode|すべて停止してからモードを変更|Остановите все задачи перед сменой режима
 官网 ↗|Website ↗|公式サイト ↗|Сайт ↗
 填写并保存矿池地址后可启动|Enter and save a pool address to start|プールアドレスを入力・保存して開始|Введите и сохраните адрес пула для запуска
 ZCD · CPU 矿池挖矿|ZCD · CPU pool mining|ZCD · CPUプール採掘|ZCD · CPU-майнинг в пуле
