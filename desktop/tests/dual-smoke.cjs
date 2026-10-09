@@ -10,10 +10,10 @@ async function run(win,getState,floating){
  assert.ok(Object.values(getState().dual.tasks).every(t=>t.miner.status==='idle'));
  // Settings stay editable during telemetry refresh and CPU controls track logical threads.
  await js("(()=>{const r=document.querySelector('[data-task=cpu]');r.querySelector('input[placeholder=\"02 永久收款地址\"]').value='01invalid';r.querySelector('input[placeholder=\"02 永久收款地址\"]').dispatchEvent(new Event('input'));r.querySelector('input[type=range]').value=100;r.querySelector('input[type=range]').dispatchEvent(new Event('input'))})()");
- await pause(1200);assert.equal(await js("document.querySelector('[data-task=cpu] input[type=number]').value"),String(getState().cpuDevice.logical));assert.equal(await js("document.querySelectorAll('[data-task=cpu] .dual-actions button')[1].disabled"),true);
+ await pause(1200);assert.equal(await js("document.querySelector('[data-task=cpu] input[type=number]').value"),String(getState().cpuDevice.logical));assert.equal(await js("document.querySelector('[data-task=cpu] .dual-actions .primary').disabled"),true);
  // Blank wallets never block explicit on-demand kernel download, but remain required for start.
  assert.equal(await js("document.querySelector('[data-task=cpu] .task-install').disabled"),false);
- await js("(()=>{const w=document.querySelector('[data-task=cpu] input[placeholder=\"02 永久收款地址\"]');w.value='';w.dispatchEvent(new Event('input'));document.querySelectorAll('[data-task=cpu] .dual-actions button')[1].click()})()");await pause(300);
+ await js("(()=>{const w=document.querySelector('[data-task=cpu] input[placeholder=\"02 永久收款地址\"]');w.value='';w.dispatchEvent(new Event('input'));w.dispatchEvent(new Event('change'));const r=document.querySelector('[data-task=cpu] input[type=range]');r.dispatchEvent(new Event('change'))})()");await pause(300);
  await js("gozer.taskSave('gpu',{coin:'YSR'})");await pause(200);
  for(const language of ['zh-CN','en','ja','ru']){
   await js(`gozer.language(${JSON.stringify(language)})`);await pause(250);

@@ -18,8 +18,19 @@ test('upgrade migrates legacy BNT defaults in single and dual profiles, preservi
   await fs.writeFile(path.join(dir,'settings.json'),JSON.stringify(raw));
   const store=new ConfigStore(dir),cfg=await store.load();assert.equal(store.warning,undefined);assert.equal(cfg.pools.BNT,current);
   assert.equal(cfg.taskProfiles.cpu.pools.BNT,custom?'stratum+tcp://custom.example:5555':current);
-  assert.equal(cfg.bntPoolVersion,1);
+  assert.equal(cfg.bntPoolVersion,2);
   await store.save({...cfg,pools:{...cfg.pools,BNT:old}});
   assert.equal((await new ConfigStore(dir).load()).pools.BNT,old,'keep an explicit post-upgrade choice');
  }
+});
+
+test('1.0.39 repairs old BNT port even when the first migration was already marked complete',async t=>{
+ const dir=await fs.mkdtemp(path.join(os.tmpdir(),'bnt-port139-'));t.after(()=>fs.rm(dir,{recursive:true,force:true}));
+ const raw=structuredClone(DEFAULT);raw.bntPoolVersion=1;raw.pools.BNT=old+'/';
+ raw.taskProfiles={cpu:{coin:'BNT',pools:{BNT:old}}};
+ await fs.writeFile(path.join(dir,'settings.json'),JSON.stringify(raw));
+ const cfg=await new ConfigStore(dir).load();assert.equal(cfg.pools.BNT,current);assert.equal(cfg.taskProfiles.cpu.pools.BNT,current);assert.equal(cfg.bntPoolVersion,2);
+ raw.pools.BNT='stratum+tcp://custom.example:4444';raw.taskProfiles.cpu.pools.BNT='stratum+tcp://another.example:14444';
+ await fs.writeFile(path.join(dir,'settings.json'),JSON.stringify(raw));
+ const custom=await new ConfigStore(dir).load();assert.equal(custom.pools.BNT,raw.pools.BNT);assert.equal(custom.taskProfiles.cpu.pools.BNT,raw.taskProfiles.cpu.pools.BNT);
 });

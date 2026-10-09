@@ -1,3 +1,10 @@
+# 1.0.40 validation / 验证范围 — 2026-10-09
+
+- 185 automated tests passed, including queued latest-value saves, failure recovery and independent dual tasks.
+- Real Electron UI checks passed: single GPU/CPU and dual automatic performance saves, logical CPU thread budgets, independent saving while a wallet draft is incomplete, invalid-address recovery, advanced settings access, four languages and light theme. No mining was started.
+
+## Previous release validation
+
 # 1.0.38 validation / 验证范围 — 2026-10-08
 
 - 182 automated tests passed locally. Coverage includes exact decimal amounts, null vs zero, confirmed vs reserved payments, per-section polling, 429 backoff, stale responses, wallet changes, pagination, legacy pool adapters and mining regressions.
@@ -9,3 +16,5 @@
 - 此版接通三币种公开地址查询。YSR 链上余额和本池已索引奖励分开；ZCD/BNT 可用、未成熟、预留、已付分开；BNT 待成熟保留 PPLNS 可变预估说明。接口未知值不补零，失败不清空有效余额。
 
 - Portable Windows package verified: all 304 manifest hashes and ZIP SHA256 passed; main window, floating monitor and clean exit passed without mining. Public source checkout retest: 181 passed, 1 optional archive test skipped, 0 failed after rebuilding generated helpers.
+
+- 1.0.40 portable package: all 306 manifest hashes and ZIP SHA256 verified; main window, floating monitor and clean exit passed without mining.

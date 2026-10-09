@@ -25,7 +25,7 @@
  document.querySelectorAll('[data-coin-kind]').forEach(b=>b.onclick=()=>{kind=b.dataset.coinKind;document.querySelectorAll('[data-coin-kind]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));window.renderCoinPicker(state)});
  window.renderCpuMining=s=>{
   const cpu=['ZCD','BNT'].includes(s.config.coin),blocked=busy(s);tuning.hidden=s.config.coin!=='BNT'||s.kernel.adapter==='bnt-seine';tuneButton.disabled=blocked||!s.kernel.installed;cancelTune.hidden=!s.bntTuning?.running;cancelTune.disabled=false;GozerI18n.setText(tuneMessage,s.bntTuning?.message||'离线计算对比 · 约5–15分钟 · 完成后应用');$('#cpu-options').hidden=!cpu;$('#pool-row').hidden=false;$('#zcd-node').hidden=!cpu;
-  $('#performance').disabled=cpu&&blocked;$('#performance-apply').disabled=cpu&&blocked;$('#performance').title=cpu&&blocked?GozerI18n.t('CPU 挖矿中：停止后可切换线程档位'):'';$('#cpu-threads').disabled=blocked;$('#worker').disabled=blocked;$('#zcd-password').disabled=blocked;
+  $('#performance').disabled=cpu&&blocked;$('#performance').title=cpu&&blocked?GozerI18n.t('CPU 挖矿中：停止后可切换线程档位'):'';$('#cpu-threads').disabled=blocked;$('#worker').disabled=blocked;$('#zcd-password').disabled=blocked;
   $('#mining-devices').nextElementSibling.hidden=cpu;
   text('#device-runtime-note',cpu?'CPU 聚合任务 · 不影响 GPU 选择':'按 PCI 地址独立调度 / 同算法汇总');
   text('.performance-note',cpu?'CPU 按逻辑线程分配，100%档可使用全部线程和 CPU 配额；不修改频率或电压。':'最高档预留10%进程调度时间；GPU已排队工作仍可能短时满载，不是显卡功率锁定。');

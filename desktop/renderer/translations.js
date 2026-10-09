@@ -996,5 +996,13 @@ Gozero 全节点|Gozero full node|Gozeroフルノード|Полный узел Go
  catalog["已取消管理员授权"]=["Administrator consent cancelled", "管理者の承認をキャンセルしました", "Разрешение администратора отменено"];
  catalog["大页设置失败"]=["Large-page setup failed", "ラージページ設定失敗", "Ошибка настройки больших страниц"];
  catalog["继续"]=["Continue", "続行", "Продолжить"];
+ catalog["可选内核"]=["Optional engine","選択可能なカーネル","Другой движок"];
+ catalog["官方全节点 · 独立运行"]=["Official full node · Standalone","公式フルノード · 単独実行","Официальный полный узел · Отдельный запуск"];
+ catalog["设置自动保存"]=["Settings save automatically", "設定は自動保存されます", "Настройки сохраняются автоматически"];
+ catalog["设置自动保存，手动启动挖矿"]=["Settings save automatically; start mining manually", "設定は自動保存、採掘は手動で開始", "Автосохранение настроек; запуск майнинга вручную"];
+ catalog["设置未保存，请检查输入"]=["Not saved; check your input", "未保存。入力を確認してください", "Не сохранено; проверьте ввод"];
+ catalog["设置未保存："]=["Not saved: ", "保存できません：", "Не сохранено: "];
+ catalog["正在保存…"]=["Saving…", "保存中…", "Сохранение…"];
+ catalog["修改后自动保存"]=["Changes save automatically", "変更は自動保存されます", "Изменения сохраняются автоматически"];
  return Object.freeze(catalog);
 });

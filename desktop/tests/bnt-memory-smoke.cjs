@@ -13,8 +13,8 @@ async function run(win,getState){
  assert.deepEqual(dual,[11,17,23]);
  // Exercise actual backend mode application without launching any miner.
  await js("(async()=>{state=await gozer.workbenchMode('cpu');configInputs();render()})()");
- await until(()=>js("!document.querySelector('#performance-apply').disabled"));
- await js("document.querySelector('#performance').value=100;document.querySelector('#performance-apply').click()");
+ await until(()=>js("!document.querySelector('#performance').disabled"));
+ await js("document.querySelector('#performance').value=100;document.querySelector('#performance').dispatchEvent(new Event('input'));document.querySelector('#performance').dispatchEvent(new Event('change'))");
  await until(()=>getState().config.performance===100);
  assert.ok(getState().config.cpuThreads>0);
  assert.equal(getState().miner.status,'idle');

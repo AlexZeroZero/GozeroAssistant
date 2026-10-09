@@ -11,10 +11,35 @@
 #mining .mining-stats strong{font-size:24px;line-height:27px}
 #mining .fixed-note{height:auto;max-height:38px}
 .library-mode-link{margin-left:auto}.workbench-modes .mode-note{display:none}
-.library-tabs{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0}.library-tabs button{font-weight:700;height:29px}.library-tabs button.active{background:var(--soft);border-color:var(--purple);color:var(--purple)}
-.library-info{display:flex;gap:10px;align-items:center;padding:8px 0}.library-info button{margin-left:auto;height:30px}.library-info>b{font-size:15px}
-.library-kernel{padding:10px;border-radius:6px;margin-bottom:7px}.library-head{display:flex;gap:9px;align-items:center}.library-head>b{font-size:14px}.library-head>span{color:var(--muted);font-size:12px}.library-head>button{margin-left:auto;height:31px;min-width:110px}.library-kernel progress{width:100%;height:6px;accent-color:var(--purple)}.library-kernel .note{overflow-wrap:anywhere;font-size:11px}.coin-caption #kernel-library-open{margin-left:auto;font-size:11px}
-@media(min-width:1000px){#mining .address-row>input{font-size:14px}.mining-config{padding:6px}.library-body{max-width:1100px;margin:auto}}
+.coin-caption #kernel-library-open{margin-left:auto;font-size:11px}
+#kernels{max-width:1280px;margin:0 auto;padding:3px}
+#kernels .section-bar{height:32px;padding:0 2px}#kernels .section-bar>b{font-size:14px}#kernels .section-bar button{height:28px;font-size:12px;padding-inline:12px}
+.library-notice{margin:0 0 8px;padding:6px 9px;border:1px solid var(--line);border-radius:5px;background:var(--panel);font-size:11px}
+.library-tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin:0 0 8px}
+.library-tabs button{display:flex;align-items:center;justify-content:center;gap:7px;height:35px;padding:0 5px;font-size:13px;background:var(--panel);border-radius:5px}
+.library-tabs small{font-size:10px;color:var(--muted);font-weight:400}.library-tabs button.active{background:var(--soft);border-color:var(--purple);color:var(--purple);box-shadow:inset 0 -2px var(--purple)}
+.library-body{width:100%}.library-info{display:flex;gap:12px;align-items:center;padding:10px 12px;margin:0 0 8px;border-radius:6px;background:linear-gradient(110deg,var(--soft),transparent),var(--panel)}
+.library-summary{display:flex;flex-wrap:wrap;gap:5px 10px;align-items:center;min-width:0}.library-summary>b{font-size:15px;width:100%}.library-summary>span{font-size:11px;overflow-wrap:anywhere}.library-count{color:var(--muted);font-variant-numeric:tabular-nums}
+.library-info button{margin-left:auto;min-height:33px;height:auto;padding:6px 12px;font-size:12px;flex-shrink:0}
+.library-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:7px;align-items:start}
+.library-kernel{display:grid;grid-template-columns:minmax(0,1fr) 150px;grid-template-areas:'head action' 'status action' 'source source' 'progress progress' 'error error';gap:3px 14px;padding:9px 12px 5px;border-radius:6px;margin:0;background:var(--panel)}
+.library-head{grid-area:head;display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;min-width:0;min-height:21px}.library-identity{display:flex;align-items:center;flex-wrap:wrap;gap:7px;min-width:0}.library-identity>b{font-size:14px;overflow-wrap:anywhere}.library-version{font:11px Consolas,monospace;color:var(--muted)}
+.library-badge{font-size:10px;line-height:19px;padding:0 6px;border:1px solid var(--line);background:var(--soft);color:var(--purple);border-radius:4px;white-space:nowrap}
+.library-status-row{grid-area:status;display:flex;flex-wrap:wrap;gap:5px 12px;align-items:center;min-height:17px;font-size:11px;color:var(--muted)}
+.library-status{display:inline-flex;align-items:center;gap:6px}.library-status::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}.library-bytes{font:11px Consolas,monospace;white-space:nowrap}
+.library-kernel[data-phase=ready] .library-status{color:var(--green)}.library-kernel[data-phase=working] .library-status{color:var(--purple)}.library-kernel[data-phase=error] .library-status{color:var(--red)}
+.library-source{grid-area:source;font-size:11px;line-height:1.5;color:var(--muted);margin:0;overflow-wrap:anywhere}
+.library-install{grid-area:action;align-self:center;width:100%;height:auto;min-height:35px;padding:6px 9px;font-size:12px;border-radius:5px;white-space:normal}
+.library-progress{grid-area:progress;height:4px}.library-progress progress{display:block;width:100%;height:4px;accent-color:var(--purple)}.library-progress progress[hidden]{display:none}
+.library-error{grid-area:error;font-size:11px;color:var(--red);line-height:1.5;margin:0;max-height:65px;overflow:auto;overflow-wrap:anywhere}.library-error[hidden]{display:none}
+.library-external{margin-top:10px}.library-external h3{font-size:11px;font-weight:600;color:var(--muted);margin:0 0 6px;padding-left:3px}
+.library-node{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:'head head' 'source source' 'checksum nodeactions';align-items:center;padding-bottom:11px}
+.library-node-actions{grid-area:nodeactions;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.library-node-actions button{min-height:31px;height:auto;padding:5px 10px;font-size:11px;white-space:normal}
+.library-checksum{grid-area:checksum;min-width:0;font-size:11px;color:var(--muted)}.library-checksum summary{cursor:pointer;color:var(--purple)}.library-checksum code{display:block;overflow-wrap:anywhere;white-space:normal;font-size:10px;padding-top:5px}
+#mining .config-row .device-select-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex-shrink:0;min-width:130px;height:34px;padding:0 13px;font-size:13px;font-weight:700;border:1px solid var(--purple);border-radius:5px;color:var(--purple);background:var(--soft)}
+#mining .device-select-button::before{content:'▦';font-size:18px;line-height:1}#mining .device-select-button:hover{background:var(--raised)}#mining .device-select-button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
+@media(min-width:1000px){#mining .address-row>input{font-size:14px}.mining-config{padding:6px}.library-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.library-kernel{grid-template-columns:minmax(0,1fr) 136px}.library-node{grid-template-columns:minmax(0,1fr) auto}}
+@media(max-width:620px){.library-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.library-kernel{grid-template-columns:minmax(0,1fr) 125px;column-gap:8px}.library-head{align-items:start}.library-info{padding:9px;gap:8px}.library-info button{max-width:150px}.library-node{grid-template-columns:minmax(0,1fr);grid-template-areas:'head' 'source' 'nodeactions' 'checksum'}.library-node-actions{justify-content:flex-start}}
 /* Prominent CPU memory control, with stable sizing and no idle animation. */
 .large-pages-row{display:flex;align-items:center;flex-wrap:wrap;gap:7px;padding:6px 8px;margin:4px 0;border:1px solid color-mix(in srgb,var(--purple) 48%,var(--line));border-radius:7px;background:linear-gradient(105deg,var(--soft),var(--panel));font-size:12px;color:var(--text)}
 .large-pages-row[hidden]{display:none}
@@ -33,3 +58,8 @@
 #settings .large-pages-row{margin:7px}
 body.light .large-pages-row .large-pages-enable:not(:disabled){color:#fff;background:linear-gradient(115deg,#7843b6,#5c2d98);border-color:#713dae}
 body.light .large-pages-row .large-pages-enable:hover:not(:disabled){background:linear-gradient(115deg,#6c37a8,#502484)}
+
+#mining .actions .mining-save-state{margin:0 6px 0 auto;max-width:180px;flex-shrink:0;font-size:11px;color:var(--green)}
+#mining .actions .mining-save-state.save-error{color:var(--red)}
+.dual-actions .task-note{font-size:11px;min-width:0;overflow-wrap:anywhere}
+.dual-settings:not([open]){display:block}.dual-settings summary{display:list-item;min-height:25px;line-height:25px;color:var(--purple);font-size:11px;padding-inline:2px}.dual-settings summary:focus-visible{outline:1px solid var(--purple);outline-offset:1px}

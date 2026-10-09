@@ -7,7 +7,7 @@ async function run(win,getState){
  await until(()=>js('state?.ready&&!!window.openKernelLibrary'));
  let pid;
  try{
-  await js("showView('mining');chooseCoin('BNT')");await until(()=>js(`state.config.coin==='BNT'&&!document.querySelector('#save-mining').disabled&&!!document.querySelector('#kernel-select option[value="${id}"]')`));
+  await js("showView('mining');chooseCoin('BNT')");await until(()=>js(`state.config.coin==='BNT'&&!document.querySelector('#wallet').disabled&&!!document.querySelector('#kernel-select option[value="${id}"]')`));
   await js(`document.querySelector('#wallet').value=${JSON.stringify(address)};document.querySelector('#cpu-threads').value='2';document.querySelector('#kernel-select').value=${JSON.stringify(id)};saveMining()`);
   await until(()=>getState().config.kernels.BNT===id&&getState().config.cpuThreads===2);
   await until(()=>js("document.querySelector('#bnt-tuning').hidden"));

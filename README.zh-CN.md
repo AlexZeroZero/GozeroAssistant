@@ -1,16 +1,21 @@
-# Gozero助手 · Beta 1.02（1.0.38）
+# Gozero助手 · Beta 1.02（1.0.40）
 
 [English](README.md) | **简体中文**
 
 紧凑型 Windows GPU / CPU 挖矿助手，提供硬件监测、GPU＋CPU 独立双挖、矿池账本、租赁市场与桌面悬浮监控。
 
-[下载 Windows 版](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.38-beta) · [官网](https://gozero.trade/) · [使用指南](desktop/QUICKSTART.txt) · [构建说明](desktop/README.md)
+[下载 Windows 版](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.40-beta) · [官网](https://gozero.trade/) · [使用指南](desktop/QUICKSTART.txt) · [构建说明](desktop/README.md)
 
 ## 下载与升级
 
-下载 `GozerAssistant-1.0.38-win-x64.zip`，核对随附 SHA256，完整解压到新目录，运行 `GozerAssistant.exe`。升级前从托盘退出旧版。已有钱包、矿池与设置保留；程序不会自动开始挖矿。显示版本仍为 **Beta 1.02**，内部版本 **1.0.38**。
+下载 `GozerAssistant-1.0.40-win-x64.zip`，核对随附 SHA256，完整解压到新目录，运行 `GozerAssistant.exe`。升级前从托盘退出旧版。已有钱包、矿池与设置保留；程序不会自动开始挖矿。显示版本仍为 **Beta 1.02**，内部版本 **1.0.40**。
 
 ## 本版更新
+
+- **性能自动保存**：滑杆松开后保存 GPU/CPU 性能预算，CPU 同步调整线程数；单挖与双挖均提示保存状态。启动前等待保存，校验失败保留草稿并阻止启动。
+- **简化操作**：移除多余的应用、保存及双挖设置按钮；钱包、矿池、线程等编辑完成后自动保存，双挖更多参数可直接展开。
+- **内核库统一布局**：名称、版本、状态和安装按钮对齐，官方全节点单独分区；设备选择按钮放大。
+- **BNT 默认矿池**：保持 `stratum+tcp://bnt.pool.gozero.trade:14444`，补齐旧默认端口迁移，保留自定义矿池。
 
 - **YSR / ZCD / BNT 矿池查询**：接入 Gozero Pool 的公开地址接口，显示矿池估算算力、Worker、接受/拒绝份额、余额和分页支付记录。双挖模式可分别查看 GPU / CPU 任务账本。
 - **区分金额性质**：YSR 全链余额与本池已索引奖励分开；ZCD/BNT 分别显示可用未支付、待成熟、支付预留、累计已支付。BNT 待成熟明确标注 PPLNS 可变预估。
@@ -29,6 +34,15 @@
 YSR 需要兼容 CUDA 13 的驱动，未开放 AMD/CPU；TSC Windows 未开放。ZCD 至少需要4 GiB可用内存；BNT 约2 GiB＋128 MiB/线程并预留系统内存。线程越多不一定越快。
 
 ## 当前界面
+
+1.0.40 自动保存工作台（待机状态，未启动挖矿）：
+
+![双挖工作台自动保存](docs/screenshots/dual-autosave-1.0.40.png)
+
+![浅色 CPU 工作台保存提示](docs/screenshots/cpu-autosave-light-1.0.40.png)
+
+![1.0.39 引入的统一内核库布局](docs/screenshots/kernel-library-1.0.39.png)
+
 
 以下是 **1.0.38 的真实公开地址查询截图**。本机处于待机，数值来自矿池估算与既有账本，不代表新增收益或本机实时算力。
 
@@ -51,7 +65,7 @@ YSR 需要兼容 CUDA 13 的驱动，未开放 AMD/CPU；TSC Windows 未开放�
 
 助手收取公开的 **0.5% 分时服务费**，不是按实际币数精确扣款；内核费、矿池费和电费另计。自研 BNT 内核费0%；原版 Seine 内核费 **2.5%**（bntpool域名1%）。官方 XMRig 1%，Gozero CPU版内核费0%。
 
-182项自动测试与真实只读接口/UI验证通过。**Seine 在测试机内从助手启动时被 Windows 拒绝（错误码5），用户确认腾讯管家弹出拦截；助手内实挖尚未验收通过。** 未绕过安全软件。BNT性能依设备和线程数变化，不承诺3995WX或AVX-512提升。详见[验证记录](desktop/VALIDATION.md)。
+185项自动测试与真实只读接口/UI验证通过。**Seine 在测试机内从助手启动时被 Windows 拒绝（错误码5），用户确认腾讯管家弹出拦截；助手内实挖尚未验收通过。** 未绕过安全软件。BNT性能依设备和线程数变化，不承诺3995WX或AVX-512提升。详见[验证记录](desktop/VALIDATION.md)。
 
 ## 开源与构建
 

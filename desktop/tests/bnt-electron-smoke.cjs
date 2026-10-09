@@ -9,7 +9,7 @@ async function run(win,getState){
  await until(()=>js('state?.ready&&!!window.openKernelLibrary'));
  try{
  await js("showView('mining');chooseCoin('BNT')");await until(()=>getState().config.coin==='BNT');
- await js(`document.querySelector('#wallet').value=${JSON.stringify(address)};document.querySelector('#cpu-threads').value=${JSON.stringify(String(workerCount))};document.querySelector('#save-mining').click()`);
+ await js(`document.querySelector('#wallet').value=${JSON.stringify(address)};document.querySelector('#cpu-threads').value=${JSON.stringify(String(workerCount))};document.querySelector('#wallet').dispatchEvent(new Event('change'));document.querySelector('#cpu-threads').dispatchEvent(new Event('change'))`);
  await until(()=>getState().config.wallets.BNT===address&&getState().config.cpuThreads===workerCount);
  await js("document.querySelector('#install').click()");await until(()=>getState().kernel.installed);
  const tuning=require('../src/bnt-tuning.cjs'),info=await tuning.coreInfo(path.resolve(__dirname,'../native/bnt/GozeroBlocknetCore.exe'));
@@ -28,7 +28,7 @@ async function run(win,getState){
  await fs.writeFile(path.join(output,'running.png'),(await win.webContents.capturePage()).toPNG());
  await fs.writeFile(path.join(output,'result.json'),JSON.stringify({version:s.version,optimization:s.miner.session.bntOptimization,cryptoHasSha3:require('node:crypto').getHashes().includes('sha3-256'),addressVerified:true,startedFromButton:true,hash:s.miner.jobs[0]?.telemetry,shares:s.miner.jobs[0]?.shares,feeRate:s.serviceFee.rate},null,2));
  }finally{await js('gozer.stop()');await until(()=>getState().miner.status==='idle')}
- await js("document.querySelector('#wallet').value='invalid';document.querySelector('#save-mining').click()");await sleep(300);
+ await js("document.querySelector('#wallet').value='invalid';document.querySelector('#wallet').dispatchEvent(new Event('change'));document.querySelector('#cpu-threads').dispatchEvent(new Event('change'))");await sleep(300);
  assert.equal(getState().config.wallets.BNT,address,'invalid address must not replace valid settings');
  assert.equal(getState().miner.status,'idle');
 }
