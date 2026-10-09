@@ -11,8 +11,8 @@ async function run({win,state,dir,menubar}){
  await wait(()=>state().ready);await click('[data-view="mining"]');
  for(const coin of ['PRL','QTC','NOID','BNT']){await click('[data-coin="'+coin+'"]');await wait(()=>state().config.coin===coin);assert.ok(await js(`document.querySelector('#kernel-name').textContent.length>5`));}
  const wallet=process.env.GOZERO_BNT_TEST_WALLET;assert.ok(wallet);
- await js(`document.querySelector('#wallet').value=${JSON.stringify(wallet)};document.querySelector('#wallet').type='password';document.querySelector('#save-mining').click()`);
- await wait(()=>state().config.wallet===wallet);assert.equal(state().config.cpuThreads,1);
+ await js(`document.querySelector('#wallet').value=${JSON.stringify(wallet)};document.querySelector('#wallet').type='password';document.querySelector('#cpu-threads').value=${Number(process.env.GOZERO_BNT_THREAD_LIMIT||1)};document.querySelector('#save-mining').click()`);
+ await wait(()=>state().config.wallet===wallet);assert.equal(state().config.cpuThreads,Number(process.env.GOZERO_BNT_THREAD_LIMIT||1));
  assert.equal(await js(`document.querySelector('#cpu-threads').disabled`),false);
  assert.equal(await js(`document.querySelector('#benchmark').disabled`),true);
  if(process.env.GOZERO_BNT_VISUAL_ONLY==='1'){
@@ -42,8 +42,8 @@ async function run({win,state,dir,menubar}){
  menubar.menu.items[0].click();await wait(()=>win.isVisible());win.setSize(920,740);
  await js(`window.gozero.language('zh')`);await wait(()=>state().config.language==='zh');
  // Bound pool observation even if no share happens to meet the current target.
- for(let i=0;i<160&&state().miner.totals.accepted===0;i++)await sleep(1000);
- const report={seconds:(Date.now()-began)/1000,rate:state().miner.rate,totals:state().miner.totals,points:state().miner.points,hiddenWindowContinued:true,rendererErrors:errors};
+ for(let i=0;i<Number(process.env.GOZERO_BNT_OBSERVE_SECONDS||160)&&state().miner.totals.accepted===0;i++)await sleep(1000);
+ const report={requestedThreads:state().config.cpuThreads,activeThreads:state().miner.session.activeCpuThreads,seconds:(Date.now()-began)/1000,rate:state().miner.rate,totals:state().miner.totals,points:state().miner.points,hiddenWindowContinued:true,rendererErrors:errors};
  await fs.writeFile(path.join(out,'BNT-live.png'),(await win.webContents.capturePage()).toPNG());
  await click('[data-stop]');await wait(()=>state().miner.status==='idle'&&!state().fee.active,30);
  const {execFile}=require('node:child_process'),exec=require('node:util').promisify(execFile);

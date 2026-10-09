@@ -132,3 +132,10 @@ real M3 CLI2/2 and GUI1/1 shares accepted, no rejects. Single-thread local media
 old0.1.9 backed up in session, existing user settings/fee ledger unchanged.
 Default1thread with native memory guards. Preserve original0.5% fee; Windows
 and GitHub public0.1.9 untouched. New0.1.10 has not been published to GitHub.
+
+Latest checkpoint: Mac0.1.11 fixes BNT over-strict startup memory checks. Requested
+threads automatically clamp; pressure monitoring reduces workers or stops at
+critical pressure. See handoff/evidence. Actual M3 GUI8requested->2active, one
+accepted/zero rejects in22s, ~2.20H/s short sample. Desktop app/DMG updated idle,
+settings/address/fees preserved; GitHub remains0.1.9. No automatic increase or
+restart after pressure recovery; full2GiB consensus scratch remains required.

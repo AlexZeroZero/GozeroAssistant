@@ -2,8 +2,14 @@
 (function(root){
 'use strict';
 const entries=`
+内存|Memory
+已按系统内存自动减少线程|Thread count reduced for system memory
+系统内存检查通过|System memory check passed
+系统内存压力严重，已停止 BNT 并释放计算内存|Critical memory pressure: BNT stopped and scratch memory released
+BNT 当前内存压力过高或不足以分配一个 2 GiB 线程，请稍后重试|BNT cannot allocate one 2 GiB thread under current memory pressure; please retry later
+
 BNT：ARM64 CPU · 每线程 2 GiB 内存 · 短测已收到实池接受份额|BNT: ARM64 CPU · 2 GiB per thread · live pool shares accepted in short testing
-每线程 2 GiB；启动前检查内存|2 GiB per thread; memory checked before launch
+每线程 2 GiB；按内存压力自动减少线程|2 GiB per thread; threads adjust to memory pressure
 当前提供 NOID、QTC、PRL、BNT 挖矿|Supports NOID, QTC, PRL and BNT mining
 按有效设备运行时间分时|Time sharing based on active device runtime
 BNT 矿池登录成功|BNT pool login succeeded

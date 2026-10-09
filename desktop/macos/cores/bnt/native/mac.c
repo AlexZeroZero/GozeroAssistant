@@ -16,6 +16,10 @@ uint64_t gozero_available(void) {
     /* free_count includes speculative pages; do not count them twice. */
     return ok?((uint64_t)v.free_count+v.inactive_count)*page:0;
 }
+int gozero_pressure(void) {
+    int level=0;size_t n=sizeof(level);
+    return sysctlbyname("kern.memorystatus_vm_pressure_level",&level,&n,NULL,0)==0?level:0;
+}
 uint64_t gozero_total(void) {uint64_t n=0;size_t size=sizeof(n);sysctlbyname("hw.memsize",&n,&size,NULL,0);return n;}
 int gozero_prepare(void) {if(workspace)return -1;return posix_memalign((void**)&workspace,64,bytes);}
 void gozero_release(void) {free(workspace);workspace=NULL;}

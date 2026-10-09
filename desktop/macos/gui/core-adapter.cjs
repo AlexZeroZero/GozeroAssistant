@@ -31,7 +31,9 @@ function coreEvent(m,e){
   const j=m.jobs.get(id);if(j)j.telemetry={hash:rate,at};
   for(const key of ['accepted','rejected','submitted'])if(Number.isInteger(e[key])&&e[key]>=0)m.totals[key]=e[key];
   if(!m.lastRateLog||at-m.lastRateLog>=10000){m.lastRateLog=at;m.log('算力',coin+' · '+formatRate(rate,coin));}
- }else if(event==='pool_log')m.log('矿池',e.message);
+ }else if(event==='memory_threads'){m.session.activeCpuThreads=e.active;m.log('内存','BNT CPU '+e.active+' / '+e.requested+' · '+(e.active<e.requested?'已按系统内存自动减少线程':'系统内存检查通过'));}
+ else if(event==='memory_stop')m.log('内存',e.message);
+ else if(event==='pool_log')m.log('矿池',e.message);
  else if(['connection_error','pool_transport_error'].includes(event)){wait('reconnecting');m.coreSample=null;m.log('连接',coin+' · '+(e.reason||e.error||event));}
  else if(event==='power_state'){m.powerPaused=!!e.paused;if(e.paused)wait('power-paused');else if(m.workState==='power-paused')wait('waiting');m.log('内核',coin+' · '+event+' · '+e.source);}
  else if(event==='job'||event==='pool_job'){if(m.workState!=='mining'&&!m.powerPaused)wait('waiting');m.log('任务',coin+' · '+(e.job_id||e.pool_job_id));}

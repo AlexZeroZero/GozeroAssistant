@@ -1,0 +1,62 @@
+{
+  "version": "0.1.11",
+  "date": "2026-10-09",
+  "hardware": "Apple M3, 16 GiB, macOS 26.5.1",
+  "fix": "Remove extra fixed 4 GiB startup reserve; automatically clamp requested threads and monitor kernel memory pressure",
+  "policy": {
+    "bytesPerWorker": 2281701376,
+    "headroom": "physical RAM /32 clamped to 512 MiB..1 GiB",
+    "available": "macOS free + inactive pages; no compressed/swap capacity added",
+    "threadSelection": "requested threads are an upper limit; check sequential allocations",
+    "warning": "reduce active workers to one",
+    "critical": "stop mining and release workers",
+    "monitorIntervalSeconds": 5,
+    "unknownPressure": "bounded memory estimate, no unconditional allocation"
+  },
+  "checks": {
+    "rustTests": 7,
+    "windowsAndMacGuiTests": 26,
+    "mockWarningAndCriticalRetirement": true,
+    "noArtificialSystemMemoryStress": true,
+    "startupFullSizeGoldenSelftests": true,
+    "bilingualMinimumWidthViews": true,
+    "hiddenWindowMining": true,
+    "stopClean": true,
+    "activeQuitNoOrphans": true,
+    "dmgReadOnlyMountAndSignature": true,
+    "payloadFiles": 19435
+  },
+  "realGUI": {
+    "requestedThreads": 8,
+    "activeThreads": 2,
+    "seconds": 22.193,
+    "rate": {
+      "total": 2.1995600879824035,
+      "gpu": 0,
+      "cpu": 2.1995600879824035
+    },
+    "totals": {
+      "accepted": 1,
+      "rejected": 0,
+      "submitted": 1
+    }
+  },
+  "delivery": {
+    "desktopAppVersion": "0.1.11",
+    "openedIdle": true,
+    "settingsAndFeeLedgerUnchanged": true
+  },
+  "artifacts": {
+    "dmgSha256": "b52c2e76128b2c0d038fcff28213e2f0f5af4e27674250827267ace91f6a1f96",
+    "dmgBytes": 583891731,
+    "coreSha256": "84620b1680ed4f858055568fe867cc3fd95a1920a23cf90108afa0903ef97dd1"
+  },
+  "limitations": [
+    "22-second sample, not sustained performance/earnings",
+    "Pressure handling tested with injected status rather than stressing the user system",
+    "macOS memory estimates are snapshots; allocation may still fail under genuine shortage",
+    "Critical pressure stops, does not auto-restart",
+    "Only base M3 tested, ad-hoc signed, not notarized"
+  ],
+  "publication": "No GitHub/Windows change"
+}

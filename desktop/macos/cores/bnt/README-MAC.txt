@@ -23,11 +23,17 @@ PoW source, including nonce 0, 1, 0x0102030405060708, UINT64_MAX and unrelated
 scratch overwrites. GUI workers also verify a known full-memory vector before
 connecting. No reduced-memory hash is used for mining.
 
-At startup, check current macOS free + inactive pages (speculative pages are
-already included in free_count), allow 2 GiB + 128 MiB per worker, and retain
-at least 4 GiB or 10% of physical RAM for the system. This is a conservative
-snapshot, not a reservation against other applications allocating memory.
-Default one CPU thread. Increasing threads can exhaust RAM or reduce speed.
+Memory policy (Mac 0.1.11): use current macOS free + inactive pages and the
+kernel's memory-pressure status, keeping 512 MiB to 1 GiB scheduling headroom
+(physical RAM / 32). The old additional fixed 4 GiB requirement is removed.
+Each worker still needs the full consensus 2 GiB plus 128 MiB process overhead.
+Requested threads are an upper limit; reduce automatically to the current
+budget, and recheck before starting each worker. During warning pressure retire
+extra workers; critical pressure stops BNT and releases scratch memory. No
+system purge, swap setting, privileges or other app termination is used.
+The estimate is a snapshot, not a reservation. Unknown pressure uses the same
+bounded memory estimate; it does not allow unlimited allocations. Compressed
+memory and swap are not counted as available workspace.
 
 The Gozero BNT pool protocol/address validation is reused from Windows.
 Default endpoint is explicit unencrypted TCP bnt.pool.gozero.trade:14444;

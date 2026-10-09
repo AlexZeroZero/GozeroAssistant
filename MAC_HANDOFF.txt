@@ -975,3 +975,37 @@ BNT APPLE SILICON PORT / MAC 0.1.10 - 2026-10-09
 - No GitHub publication requested or performed.0.1.9 public release/tags,
   existing README and published screenshots are unchanged. Only base M3 tested;
   no BNT GPU acceleration, multicore speedup, earnings or multi-day claims.
+
+
+BNT MEMORY STARTUP FIX / MAC 0.1.11 - 2026-10-09
+- User could not start BNT and requested correcting its memory restriction.
+  The old free+inactive minus4GiB formula was excessively strict; live M3 status
+  showed normal pressure and no swap usage around the threshold.
+- Removed extra fixed4GiB reserve. Native budget now keeps RAM/32 headroom,
+  bounded512MiB..1GiB, plus2GiB+128MiB per worker. Consensus memory unchanged.
+  Uses free+inactive and kern.memorystatus_vm_pressure_level; no compressed/swap
+  bytes counted. os_proc_available_memory is explicitly unavailable on macOS
+  in the installed SDK and is NOT used. No purge/settings/privilege changes.
+- GUI requested threads are now upper limits. Start clamps to native budget,
+  checks each worker allocation, retains successful workers if an additional
+  allocation fails for memory. Native runner checks pressure every5s; warning
+  retires extra workers, critical stops/releases all. No automatic restart
+  or increase after pressure recovery in this version. Unknown status retains
+  the bounded memory estimate rather than unconditionally allocating.
+-7 Rust tests (including memory boundary/unknown-pressure cases),26 GUI/protocol/
+  fee/controller tests pass on Windows/M3. Injected pressure test exercises
+  actual controller2->1->0 worker retirement and cleanup without stressing OS.
+- Real GUI: requested8, actually2 workers;22.193s observation, last2.19956H/s,
+  1submitted/1accepted/0rejected. Each worker performed a full2GiB golden check.
+  Hidden window/menu, Stop, active Quit/no orphans and bilingual visual QA pass.
+  Short sample only, no long-term hashrate/earnings or all-M-series claim.
+- Desktop app/DMG updated to0.1.11 and opened idle. Original user BNT address,
+  selected thread limit, other profiles and fee ledger bytes preserved.0.1.10
+  app backed up in session/bnt-memory/previous-Gozero-0.1.10.app.
+- DMG signature/integrity/read-only-mounted19435 payload hashes verified.
+  DMG SHA256 b52c2e76128b2c0d038fcff28213e2f0f5af4e27674250827267ace91f6a1f96.
+  Core SHA25684620b1680ed4f858055568fe867cc3fd95a1920a23cf90108afa0903ef97dd1.
+  Evidence gui/evidence/mac-bnt-memory-0.1.11.json; private scripts/results under
+  .local/bnt-memory and the corresponding authorized remote session folder.
+- GitHub release and Windows unchanged. No source mining algorithm change,
+  no Metal BNT backend; original0.5% fee behavior remains.
