@@ -930,3 +930,48 @@ RELEASE PRL/QTC SCREENSHOTS - 2026-10-07
   Evidence: gui/evidence/mac-release-0.1.9-screenshots.json. Private snapshots,
   scripts and source QA files: .local/release-0.1.9-screenshots.
   Actual version/compatibility source tags were not changed in this operation.
+
+
+BNT APPLE SILICON PORT / MAC 0.1.10 - 2026-10-09
+- User requested compiling Windows Gozero BNT into the Mac Assistant and supplied
+  a public BNT payout address for bounded live testing. Completed on the M3.
+- Ported bundled Gozero Blocknet CPU 0.2.1 public source to ARM64. PHC portable
+  C compression with reusable full 2 GiB scratch; original official Rust PoW
+  retained for differential checks. No AVX/SSE, Windows placement or Metal BNT
+  path. This is a functional native CPU port, not a peak-performance claim.
+- Consensus unchanged: Argon2id v19, m=2097152 KiB, t=1, p=1, output32;
+  nonce uint64 LE, header92 as salt. Full four-vector official comparisons,
+  scratch-overwrite tests and existing Windows golden hashes all match.
+  Four native Rust tests and maximum-nonce/worker EOF check pass.
+- Added BNT GUI selection, separate profile, CPU threads1..8 (default1), H/s,
+  CPU-only telemetry/menu summary and Windows pool adapter. Startup checks
+  binary SHA256, native current memory budget and a full-size known answer.
+  At least4 GiB /10% system reserve plus128 MiB overhead per worker; current
+  host memory allowed one worker. Custom TLS verifies certificates; default
+  explicit TCP bnt.pool.gozero.trade:14444 matches Windows. Continuous mode.
+- Original0.5% service fee rate/ledger arithmetic retained; BNT recipient copied
+  from Windows source and BNT ledger key added. CPU represented as one device.
+  All original coin profiles and fee records remain readable.24 GUI/config/
+  protocol/fee tests pass on Windows and M3. No Windows checkout changes.
+- Real CLI100s:109 completed hashes,2submitted/2accepted/0rejected. Normal Stop
+  initially logged a pending-hash cancellation as an error; corrected before
+  packaged GUI QA. Real GUI166.17s:1submitted/1accepted/0rejected, last1.20H/s,
+  median local interval1.19928H/s. Single CPU thread, not pool settlement rate.
+- GUI checks pass: hidden window continues, menu rate, Stop/no worker, profile
+  reload, active Quit/no orphan. Final text/menu/layout changes separately pass
+  bilingual mining/About at780px. Original other-core binaries preserved.
+- Installed0.1.10 at /Users/apple/Desktop/Gozero助手.app, opened idle. Existing
+  settings and service-fee-ledger bytes unchanged. Prior0.1.9 app backed up
+  under authorized session/bnt-mac/previous-Gozero-0.1.9.app, off Desktop.
+- Desktop installer Gozero-Assistant-Mac-0.1.10-arm64.dmg: integrity, read-only
+  mount, signature and19434 payload files verified. Ad-hoc signed, not notarized.
+  SHA256 ad7794eafbcd1f5f6a135fa68f3e7a672a20c07f012b9dd94d0e0d3783a95e7f.
+  Local copy .local/bnt-mac/ has matching SHA256. Native signed core SHA256
+  33f0bc5a7a16620e3ccf29b53c4bb7538a54a8dc689e3780644a46838756a195.
+- Evidence gui/evidence/mac-bnt-0.1.10.json. Source cores/bnt; build helper
+  macos/package_bnt_update.py overlays the verified0.1.9 app. Full package_gui.py
+  now takes --bnt-core. Private build/QA/deployment scripts/results in ignored
+  .local/bnt-mac and the same remote session/bnt-mac directory.
+- No GitHub publication requested or performed.0.1.9 public release/tags,
+  existing README and published screenshots are unchanged. Only base M3 tested;
+  no BNT GPU acceleration, multicore speedup, earnings or multi-day claims.

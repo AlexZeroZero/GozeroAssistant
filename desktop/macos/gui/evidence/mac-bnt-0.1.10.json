@@ -1,0 +1,67 @@
+{
+  "version": "0.1.10",
+  "date": "2026-10-09",
+  "hardware": "Apple M3, 16 GiB, macOS 26.5.1",
+  "backend": "Native ARM64 CPU / PHC Argon2id, reusable 2 GiB scratch; no Metal BNT backend",
+  "checks": {
+    "fullSizeOfficialDifferentialVectors": 4,
+    "windowsGoldenVectorsMatched": 4,
+    "scratchOverwriteChecks": true,
+    "nativeRustTestsPassed": 4,
+    "guiUnitTestsPassedWindowsAndMac": 24,
+    "coreManifestAndStartupGoldenCheck": true,
+    "uint64NonceProtocol": true,
+    "hiddenWindowContinued": true,
+    "stopClean": true,
+    "activeQuitNoOrphans": true,
+    "settingsReload": true,
+    "bilingualMinimumWindowVisualCheck": true,
+    "workerMaximumNonceAndEOF": true,
+    "dmgIntegrityAndReadOnlyMount": true,
+    "packageFilesVerified": 19434
+  },
+  "liveCLI": {
+    "secondsLimit": 100,
+    "event": "summary",
+    "submitted": 2,
+    "accepted": 2,
+    "rejected": 0,
+    "hashes": 109
+  },
+  "liveGUI": {
+    "seconds": 166.17,
+    "threads": 1,
+    "lastRate": {
+      "total": 1.2,
+      "gpu": 0,
+      "cpu": 1.2
+    },
+    "medianLocalSampleHps": 1.1992804317409553,
+    "shares": {
+      "accepted": 1,
+      "rejected": 0,
+      "submitted": 1
+    },
+    "rendererErrors": []
+  },
+  "delivery": {
+    "desktopApp": "Gozero助手.app",
+    "desktopInstaller": "Gozero-Assistant-Mac-0.1.10-arm64.dmg",
+    "openedIdle": true,
+    "previousAppBackedUp": true,
+    "settingsAndFeeLedgerUnchanged": true
+  },
+  "artifacts": {
+    "dmgSha256": "ad7794eafbcd1f5f6a135fa68f3e7a672a20c07f012b9dd94d0e0d3783a95e7f",
+    "dmgBytes": 574242702,
+    "coreSha256": "33f0bc5a7a16620e3ccf29b53c4bb7538a54a8dc689e3780644a46838756a195"
+  },
+  "limitations": [
+    "One base M3 tested; other M-series unverified",
+    "CPU-only BNT; no claim of maximum performance",
+    "Short live acceptance tests; no long-term settlement, earnings or stability claim",
+    "Ad-hoc signed, not notarized",
+    "Default one thread; memory checked at launch"
+  ],
+  "publication": "No GitHub release or Windows checkout changed"
+}

@@ -2,6 +2,19 @@
 (function(root){
 'use strict';
 const entries=`
+BNT：ARM64 CPU · 每线程 2 GiB 内存 · 短测已收到实池接受份额|BNT: ARM64 CPU · 2 GiB per thread · live pool shares accepted in short testing
+每线程 2 GiB；启动前检查内存|2 GiB per thread; memory checked before launch
+当前提供 NOID、QTC、PRL、BNT 挖矿|Supports NOID, QTC, PRL and BNT mining
+按有效设备运行时间分时|Time sharing based on active device runtime
+BNT 矿池登录成功|BNT pool login succeeded
+连接中断|Disconnected
+秒后重试|seconds until retry
+已收到矿池任务|Pool work received
+域名解析完成|DNS resolved
+BNT 完整参数启动自检失败|BNT full-parameter startup selftest failed
+BNT 可用内存不足，请减少线程或关闭占用内存的程序；当前最多 |BNT memory budget exceeded; reduce threads or close memory-heavy apps. Maximum threads: 
+线程|threads
+
 QTC / PRL 需要 macOS 14 或更新版本|QTC / PRL require macOS 14 or newer
 NOID：已验证矿池接受份额|NOID: pool acceptance verified
 QTC：短测已收到实池接受份额；长期表现待验证|QTC: a live pool share accepted in short testing; long-term performance unverified
@@ -13,7 +26,7 @@ PRL v3：本地校验通过；外部矿池接受份额待验证。电池供电�
 离线测速目前仅支持 NOID|Offline benchmark currently supports NOID only
 币种不支持|Unsupported coin
 请输入对应币种的公开收款地址|Enter a valid public payout address for this coin
-当前提供 NOID、QTC、PRL 挖矿、设备监控、NOID 离线测速、公开服务费调度、实时日志与结果导出。QTC 已获得实池接受份额；PRL 已通过本地证明验证，外部矿池接受份额仍待验证。|NOID, QTC and PRL mining, device monitoring, NOID offline benchmark, disclosed fee scheduling, live logs and export. QTC has a live pool accepted share; PRL passes local proof verification, with live pool acceptance still pending.
+当前提供 NOID、QTC、PRL、BNT 挖矿、设备监控、NOID 离线测速、公开服务费调度、实时日志与结果导出。QTC 已获得实池接受份额；PRL 已通过本地证明验证，外部矿池接受份额仍待验证。|NOID, QTC, PRL and BNT mining, device monitoring, NOID offline benchmark, disclosed fee scheduling, live logs and export. QTC has a live pool accepted share; PRL passes local proof verification, with live pool acceptance still pending.
 
 Gozero助手 Mac|Gozero Assistant Mac
 Gozero助手|Gozero Assistant

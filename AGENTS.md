@@ -124,3 +124,11 @@ and RESULTS.txt: paired full-pipeline gains ~5% / ~14.6% at tested sizes,
 absolute rates still decline. QTC unchanged in this pass, but now one real
 Kryptex accepted share observed. PRL external acceptance remains unverified.
 Preserve all original fee, admission, proof and continuous-mining behavior.
+
+Latest checkpoint: Mac0.1.10 adds a native ARM64 CPU BNT port and GUI integration.
+See handoff and gui/evidence/mac-bnt-0.1.10.json. Full2GiB consensus tests pass;
+real M3 CLI2/2 and GUI1/1 shares accepted, no rejects. Single-thread local median
+~1.20H/s; no Metal BNT backend or peak-performance claim. Desktop app/DMG updated,
+old0.1.9 backed up in session, existing user settings/fee ledger unchanged.
+Default1thread with native memory guards. Preserve original0.5% fee; Windows
+and GitHub public0.1.9 untouched. New0.1.10 has not been published to GitHub.
