@@ -1,18 +1,25 @@
-# Gozero Assistant · Beta 1.02 (1.0.40)
+# Gozero Assistant · Beta 1.02 (1.0.41)
 
 **English** | [简体中文](README.zh-CN.md)
 
 A compact Windows GPU / CPU mining assistant with hardware monitoring, independent GPU + CPU tasks, pool account data, a rental marketplace and a floating desktop monitor.
 
-[Download for Windows](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.40-beta) · [Website](https://gozero.trade/) · [User guide](desktop/QUICKSTART.txt) · [Build guide](desktop/README.md)
+[Download for Windows](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.41-beta) · [Website](https://gozero.trade/) · [User guide](desktop/QUICKSTART.txt) · [Build guide](desktop/README.md)
 
 ## Download and upgrade
 
-Download `GozerAssistant-1.0.40-win-x64.zip`, verify the accompanying SHA256 checksum, extract the entire archive to a new folder and run `GozerAssistant.exe`. Exit the old app from its tray menu before upgrading. Existing local wallet/pool settings are preserved. Mining never starts automatically on app launch.
+Download `GozerAssistant-1.0.41-win-x64.zip`, verify the accompanying SHA256 checksum, extract the entire archive to a new folder and run `GozerAssistant.exe`. Exit the old app from its tray menu before upgrading. Existing local wallet/pool settings are preserved. Mining never starts automatically on app launch.
 
-The display version remains **Beta 1.02**; the internal update version is **1.0.40**.
+The display version remains **Beta 1.02**; the internal update version is **1.0.41**.
 
 ## What's new
+
+- **Pool device reporting:** worker name and device model are sent by default. Turn reporting off in the workbench; GPU and CPU tasks have independent switches. Off uses the generic worker name `Gozer` and omits the model on the next start. Existing pool history is unchanged.
+- **Larger interface:** main/floating windows, controls and fonts enlarged by approximately 10%.
+- **Device-specific logs:** All / GPU / CPU filters in the log page and workbench. System messages remain visible under All.
+- **YSR host 0.1.4:** fixes worker metadata missing from pool sessions. Install the updated YSR engine from the library. CUDA computation is unchanged.
+
+YSR and the Gozero BNT engine send dedicated model metadata. XMRig uses its supported client-agent field; KRig, NOID and Seine use a worker-name suffix. Display of a separate device column depends on the pool. This release does not claim verified display on every third-party pool or a hashrate increase.
 
 - **Automatic settings saves:** release the performance slider to save GPU/CPU budgets automatically; CPU thread counts follow the selected mode. Single and dual workbenches show save status. Launch waits for saving; validation failures preserve drafts and prevent launch.
 - **Simpler workbench:** redundant Apply/Save/Settings buttons removed. Wallets, pools and thread edits save when editing finishes; advanced dual-task options remain in an expandable row.
@@ -36,6 +43,12 @@ The display version remains **Beta 1.02**; the internal update version is **1.0.
 YSR requires a CUDA 13-compatible driver; AMD/CPU YSR and Windows TSC mining are not enabled. ZCD needs at least 4 GiB available RAM. BNT reserves roughly 2 GiB + 128 MiB per thread plus system headroom; more threads do not always mean more hashrate.
 
 ## Current interface
+
+1.0.41 interface, idle. The log-filter image contains explicitly labeled UI-test messages; no mining was started.
+
+![Pool device reporting](docs/screenshots/pool-reporting-1.0.41.png)
+
+![GPU log filter](docs/screenshots/gpu-log-filter-1.0.41.png)
 
 1.0.40 automatic-save workbench (idle; no mining started):
 
@@ -67,7 +80,7 @@ These **1.0.38 screenshots show real read-only pool data for a configured public
 
 Gozero charges a disclosed **0.5% mining-time service fee**. This is not an exact per-coin payout deduction. Engine fees, pool fees and electricity costs are separate. Gozero BNT has 0% engine fee; original Seine has **2.5%** (1% on bntpool.com/subdomains). Original XMRig has 1%; the optional Gozero CPU build has 0% engine fee.
 
-185 automated tests and the 1.0.40 automatic-save UI checks passed. The 1.0.38 read-only pool/API checks also passed. **Seine's launch inside the Assistant was blocked on the test host (Windows error 5 and a Tencent security prompt); its end-to-end in-app mining has not been accepted there.** No security settings were bypassed. BNT performance gains vary by device and thread count; no 3995WX or AVX-512 improvement is promised. See [validation scope](desktop/VALIDATION.md).
+190 automated tests and the 1.0.41 reporting, log filtering and enlarged-interface UI checks passed. The 1.0.38 read-only pool/API checks also passed. **Seine's launch inside the Assistant was blocked on the test host (Windows error 5 and a Tencent security prompt); its end-to-end in-app mining has not been accepted there.** No security settings were bypassed. BNT performance gains vary by device and thread count; no 3995WX or AVX-512 improvement is promised. See [validation scope](desktop/VALIDATION.md).
 
 ## Source and building
 

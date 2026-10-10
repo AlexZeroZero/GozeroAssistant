@@ -38,7 +38,7 @@ async function launch(miner,r,j,c,hw){
  const pages=await require('./large-pages.cjs').preference(miner.baseDir);
  if(r.stopped)return;
  const logFile=path.join(miner.dir,'logs','seine-'+r.sequence+++'.log');
- const args=adapter.args(c,r.count,r.urls[r.index],path.join(miner.dir,'data'),pages);
+ const args=adapter.args(c,r.count,r.urls[r.index],path.join(miner.dir,'data'),pages,cpuDevice(hw));
  Object.assign(j,{logFile,offset:0,fragment:'',pid:null,telemetry:null});
  r.acceptedBase=j.shares.accepted;r.previous=null;r.offlineSince=Date.now();r.authenticated=false;r.closed=false;
  state(miner,r,j,'connect','正在连接 '+new URL(r.urls[r.index]).hostname);

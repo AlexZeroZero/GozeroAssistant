@@ -41,10 +41,10 @@ test('YSR retarget diagnostics do not suppress real completed-work hashrate',()=
 });
 
 test('YSR older explicit selections migrate without resetting wallets or budgets',()=>{
- for(const previous of ['gozero-ysr-0.1.0','gozero-ysr-0.1.1','gozero-ysr-0.1.2']){
+ for(const previous of ['gozero-ysr-0.1.0','gozero-ysr-0.1.1','gozero-ysr-0.1.2','gozero-ysr-0.1.3']){
  const config=validate({coin:'YSR',wallets:{YSR:wallet},kernels:{YSR:previous},performance:100,temperature:85});
  assert.equal(config.wallets.YSR,wallet);assert.equal(config.performance,100);assert.equal(config.temperature,85);
- assert.equal(config.kernels.YSR,'auto');assert.equal(resolve(config).version,'0.1.3');
+ assert.equal(config.kernels.YSR,'auto');assert.equal(resolve(config).version,'0.1.4');
  }
 });
 
@@ -60,7 +60,7 @@ test('YSR budget does not ratchet down from whole-GPU load; manual changes and t
  hw.gpus[0].sensors={at:Date.now()-11000,temp:60};miner.checkHardware(hw);assert.equal(stops,2);
 });
 test('YSR explicit HTTPS pool and checksummed wallet are isolated from Stratum coins',()=>{
- const c=validate({coin:'YSR',wallets:{YSR:wallet}});assert.equal(DEFAULT.wallets.YSR,'');assert.equal(resolve(c).id,'gozero-ysr-0.1.3');
+ const c=validate({coin:'YSR',wallets:{YSR:wallet}});assert.equal(DEFAULT.wallets.YSR,'');assert.equal(resolve(c).id,'gozero-ysr-0.1.4');
  assert.throws(()=>validate({...c,pools:{YSR:'stratum+tcp://example.com:3333'}}));assert.throws(()=>validate({...c,wallets:{YSR:wallet.slice(0,-1)+'q'}}));
  assert.throws(()=>validate({...c,poolBackups:{YSR:['https://user:password@example.com']}}));
  const args=argsFor(c,{vendor:'NVIDIA',sensors:{uuid:'GPU-11111111-1111-1111-1111-111111111111'}},'C:/space name/worker.log');

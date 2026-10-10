@@ -29,7 +29,7 @@ async function start(miner,c,hw,benchmark){
  miner.hashWindows=new HashWindows([device.id],c.hashWindowMinutes,startedAt);miner.jobs.clear();
  const j={id:device.id,name:device.name,status:'starting',telemetry:null,samples:[],powers:[],shares:{accepted:0,rejected:0},lastMessage:'等待矿池任务',pid:null};miner.jobs.set(j.id,j);
  const stats={hashes:0,lastHashes:0,lastAt:Date.now(),started:false,workers:count};let sequence=0;
- const pool=runtime.pool=new Pool(poolUrls(c),c.wallets.BNT,c.worker);
+ const pool=runtime.pool=new Pool(poolUrls(c),c.wallets.BNT,require('./pool-identity.cjs').identity(c,device).worker,{deviceModel:require('./pool-identity.cjs').identity(c,device).model});
  pool.on('state',()=>miner.changed());pool.on('log',msg=>{j.lastMessage=msg;miner.log('矿池',msg);miner.changed()});pool.on('job',job=>{miner.log('矿池','BNT 区块 #'+job.height+' · 收到新任务');miner.changed()});pool.on('offline',()=>{stats.started=false;stats.lastHashes=stats.hashes;stats.lastAt=Date.now();j.status='waiting';j.telemetry=null;miner.hashWindows.unavailable(j.id);miner.changed()});
  pool.on('share',(ok,error)=>{j.shares[ok?'accepted':'rejected']++;miner.log('份额',ok?'BNT accepted · A '+j.shares.accepted:'BNT rejected · '+String(error).slice(0,160));miner.changed()});pool.connect();
  // Each process retains its 2 GiB scratch. Closing the app closes stdin, so

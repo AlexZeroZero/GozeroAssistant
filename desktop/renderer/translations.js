@@ -1004,5 +1004,10 @@ Gozero 全节点|Gozero full node|Gozeroフルノード|Полный узел Go
  catalog["设置未保存："]=["Not saved: ", "保存できません：", "Не сохранено: "];
  catalog["正在保存…"]=["Saving…", "保存中…", "Сохранение…"];
  catalog["修改后自动保存"]=["Changes save automatically", "変更は自動保存されます", "Изменения сохраняются автоматически"];
+ catalog["向矿池上报矿工名和设备型号"]=["Report worker name and device model to pool", "ワーカー名と機器型番をプールに送信", "Передавать пулу имя воркера и модель устройства"];
+ catalog["关闭后使用通用矿工名；下次启动生效"]=["Off: generic worker name; applies on next start", "オフ時は共通名を使用。次回起動時に反映", "При отключении используется общее имя; со следующего запуска"];
+ catalog["设备上报"]=["Pool reporting", "機器情報の送信", "Данные для пула"];
+ catalog["日志设备筛选"]=["Filter logs by device", "デバイス別ログ", "Фильтр журналов по устройству"];
+ catalog["Worker / 设备"]=["Worker / Device", "ワーカー / 機器", "Воркер / Устройство"];
  return Object.freeze(catalog);
 });

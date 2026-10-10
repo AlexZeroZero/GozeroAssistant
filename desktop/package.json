@@ -1,7 +1,7 @@
 {
   "name": "gozer-assistant",
   "productName": "Gozero助手",
-  "version": "1.0.40",
+  "version": "1.0.41",
   "private": true,
   "description": "Gozero compact Windows mining workstation",
   "main": "src/main.cjs",

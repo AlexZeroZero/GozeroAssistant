@@ -1,3 +1,10 @@
+# 1.0.41 validation / 验证范围 — 2026-10-09
+
+- 190 automated tests passed: default/disabled pool identity, independent dual settings, XMRig supported metadata, loopback BNT login payload, exact GPU/CPU log filtering, and previous regressions.
+- Real Electron UI smoke passed: persisted reporting toggles, independent CPU/GPU configuration, main/workbench log filters, four languages, light theme and 1.1 zoom on both windows. Main content is approximately 872×654; floating content approximately 317×240 (Windows DPI rounding may differ by a few pixels). Screenshots inspected for clipping.
+- YSR host 0.1.4 compiled and metadata-only CLI checked with reporting enabled/disabled. CUDA PTX unchanged: SHA256 80d5d7c7e831cf241826dfdf644d31dc4c0985fbde06a39161844cb3e2f796d7.
+- No mining started. Local protocol tests confirm outgoing metadata, not remote pool display or share acceptance. Third-party miners carry device data through supported worker/agent fields; dedicated model columns depend on pool support. No antivirus configuration changed.
+
 # 1.0.40 validation / 验证范围 — 2026-10-09
 
 - 185 automated tests passed, including queued latest-value saves, failure recovery and independent dual tasks.
@@ -17,4 +24,5 @@
 
 - Portable Windows package verified: all 304 manifest hashes and ZIP SHA256 passed; main window, floating monitor and clean exit passed without mining. Public source checkout retest: 181 passed, 1 optional archive test skipped, 0 failed after rebuilding generated helpers.
 
-- 1.0.40 portable package: all 306 manifest hashes and ZIP SHA256 verified; main window, floating monitor and clean exit passed without mining.
+- 1.0.41 portable package: all 310 manifest hashes and ZIP SHA256 verified; main window, floating monitor and clean exit passed without mining.
+- Public-source checkout verification on 2026-10-10: 189 passed, 1 optional local KRig archive check skipped, 0 failed. Pinned YSR files retain original CRLF bytes through -text attributes for hash integrity.

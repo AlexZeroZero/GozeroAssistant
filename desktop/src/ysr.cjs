@@ -5,7 +5,7 @@ function args(config,gpu,logFile){
  if(gpu.vendor!=='NVIDIA'||!/^GPU-[a-f0-9-]{36}$/i.test(gpu.sensors?.uuid||''))throw Error('YSR 当前内核需要具有有效 UUID 的 NVIDIA RTX 30 或更新显卡');
  const urls=require('./pool-catalog.cjs').poolUrls(config).map(p.validateApi);
  if(!urls.length)throw Error('请选择 YSR HTTPS 矿池');
- return ['--mine','--wallet',config.wallets.YSR,'--worker',config.worker,'--device','0','--api',urls[0],...urls.slice(1).flatMap(u=>['--backup',u]),'--stop-file',logFile+'.stop'];
+ return ['--mine','--wallet',config.wallets.YSR,'--worker',require('./pool-identity.cjs').identity(config,gpu).worker,'--device-model',require('./pool-identity.cjs').identity(config,gpu).model,'--device','0','--api',urls[0],...urls.slice(1).flatMap(u=>['--backup',u]),'--stop-file',logFile+'.stop'];
 }
 function network(raw,now=Date.now()){
  if(raw?.token?.token_symbol!=='YSR'||raw.token.decimals!==8||!Number.isSafeInteger(raw.height)||raw.height<0)throw Error('YSR 网络数据身份或高度无效');

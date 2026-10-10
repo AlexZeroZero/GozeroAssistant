@@ -63,3 +63,7 @@ body.light .large-pages-row .large-pages-enable:hover:not(:disabled){background:
 #mining .actions .mining-save-state.save-error{color:var(--red)}
 .dual-actions .task-note{font-size:11px;min-width:0;overflow-wrap:anywhere}
 .dual-settings:not([open]){display:block}.dual-settings summary{display:list-item;min-height:25px;line-height:25px;color:var(--purple);font-size:11px;padding-inline:2px}.dual-settings summary:focus-visible{outline:1px solid var(--purple);outline-offset:1px}
+
+.pool-report-row{flex-wrap:wrap}.pool-report-row>label{width:auto!important;display:flex;align-items:center;gap:5px;color:var(--text)!important}.pool-report-row small{color:var(--muted);font-size:10px}.dual-fields input[type=checkbox]{width:16px;min-height:16px}
+.log-kind-filter{display:inline-flex;gap:3px;flex-shrink:0}.log-kind-filter button{height:19px;min-width:32px;padding:0 6px;font-size:10px}.log-kind-filter button.active{color:var(--purple);background:var(--soft);border-color:var(--purple)}
+#log-list .log-row label{width:85px;font-size:10px}.workbench-log-row{grid-template-columns:54px 82px minmax(0,1fr)}.workbench-log-row>label{width:82px}

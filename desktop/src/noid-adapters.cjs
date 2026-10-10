@@ -13,7 +13,7 @@ function args(config,gpu,logFile,kernel){
  device(config,gpu,kernel);const pools=poolUrls(config);
  // Each guarded child sees only its selected physical UUID, so CUDA index 0
  // stays correct even for mixed cards or reordered Windows adapters.
- const user=config.wallets.NOID+'.'+config.worker;
+ const user=config.wallets.NOID+'.'+require('./pool-identity.cjs').label(config,gpu);
  if(kernel.name==='Suprminer')return['-a','noid','-o',pools[0],'-u',user,'-p','x','--no-cpu','-d','0'];
  if(kernel.name==='Fl4shMiner')return['-a','noid',...pools.flatMap(url=>['--pool',url]),'-w',user,'-pass','x','-d','0','--ui','off','--no-color','--ascii','--noid-keep-warm=false','--pool-auto-region=false'];
  throw Error('未适配的 NOID 内核');

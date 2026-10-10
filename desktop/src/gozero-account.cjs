@@ -22,7 +22,7 @@ function normalize(kind,raw,coin,wallet){
   if(!Array.isArray(raw.workers)||!Object.hasOwn(raw,'hashrate'))throw Error('矿池算力字段缺失');
   const rate=r=>num(r.displayHashrate)??num(r.hashrate);
   return{hash:rate(raw),shortHash:num(raw.hashrate),averages:Object.fromEntries(['m15','h1','h24'].map(k=>[k,num(raw.averages?.[k])])),online:num(raw.onlineWorkers),active:num(raw.activeWorkers),offline:num(raw.offlineWorkers),accepted:num(raw.accepted),rejected:num(raw.rejected),rejectRate:num(raw.rejectRate),note:str(raw.note),
-   workers:raw.workers.slice(0,200).filter(object).map(r=>({id:str(r.id),name:str(r.name)||str(r.id),platform:str(r.platform),online:typeof r.online==='boolean'?r.online:null,hash:rate(r),accepted:num(r.accepted),rejected:num(r.rejected),lastShare:num(r.lastShare),lastSeen:num(r.lastSeen)})),
+   workers:raw.workers.slice(0,200).filter(object).map(r=>({id:str(r.id),name:str(r.name)||str(r.id),platform:str(r.platform),deviceModel:str(r.deviceModel),online:typeof r.online==='boolean'?r.online:null,hash:rate(r),accepted:num(r.accepted),rejected:num(r.rejected),lastShare:num(r.lastShare),lastSeen:num(r.lastSeen)})),
    history:(Array.isArray(raw.history)?raw.history:[]).filter(r=>object(r)&&num(r.t)!==null&&num(r.hashrate)!==null).slice(-1440).map(r=>({t:r.t,hashrate:r.hashrate}))};
  }
  if(kind==='wallet'){

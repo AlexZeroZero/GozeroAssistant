@@ -1,16 +1,23 @@
-# Gozero助手 · Beta 1.02（1.0.40）
+# Gozero助手 · Beta 1.02（1.0.41）
 
 [English](README.md) | **简体中文**
 
 紧凑型 Windows GPU / CPU 挖矿助手，提供硬件监测、GPU＋CPU 独立双挖、矿池账本、租赁市场与桌面悬浮监控。
 
-[下载 Windows 版](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.40-beta) · [官网](https://gozero.trade/) · [使用指南](desktop/QUICKSTART.txt) · [构建说明](desktop/README.md)
+[下载 Windows 版](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.41-beta) · [官网](https://gozero.trade/) · [使用指南](desktop/QUICKSTART.txt) · [构建说明](desktop/README.md)
 
 ## 下载与升级
 
-下载 `GozerAssistant-1.0.40-win-x64.zip`，核对随附 SHA256，完整解压到新目录，运行 `GozerAssistant.exe`。升级前从托盘退出旧版。已有钱包、矿池与设置保留；程序不会自动开始挖矿。显示版本仍为 **Beta 1.02**，内部版本 **1.0.40**。
+下载 `GozerAssistant-1.0.41-win-x64.zip`，核对随附 SHA256，完整解压到新目录，运行 `GozerAssistant.exe`。升级前从托盘退出旧版。已有钱包、矿池与设置保留；程序不会自动开始挖矿。显示版本仍为 **Beta 1.02**，内部版本 **1.0.41**。
 
 ## 本版更新
+
+- **矿池设备上报**：默认发送矿工名和设备型号，可在工作台关闭；GPU/CPU任务分别控制。关闭后下次启动使用通用矿工名 `Gozer`，不发送型号，矿池已有历史不变。
+- **界面放大**：主窗口、悬浮窗口、控件及字体统一放大约10%。
+- **分类日志**：运行日志和工作台支持全部/GPU/CPU筛选；系统消息在“全部”中显示。
+- **YSR内核0.1.4**：修复矿工名未进入矿池会话请求的问题，请在内核库安装新版；CUDA计算代码不变。
+
+YSR与Gozero BNT内核发送独立型号字段；XMRig通过客户端信息发送，KRig、NOID、Seine通过矿工名后缀发送。独立设备列是否展示取决于矿池支持，未验证所有第三方矿池展示，不宣称算力提升。
 
 - **性能自动保存**：滑杆松开后保存 GPU/CPU 性能预算，CPU 同步调整线程数；单挖与双挖均提示保存状态。启动前等待保存，校验失败保留草稿并阻止启动。
 - **简化操作**：移除多余的应用、保存及双挖设置按钮；钱包、矿池、线程等编辑完成后自动保存，双挖更多参数可直接展开。
@@ -34,6 +41,12 @@
 YSR 需要兼容 CUDA 13 的驱动，未开放 AMD/CPU；TSC Windows 未开放。ZCD 至少需要4 GiB可用内存；BNT 约2 GiB＋128 MiB/线程并预留系统内存。线程越多不一定越快。
 
 ## 当前界面
+
+1.0.41待机界面。日志截图为已标明的筛选测试消息，未启动挖矿。
+
+![Pool device reporting](docs/screenshots/pool-reporting-1.0.41.png)
+
+![GPU log filter](docs/screenshots/gpu-log-filter-1.0.41.png)
 
 1.0.40 自动保存工作台（待机状态，未启动挖矿）：
 
@@ -65,7 +78,7 @@ YSR 需要兼容 CUDA 13 的驱动，未开放 AMD/CPU；TSC Windows 未开放�
 
 助手收取公开的 **0.5% 分时服务费**，不是按实际币数精确扣款；内核费、矿池费和电费另计。自研 BNT 内核费0%；原版 Seine 内核费 **2.5%**（bntpool域名1%）。官方 XMRig 1%，Gozero CPU版内核费0%。
 
-185项自动测试与真实只读接口/UI验证通过。**Seine 在测试机内从助手启动时被 Windows 拒绝（错误码5），用户确认腾讯管家弹出拦截；助手内实挖尚未验收通过。** 未绕过安全软件。BNT性能依设备和线程数变化，不承诺3995WX或AVX-512提升。详见[验证记录](desktop/VALIDATION.md)。
+190项自动测试与真实只读接口/UI验证通过。**Seine 在测试机内从助手启动时被 Windows 拒绝（错误码5），用户确认腾讯管家弹出拦截；助手内实挖尚未验收通过。** 未绕过安全软件。BNT性能依设备和线程数变化，不承诺3995WX或AVX-512提升。详见[验证记录](desktop/VALIDATION.md)。
 
 ## 开源与构建
 

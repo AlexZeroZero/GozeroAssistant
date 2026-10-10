@@ -45,7 +45,7 @@ class GozeroYsrCore {
  class Share {public Job Job;public ulong Nonce;}
  static volatile Session session;static volatile Job current;
  static BlockingCollection<Share> shares=new BlockingCollection<Share>(16);
- static long accepted,rejected,stale,expired,retargeted,overflows,submitErrors;static string wallet,worker,stopFile;static string[] nodes;
+ static long accepted,rejected,stale,expired,retargeted,overflows,submitErrors;static string wallet,worker,stopFile,deviceModel;static string[] nodes;
  static int nodeIndex,failures;static long lastPoll;static int pollNow;
  static Stopwatch clock=Stopwatch.StartNew();static long Now{get{return clock.ElapsedMilliseconds;}}
  static void Log(string text){lock(outputLock)Console.WriteLine(DateTime.UtcNow.ToString("HH:mm:ss",CultureInfo.InvariantCulture)+" "+text);}
@@ -69,9 +69,10 @@ class GozeroYsrCore {
    var d=json.Deserialize<Dictionary<string,object>>(Encoding.UTF8.GetString(b.ToArray()));if(d==null)throw new Exception("Invalid node response");return d;
   }
  }
+ static object SessionRequest(){var d=new Dictionary<string,object>{{"address",wallet},{"platform","desktop/win32-gozero"},{"mode","pool"},{"workerName",worker}};if(!String.IsNullOrEmpty(deviceModel))d["deviceModel"]=deviceModel;return d;}
  static void CloseSession(Session s){if(s==null)return;try{Api(s.Url,"/session/stop",new{sessionId=s.Id});}catch(Exception e){Log("Session close unavailable: "+e.Message);}}
  static void Poll(){while(!stopping){if(Interlocked.Exchange(ref pollNow,0)==0&&Now-lastPoll<1500){Thread.Sleep(100);continue;}lastPoll=Now;lock(apiLock){if(stopping)break;try{
-   if(session==null){var r=Api(nodes[nodeIndex],"/session",new{address=wallet,platform="desktop/win32-gozero",mode="pool"});if(S(r,"error")!=""||S(r,"sessionId")==""||S(r,"address")!=wallet||S(r,"mode")!="pool")throw new Exception("Session rejected: "+S(r,"error"));UInt(S(r,"extranonce"));session=new Session{Id=S(r,"sessionId"),Extra=S(r,"extranonce"),Url=nodes[nodeIndex]};Log("YSR pool session authorized · "+session.Url);}
+   if(session==null){var r=Api(nodes[nodeIndex],"/session",SessionRequest());if(S(r,"error")!=""||S(r,"sessionId")==""||S(r,"address")!=wallet||S(r,"mode")!="pool")throw new Exception("Session rejected: "+S(r,"error"));UInt(S(r,"extranonce"));session=new Session{Id=S(r,"sessionId"),Extra=S(r,"extranonce"),Url=nodes[nodeIndex]};Log("YSR pool session authorized · "+session.Url);}
    var s=session;var d=Api(s.Url,"/job?session="+Uri.EscapeDataString(s.Id),null);
    if(S(d,"error")!=""){if(S(d,"error")=="session_inactive"){session=null;current=null;}throw new Exception("Job rejected: "+S(d,"error"));}
    string id=S(d,"jobId");if(id==""||id.Length>160)throw new Exception("Invalid job ID");byte[] header=Header(d,s.Extra),target=Hex(S(d,"target"),32);if(target.All(x=>x==0))throw new Exception("Zero share target");
@@ -116,9 +117,14 @@ class GozeroYsrCore {
   Array.Sort(times);return times[repeats/2];
  }
  static int Main(string[] argv){Console.OutputEncoding=new UTF8Encoding(false);Thread.CurrentThread.CurrentCulture=CultureInfo.InvariantCulture;ServicePointManager.SecurityProtocol=SecurityProtocolType.Tls12;ServicePointManager.DefaultConnectionLimit=8;
-  var opts=new Dictionary<string,string>();var urls=new List<string>();bool mine=false,self=false;int device=0;IntPtr ctx=IntPtr.Zero,module=IntPtr.Zero;var memory=new List<ulong>();Thread polling=null,submitting=null;SearchBatch runner=null;
-  try{for(int i=0;i<argv.Length;i++){string key=argv[i];if(key=="--mine"){mine=true;continue;}if(key=="--selftest"){self=true;continue;}if(!new[]{"--wallet","--api","--backup","--device","--seconds","--stop-file","--worker"}.Contains(key)||i+1==argv.Length)throw new Exception("Unknown/incomplete argument "+key);string value=argv[++i];if(key=="--api"||key=="--backup")urls.Add(ApiOrigin(value));else opts[key]=value;}
-   if(!mine&&!self){Log("Gozero YSR 0.1.3 · use --selftest or --mine --api HTTPS_ORIGIN --wallet ysr1...");return 0;}if(mine&&self)throw new Exception("Choose mining OR selftest");
+  var opts=new Dictionary<string,string>();var urls=new List<string>();bool mine=false,self=false,identityCheck=false;int device=0;IntPtr ctx=IntPtr.Zero,module=IntPtr.Zero;var memory=new List<ulong>();Thread polling=null,submitting=null;SearchBatch runner=null;
+  try{for(int i=0;i<argv.Length;i++){string key=argv[i];if(key=="--identity-check"){identityCheck=true;continue;}if(key=="--mine"){mine=true;continue;}if(key=="--selftest"){self=true;continue;}if(!new[]{"--wallet","--api","--backup","--device","--seconds","--stop-file","--worker","--device-model"}.Contains(key)||i+1==argv.Length)throw new Exception("Unknown/incomplete argument "+key);string value=argv[++i];if(key=="--api"||key=="--backup")urls.Add(ApiOrigin(value));else opts[key]=value;}
+   worker=opts.ContainsKey("--worker")?opts["--worker"]:"Gozer";
+   if(!System.Text.RegularExpressions.Regex.IsMatch(worker,@"^[A-Za-z0-9_.-]{1,32}$"))throw new Exception("Invalid worker name");
+   deviceModel=opts.ContainsKey("--device-model")?opts["--device-model"]:"";
+   if(deviceModel.Length>120||deviceModel.Any(c=>Char.IsControl(c)))throw new Exception("Invalid device model");
+   if(identityCheck){Console.WriteLine(new JavaScriptSerializer().Serialize(SessionRequest()));return 0;}
+   if(!mine&&!self){Log("Gozero YSR 0.1.4 · use --selftest or --mine --api HTTPS_ORIGIN --wallet ysr1...");return 0;}if(mine&&self)throw new Exception("Choose mining OR selftest");
    if(mine){wallet=opts.ContainsKey("--wallet")?opts["--wallet"]:"";if(!Wallet(wallet)||urls.Count<1)throw new Exception("Valid YSR wallet and explicit pool required");nodes=urls.Distinct().ToArray();if(nodes.Length>3)throw new Exception("At most 3 pool nodes");}
    worker=opts.ContainsKey("--worker")?opts["--worker"]:"Gozero";stopFile=opts.ContainsKey("--stop-file")?opts["--stop-file"]:null;
    int seconds=opts.ContainsKey("--seconds")?checked((int)UInt(opts["--seconds"])):0;if(seconds<0||seconds>3600)throw new Exception("Bounded run maximum 3600 seconds");
@@ -134,7 +140,7 @@ class GozeroYsrCore {
     if(!matched)throw new Exception("Selected GPU UUID is unavailable");
    }
    int major;Check(cuDeviceGetAttribute(out major,75,device));if(major<8)throw new Exception("This build requires NVIDIA SM 8.0+ (RTX 30 or newer)");
-   Check(cuDevicePrimaryCtxRetain(out ctx,device));Check(cuCtxSetCurrent(ctx));var name=new StringBuilder(128);Check(cuDeviceGetName(name,128,device));Log("Gozero YSR 0.1.3 · "+name);
+   Check(cuDevicePrimaryCtxRetain(out ctx,device));Check(cuCtxSetCurrent(ctx));var name=new StringBuilder(128);Check(cuDeviceGetName(name,128,device));Log("Gozero YSR 0.1.4 · "+name);
    string ptx=Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"ysr.ptx");Check(cuModuleLoadDataEx(out module,File.ReadAllBytes(ptx),0,IntPtr.Zero,IntPtr.Zero));
    IntPtr prepare,hash,search,fastSearch,referenceSearch;Check(cuModuleGetFunction(out prepare,module,"ysr_prepare"));Check(cuModuleGetFunction(out hash,module,"ysr_hash"));Check(cuModuleGetFunction(out fastSearch,module,"ysr_search"));Check(cuModuleGetFunction(out referenceSearch,module,"ysr_search_reference"));search=fastSearch;
    int sm;Check(cuDeviceGetAttribute(out sm,16,device));searchBlocks=checked((uint)Math.Max(1,sm*8));searchFunction=search;

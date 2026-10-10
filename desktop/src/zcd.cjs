@@ -5,11 +5,11 @@ const MIN_MEMORY=4*1024**3;
 const {validAddress}=require('../renderer/zcd-address.js');
 function address(s){if(!validAddress(s))throw Error('ZCD 需要 02 开头的 32 字节永久地址，不能使用一次性地址');return '0x'+s.replace(/^0x/i,'').toLowerCase()}
 function poolConfig(config,hw,logFile=null){
- const user=address(config.wallets.ZCD),threads=cpuThreads(config,hw);
+ const user=address(config.wallets.ZCD),threads=cpuThreads(config,hw),identity=require('./pool-identity.cjs'),device=require('./mining-devices.cjs').cpuDevice(hw),worker=identity.identity(config,device).worker;
  if(!config.pools.ZCD)throw Error('请先填写 ZCD 主矿池地址');
  const urls=require('./pool-catalog.cjs').poolUrls(config);
- const pools=urls.map(value=>{require('./config.cjs').validatePool(value);const u=new URL(value);return {algo:'rx/2',coin:null,url:u.host,user,pass:config.zcdPassword||'x','rig-id':config.worker,keepalive:true,enabled:true,tls:u.protocol==='stratum+ssl:','tls-fingerprint':null,'socks5':null}});
- return {autosave:false,background:false,colors:false,title:false,http:{enabled:false},api:{id:null,'worker-id':config.worker},
+ const pools=urls.map(value=>{require('./config.cjs').validatePool(value);const u=new URL(value);return {algo:'rx/2',coin:null,url:u.host,user,pass:config.zcdPassword||'x','rig-id':worker,keepalive:true,enabled:true,tls:u.protocol==='stratum+ssl:','tls-fingerprint':null,'socks5':null}});
+ return {'user-agent':identity.agent(config,device),autosave:false,background:false,colors:false,title:false,http:{enabled:false},api:{id:null,'worker-id':worker},
   randomx:{init:Math.min(threads,4),mode:'fast','1gb-pages':false,rdmsr:false,wrmsr:false,numa:true},
   cpu:{enabled:true,'huge-pages':true,'huge-pages-jit':false,'hw-aes':null,priority:1,yield:true,asm:true,'rx':Array(threads).fill(-1),'rx/2':Array(threads).fill(-1),'*':false},
   opencl:{enabled:false},cuda:{enabled:false},'donate-level':Math.round(require('./kernel-catalog.cjs').resolve(config).kernelFee*100),'donate-over-proxy':0,'log-file':logFile,'print-time':5,'health-print-time':60,'pause-on-battery':true,'pause-on-active':false,retries:2,'retry-pause':5,pools};

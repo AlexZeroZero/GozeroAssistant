@@ -1,4 +1,6 @@
-Gozero YSR 0.1.3
+Gozero YSR 0.1.4
 SHA-256d functions: Copyright (c) 2026 The YSKAR developers, MIT.
 Upstream commit a1e068ec6b4b529cc730406ae48d7f5bcb4ee9e3
 Gozero changes: bounded candidate list; C# HTTP pool host, CPU candidate verification, job lifecycle, explicit start and JSON-free rate logs. No third-party miner fee. GozeroAssistant service fee is scheduled by its separate disclosed controller.
+
+0.1.4: optional workerName/deviceModel session metadata; CUDA PTX unchanged.

@@ -1,15 +1,16 @@
 {
-  "id": "gozero-ysr-0.1.3",
+  "id": "gozero-ysr-0.1.4",
   "name": "Gozero YSR CUDA",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "exe": "GozeroYsrCore.exe",
-  "exeSha256": "22257dab3dbf550c32d7e11dfdc03d955dd0650d3f673a65d32869100a37d0bd",
+  "exeSha256": "d531a01c01a8e991df4369d25c38c7d5566fa25c3b6eff5593fd1af90646cb19",
   "files": {
-    "GozeroYsrCore.exe": "22257dab3dbf550c32d7e11dfdc03d955dd0650d3f673a65d32869100a37d0bd",
+    "GozeroYsrCore.exe": "d531a01c01a8e991df4369d25c38c7d5566fa25c3b6eff5593fd1af90646cb19",
     "LICENSE-YSKAR.txt": "90c82e03b5724f71c16b6847eaad91e3f770474e1c85af57991682d46dbcd59a",
-    "NOTICE.txt": "bfbbae3ffbca6dca3e8ec7a38334a4de4d22ee89da31db7a8e0558f71090e750",
+    "NOTICE.txt": "9bc66e41f2fb4880eb983720ee46c558b7c1020a05d28b075ae85d229cc791c9",
     "selftest.json": "1d538e333ec3678cbadd2afb5bf18f965536da591aae7a2dc7a679a8a7664086",
-    "ysr.ptx": "80d5d7c7e831cf241826dfdf644d31dc4c0985fbde06a39161844cb3e2f796d7"
+    "ysr.ptx": "80d5d7c7e831cf241826dfdf644d31dc4c0985fbde06a39161844cb3e2f796d7",
+    "GozeroYsrCore.cs": "3e2d40a543c79af0c159952f2e48e8cb7a3f8b639929a5487027c0d71e1ce23c"
   },
   "source": "https://github.com/dabitlex/YSKAR/tree/a1e068ec6b4b529cc730406ae48d7f5bcb4ee9e3/node-core/gpu",
   "kernelFee": 0,
