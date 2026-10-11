@@ -1,3 +1,10 @@
+# 1.0.42 validation / 验证范围 — 2026-10-11
+
+- 193 automated tests passed, including known protocol/port pairs, custom and IPv6 endpoint preservation, strict hostname matching and unsupported-protocol rejection.
+- Real Electron smoke passed: PRL/QTC TCP and TLS round trips, ZCD saved URL changes, BNT TCP / Seine TCP-only selector, YSR HTTPS-only control, dual NOID manual protocol and automatic compatibility controls, four languages and light theme. UI screenshots inspected.
+- Verified official Kryptex connection-table ports through read-only pages https://pool.kryptex.com/prl and https://pool.kryptex.com/qtc on 2026-10-11. Custom endpoint TLS availability is not inferred from protocol selection.
+- No mining or live pool login was started. No mining kernel, hashrate or fee behavior changed. Backup endpoints retain their own protocol; explicit NOID protocol selection uses native mode until the user selects auto compatibility again.
+
 # 1.0.41 validation / 验证范围 — 2026-10-09
 
 - 190 automated tests passed: default/disabled pool identity, independent dual settings, XMRig supported metadata, loopback BNT login payload, exact GPU/CPU log filtering, and previous regressions.
@@ -24,5 +31,5 @@
 
 - Portable Windows package verified: all 304 manifest hashes and ZIP SHA256 passed; main window, floating monitor and clean exit passed without mining. Public source checkout retest: 181 passed, 1 optional archive test skipped, 0 failed after rebuilding generated helpers.
 
-- 1.0.41 portable package: all 310 manifest hashes and ZIP SHA256 verified; main window, floating monitor and clean exit passed without mining.
-- Public-source checkout verification on 2026-10-10: 189 passed, 1 optional local KRig archive check skipped, 0 failed. Pinned YSR files retain original CRLF bytes through -text attributes for hash integrity.
+- 1.0.42 portable package: all 312 manifest hashes and ZIP SHA256 verified; main window, floating monitor and clean exit passed without mining.
+- Public-source checkout verification on 2026-10-11: 192 passed, 1 optional pinned KRig archive check skipped, 0 failed.

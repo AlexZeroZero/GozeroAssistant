@@ -1,18 +1,24 @@
-# Gozero Assistant · Beta 1.02 (1.0.41)
+# Gozero Assistant · Beta 1.02 (1.0.42)
 
 **English** | [简体中文](README.zh-CN.md)
 
 A compact Windows GPU / CPU mining assistant with hardware monitoring, independent GPU + CPU tasks, pool account data, a rental marketplace and a floating desktop monitor.
 
-[Download for Windows](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.41-beta) · [Website](https://gozero.trade/) · [User guide](desktop/QUICKSTART.txt) · [Build guide](desktop/README.md)
+[Download for Windows](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.42-beta) · [Website](https://gozero.trade/) · [User guide](desktop/QUICKSTART.txt) · [Build guide](desktop/README.md)
 
 ## Download and upgrade
 
-Download `GozerAssistant-1.0.41-win-x64.zip`, verify the accompanying SHA256 checksum, extract the entire archive to a new folder and run `GozerAssistant.exe`. Exit the old app from its tray menu before upgrading. Existing local wallet/pool settings are preserved. Mining never starts automatically on app launch.
+Download `GozerAssistant-1.0.42-win-x64.zip`, verify the accompanying SHA256 checksum, extract the entire archive to a new folder and run `GozerAssistant.exe`. Exit the old app from its tray menu before upgrading. Existing local wallet/pool settings are preserved. Mining never starts automatically on app launch.
 
-The display version remains **Beta 1.02**; the internal update version is **1.0.41**.
+The display version remains **Beta 1.02**; the internal update version is **1.0.42**.
 
 ## What's new
+
+- **Primary pool protocol selector:** choose TCP or TLS/SSL for PRL, QTC, NOID, ZCD and BNT in single and GPU + CPU workbenches. Changes save automatically.
+- **Correct standard ports:** Kryptex PRL uses TCP 7048 / TLS 8048; QTC uses TCP 7049 / TLS 8049. Official NOID Suprnova nodes use 3337 / 3341. Known standard ports switch with the protocol.
+- **Custom endpoints:** custom ports are preserved; enter the pool's advertised TCP/TLS port. Backup endpoints retain their own addresses and protocols. Selecting TLS does not establish that a remote endpoint supports it.
+- **Dual NOID controls restored:** automatic compatibility, native and compatible TCP modes are selectable. Explicit protocol selection uses native mode; automatic compatibility can be selected again.
+- **Engine-specific options:** YSR displays its HTTPS-only API; Seine offers TCP only.
 
 - **Pool device reporting:** worker name and device model are sent by default. Turn reporting off in the workbench; GPU and CPU tasks have independent switches. Off uses the generic worker name `Gozer` and omits the model on the next start. Existing pool history is unchanged.
 - **Larger interface:** main/floating windows, controls and fonts enlarged by approximately 10%.
@@ -43,6 +49,10 @@ YSR and the Gozero BNT engine send dedicated model metadata. XMRig uses its supp
 YSR requires a CUDA 13-compatible driver; AMD/CPU YSR and Windows TSC mining are not enabled. ZCD needs at least 4 GiB available RAM. BNT reserves roughly 2 GiB + 128 MiB per thread plus system headroom; more threads do not always mean more hashrate.
 
 ## Current interface
+
+1.0.42 protocol selector (idle; no mining started).
+
+![TCP protocol selector](docs/screenshots/tcp-protocol-1.0.42.png)
 
 1.0.41 interface, idle. The log-filter image contains explicitly labeled UI-test messages; no mining was started.
 
@@ -80,7 +90,7 @@ These **1.0.38 screenshots show real read-only pool data for a configured public
 
 Gozero charges a disclosed **0.5% mining-time service fee**. This is not an exact per-coin payout deduction. Engine fees, pool fees and electricity costs are separate. Gozero BNT has 0% engine fee; original Seine has **2.5%** (1% on bntpool.com/subdomains). Original XMRig has 1%; the optional Gozero CPU build has 0% engine fee.
 
-190 automated tests and the 1.0.41 reporting, log filtering and enlarged-interface UI checks passed. The 1.0.38 read-only pool/API checks also passed. **Seine's launch inside the Assistant was blocked on the test host (Windows error 5 and a Tencent security prompt); its end-to-end in-app mining has not been accepted there.** No security settings were bypassed. BNT performance gains vary by device and thread count; no 3995WX or AVX-512 improvement is promised. See [validation scope](desktop/VALIDATION.md).
+193 automated tests and the 1.0.42 protocol-selection UI checks passed. The 1.0.38 read-only pool/API checks also passed. **Seine's launch inside the Assistant was blocked on the test host (Windows error 5 and a Tencent security prompt); its end-to-end in-app mining has not been accepted there.** No security settings were bypassed. BNT performance gains vary by device and thread count; no 3995WX or AVX-512 improvement is promised. See [validation scope](desktop/VALIDATION.md).
 
 ## Source and building
 

@@ -1009,5 +1009,15 @@ Gozero 全节点|Gozero full node|Gozeroフルノード|Полный узел Go
  catalog["设备上报"]=["Pool reporting", "機器情報の送信", "Данные для пула"];
  catalog["日志设备筛选"]=["Filter logs by device", "デバイス別ログ", "Фильтр журналов по устройству"];
  catalog["Worker / 设备"]=["Worker / Device", "ワーカー / 機器", "Воркер / Устройство"];
+ catalog["连接协议"]=["Connection protocol", "接続プロトコル", "Протокол подключения"];
+ catalog["TCP（非加密）"]=["TCP (unencrypted)", "TCP（暗号化なし）", "TCP (без шифрования)"];
+ catalog["TLS / SSL（加密）"]=["TLS / SSL (encrypted)", "TLS / SSL（暗号化）", "TLS / SSL (шифрование)"];
+ catalog["HTTPS 接口"]=["HTTPS API", "HTTPS API", "HTTPS API"];
+ catalog["YSR 使用 HTTPS 接口，无 Stratum TCP"]=["YSR uses HTTPS, not Stratum TCP", "YSR は HTTPS 接続を使用", "YSR использует HTTPS, без Stratum TCP"];
+ catalog["Seine 仅支持 TCP"]=["Seine supports TCP only", "Seine は TCP のみ対応", "Seine поддерживает только TCP"];
+ catalog["已知节点自动匹配端口；自定义端口请核对"]=["Known node ports switch automatically; check custom ports", "既知ノードのポートは自動変更。独自ポートは確認してください", "Порты известных пулов меняются автоматически; проверьте свои"];
+ catalog["NOID 连接模式"]=["NOID connection mode", "NOID 接続モード", "Режим подключения NOID"];
+ catalog["请先填写有效矿池地址"]=["Enter a valid pool address first", "有効なプールアドレスを入力してください", "Сначала введите действительный адрес пула"];
+ catalog["主矿池协议"]=["Primary pool protocol","メインプール接続","Протокол основного пула"];
  return Object.freeze(catalog);
 });

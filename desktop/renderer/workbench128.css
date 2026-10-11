@@ -67,3 +67,5 @@ body.light .large-pages-row .large-pages-enable:hover:not(:disabled){background:
 .pool-report-row{flex-wrap:wrap}.pool-report-row>label{width:auto!important;display:flex;align-items:center;gap:5px;color:var(--text)!important}.pool-report-row small{color:var(--muted);font-size:10px}.dual-fields input[type=checkbox]{width:16px;min-height:16px}
 .log-kind-filter{display:inline-flex;gap:3px;flex-shrink:0}.log-kind-filter button{height:19px;min-width:32px;padding:0 6px;font-size:10px}.log-kind-filter button.active{color:var(--purple);background:var(--soft);border-color:var(--purple)}
 #log-list .log-row label{width:85px;font-size:10px}.workbench-log-row{grid-template-columns:54px 82px minmax(0,1fr)}.workbench-log-row>label{width:82px}
+
+.pool-transport-row{display:flex;align-items:center;gap:10px;padding:5px 6px;flex-wrap:wrap}.pool-transport-row label{display:flex;align-items:center;gap:8px;flex-shrink:0}.pool-transport-row select{min-width:150px;max-width:220px}.pool-transport-row small{color:var(--muted);font-size:10px}.dual-fields [hidden]{display:none!important}

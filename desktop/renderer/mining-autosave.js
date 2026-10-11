@@ -32,6 +32,7 @@
  preset.onchange=()=>{previousPreset?.();if(preset.value!=='custom'){queue.set('pool',$('#pool').value.trim());queue.set('backups',backups())}};
  text('#pool-backups-save','完成');$('#pool-backups-save').onclick=()=>action(async()=>{await window.flushMiningSettings();$('#pool-dialog').close()});
  window.flushMiningSettings=async()=>{if(state?.config.workbenchMode==='dual')return;for(const n of [...edits])n.dispatchEvent(new Event('change'));await queue.flush()};
+ window.setMiningTransport=value=>{edits.delete($('#pool'));$('#pool').value=value;queue.set('pool',value);if(state.config.coin==='NOID'){queue.set('noidConnection','native');$('#noid-connection').value='native'}syncPoolPreset(value)};
  const start=$('#start');start.onclick=()=>action(async()=>{await window.flushMiningSettings();await saveMining();await api.start(false)},start);
  // Existing selectors persist their own settings. Flush the budget before them
  // so a response from an earlier edit cannot overwrite a later selection.
