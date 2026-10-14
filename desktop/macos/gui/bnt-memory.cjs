@@ -17,6 +17,6 @@ function memoryPlan(requested,allocated,info){
  // maxThreads is ADDITIONAL capacity, not the total including allocated scratch.
  // A zero additional budget alone must not evict a healthy existing worker.
  if(info.pressureLevel===1&&Number.isFinite(info.availableMemory)&&Number.isFinite(info.headroomBytes)&&info.availableMemory<info.headroomBytes)keep=Math.max(0,keep-1);
- return {keep,grow:keep===allocated&&allocated<limit&&info.maxThreads>0&&info.pressureLevel===1};
+ return {keep,grow:keep===allocated&&allocated<limit&&info.maxThreads>0&&(info.pressureLevel===1||info.pressureLevel===2&&allocated===0)};
 }
 module.exports={startThreads,runningThreads,threadLimit,memoryPlan};

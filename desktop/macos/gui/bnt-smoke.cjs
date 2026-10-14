@@ -8,6 +8,14 @@ async function run({win,state,dir,menubar}){
  win.webContents.on('console-message',(_e,level,message)=>{if(level===3)errors.push(message);});
  const wait=async(fn,seconds=60)=>{const until=Date.now()+seconds*1000;while(Date.now()<until){if(await fn())return;await sleep(250);}throw Error('BNT GUI timeout '+JSON.stringify(state().logs.slice(-8)));};
  const click=s=>js(`document.querySelector(${JSON.stringify(s)}).click()`);
+ const capture=async name=>{
+  // Refresh the compositor on remote/occluded desktops; retain actual DOM readings.
+  const dom=await js(`({version:document.querySelector('#app-version').textContent,accepted:document.querySelector('#accepted').textContent,rate:document.querySelector('#total-hash').textContent,runtime:document.querySelector('#runtime').textContent})`);
+  assert.equal(dom.version,state().version);
+  await fs.writeFile(path.join(out,name+'.json'),JSON.stringify(dom,null,2));
+  win.webContents.invalidate();await sleep(500);
+  await fs.writeFile(path.join(out,name+'.png'),(await win.webContents.capturePage()).toPNG());
+ };
  await wait(()=>state().ready);await click('[data-view="mining"]');
  for(const coin of ['PRL','QTC','NOID','BNT']){await click('[data-coin="'+coin+'"]');await wait(()=>state().config.coin===coin);assert.ok(await js(`document.querySelector('#kernel-name').textContent.length>5`));}
  const wallet=process.env.GOZERO_BNT_TEST_WALLET;assert.ok(wallet);
@@ -25,26 +33,30 @@ async function run({win,state,dir,menubar}){
      const untranslated=await js(`(()=>{const w=document.createTreeWalker(document.querySelector('#view-'+${JSON.stringify(view)}),NodeFilter.SHOW_TEXT);let n,a=[];while(n=w.nextNode())if(/[\\u4e00-\\u9fff]/.test(n.nodeValue))a.push(n.nodeValue);return a;})()`);
      assert.deepEqual(untranslated,[]);
     }
-    await fs.writeFile(path.join(out,'BNT-'+language+'-'+view+'.png'),(await win.webContents.capturePage()).toPNG());
+    await capture('BNT-'+language+'-'+view);
    }
   }
   await fs.writeFile(path.join(out,'visual-smoke.json'),JSON.stringify({passed:true,languages:['zh','en'],views:['mining','about'],minimumWidth:780}));
   return;
  }
+ const observations=[];const observe=()=>observations.push({at:Date.now(),threads:state().miner.session?.activeCpuThreads??0,rate:state().miner.rate.cpu,workState:state().miner.workState});
+ const observationTimer=setInterval(observe,1000);
  await click('#start');await wait(()=>state().miner.rate.cpu>0,90);assert.equal(state().miner.rate.gpu,0);
  const began=state().miner.session.startedAt;
  await js(`window.gozero.language('en')`);await wait(()=>state().config.language==='en');
  win.setSize(780,620);await sleep(500);
  assert.ok(await js(`document.querySelector('main').scrollWidth<=document.querySelector('main').clientWidth`));
- await fs.writeFile(path.join(out,'BNT-en.png'),(await win.webContents.capturePage()).toPNG());
+ await capture('BNT-en');
  await click('[data-window="close"]');await wait(()=>!win.isVisible());await sleep(12000);
  assert.equal(state().miner.session.startedAt,began);assert.equal(state().miner.status,'running');assert.match(menubar.tray.getTitle(),/H\/s/);
  menubar.menu.items[0].click();await wait(()=>win.isVisible());win.setSize(920,740);
  await js(`window.gozero.language('zh')`);await wait(()=>state().config.language==='zh');
  // Bound pool observation even if no share happens to meet the current target.
- for(let i=0;i<Number(process.env.GOZERO_BNT_OBSERVE_SECONDS||160)&&state().miner.totals.accepted===0;i++)await sleep(1000);
- const report={requestedThreads:state().config.cpuThreads,activeThreads:state().miner.session.activeCpuThreads,seconds:(Date.now()-began)/1000,rate:state().miner.rate,totals:state().miner.totals,points:state().miner.points,hiddenWindowContinued:true,rendererErrors:errors};
- await fs.writeFile(path.join(out,'BNT-live.png'),(await win.webContents.capturePage()).toPNG());
+ for(let i=0;i<Number(process.env.GOZERO_BNT_OBSERVE_SECONDS||160)&&(state().miner.totals.accepted===0||(Date.now()-began)/1000<Number(process.env.GOZERO_BNT_MIN_SECONDS||0));i++)await sleep(1000);
+ clearInterval(observationTimer);observe();
+ const report={observations,logs:state().logs,requestedThreads:state().config.cpuThreads,activeThreads:state().miner.session.activeCpuThreads,seconds:(Date.now()-began)/1000,rate:state().miner.rate,totals:state().miner.totals,points:state().miner.points,hiddenWindowContinued:true,rendererErrors:errors};
+ await wait(()=>js(`Number(document.querySelector('#accepted').textContent)===${report.totals.accepted}`));
+ await capture('BNT-live');
  await click('[data-stop]');await wait(()=>state().miner.status==='idle'&&!state().fee.active,30);
  const {execFile}=require('node:child_process'),exec=require('node:util').promisify(execFile);
  assert.equal((await exec('/usr/bin/pgrep',['-f','/gozero-blocknet-core worker']).catch(e=>{if(e.code===1)return{stdout:''};throw e})).stdout.trim(),'');

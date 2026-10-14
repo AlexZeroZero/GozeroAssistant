@@ -1054,3 +1054,44 @@ BNT ADAPTIVE CONTROLLER / MAC 0.1.12 PREPARED, NOT DEPLOYED - 2026-10-14
   real pool, Stop/hidden/Quit, inspect screenshots; record evidence and deliver
   actual app/DMG. Do not reuse0.1.11 rates as0.1.12 measurements. User asked for
   sustained utilization, not unsafe swap exhaustion or guaranteed100% CPU.
+
+
+MAC 0.1.12 M3 TESTED AND DEPLOYED - 2026-10-14
+- User restored LAN access and authorized tests. SSH resumed. Initial real run
+  exposed a warning-pressure startup deadlock (normal-only growth despite native
+  budget1). Fixed memoryPlan: warning permits one budgeted worker, never expands
+  beyond1; critical still releases all. New regression added;41 tests pass on
+  Windows AND Mac. Four full-size native official-reference vectors pass.
+-150.307s real GUI/pool run at pressure2:1worker,2accepted/0rejected, mean1.066H/s,
+  median1.000H/s. Worker CPU median99.9% of ONE core; system swap stayed0.
+- Subsequent68.418s run had normal pressure recovery: actual auto1->2->3->4,
+  then warning retired to1. Median2.200H/s, peak3.601H/s, last0.600H/s during
+  reduction;0submitted. Different memory conditions, NOT an A/B speedup claim.
+-85s real-native/real-pool recovery probe injected critical pressure into only
+  the controller, without OS stress.1->0 around10s, restarted around56s,
+  useful hashing resumed around60s. Production5s polls/30s cooldown retained;
+  clean shutdown. Do not claim actual system critical-pressure testing.
+- Hidden-window continuation, Stop/no orphan, active Quit, persisted profiles,
+  bilingual Mining/About at780px all pass. Corrected stale hardcoded version
+  labels to bind actual state version. Screenshot capture now verifies DOM and
+  invalidates remote/occluded compositor before capture; actual screenshots in
+  .local/bnt-adaptive/live2/BNT-live.png (the final reduction sample, not peak).
+- Desktop Gozero助手.app updated to0.1.12, opened idle. BNT threads set to Auto0;
+  all addresses/other settings preserved. Original app backed up under authorized
+  session/bnt-adaptive/live2/previous-Gozero-0.1.11.app. User reopened old app while
+  tests ran; deployment quit it and preserved latest fee ledger at install time.
+- Desktop DMG Gozero-Assistant-Mac-0.1.12-arm64.dmg: signature, hdiutil verify and
+  readonly-mounted19435 file hashes pass. Matching Windows copy under ignored
+  .local/bnt-adaptive/live2/. SHA256:
+  599561fb783d1c1c0744ddf0ea169ee282a2a8d2f3a96054a58070825d5968b6.
+  Native hash remains84620b1680ed4f858055568fe867cc3fd95a1920a23cf90108afa0903ef97dd1.
+- Source-updater ZIP at prior local link rebuilt with final fix/UI; hash now
+  fe818c793755df4701b16c0045ce10d58fa1cb96053f08e45ae7287ac5f845b0.
+  Pretest ZIP renamed *-pretest.zip; do not deliver that old prepared version.
+  Custom installer script was not separately executed; deployment used verified
+  private build/package/deploy scripts. Fresh app/DMG is the tested deliverable.
+- Evidence gui/evidence/mac-bnt-adaptive-0.1.12.json updated. Real test scripts,
+  source bundles and raw data remain .local/bnt-adaptive/live2 and equivalent
+  remote session path. Initial failed run retained under sibling live/.
+- GitHub/public0.1.9, Windows and original fee arithmetic unchanged. No long-term
+  all-core/maximum-speed claim; peak3.60H/s did not persist under memory warning.

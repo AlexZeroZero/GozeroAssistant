@@ -33,9 +33,10 @@ Poll every 5 seconds. Start one worker, then require three consecutive normal
 samples with additional capacity before adding each further worker. Existing
 workers continue hashing during new-worker full-memory selftests. The native
 budget is additional capacity, never a target total of already-running workers.
-Warning pressure retires extra workers; critical pressure releases all scratch
-and waits without disconnecting the pool. Recovery requires normal pressure,
-capacity, stable samples and a 30-second cooldown following pressure/allocation
+Warning pressure permits one worker if the native memory budget allows it,
+and retires extra workers; critical pressure releases all scratch
+and waits without disconnecting the pool. Recovery requires non-critical pressure,
+capacity, stable samples (warning permits only one worker) and a 30-second cooldown following pressure/allocation
 failures. Initial insufficient memory waits and retries instead of exiting.
 Three failed memory queries pause workers; later healthy samples allow recovery.
 Stop/Quit cancels pending startup and prevents any automatic resumption.
@@ -45,8 +46,15 @@ pressure does not permit growth. The estimate is a snapshot, not a reservation.
 The goal is sustained useful hashing, not guaranteed 100% CPU or maximum speed;
 memory bandwidth and temperature can limit scaling with additional workers.
 0.1.12 changes the controller, not the native hashing binary or consensus.
-Offline controller regression tests pass; new Mac pool/performance testing is
-pending because the development M3 was offline when this update was prepared.
+41 controller/config/protocol tests pass on Windows and Apple M3. A 150-second
+GUI pool run under warning pressure used one worker: 2 accepted / 0 rejected,
+1.066 H/s mean local interval rate. A subsequent 68-second run automatically
+grew 1 -> 2 -> 3 -> 4 workers, then retired to 1 on warning; median 2.200 H/s
+across that changing-concurrency run, with 0 submitted shares. These different
+load conditions are not an A/B performance comparison. Real native-worker
+release/recovery also passed with injected critical-pressure status (no OS
+stress), preserving the production polling and cooldown. Multi-day stability
+and sustained four-worker performance remain unverified.
 
 The Gozero BNT pool protocol/address validation is reused from Windows.
 Default endpoint is explicit unencrypted TCP bnt.pool.gozero.trade:14444;

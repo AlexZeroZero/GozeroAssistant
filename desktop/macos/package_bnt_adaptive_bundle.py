@@ -5,8 +5,8 @@ REPO = Path(__file__).resolve().parents[2]
 NAME = 'Gozero-BNT-Mac-0.1.12-update'
 README = """Gozero BNT Mac 0.1.12 自动内存更新包（需 Mac 0.1.11）
 
-这是源码及本机更新工具，不是已完成实机测试的 DMG。
-开发时 M3 不在线，因此新版尚未部署、没有新版实池算力数据。
+这是源码及本机更新工具，不是 DMG。
+新版现已通过 M3 实测：150 秒接受 2 份、拒绝 0 份；自动扩线程及恢复通过。
 底层 ARM64 哈希内核沿用之前验证过的 0.1.11 二进制，不改变 BNT 算法。
 
 在原来的 Apple Silicon Mac 上：
@@ -47,7 +47,7 @@ def build(output):
         (root / 'README.txt').write_text(README, encoding='utf-8')
         (root / 'Run-Update.command').write_text('#!/bin/bash\ncd -- "$(dirname -- "$0")" || exit 1\n/usr/bin/python3 install_bnt_adaptive.py\nresult=$?\nprintf "\\nExit: %s. Press Enter to close.\\n" "$result"\nread -r _\nexit "$result"\n', encoding='utf-8', newline='\n')
         files = {str(p.relative_to(root)).replace('\\', '/'): hashlib.sha256(p.read_bytes()).hexdigest() for p in root.rglob('*') if p.is_file()}
-        (root / 'UPDATE-MANIFEST.json').write_text(json.dumps({'version':'0.1.12', 'kind':'source-updater', 'macValidation':'pending', 'files':files}, indent=2), encoding='utf-8')
+        (root / 'UPDATE-MANIFEST.json').write_text(json.dumps({'version':'0.1.12', 'kind':'source-updater', 'macValidation':'M3 controller and GUI tested; updater script not separately executed', 'files':files}, indent=2), encoding='utf-8')
         with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as z:
             for p in sorted(root.rglob('*')):
                 if p.is_file():
@@ -56,7 +56,7 @@ def build(output):
                     info.external_attr = (0o100755 if p.name.endswith('.command') else 0o100644) << 16
                     info.compress_type = zipfile.ZIP_DEFLATED
                     z.writestr(info, p.read_bytes())
-    print(json.dumps({'bundle':str(output), 'bytes':output.stat().st_size, 'sha256':hashlib.sha256(output.read_bytes()).hexdigest(), 'macValidation':'pending'}, ensure_ascii=False))
+    print(json.dumps({'bundle':str(output), 'bytes':output.stat().st_size, 'sha256':hashlib.sha256(output.read_bytes()).hexdigest(), 'macValidation':'M3 controller and GUI tested; updater script not separately executed'}, ensure_ascii=False))
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(description=__doc__)

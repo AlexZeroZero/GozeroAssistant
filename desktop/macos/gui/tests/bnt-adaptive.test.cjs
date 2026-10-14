@@ -115,3 +115,9 @@ test('zero-worker state clears GUI work and fee telemetry even when a new job ar
 test('automatic mode also respects hardware CPU count',()=>fixture(async s=>{
  await wait(()=>s.count()===2);await delay(80);assert.equal(s.workers.length,2);
 },{capacity:8,logicalCPUs:2}));
+
+test('warning pressure can start and recover one budgeted worker without growing further',()=>fixture(async s=>{
+ await wait(()=>s.count()===1);await delay(60);assert.equal(s.workers.length,1);
+ s.pressure=4;await wait(()=>s.count()===0);s.pressure=2;
+ await wait(()=>s.count()===1);await delay(60);assert.equal(s.workers.length,2);
+},{capacity:4,pressure:2}));

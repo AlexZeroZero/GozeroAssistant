@@ -146,3 +146,11 @@ Auto mode grows/restores workers, critical pressure waits then recovers; explici
 Stop never resumes. Native hashing remains verified0.1.11, full2GiB per worker.
 See latest handoff/evidence. Desktop remains last-verified0.1.11, GitHub0.1.9;
 do not claim0.1.12 Mac performance, installer validation or deployment yet.
+
+Latest checkpoint supersedes prepared-only status: Mac0.1.12 is now M3-tested
+and deployed to Desktop with verified DMG, BNT Auto0 configured, opened idle.
+Warning-pressure startup fixed to permit one budgeted worker.41 tests pass on
+Windows/Mac;150s GUI accepted2/rejected0. Another run grew1->4 then reduced to1;
+peak3.60H/s is short-lived, not sustained. Real worker release/recovery tested
+with injected controller pressure only. See latest handoff/evidence. GitHub
+remains0.1.9; Windows and fee arithmetic unchanged.

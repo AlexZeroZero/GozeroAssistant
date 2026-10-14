@@ -1,39 +1,147 @@
 {
   "version": "0.1.12",
-  "status": "prepared-not-deployed",
   "date": "2026-10-14",
-  "nativeCore": "Reuses verified 0.1.11 binary; consensus and hashing implementation unchanged",
-  "changes": [
-    "BNT automatic memory/CPU concurrency (0=auto, maximum8 workers)",
-    "5s memory polling;3 healthy samples before growth",
-    "warning reduces, critical releases, normal recovery resumes",
-    "30s cooldown; repeated query failures suspend workers",
-    "Stop cancels ready/selftest/hash; no resume after explicit Stop",
-    "zero-worker telemetry clears effective work; original fee policy preserved"
-  ],
-  "validation": {
-    "platform": "Windows",
-    "guiControllerTestsPassed": 40,
-    "realMacTests": false,
-    "newLivePoolTest": false,
-    "newHashrateMeasured": false,
-    "installerPythonSyntax": true,
-    "sourceBundleIntegrity": true,
-    "bundleFilesVerified": 59,
-    "executableCommandUsesLF": true,
-    "profileMigrationPreservesOtherFields": true,
-    "tamperAndTraversalRejected": true
-  },
-  "delivery": {
-    "artifact": "Gozero-BNT-Mac-0.1.12-update.zip",
-    "bytes": 151844,
-    "sha256": "cb8505449efba54190084a8b8a01edfde9bb3244754e37dec91616534235d800",
-    "kind": "source and on-Mac updater, not a built DMG"
+  "status": "M3-tested-and-deployed",
+  "hardware": "Apple M3, 16 GiB, 8 logical CPUs",
+  "nativeCoreSha256": "84620b1680ed4f858055568fe867cc3fd95a1920a23cf90108afa0903ef97dd1",
+  "nativeCoreReused": true,
+  "consensusMemoryKiBPerWorker": 2097152,
+  "tests": {
+    "Windows": 41,
+    "Mac": 41,
+    "fullNativeVerification": "4 full-size official-reference vectors passed, unchanged native binary",
+    "initialFailure": "Warning-pressure startup remained idle despite one-worker native budget; fixed to permit one worker under warning",
+    "guiWarningPressure150s": {
+      "seconds": 150.307,
+      "requestedThreads": 0,
+      "observedThreads": [
+        0,
+        1
+      ],
+      "activeThreadsAtEnd": 1,
+      "totals": {
+        "accepted": 2,
+        "rejected": 0,
+        "submitted": 2
+      },
+      "localRateMean": 1.0662495356485282,
+      "localRateMedian": 0.9996001599360256,
+      "localRateMin": 0.8004802881729037,
+      "localRateMax": 1.1997600479904018,
+      "stopClean": true,
+      "activeQuit": true,
+      "hiddenWindowContinued": true,
+      "profileReload": true,
+      "rendererErrors": []
+    },
+    "guiNaturalGrowth68s": {
+      "seconds": 68.418,
+      "requestedThreads": 0,
+      "observedThreads": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "activeThreadsAtEnd": 1,
+      "totals": {
+        "accepted": 0,
+        "rejected": 0,
+        "submitted": 0
+      },
+      "localRateMean": 2.045861707657013,
+      "localRateMedian": 2.1995600879824035,
+      "localRateMin": 0.5998800239952009,
+      "localRateMax": 3.600720144028806,
+      "stopClean": true,
+      "activeQuit": true,
+      "hiddenWindowContinued": true,
+      "profileReload": true,
+      "rendererErrors": []
+    },
+    "recovery": {
+      "realNativeWorkersAndPool": true,
+      "criticalPressureInjectedIntoController": true,
+      "actualOSMemoryNotStressed": true,
+      "productionPollingAndCooldown": true,
+      "threadEvents": [
+        {
+          "seconds": 0.015,
+          "active": 0
+        },
+        {
+          "seconds": 1.034,
+          "active": 1
+        },
+        {
+          "seconds": 10.02,
+          "active": 0
+        },
+        {
+          "seconds": 24.953,
+          "active": 0
+        },
+        {
+          "seconds": 44.93,
+          "active": 0
+        },
+        {
+          "seconds": 56.115,
+          "active": 1
+        }
+      ],
+      "resumed": true,
+      "cleanExit": true
+    },
+    "visual": {
+      "languages": [
+        "zh",
+        "en"
+      ],
+      "views": [
+        "mining",
+        "about"
+      ],
+      "width": 780,
+      "passed": true,
+      "runtimeVersionLabel": "Mac 0.1.12",
+      "compositorRefreshBeforeScreenshots": true
+    },
+    "systemSampling150s": {
+      "pressureLevel": 2,
+      "swapUsedMiB": 0,
+      "workerCPUMedianPercentOfOneCore": 99.9
+    }
   },
   "deployment": {
-    "mac": "pending; SSH connection timed out; user is away",
-    "macDesktopLastVerifiedVersion": "0.1.11",
-    "github": "unchanged; public Mac remains0.1.9",
-    "windowsProject": "untouched"
-  }
+    "app": "/Users/apple/Desktop/Gozero助手.app",
+    "installer": "/Users/apple/Desktop/Gozero-Assistant-Mac-0.1.12-arm64.dmg",
+    "version": "0.1.12",
+    "previousAppBackup": "/Users/apple/Gozero-Mac-Test/run-20261006-t31JTC/bnt-adaptive/live2/previous-Gozero-0.1.11.app",
+    "walletsAndOtherProfilesPreserved": true,
+    "bntThreadsSetToAuto": true,
+    "feeLedgerUnchanged": true,
+    "openedIdle": true,
+    "manifestFilesVerified": 19435,
+    "dmgSha256": "599561fb783d1c1c0744ddf0ea169ee282a2a8d2f3a96054a58070825d5968b6"
+  },
+  "artifacts": {
+    "dmgBytes": 574446658,
+    "dmgSha256": "599561fb783d1c1c0744ddf0ea169ee282a2a8d2f3a96054a58070825d5968b6",
+    "localCopyVerified": true,
+    "mountedManifestFiles": 19435,
+    "sourceUpdaterSha256": "fe818c793755df4701b16c0045ce10d58fa1cb96053f08e45ae7287ac5f845b0",
+    "sourceUpdaterRequires": "previous Desktop0.1.11 app; custom source updater itself not separately executed",
+    "screenshot": ".local/bnt-adaptive/live2/BNT-live.png"
+  },
+  "limitations": [
+    "Single M3 only; short local rate samples are not long-term pool settlement rate",
+    "Growth run peaked at3.60H/s but subsequently reduced to1 worker under warning pressure; not a sustained performance claim",
+    "The two runs had different memory pressure and are not an A/B speed comparison",
+    "CPU-only BNT; no Metal backend",
+    "Ad-hoc signed, not Apple notarized"
+  ],
+  "github": "unchanged; public Mac remains0.1.9",
+  "windowsProject": "untouched"
 }
