@@ -1009,3 +1009,48 @@ BNT MEMORY STARTUP FIX / MAC 0.1.11 - 2026-10-09
   .local/bnt-memory and the corresponding authorized remote session folder.
 - GitHub release and Windows unchanged. No source mining algorithm change,
   no Metal BNT backend; original0.5% fee behavior remains.
+
+
+BNT ADAPTIVE CONTROLLER / MAC 0.1.12 PREPARED, NOT DEPLOYED - 2026-10-14
+- User requested memory-adaptive continuous BNT utilization. M3 SSH timed out;
+  user is away and cannot wake/connect it. No remote changes, new native build,
+  real Mac tests, DMG build, deployment or GitHub publication were performed.
+  Desktop last verified0.1.11; public Mac release remains0.1.9.
+- New BNT profiles default cpuThreads0=Auto. Manual1..8 stays an upper limit.
+  Auto caps at8 and logical CPUs. Native maxThreads is ADDITIONAL capacity;
+  do not subtract currently active workers again. Full2GiB scratch unchanged.
+- Poll5s; grow one worker after3 consecutive normal/capacity samples. New-worker
+  allocation/selftest does not block pressure polling or existing hashing.
+  Warning retains1; critical releases all and waits with pool connected.
+  Normal recovery restarts after stable samples and30s cooldown. Initial low
+  memory waits instead of exiting. Three query failures release workers.
+  Unknown pressure prevents growth. Native allocation checks remain unchanged.
+- Explicit Stop/Quit cancels startup/hash/resume, no auto restart afterwards.
+  Bounded worker/promise sets avoid lifetime accumulation. Nonces remain shared
+  and unique, obsolete-job results suppressed. Zero-worker telemetry clears
+  fee-accruing work immediately. Original0.5% fee arithmetic unchanged.
+-40 Windows JS tests pass, including live controller dependency-injected growth,
+  pressure/recovery, allocation failure, hysteresis, Stop in ready/selftest/hash,
+  stale-job filtering, query failure/cancellation, and GUI telemetry clearing.
+  Python syntax,59 bundle file hashes, LF executable command, settings migration,
+  tamper/path checks pass. These are OFFLINE tests, not Mac hashrate evidence.
+- Source version/package helpers prepared for0.1.12. Native0.1.11 core reused
+  unchanged; no BNT Metal port or speedup claim. Full source details in
+  gui/evidence/mac-bnt-adaptive-0.1.12.json.
+- Exported .local/bnt-adaptive/Gozero-BNT-Mac-0.1.12-update.zip (source updater,
+  NOT a finished app/DMG), SHA256:
+  cb8505449efba54190084a8b8a01edfde9bb3244754e37dec91616534235d800.
+  Build via desktop/macos/package_bnt_adaptive_bundle.py --output NEW_PATH.
+- Run-Update.command invokes install_bnt_adaptive.py on the original Mac. It
+  requires Desktop0.1.11 and exact verified core SHA; quits app gracefully,
+  tests using bundled Node, conditionally verifies full native vectors if memory
+  allows, packages/re-signs, tests bilingual UI on isolated profile, generates
+  and mounts/verifies DMG, backs up old app/settings, installs and sets ONLY BNT
+  thread setting to Auto. Existing wallets/other profiles/fee bytes preserved.
+  Opens idle; no unattended mining. Failures before replacement leave old app;
+  installation-stage failures restore backup. This workflow is NOT yet run on Mac.
+- Next session: reconnect authorized M3; inspect current app/miner state first.
+  Use source updater or existing remote build workflow; test dynamic growth with
+  real pool, Stop/hidden/Quit, inspect screenshots; record evidence and deliver
+  actual app/DMG. Do not reuse0.1.11 rates as0.1.12 measurements. User asked for
+  sustained utilization, not unsafe swap exhaustion or guaranteed100% CPU.

@@ -14,7 +14,7 @@ class Miner extends EventEmitter{
   const epoch=++this.epoch;this.status='starting';this.points=[];this.rate={total:null,cpu:null,gpu:null};this.totals={accepted:0,rejected:0,submitted:0};this.session={startedAt:Date.now(),benchmark,coin:cfg.coin||'NOID',cpuThreads:cfg.cpuThreads};this.update();
   this.workState='waiting';this.lastRateLog=0;
   const external=['QTC','PRL','BNT'].includes(cfg.coin);
-  this.coreSample=null;this.coreSummary=null;this.powerPaused=false;this.lastSampleAt=Date.now();
+  this.coreSample=null;this.coreSummary=null;this.powerPaused=false;this.memoryPaused=false;this.lastSampleAt=Date.now();
   let input;
   try{
    if(external&&benchmark)throw Error('离线测速目前仅支持 NOID');

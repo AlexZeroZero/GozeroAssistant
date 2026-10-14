@@ -14,7 +14,7 @@ function validate(input,profileOnly=false){
  if(!['tls','tcp'].includes(c.transport)||c.coin!=='BNT'&&c.pool!=='suprnova'&&c.transport!=='tls')throw Error('Innovlab 必须使用 TLS；TCP 兼容仅限 Suprnova');
  if(typeof c.host!=='string'||c.host.length>253||!/^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/.test(c.host))throw Error('矿池主机名无效，不要填写协议或路径');
  if(!Number.isInteger(c.port)||c.port<1||c.port>65535)throw Error('矿池端口无效');
- if(!(c.coin==='BNT'?[1,2,3,4,5,6,7,8]:[0,2,4,8]).includes(c.cpuThreads))throw Error('CPU 线程数无效');
+ if(!(c.coin==='BNT'?[0,1,2,3,4,5,6,7,8]:[0,2,4,8]).includes(c.cpuThreads))throw Error('CPU 线程数无效');
  if(!COINS[c.coin].cpu)c.cpuThreads=0;
  if(![0,60,180,300,600].includes(c.seconds))throw Error('运行时长配置无效');
  // Migrate prior test profiles to continuous mining without changing other preferences.
@@ -29,7 +29,7 @@ const PROFILE_KEYS=['wallet','worker','pool','host','port','transport','cpuThrea
 function profile(c){return Object.fromEntries(PROFILE_KEYS.map(k=>[k,c[k]]));}
 function selectCoin(input,coin){
  const c=validate(input);if(!Object.hasOwn(COINS,coin))throw Error('币种不支持');
- const preset=COINS[coin];return validate({...c,...(c.profiles[coin]||{...profile(DEFAULT),pool:preset.pool,host:preset.host,port:preset.port,transport:preset.transport||'tls',cpuThreads:preset.cpuOnly?1:0}),coin});
+ const preset=COINS[coin];return validate({...c,...(c.profiles[coin]||{...profile(DEFAULT),pool:preset.pool,host:preset.host,port:preset.port,transport:preset.transport||'tls',cpuThreads:0}),coin});
 }
 function miningConfig(c){c=validate(c);if(!c.wallet)throw Error('请先填写自己的收款地址');return {...c,selected:[c.coin==='BNT'?CPU_ID:GPU_ID],temperature:95,wallets:{[c.coin]:c.wallet},pools:{[c.coin]:(c.transport==='tcp'?'stratum+tcp://':'stratum+ssl://')+c.host+':'+c.port}};}
 class Store{

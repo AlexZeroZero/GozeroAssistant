@@ -139,3 +139,10 @@ critical pressure. See handoff/evidence. Actual M3 GUI8requested->2active, one
 accepted/zero rejects in22s, ~2.20H/s short sample. Desktop app/DMG updated idle,
 settings/address/fees preserved; GitHub remains0.1.9. No automatic increase or
 restart after pressure recovery; full2GiB consensus scratch remains required.
+
+Latest source checkpoint:0.1.12 BNT adaptive controller is PREPARED, NOT DEPLOYED.
+M3 SSH unavailable; user away.40 Windows tests pass; source updater bundle ready.
+Auto mode grows/restores workers, critical pressure waits then recovers; explicit
+Stop never resumes. Native hashing remains verified0.1.11, full2GiB per worker.
+See latest handoff/evidence. Desktop remains last-verified0.1.11, GitHub0.1.9;
+do not claim0.1.12 Mac performance, installer validation or deployment yet.

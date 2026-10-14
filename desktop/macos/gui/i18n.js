@@ -3,6 +3,13 @@
 'use strict';
 const entries=`
 内存|Memory
+自动 · 按可用内存增加或恢复线程|Auto · grow or resume workers as memory permits
+每线程 2 GiB；内存充足自动增线程，压力解除自动恢复|2 GiB per thread; grows with available memory and resumes after pressure clears
+等待内存恢复，自动继续|Waiting for memory; resumes automatically
+已按可用内存调整线程|Threads adjusted to available memory
+BNT 内存分配暂不可用，稍后自动重试|BNT allocation unavailable; retrying automatically
+BNT 内存状态读取失败，暂停增加线程|BNT memory query failed; worker growth suspended
+自动|Auto
 已按系统内存自动减少线程|Thread count reduced for system memory
 系统内存检查通过|System memory check passed
 系统内存压力严重，已停止 BNT 并释放计算内存|Critical memory pressure: BNT stopped and scratch memory released

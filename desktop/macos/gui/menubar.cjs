@@ -9,7 +9,7 @@ function model(s){
  if(s.starting||m.status==='starting')title='Gozero 启动中';
  else if(m.status==='stopping')title='Gozero 停止中';
  else if(s.fee?.switching)title='Gozero 切换中';
- else if(m.status==='running')title=m.session?.benchmark?'Gozero 测速中':({'power-paused':'电池供电，暂停计算',paused:'等待矿池',reconnecting:'重连中',waiting:'等待计算'}[m.workState]||rate(m.rate?.total));
+ else if(m.status==='running')title=m.session?.benchmark?'Gozero 测速中':({'memory-wait':'等待内存恢复，自动继续','power-paused':'电池供电，暂停计算',paused:'等待矿池',reconnecting:'重连中',waiting:'等待计算'}[m.workState]||rate(m.rate?.total));
  const summary=busy&&m.status==='running'&&!m.session?.benchmark&&m.workState==='mining'
   ?s.config?.coin==='BNT'?'CPU '+rate(m.rate?.cpu):'GPU '+rate(m.rate?.gpu)+(s.config?.coin&&s.config.coin!=='NOID'?'':' · CPU '+rate(m.rate?.cpu)):title;
  const language=s.config?.language||'zh';return {title:t(title,language),summary:t(summary,language),language,busy:!!busy,pool:s.config?(presetFor(s.config)?.label||s.config.host+':'+s.config.port):'读取配置',shares:'接受 '+(m.totals?.accepted||0)+' / 拒绝 '+(m.totals?.rejected||0)};

@@ -1,0 +1,39 @@
+{
+  "version": "0.1.12",
+  "status": "prepared-not-deployed",
+  "date": "2026-10-14",
+  "nativeCore": "Reuses verified 0.1.11 binary; consensus and hashing implementation unchanged",
+  "changes": [
+    "BNT automatic memory/CPU concurrency (0=auto, maximum8 workers)",
+    "5s memory polling;3 healthy samples before growth",
+    "warning reduces, critical releases, normal recovery resumes",
+    "30s cooldown; repeated query failures suspend workers",
+    "Stop cancels ready/selftest/hash; no resume after explicit Stop",
+    "zero-worker telemetry clears effective work; original fee policy preserved"
+  ],
+  "validation": {
+    "platform": "Windows",
+    "guiControllerTestsPassed": 40,
+    "realMacTests": false,
+    "newLivePoolTest": false,
+    "newHashrateMeasured": false,
+    "installerPythonSyntax": true,
+    "sourceBundleIntegrity": true,
+    "bundleFilesVerified": 59,
+    "executableCommandUsesLF": true,
+    "profileMigrationPreservesOtherFields": true,
+    "tamperAndTraversalRejected": true
+  },
+  "delivery": {
+    "artifact": "Gozero-BNT-Mac-0.1.12-update.zip",
+    "bytes": 151844,
+    "sha256": "cb8505449efba54190084a8b8a01edfde9bb3244754e37dec91616534235d800",
+    "kind": "source and on-Mac updater, not a built DMG"
+  },
+  "deployment": {
+    "mac": "pending; SSH connection timed out; user is away",
+    "macDesktopLastVerifiedVersion": "0.1.11",
+    "github": "unchanged; public Mac remains0.1.9",
+    "windowsProject": "untouched"
+  }
+}

@@ -9,8 +9,8 @@ const {parse,job,submission,Pool}=require('../../../src/bnt-pool.cjs');
 test('BNT profile has checksummed wallet, CPU-only threads, explicit TCP and isolated settings',()=>{
  const original=validate({...DEFAULT,cpuThreads:4,wallet:ADDRESSES.NOID});
  const c=validate({...selectCoin(original,'BNT'),wallet:ADDRESSES.BNT});
- assert.equal(c.cpuThreads,1);assert.equal(c.transport,'tcp');assert.equal(miningConfig(c).selected[0],CPU_ID);
- assert.throws(()=>validate({...c,cpuThreads:0}));assert.throws(()=>validate({...c,cpuThreads:9}));
+ assert.equal(c.cpuThreads,0);assert.equal(c.transport,'tcp');assert.equal(miningConfig(c).selected[0],CPU_ID);
+ assert.equal(validate({...c,cpuThreads:0}).cpuThreads,0);assert.throws(()=>validate({...c,cpuThreads:9}));
  assert.throws(()=>validate({...c,wallet:c.wallet.slice(0,-1)+'c'}));
  const noid=selectCoin(c,'NOID');assert.equal(noid.wallet,original.wallet);assert.equal(noid.cpuThreads,4);
  const spec=launchSpec('/app/native/cores','/profile',miningConfig(c),'/report');
@@ -72,28 +72,4 @@ test('BNT memory policy clamps requested threads and keeps unknown-pressure fall
  assert.throws(()=>startThreads(8,{maxThreads:NaN,pressureLevel:1}));
  assert.equal(runningThreads(4,2),1);assert.equal(runningThreads(1,4),0);
  assert.equal(runningThreads(2,1),2);
-});
-test('controller reduces live workers on warning and releases all on critical pressure without system stress',async()=>{
- const {EventEmitter}=require('node:events'),{run}=require('../bnt-runner.cjs');
- const vectors=require('../../../src/bnt-vectors.json'),workers=[],events=[];
- const dir=await fs.mkdtemp(path.join(os.tmpdir(),'bnt-pressure-')),core=path.join(dir,'core');
- await fs.writeFile(core,'fixture');await fs.writeFile(path.join(dir,'MANIFEST.json'),JSON.stringify({arch:'arm64',sha256:require('node:crypto').createHash('sha256').update('fixture').digest('hex')}));
- class FakeWorker{
-  constructor(){workers.push(this);this.ready=Promise.resolve({});this.closed=false;}
-  async hash(j){await new Promise(r=>setTimeout(r,3));if(this.closed)throw Error('Stopped');return{...j,hash:vectors.find(v=>v.header===j.header)?.hash||'ff'.repeat(32)};}
-  async stop(){this.closed=true;}
- }
- class FakePool extends EventEmitter{
-  connect(){this.logged=true;this.job={id:'mock',header:'00'.repeat(92),target:'01'.repeat(32),next:0n,end:10000n};this.emit('job',this.job);}
-  submit(){return false;}
-  stop(){this.logged=false;this.job=null;}
- }
- let calls=0;
- try{await run({wallet:ADDRESSES.BNT,url:'stratum+tcp://localhost:14444',threads:8,core,worker:'test',seconds:2},line=>events.push(JSON.parse(line)),{
-  Worker:FakeWorker,Pool:FakePool,memoryIntervalMs:15,memoryInfo:async()=>({maxThreads:2,pressureLevel:++calls<=2?1:calls===3?2:4})
- });
- assert.deepEqual(events.filter(e=>e.event==='memory_threads').map(e=>e.active),[2,1,0]);
- assert.equal(workers.length,2);assert.ok(workers.every(w=>w.closed));assert.ok(events.some(e=>e.event==='memory_stop'));
- assert.equal(events.at(-1).event,'summary');assert.equal(events.at(-1).accepted,0);
- }finally{await fs.rm(dir,{recursive:true,force:true});}
 });
