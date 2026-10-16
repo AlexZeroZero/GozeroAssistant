@@ -1,0 +1,11 @@
+{
+  "pool": "stratum+tcp://mds.gozero.trade:13333",
+  "wallet": "REPLACE_WITH_YOUR_REUSABLE_MSS_ADDRESS",
+  "mss_confirmed": false,
+  "gpus": ["all"],
+  "worker_prefix": "rig01",
+  "duty": 0.9,
+  "temp_stop": 85,
+  "temp_resume": 70,
+  "profile": "auto"
+}

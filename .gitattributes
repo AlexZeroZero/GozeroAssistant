@@ -8,3 +8,7 @@
 /desktop/experiments/yskar/upstream/** -text
 *.exe binary
 *.wasm binary
+
+# Linux entry points and generated CUDA source must retain release bytes.
+/desktop/experiments/midstate/linux/** text eol=lf
+/desktop/experiments/midstate/cuda/** -text

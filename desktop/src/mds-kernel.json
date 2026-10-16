@@ -1,7 +1,7 @@
 {
-  "id": "gozero-mds-cuda-0.1.11",
+  "id": "gozero-mds-cuda-0.1.12-rc.2",
   "name": "Gozero MDS CUDA",
-  "version": "0.1.11",
+  "version": "0.1.12-rc.2",
   "exe": "GozeroMdsCore.exe",
   "bundled": true,
   "bundleDirectory": "mds",
@@ -9,23 +9,16 @@
   "adapter": "mds-cuda",
   "kernelFee": 0,
   "source": "https://github.com/ciphernom/midstate",
-  "exeSha256": "20e28196c354053ddd0daace4e22c899e571b98b2250e40a8c1e962169cecadb",
+  "exeSha256": "6a07031eee711eef2ed0a50783861026f290f42152ae16abe37e094241f0c530",
   "files": {
-    "budget-tests.log": "514a9af01a16e3adfdceedcf2854b59b55f06d22a49f80682f79f6e48563cf68",
-    "COMPARE-CUDA.cmd": "f453b16cff2f7b26c25584ae4f56e3975182ba04d38538cbf559d91a0617116c",
-    "COMPARE-CUDA.ps1": "f5f8f5524aa338dada151f4b64f829c1f70f1e460351a891aba63c1aae9edf27",
-    "cpu-protocol-tests.log": "e4420b9448b6881ed869d7531a7bd6ef34cee7c13c6068986a24aed20fded094",
-    "CUDA-BUILD.txt": "a7e180e6b91e2cff3db67c7f2c324d5f6432a6c65b5d3bc4e12d292ecca3e776",
-    "cuda-tests-final.log": "581909caee0cb324b54476c380723c669bc1a714bdcac062294a6d3d064468f7",
-    "GozeroMdsCore-0.1.11-source.zip": "e7bc5e42578efe1e236e92076b10ba7094487c6cd9ea952e6622811a507aacfd",
-    "GozeroMdsCore.exe": "20e28196c354053ddd0daace4e22c899e571b98b2250e40a8c1e962169cecadb",
+    "CUDA-BUILD.txt": "aaef94fed0ae39761c9e1dc07f09d6427a9065b10af95b391435f900834c5598",
+    "GozeroMdsCore-0.1.12-rc.2-source.zip": "58cb9508abf99d51a43fdedca80d0daf98825b0fe564d26cad5fbce243c01d7c",
+    "GozeroMdsCore.exe": "6a07031eee711eef2ed0a50783861026f290f42152ae16abe37e094241f0c530",
     "LICENSE": "230184f60bae2feaf244f10a8bac053c8ff33a183bcc365b4d8b876d2b7f4809",
-    "NOTICE.txt": "ecd0ea72dac7b426f55146c7fdf3e894801b90c9dfa34a80c3af71a33142b1f9",
-    "PERFORMANCE.txt": "256d1e6615673cb8797fd7ec78bdadc59a13951002db3be7b44e2faf7efb2fa8",
-    "PROVENANCE.json": "c620be8541c7e99652b5de9831b33f8764c0eded211a4041ae27f363cfaf4755",
-    "RESULT.json": "866494eeefd45815e8a31c4aeb397690238443dc2d11c5cd70458f00bfd5b58e",
-    "TEST-CUDA.cmd": "bf382ce5c8be21736ed579021e263d51bd1300d9dccd65f3feb7618cf7d88269",
-    "TEST-CUDA.ps1": "b6814fcaabf36cbe426eaccd0003c250fa01e857194c45be2b524c7ae5d7d863",
-    "\u4f7f\u7528\u8bf4\u660e.txt": "9c348fb62bcc56f5a4a886e04f18dd1e9e495a10618f19f82a5a2f221734d231"
+    "NOTICE.txt": "6fcab4c5ed112496427fba6df671f46b1d4b74d92a64996749ba9c5e4c0f1e55",
+    "POOL.txt": "5548ffcae5b49ee291e2ce5054e6f6d02902ecb7638631aefd5eefd12719f115",
+    "PROVENANCE.json": "93432cb8f625f6a78b4bcd1da74d414c3e690b72017219e8f7ae288c405d213e",
+    "README-preview.txt": "d8417d3d9f3ed8c8e591f7e57fefca96900f1170deb6816cfcde58978494d8a6",
+    "VALIDATION.txt": "e20cc0023f9d64cb2c01798bedd0f757cca01f2ef62c6a8a553faf8ab172688e"
   }
 }

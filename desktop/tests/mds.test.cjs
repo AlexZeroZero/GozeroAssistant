@@ -6,12 +6,13 @@ const wallet='9bd7f16ae5827118e93239e75a98a6ec564c9247f94b5c5de63d1be4d083af03c1
 const gpu=()=>({id:'a'.repeat(20),name:'NVIDIA GeForce RTX 3090',vendor:'NVIDIA',sensors:{uuid:'GPU-12345678-1234-1234-1234-123456789abc',temp:55,at:Date.now(),load:100}});
 const config=()=>validate({coin:'MDS',wallets:{MDS:wallet},selected:['a'.repeat(20)],mdsMssConfirmed:true,performance:100});
 test('MDS resolves the tested CUDA core and preserves older coin profiles',()=>{
- const c=config();assert.equal(c.pools.MDS,mds.DEFAULT_POOL);assert.equal(resolve(c).version,'0.1.11');
- assert.equal(resolve(c).exeSha256,'20e28196c354053ddd0daace4e22c899e571b98b2250e40a8c1e962169cecadb');
+ const c=config();assert.equal(c.pools.MDS,mds.DEFAULT_POOL);assert.equal(resolve(c).version,'0.1.12-rc.2');
+ assert.equal(resolve(c).exeSha256,'6a07031eee711eef2ed0a50783861026f290f42152ae16abe37e094241f0c530');
  assert.equal(validate({coin:'YSR',performance:81}).performance,81);
  const upgraded=validate({...c,kernels:{MDS:'gozero-mds-cuda-0.1.9'}});
  assert.equal(upgraded.kernels.MDS,'auto');assert.equal(upgraded.wallets.MDS,wallet);assert.equal(upgraded.performance,100);
  assert.equal(validate({...c,kernels:{MDS:'gozero-mds-cuda-0.1.10'}}).kernels.MDS,'auto');
+ assert.equal(validate({...c,kernels:{MDS:'gozero-mds-cuda-0.1.11'}}).kernels.MDS,'auto');
  const dual=validate({...c,workbenchMode:'dual',taskProfiles:{gpu:{coin:'MDS',mdsMssConfirmed:true},cpu:{coin:'ZCD'}}});
  assert.equal(dual.taskProfiles.gpu.coin,'MDS');assert.equal(dual.taskProfiles.gpu.mdsMssConfirmed,true);
  assert.throws(()=>validate({...c,pools:{MDS:'stratum+ssl://mds.gozero.trade:13333'}}),/TCP|tcp/);
@@ -20,7 +21,10 @@ test('MDS resolves the tested CUDA core and preserves older coin profiles',()=>{
 test('MDS launches CUDA ordinal zero under UUID isolation, keeps budget and requires MSS confirmation',()=>{
  const c=config(),g=gpu(),a=argsFor(c,g,'ignored.log');const value=k=>a[a.indexOf(k)+1];
  assert.equal(value('--backend'),'cuda');assert.equal(value('--gpu-index'),'0');assert.equal(value('--duty'),'0.900');
- assert.equal(value('--payout-address'),wallet);assert.equal(value('--cuda-batch'),'0');assert.equal(value('--cuda-block'),'0');assert.equal(value('--cuda-dispatch'),'0');assert(a.includes('--mss-confirmed'));
+ assert.equal(value('--payout-address'),wallet);assert.equal(value('--cuda-batch'),'20992');assert.equal(value('--cuda-block'),'256');assert.equal(value('--cuda-dispatch'),'4000');assert.equal(value('--cuda-unroll'),'2');assert(a.includes('--mss-confirmed'));
+ for(const name of ['NVIDIA GeForce RTX 4090','NVIDIA GeForce RTX 3090 Ti','NVIDIA GeForce RTX 5060 Laptop GPU']){
+  const other=mds.args(c,{...g,name});for(const flag of ['--cuda-batch','--cuda-block','--cuda-dispatch','--cuda-unroll'])assert.equal(other[other.indexOf(flag)+1],'0');
+ }
  assert.match(value('--worker'),/3090/);assert(value('--worker').length<=32);
  assert.throws(()=>argsFor({...c,mdsMssConfirmed:false},g,''),/MSS|generate-mss/);
  assert.throws(()=>argsFor(c,{...g,vendor:'AMD'},''),/NVIDIA/);

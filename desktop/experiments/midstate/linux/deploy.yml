@@ -1,0 +1,89 @@
+---
+- name: Install an explicitly selected Gozero MDS release
+  hosts: mds
+  become: true
+  serial: 1
+  vars:
+    mds_start: false
+    mds_gpus: [all]
+    mds_duty: 0.9
+  pre_tasks:
+    - name: Validate operator inputs
+      ansible.builtin.assert:
+        that:
+          - mds_release_dir is defined
+          - mds_wallet is defined
+          - mds_wallet is match('^(?:[a-fA-F0-9]{64}|[a-fA-F0-9]{72})$')
+          - mds_mss_confirmed | default(false) | bool
+          - inventory_hostname is match('^[A-Za-z0-9_.-]{1,23}$')
+        fail_msg: Set release directory, reusable MSS wallet and explicit mds_mss_confirmed=true.
+    - name: Verify local release checksums before upload
+      ansible.builtin.command: sha256sum --check SHA256SUMS
+      args:
+        chdir: '{{ mds_release_dir }}'
+      delegate_to: localhost
+      become: false
+      changed_when: false
+      check_mode: false
+    - name: Check NVIDIA driver on target
+      ansible.builtin.command: nvidia-smi -L
+      changed_when: false
+      check_mode: false
+  tasks:
+    - name: Create service account
+      ansible.builtin.user:
+        name: gozero-mds
+        system: true
+        create_home: false
+        shell: /usr/sbin/nologin
+    - name: Create directories
+      ansible.builtin.file:
+        path: '{{ item }}'
+        state: directory
+        mode: '0755'
+      loop: [/opt/gozero-mds, /etc/gozero-mds]
+    - name: Install binary and supervisor
+      ansible.builtin.copy:
+        src: '{{ mds_release_dir }}/{{ item }}'
+        dest: '/opt/gozero-mds/{{ item }}'
+        mode: '0755'
+      loop: [GozeroMdsCore, run-miner.py]
+      notify: Restart opted-in service
+    - name: Install explicit per-host configuration
+      ansible.builtin.copy:
+        content: '{{ config | to_nice_json }}'
+        dest: /etc/gozero-mds/config.json
+        owner: gozero-mds
+        group: gozero-mds
+        mode: '0600'
+      vars:
+        config:
+          pool: '{{ mds_pool | default("stratum+tcp://mds.gozero.trade:13333") }}'
+          wallet: '{{ mds_wallet }}'
+          mss_confirmed: true
+          gpus: '{{ mds_gpus }}'
+          worker_prefix: '{{ inventory_hostname }}'
+          duty: '{{ mds_duty | float }}'
+          temp_stop: 85
+          temp_resume: 70
+          profile: auto
+      notify: Restart opted-in service
+    - name: Install systemd service
+      ansible.builtin.copy:
+        src: '{{ mds_release_dir }}/gozero-mds.service'
+        dest: /etc/systemd/system/gozero-mds.service
+        mode: '0644'
+      notify: Restart opted-in service
+    - name: Enable mining only when explicitly requested
+      ansible.builtin.systemd_service:
+        name: gozero-mds
+        daemon_reload: true
+        enabled: '{{ mds_start | bool }}'
+        state: '{{ "started" if mds_start | bool else "stopped" }}'
+  handlers:
+    - name: Restart opted-in service
+      ansible.builtin.systemd_service:
+        name: gozero-mds
+        daemon_reload: true
+        state: restarted
+      when: mds_start | bool

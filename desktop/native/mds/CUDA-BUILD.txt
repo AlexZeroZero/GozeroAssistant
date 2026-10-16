@@ -55,6 +55,10 @@ nonces, partial groups and dispatch3999/32000 remainder handling. Streaming, can
 CPU verification, cancellation and isolation of probe counters are also tested.
 Runtime self-tests the selected variant before mining.
 
-Only RTX5060Laptop is locally available. See PERFORMANCE.txt and RESULT.json.
-RTX3090/4090 need on-device confirmation: no 18k guarantee or global optimum claim.
+This rc.2 has remote RTX3090 validation; see the parent REPORT.txt and SUMMARY.json.
+RTX4090/50-series remain unverified. No global optimum is claimed.
 Compare the same GPU/budget and stable period. Pool downtime is separately logged.
+
+rc.2: 56 nonzero-message modular additions per compression are reassociated
+from madd(a,b,1)+m to madd(a+m,b,1). The fixed host multiplier stays exactly 1.
+The generator, generated source and PTX digest match the tested executable.

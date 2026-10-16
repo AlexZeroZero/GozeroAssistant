@@ -1,0 +1,18 @@
+Matching source: GozeroMdsCore-0.1.12-rc.2-source.zip
+Core license: GPL-3.0-only; upstream commit is in PROVENANCE.json.
+
+Release build environment: Rust 1.93.0, cargo-zigbuild 0.23.4, Zig 0.13.0.
+From the unpacked source root:
+  cargo zigbuild --release --locked --target x86_64-unknown-linux-gnu.2.31 --bin GozeroMdsCore
+Output: target/x86_64-unknown-linux-gnu/release/GozeroMdsCore
+
+Native build alternative (requires the build host's glibc on target):
+  cargo build --release --locked --bin GozeroMdsCore
+Never use --features fast-mining for production; runtime self-test rejects it.
+
+Embedded cuda/mds.ptx matches the validated message-first Windows rc2 CUDA
+source. CUDA Toolkit is not needed to build the Rust host with this PTX.
+Rebuilding PTX uses cuda/build.py and the signed NVIDIA NVRTC 13 DLLs on
+Windows; see CUDA-BUILD.txt. Source/PTX/compiler hashes are in cuda/build.json.
+Shipping GNU/Linux binary is dynamically linked to glibc and loads the
+driver-provided libcuda.so.1. Do not ship CUDA stub libraries as the driver.

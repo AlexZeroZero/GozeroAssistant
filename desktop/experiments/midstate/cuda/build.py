@@ -34,7 +34,24 @@ __device__ __forceinline__ Hash iterate(Hash h) {{ {body} }}
 {save}
 }}
 ''')
-    return shared+'\n'.join(kernels)
+    return reassociate_message_additions(schedule_integer_additions(shared+'\n'.join(kernels)))
+def schedule_integer_additions(source):
+    # The fourth CUDA argument is a host-supplied constant 1. Keeping this
+    # value opaque to ptxas enables an alternate integer instruction schedule.
+    # Unsigned modular addition and all 1,000,000 chain rounds are preserved.
+    source=source.replace('Hash iterate(Hash h)','Hash iterate(Hash h,unsigned one)').replace('h=iterate(h)','h=iterate(h,one)').replace('unsigned iters) {','unsigned iters,unsigned one) {')
+    helper='// Runtime multiplier is supplied as exactly 1 by the host. This compares\n// alternate integer instruction scheduling without changing modular addition.\n__device__ __forceinline__ unsigned madd(unsigned a,unsigned b,unsigned one){unsigned out; asm("mad.lo.u32 %0, %1, %2, %3;":"=r"(out):"r"(b),"r"(one),"r"(a));return out;}\n'
+    source=source.replace('__device__ __forceinline__ Hash iterate',helper+'__device__ __forceinline__ Hash iterate')
+    return re.sub(r'(v\d+) = (v\d+) \+ (v\d+)( \+ ([^;]+))?;',lambda m:f'{m[1]} = madd({m[2]},{m[3]},one)'+(f' + {m[5]}' if m[5] else '')+';',source)
+
+
+def reassociate_message_additions(source):
+    # Modular uint32 addition is associative. Perform the message addition
+    # before the opaque unit-multiplier IMAD to change its dependency schedule.
+    # This is not a change to the hash, chain length, nonce or target.
+    return re.sub(r'madd\((v\d+),(v\d+),one\) \+ (h\.x\d+)',
+                  r'madd(\1 + \3,\2,one)', source)
+
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--nvrtc',type=Path,required=True);a=ap.parse_args()
     source=generate();(ROOT/'mds.cu').write_text(source,encoding='utf8')
@@ -56,7 +73,7 @@ def main():
             log=C.create_string_buffer(length.value);check(bind(rtc,'nvrtcGetProgramLog',[P,P])(program,log));(ROOT/'compile.log').write_bytes(log.value);check(result)
             check(bind(rtc,'nvrtcGetPTXSize',[P,C.POINTER(Z)])(program,C.byref(length)))
             ptx=C.create_string_buffer(length.value);check(bind(rtc,'nvrtcGetPTX',[P,P])(program,ptx));(ROOT/'mds.ptx').write_bytes(ptx.raw)
-            (ROOT/'build.json').write_text(json.dumps({'architecture':'compute_80','chainUnroll':[1,2,4,8],'options':[o.decode() for o in opts],'sourceSha256':hashlib.sha256(source.encode()).hexdigest(),'ptxSha256':hashlib.sha256(ptx.raw).hexdigest(),'compilerSha256':hashlib.sha256((directory/'nvrtc64_130_0.dll').read_bytes()).hexdigest()},indent=2),encoding='utf8')
+            (ROOT/'build.json').write_text(json.dumps({'integerSchedule':'mad-message-first','architecture':'compute_80','chainUnroll':[1,2,4,8],'options':[o.decode() for o in opts],'sourceSha256':hashlib.sha256(source.encode()).hexdigest(),'ptxSha256':hashlib.sha256(ptx.raw).hexdigest(),'compilerSha256':hashlib.sha256((directory/'nvrtc64_130_0.dll').read_bytes()).hexdigest()},indent=2),encoding='utf8')
         finally:bind(rtc,'nvrtcDestroyProgram',[C.POINTER(P)])(C.byref(program))
     print('Built CUDA PTX',len(ptx.raw))
 if __name__=='__main__':main()

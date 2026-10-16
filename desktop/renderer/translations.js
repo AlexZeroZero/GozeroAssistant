@@ -1022,9 +1022,9 @@ Gozero 全节点|Gozero full node|Gozeroフルノード|Полный узел Go
  catalog["此地址由 generate-mss 生成，可重复收款（不能使用 WOTS 一次性地址）"]=["This address was generated with generate-mss and is reusable (not a one-time WOTS address)", "generate-mss で生成した再利用可能アドレス（使い捨て WOTS は不可）", "Адрес создан через generate-mss и пригоден для повторного использования (не одноразовый WOTS)"];
  catalog["MSS 可重复收款地址 · 64 / 72 位十六进制"]=["Reusable MSS payout address · 64 / 72 hex characters", "再利用可能な MSS 受取アドレス · 64 / 72 桁の16進数", "Многоразовый адрес MSS · 64 / 72 шестнадцатеричных символа"];
  catalog["MDS 挖矿中：停止后可切换性能档位"]=["MDS is running: stop before changing performance", "MDS 稼働中：停止後に性能設定を変更できます", "MDS работает: остановите перед сменой режима"];
- catalog["MDS CUDA 0.1.11 · NVIDIA RTX 30 / 40 / 50 · 需支持 PTX 9.0 的较新驱动；首启执行完整自检。"]=["MDS CUDA 0.1.11 · NVIDIA RTX 30 / 40 / 50 · Recent PTX 9.0-capable driver required; full startup self-test.", "MDS CUDA 0.1.11 · NVIDIA RTX 30 / 40 / 50 · PTX 9.0 対応ドライバーが必要。起動時に完全セルフテスト。", "MDS CUDA 0.1.11 · NVIDIA RTX 30 / 40 / 50 · Нужен драйвер с PTX 9.0; полная самопроверка при запуске."];
+ catalog["MDS CUDA 0.1.12-rc.2 · NVIDIA RTX 30 / 40 / 50 · 需支持 PTX 9.0 的较新驱动；首启执行完整自检。"]=["MDS CUDA 0.1.12-rc.2 · NVIDIA RTX 30 / 40 / 50 · Recent PTX 9.0-capable driver required; full startup self-test.", "MDS CUDA 0.1.12-rc.2 · NVIDIA RTX 30 / 40 / 50 · PTX 9.0 対応ドライバーが必要。起動時に完全セルフテスト。", "MDS CUDA 0.1.12-rc.2 · NVIDIA RTX 30 / 40 / 50 · Нужен драйвер с PTX 9.0; полная самопроверка при запуске."];
  catalog["MDS 由内核按调度执行性能预算，最高档90%；停止后切换档位，设置自动保存。"]=["MDS enforces duty inside the core, up to 90%. Stop to change mode; settings save automatically.", "MDS はコア内で最大90%の実行予算を管理。停止後に変更、自動保存。", "MDS регулирует нагрузку внутри ядра до 90%. Для смены остановите майнинг; настройки сохраняются автоматически."];
  catalog["MDS 收益估算尚未接入；以矿池账本为准"]=["MDS earnings estimates are unavailable; use the pool ledger.", "MDS 収益予測は未対応。プールの台帳を確認してください。", "Оценка дохода MDS пока недоступна; смотрите учёт пула."];
- catalog["校验通过 · MDS CUDA 0.1.11"]=["Verified · MDS CUDA 0.1.11", "検証済み · MDS CUDA 0.1.11", "Проверено · MDS CUDA 0.1.11"];
+ catalog["校验通过 · MDS CUDA 0.1.12-rc.2"]=["Verified · MDS CUDA 0.1.12-rc.2", "検証済み · MDS CUDA 0.1.12-rc.2", "Проверено · MDS CUDA 0.1.12-rc.2"];
  return Object.freeze(catalog);
 });

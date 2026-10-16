@@ -1,0 +1,37 @@
+MDS 0.1.12-rc.2 / Assistant 1.0.49 — 2026-10-16
+Uses the validated message-first rc2, not the later foldswap experiment.
+RTX3090 Windows / LuckyPool experimental test adapter / 90% budget ABBA:
+rc1 16293.95 N/s -> rc2 16768.00 N/s (+2.91%). This is vs rc1, NOT a
+controlled comparison to shipping 0.1.11. Full compute work counters checked.
+Native Gozero-protocol rc2: 16763.26 N/s, 3 accepted, 0 rejected (short test).
+RTX3090 full-duty short runs: 18307.96 and 18250.53 N/s; mean18279.24;
+17 accepted, 0 rejected; approx351 W, maximum84 C. Not sustained thermal proof.
+114 differential GPU batches and25 previous-round tests passed.
+The later foldswap candidate showed only +0.57% short local work-rate and
+no better completed-chain rate; deliberately excluded from this release.
+The Assistant retains90% maximum compute budget and0.5% software service fee.
+CUDA PTX and native Windows executable are byte-identical to validated rc2.
+Linux build and deployment validation are recorded in the Linux package.
+RTX4090 and bare-metal Linux performance are not measured. No all-GPU optimum
+or pool payout guarantee. Local N/s counts executed chain-work equivalents,
+including incomplete work cancelled on job change; it is not settled hashrate.
+
+Linux MDS 0.1.12-rc.2 validation — 2026-10-16
+Native x86-64 ELF; Rust1.93.0/cargo-zigbuild0.23.4/Zig0.13.0;
+target glibc2.31, inspected GLIBC symbol maximum2.30.
+Test host Ubuntu26.04 WSL2, NVIDIA RTX5060Laptop, Windows driver596.08.
+24 core tests passed:6 budget/tuning,11 protocol,2 CPU consensus,5 CUDA.
+5 Python supervisor tests passed: config rejection, tested-profile isolation,
+duplicate GPU locks and termination of owned processes without stopping others.
+Ansible deployment syntax validated; actual remote multi-host deployment untested.
+60% test hit85 C and supervisor stopped miners as designed; no safety setting changed.
+Follow-up at30% budget,120-second supervisor limit: accepted3, rejected0;
+maximum sampled GPU temperature79 C; clean supervisor exit0.
+This establishes functional GPU computation and accepted shares, not Linux peak
+performance, payments or performance equivalence to RTX3090 on Windows.
+Multiple physical GPUs and bare-metal Linux were not available for testing.
+Exact embedded CUDA PTX is the validated message-first rc2; later foldswap
+experiments are excluded. No clocks, fans, voltage or power limits modified.
+Standalone core/supervisor: no developer fee scheduler. Assistant fee is separate.
+
+Assistant1.0.49:203 tests passed;0 skipped. UI install/idle/single+dual selection passed; no mining in UI smoke. Packaged325 file hashes, ZIP hash, startup, floating window and graceful shutdown passed.

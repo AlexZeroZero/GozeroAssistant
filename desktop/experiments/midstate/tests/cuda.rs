@@ -58,3 +58,22 @@ fn cuda_extended_dispatch_partial_groups_match_cpu() {
         miner.self_test().unwrap();
     }
 }
+
+#[test]
+#[ignore="requires NVIDIA GPU"]
+fn cuda_audit_conserves_completed_and_cancelled_work() {
+    let miner=CudaMiner::new_with_unroll(0,0.9,10496,4000,128,4).unwrap();
+    miner.self_test().unwrap();
+    assert_eq!(miner.diagnostics()["gpuCompletedNonces"],0);
+    let stop=Arc::new(AtomicBool::new(false));let count=Arc::new(AtomicU64::new(0));
+    let c=stop.clone();let timer=std::thread::spawn(move||{
+        std::thread::sleep(std::time::Duration::from_millis(2100));c.store(true,Ordering::Relaxed);
+    });
+    miner.mine_stream([0x42;32],[0;32],None,stop,count.clone(),|_|panic!("zero target hit")).unwrap();
+    timer.join().unwrap();let d=miner.diagnostics();
+    let complete=d["gpuCompletedNonces"].as_u64().unwrap();
+    let partial=d["cancelledWorkEquivalentNonces"].as_u64().unwrap();
+    assert!(complete>0);assert!(partial<10496);
+    assert_eq!(count.load(Ordering::Relaxed),complete+partial);
+    assert!(d["completedBatchNonces"].as_u64().unwrap()<=complete);
+}

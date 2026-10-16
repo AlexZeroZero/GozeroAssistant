@@ -11,7 +11,8 @@
     "--std=c++17",
     "--restrict"
   ],
-  "sourceSha256": "35312539e6a9e56d62448fdde614cbc724405f5ea19a3874d9b210c65770d8d1",
-  "ptxSha256": "ca04930cb3ead27aef6e0737e4f62d9b248c84c339afad642c1c3998eaad1a96",
-  "compilerSha256": "28d1021a82003f4aed742ea36ece1d595e32a107f915dfbd07d3ee8764858bce"
+  "sourceSha256": "6a737cfa413633a51057223ea1493a4ab9974a841a8862a8b690797572b50774",
+  "ptxSha256": "48f6bdfabbe8e4b32b551282defd131ce79fc17e53e04416f2a144ac706a3466",
+  "compilerSha256": "28d1021a82003f4aed742ea36ece1d595e32a107f915dfbd07d3ee8764858bce",
+  "integerSchedule": "mad-message-first"
 }

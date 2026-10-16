@@ -1,0 +1,3 @@
+Default: stratum+tcp://mds.gozero.trade:13333
+Gozero/native MDS authentication protocol; not the LuckyPool experimental adapter.
+Use your reusable MSS payout address and --mss-confirmed. No default payout wallet.

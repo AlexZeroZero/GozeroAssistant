@@ -9,7 +9,7 @@
   check.disabled=busy;$('#performance').disabled=busy;$('#performance').title=GozerI18n.t('MDS 挖矿中：停止后可切换性能档位');
   $('#pool-backups-open').disabled=true;
   $('#wallet').placeholder=GozerI18n.t('MSS 可重复收款地址 · 64 / 72 位十六进制');
-  text('#compatibility','MDS CUDA 0.1.11 · NVIDIA RTX 30 / 40 / 50 · 需支持 PTX 9.0 的较新驱动；首启执行完整自检。');
+  text('#compatibility','MDS CUDA 0.1.12-rc.2 · NVIDIA RTX 30 / 40 / 50 · 需支持 PTX 9.0 的较新驱动；首启执行完整自检。');
   text('#fee-note','内核费 0% · 软件服务费 0.5%');
   text('.performance-note','MDS 由内核按调度执行性能预算，最高档90%；停止后切换档位，设置自动保存。');
   text('#measured-net','MDS 收益估算尚未接入；以矿池账本为准');

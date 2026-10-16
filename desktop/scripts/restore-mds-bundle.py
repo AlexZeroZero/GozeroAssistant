@@ -3,9 +3,9 @@ from pathlib import Path
 import argparse,hashlib,json,urllib.request,zipfile
 
 APP=Path(__file__).resolve().parents[1]
-NAME='GozeroMdsCore-0.1.11-preview-win-x64.zip'
-SHA256='7ae0851cc8c45a6f6fe38c1068669b507dbd9e124383730e2b7d02534489f725'
-URL='https://github.com/AlexZeroZero/GozeroAssistant/releases/download/v1.0.48-beta/'+NAME
+NAME='GozeroMdsCore-0.1.12-rc.2-preview-win-x64.zip'
+SHA256='77547e6e2342e30ac6f7645943c66d1b8ebe3ad13ecfcacd974de62836fc81b4'
+URL='https://github.com/AlexZeroZero/GozeroAssistant/releases/download/v1.0.49-beta/'+NAME
 
 def digest(path):
     with path.open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
@@ -18,7 +18,7 @@ def main():
         cache=APP.parent/'.local/mds-release';cache.mkdir(parents=True,exist_ok=True);archive=cache/NAME
         if not archive.exists():
             partial=archive.with_suffix('.zip.part')
-            request=urllib.request.Request(URL,headers={'User-Agent':'GozeroSourceBuilder/1.0.48'})
+            request=urllib.request.Request(URL,headers={'User-Agent':'GozeroSourceBuilder/1.0.49'})
             total=0
             with urllib.request.urlopen(request,timeout=120) as response,partial.open('wb') as out:
                 while chunk:=response.read(1024*1024):
@@ -29,7 +29,7 @@ def main():
             partial.replace(archive)
     if digest(archive)!=SHA256:raise RuntimeError('Bundle SHA256 mismatch')
     manifest=json.loads((APP/'src/mds-kernel.json').read_text(encoding='utf8'))
-    assert manifest['version']=='0.1.11'
+    assert manifest['version']=='0.1.12-rc.2'
     expected=manifest['files'];prefix=NAME.removesuffix('.zip')+'/'
     content={}
     with zipfile.ZipFile(archive) as bundle:

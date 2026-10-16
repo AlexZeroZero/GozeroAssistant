@@ -1,0 +1,29 @@
+[Unit]
+Description=Gozero MDS explicit GPU mining service
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=gozero-mds
+Group=gozero-mds
+ExecStart=/usr/bin/python3 /opt/gozero-mds/run-miner.py --config /etc/gozero-mds/config.json
+Restart=on-failure
+RestartSec=60
+KillSignal=SIGINT
+KillMode=control-group
+TimeoutStopSec=45
+RuntimeDirectory=gozero-mds
+Environment=XDG_RUNTIME_DIR=/run/gozero-mds
+Environment=PYTHONUNBUFFERED=1
+Environment=CUDA_CACHE_PATH=/var/cache/gozero-mds
+CacheDirectory=gozero-mds
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

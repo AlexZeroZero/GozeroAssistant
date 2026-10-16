@@ -1,30 +1,46 @@
-# Gozero Assistant · Beta 1.02 (1.0.48)
+# Gozero Assistant · Beta 1.02 (1.0.49)
 
 **English** | [简体中文](README.zh-CN.md)
 
 A compact Windows GPU / CPU mining assistant with hardware monitoring, independent GPU + CPU tasks, pool account data, a rental marketplace and a floating desktop monitor.
 
-[Download for Windows](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.48-beta) · [Website](https://gozero.trade/) · [User guide](desktop/QUICKSTART.txt) · [Build guide](desktop/README.md)
+[Download for Windows](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.49-beta) · [Website](https://gozero.trade/) · [User guide](desktop/QUICKSTART.txt) · [Build guide](desktop/README.md)
 
 ## Download and upgrade
 
-Download `GozerAssistant-1.0.48-win-x64.zip`, verify the accompanying SHA256 checksum, extract the entire archive to a new folder and run `GozerAssistant.exe`. Exit the old app from its tray menu before upgrading. Existing local wallet/pool settings are preserved. Mining never starts automatically on app launch.
+Download `GozerAssistant-1.0.49-win-x64.zip`, verify the accompanying SHA256 checksum, extract the entire archive to a new folder and run `GozerAssistant.exe`. Exit the old app from its tray menu before upgrading. Existing local wallet/pool settings are preserved. Mining never starts automatically on app launch.
 
-The display version remains **Beta 1.02**; the internal update version is **1.0.48**.
+The display version remains **Beta 1.02**; the internal update version is **1.0.49**.
 
 ## What's new
 
-- **MDS mining:** Gozero MDS CUDA 0.1.11 supports compatible NVIDIA RTX 30/40/50 GPUs, with `stratum+tcp://mds.gozero.trade:13333` as the default pool. A reusable MSS payout address and explicit confirmation are required. MDS price/income estimates are not integrated.
-- **Measured CUDA scheduling:** select loop unroll, batch size, thread-block size and dispatch length on the actual GPU. Full million-round consensus, CPU candidate verification and the existing 90% maximum GPU compute budget are preserved.
-- **Pool congestion handling:** a small pending-share window and paced submissions; explicit verifier-busy replies lower concurrency and apply cooldown across reconnects. Rejected or unconfirmed shares are not counted as accepted or automatically resubmitted.
-- **Readable diagnostics:** startup and periodic logs include U/block/dispatch/batch settings and queue/acknowledgement state. Existing MDS engine selections migrate to the new recommended version.
-- **Measured limits:** the local RTX 5060 Laptop old/new/new/old comparison was 4467.32 versus 4469.96 N/s (+0.06%, effectively unchanged). No significant speedup or RTX 3090/4090 result is claimed for this build. A finite pool check recorded 3 accepted shares and 11 verifier-busy rejections; server-side verification remains an issue to investigate.
+- **Validated MDS rc2:** message-first integer scheduling and bounded queued CUDA dispatches. The full million-round chain, CPU candidate verification and honest work counters remain.
+- **RTX 3090 profile:** U2 / B256 / D4000 / N20992 from actual testing. Other GPUs retain startup tuning; old MDS engine selections migrate to the recommended version.
+- **Standalone Linux x86-64:** native ELF, per-GPU supervisor, JSON configuration, temperature/duplicate-start checks, systemd unit and Ansible fleet example. Default pool: `stratum+tcp://mds.gozero.trade:13333`.
+- **Validation:** 203 Windows application tests; real idle UI/install and all 325 packaged-file checks passed. Linux: 24 core tests, 5 supervisor tests and deployment syntax passed; a WSL2 RTX 5060 Laptop pool trial at 30% budget received 3 accepted / 0 rejected shares. Bare-metal and multi-host deployment are not yet validated.
+- **Measured limits:** Windows RTX 3090 rc2 averaged 16.768K N/s at 90% compute budget in an earlier controlled comparison to rc1 (+2.91%, not a controlled comparison to shipping 0.1.11). Two 100% short trials averaged 18.279K N/s at about 351W, maximum 84°C. These are local work rates, not sustained payout guarantees; RTX 4090 was not measured. The later marginal foldswap experiment is excluded.
 
-203 application regression tests, 6 scheduling/budget tests, 11 protocol tests, 2 CPU consensus tests and 4 CUDA tests passed. The real UI/install check and all 332 packaged-file hashes passed. The publication checkout rerun passed 202 tests with one optional KRig-archive test skipped because that fixture is not included. See [MDS validation](docs/mds-1.0.48-validation.txt).
+The Assistant keeps its 90% maximum GPU compute budget and disclosed 0.5% service fee. The standalone Linux core/supervisor has no fee scheduler. See [validation scope](docs/mds-1.0.49-validation.txt).
+
+### Linux quick start
+
+Download `GozeroMdsCore-0.1.12-rc.2-linux-x64.tar.gz` and its `.sha256` from this release. Requires x86-64 glibc 2.31+, a compatible NVIDIA GPU/driver (PTX9.0) and Python 3.8+ for supervision; no CUDA Toolkit required.
+
+```bash
+sha256sum -c GozeroMdsCore-0.1.12-rc.2-linux-x64.tar.gz.sha256
+tar -xzf GozeroMdsCore-0.1.12-rc.2-linux-x64.tar.gz
+cd GozeroMdsCore-0.1.12-rc.2-linux-x64
+cp config.example.json config.json
+# Edit your reusable MSS wallet, mss_confirmed=true and unique worker_prefix.
+python3 run-miner.py --config config.json --check
+python3 run-miner.py --config config.json
+```
+
+Ctrl+C stops owned miners. The supervisor defaults to an 85°C stop, 70°C restart threshold and 90% compute budget. Read [Linux deployment instructions](desktop/experiments/midstate/linux/README.txt) before using `deploy.yml`. Deploying with Ansible defaults to stopped; `mds_start=true` explicitly enables mining. This release uses the Gozero/native pool protocol; the LuckyPool experimental adapter is not included.
 
 | Coin | Hardware / algorithm | Engine / default connection |
 | --- | --- | --- |
-| MDS | NVIDIA RTX 30/40/50 / million-round BLAKE3 chain | Gozero MDS CUDA 0.1.11; `stratum+tcp://mds.gozero.trade:13333` |
+| MDS | NVIDIA RTX 30/40/50 / million-round BLAKE3 chain | Gozero MDS CUDA 0.1.12-rc.2; `stratum+tcp://mds.gozero.trade:13333` |
 | BNT | CPU / Argon2id, 2 GiB per thread | Gozero Blocknet CPU or optional Seine; `stratum+tcp://bnt.pool.gozero.trade:14444` |
 | ZCD | CPU / RandomX v2 | Gozero XMRig CPU or official XMRig; `stratum+tcp://zcd.pool.gozero.trade:3333` |
 | YSR | NVIDIA SM 8.0+ / SHA-256d | Gozero YSR CUDA; `https://ysr.pool.gozero.trade:8443` |
@@ -35,11 +51,11 @@ YSR requires a CUDA 13-compatible driver; AMD/CPU YSR and Windows TSC mining are
 
 ## Current interface
 
-1.0.48 MDS workbench and kernel library, idle UI validation; no mining started in these screenshots.
+1.0.49 MDS workbench and kernel library, idle UI validation; no mining started in these screenshots.
 
-![MDS workbench](docs/screenshots/mds-workbench-1.0.48.png)
+![MDS workbench](docs/screenshots/mds-workbench-1.0.49.png)
 
-![MDS kernel library](docs/screenshots/mds-library-1.0.48.png)
+![MDS kernel library](docs/screenshots/mds-library-1.0.49.png)
 
 1.0.42 protocol selector (idle; no mining started).
 

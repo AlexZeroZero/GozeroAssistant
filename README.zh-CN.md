@@ -1,28 +1,44 @@
-# Gozero助手 · Beta 1.02（1.0.48）
+# Gozero助手 · Beta 1.02（1.0.49）
 
 [English](README.md) | **简体中文**
 
 紧凑型 Windows GPU / CPU 挖矿助手，提供硬件监测、GPU＋CPU 独立双挖、矿池账本、租赁市场与桌面悬浮监控。
 
-[下载 Windows 版](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.48-beta) · [官网](https://gozero.trade/) · [使用指南](desktop/QUICKSTART.txt) · [构建说明](desktop/README.md)
+[下载 Windows 版](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.49-beta) · [官网](https://gozero.trade/) · [使用指南](desktop/QUICKSTART.txt) · [构建说明](desktop/README.md)
 
 ## 下载与升级
 
-下载 `GozerAssistant-1.0.48-win-x64.zip`，核对随附 SHA256，完整解压到新目录，运行 `GozerAssistant.exe`。升级前从托盘退出旧版。已有钱包、矿池与设置保留；程序不会自动开始挖矿。显示版本仍为 **Beta 1.02**，内部版本 **1.0.48**。
+下载 `GozerAssistant-1.0.49-win-x64.zip`，核对随附 SHA256，完整解压到新目录，运行 `GozerAssistant.exe`。升级前从托盘退出旧版。已有钱包、矿池与设置保留；程序不会自动开始挖矿。显示版本仍为 **Beta 1.02**，内部版本 **1.0.49**。
 
 ## 本版更新
 
-- **接入 MDS 挖矿**：Gozero MDS CUDA 0.1.11 支持兼容的 NVIDIA RTX 30/40/50 显卡，默认矿池 `stratum+tcp://mds.gozero.trade:13333`。必须填写可重复使用的 MSS 收款地址并确认；MDS 币价与收益估算尚未接入。
-- **CUDA 实测调度**：按本机显卡选择展开、批量、线程块和计算分段，保留百万轮共识、完整 CPU 候选复核及最高档 90% GPU 计算预算。
-- **矿池拥塞处理**：小窗口、间隔提交；校验器繁忙时降低并发，退避跨重连保留。不把已拒绝或未确认份额计为 accepted，不自动重复提交。
-- **诊断与迁移**：启动及定期日志显示 U/线程块/分段/批量、提交队列和待确认状态；旧 MDS 内核选择迁移到新版推荐项。
-- **实测限制**：本机 RTX 5060 Laptop 旧/新/新/旧均值 4467.32 与 4469.96 N/s（+0.06%，视为持平），不宣称显著提速，也没有本版 3090/4090 实测。有限矿池测试收到 3 个 accepted、11 个校验器繁忙拒绝，矿池校验服务仍需排查。
+- **已验证的 MDS rc2**：优化整数指令调度与 CUDA 分段排队，保留百万轮计算、完整 CPU 候选复核和真实工作量统计。
+- **3090 实测参数**：U2 / B256 / D4000 / N20992；其它显卡保持启动调优，旧 MDS 内核选择迁移至默认推荐。
+- **独立 Linux x86-64 内核**：原生 ELF、每卡独立进程、JSON 配置、温控与重复启动检查、systemd 服务和 Ansible 批量部署示例。默认矿池 `stratum+tcp://mds.gozero.trade:13333`。
+- **验证结果**：203 项 Windows 回归、实际待机界面/安装和325个打包文件校验通过。Linux 24项核心测试、5项守护脚本测试及部署语法通过；WSL2 / RTX5060Laptop 在30%预算下矿池测试收到3个接受、0拒绝。尚未验证裸机 Linux 与真实多机矿场部署。
+- **性能边界**：此前 Windows 3090 同条件对照中 rc2 在90%计算预算下平均16.768K N/s，相比 rc1 高2.91%（不是与已发布0.1.11的直接对比）。两轮100%预算短测平均18.279K N/s，约351W、最高84°C；不能视为长期有效算力或收益保证，未实测4090。后续仅有微小差异的 foldswap 实验没有合入。
 
-203 项应用回归、6 项调度/预算、11 项协议、2 项 CPU 共识、4 项 CUDA 测试通过；实际界面/安装及 332 个打包文件校验通过。详见 [MDS 验证记录](docs/mds-1.0.48-validation.txt)。
+助手最高档仍为90%计算预算，软件服务费仍为0.5%；独立 Linux 核心/脚本不含抽水调度。详见[验证记录](docs/mds-1.0.49-validation.txt)。
+
+### Linux 使用
+
+下载 `GozeroMdsCore-0.1.12-rc.2-linux-x64.tar.gz` 及其 `.sha256`。要求 x86-64、glibc2.31+、兼容 NVIDIA 显卡和支持PTX9.0的驱动，守护脚本需要Python3.8+；无需CUDA Toolkit。
+
+```bash
+sha256sum -c GozeroMdsCore-0.1.12-rc.2-linux-x64.tar.gz.sha256
+tar -xzf GozeroMdsCore-0.1.12-rc.2-linux-x64.tar.gz
+cd GozeroMdsCore-0.1.12-rc.2-linux-x64
+cp config.example.json config.json
+# 填写自己的MSS可重复收款地址、mss_confirmed=true、唯一worker_prefix。
+python3 run-miner.py --config config.json --check
+python3 run-miner.py --config config.json
+```
+
+Ctrl+C 停止。默认85°C停止、70°C以下允许重启、90%计算预算；批量部署说明见[Linux指南](desktop/experiments/midstate/linux/README.txt)。Ansible默认部署后保持停止，明确传入 `mds_start=true` 才启用挖矿。本包适配Gozero/native矿池协议，不含LuckyPool实验适配器。
 
 | 币种 | 设备 / 算法 | 内核与默认矿池 |
 | --- | --- | --- |
-| MDS | NVIDIA RTX 30/40/50 / 百万轮 BLAKE3 链 | Gozero MDS CUDA 0.1.11；`stratum+tcp://mds.gozero.trade:13333` |
+| MDS | NVIDIA RTX 30/40/50 / 百万轮 BLAKE3 链 | Gozero MDS CUDA 0.1.12-rc.2；`stratum+tcp://mds.gozero.trade:13333` |
 | BNT | CPU / Argon2id，每线程2 GiB | 自研核心或 Seine；`stratum+tcp://bnt.pool.gozero.trade:14444` |
 | ZCD | CPU / RandomX v2 | Gozero XMRig CPU 或官方 XMRig；`stratum+tcp://zcd.pool.gozero.trade:3333` |
 | YSR | NVIDIA SM 8.0+ / SHA-256d | Gozero YSR CUDA；`https://ysr.pool.gozero.trade:8443` |
@@ -33,11 +49,11 @@ YSR 需要兼容 CUDA 13 的驱动，未开放 AMD/CPU；TSC Windows 未开放�
 
 ## 当前界面
 
-1.0.48 MDS 工作台与内核库，待机界面验证截图；截图过程中未启动挖矿。
+1.0.49 MDS 工作台与内核库，待机界面验证截图；截图过程中未启动挖矿。
 
-![MDS workbench](docs/screenshots/mds-workbench-1.0.48.png)
+![MDS workbench](docs/screenshots/mds-workbench-1.0.49.png)
 
-![MDS kernel library](docs/screenshots/mds-library-1.0.48.png)
+![MDS kernel library](docs/screenshots/mds-library-1.0.49.png)
 
 1.0.42协议选择界面（待机，未启动挖矿）。
 

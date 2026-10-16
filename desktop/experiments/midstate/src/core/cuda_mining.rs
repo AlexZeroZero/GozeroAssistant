@@ -38,7 +38,7 @@ fn driver_path()->Result<std::path::PathBuf> {
 }
 pub struct CudaMiner {
     device:Mutex<Device>,name:String,batch:u32,chunk:u32,block:u32,duty:f32,
-    compute_ns:AtomicU64,transfer_ns:AtomicU64,verify_ns:AtomicU64,complete:AtomicU64,
+    compute_ns:AtomicU64,transfer_ns:AtomicU64,verify_ns:AtomicU64,complete:AtomicU64,gpu_complete:AtomicU64,cancelled_work:AtomicU64,
     pacing_ns:AtomicU64,backpressure_ns:AtomicU64,sm_count:i32,resident_blocks:i32,
     tuning:Vec<serde_json::Value>,
     registers:i32,local_bytes:i32,unroll:u32,
@@ -119,13 +119,13 @@ impl CudaMiner {
                 chunk=select_dispatch(&choices,&rates,&times);
                 for i in 0..4 {tuning.push(serde_json::json!({"stage":"dispatch","iterations":choices[i],"probeComputeNps":rates[i],"meanDispatchMs":times[i]*1000.0/16.0,"preferred":chunk==choices[i]}));}
             }
-            Ok(Self{device:Mutex::new(d),name,batch,chunk,block,duty,compute_ns:AtomicU64::new(0),transfer_ns:AtomicU64::new(0),verify_ns:AtomicU64::new(0),complete:AtomicU64::new(0),pacing_ns:AtomicU64::new(0),backpressure_ns:AtomicU64::new(0),sm_count,resident_blocks,tuning,registers,local_bytes,unroll:chosen_unroll})
+            Ok(Self{device:Mutex::new(d),name,batch,chunk,block,duty,compute_ns:AtomicU64::new(0),transfer_ns:AtomicU64::new(0),verify_ns:AtomicU64::new(0),complete:AtomicU64::new(0),gpu_complete:AtomicU64::new(0),cancelled_work:AtomicU64::new(0),pacing_ns:AtomicU64::new(0),backpressure_ns:AtomicU64::new(0),sm_count,resident_blocks,tuning,registers,local_bytes,unroll:chosen_unroll})
         }
     }
     pub fn diagnostics(&self)->serde_json::Value {
         serde_json::json!({"backend":"cuda","device":self.name,"batchNonces":self.batch,
             "itersPerDispatch":self.chunk,"workgroupSize":self.block,"duty":self.duty,
-            "chainUnroll":self.unroll,"smCount":self.sm_count,"residentBlocksPerSm":self.resident_blocks,
+            "integerSchedule":"mad-message-first","queuedDispatches":(16000/self.chunk).clamp(1,4),"chainUnroll":self.unroll,"smCount":self.sm_count,"residentBlocksPerSm":self.resident_blocks,
             "gridBlocks":self.batch.div_ceil(self.block),"tuning":self.tuning,
             "registersPerThread":self.registers,"localBytesPerThread":self.local_bytes,
             "computeSeconds":self.compute_ns.load(Ordering::Relaxed) as f64/1e9,
@@ -133,6 +133,8 @@ impl CudaMiner {
             "verificationBackpressureSeconds":self.backpressure_ns.load(Ordering::Relaxed) as f64/1e9,
             "transferSeconds":self.transfer_ns.load(Ordering::Relaxed) as f64/1e9,
             "verificationSeconds":self.verify_ns.load(Ordering::Relaxed) as f64/1e9,
+            "gpuCompletedNonces":self.gpu_complete.load(Ordering::Relaxed),
+            "cancelledWorkEquivalentNonces":self.cancelled_work.load(Ordering::Relaxed),
             "completedBatchNonces":self.complete.load(Ordering::Relaxed)})
     }
     // Short, local startup probes use the exact embedded kernel. They do not
@@ -155,7 +157,7 @@ impl CudaMiner {
     fn probe(d:&mut Device,mut n:u32,block:u32,mut chunk:u32,duty:f32)->Result<f64> {
         let initial=vec![0x93u8;n as usize*32];let mut ptr=d.state;
         unsafe{check((d.driver.upload)(d.state,initial.as_ptr().cast(),initial.len()))?;}
-        let mut args=[(&mut ptr as *mut u64).cast(),(&mut n as *mut u32).cast(),(&mut chunk as *mut u32).cast()];
+        let mut one=1u32;let mut args=[(&mut ptr as *mut u64).cast(),(&mut n as *mut u32).cast(),(&mut chunk as *mut u32).cast(),(&mut one as *mut u32).cast()];
         let mut budget=Budget::new();let cancel=AtomicBool::new(false);let mut seconds=0.0;
         for iteration in 0..9 {
             let start=Instant::now();
@@ -177,16 +179,27 @@ impl CudaMiner {
         self.transfer_ns.fetch_add(begin.elapsed().as_nanos() as u64,Ordering::Relaxed);
         let mut done=0u64;let mut budget=Budget::new();
         while done<EXTENSION_ITERATIONS {
-            if cancel.load(Ordering::Relaxed){return Ok(None)}
-            let mut k=(EXTENSION_ITERATIONS-done).min(self.chunk as u64) as u32;let mut count=n;let mut ptr=d.state;
-            let mut args=[(&mut ptr as *mut u64).cast(),(&mut count as *mut u32).cast(),(&mut k as *mut u32).cast()];
+            if cancel.load(Ordering::Relaxed){self.cancelled_work.fetch_add(n as u64*done/EXTENSION_ITERATIONS,Ordering::Relaxed);return Ok(None)}
+            let previous=done;
+            let group=(16000/self.chunk).clamp(1,4);
             let start=Instant::now();
-            unsafe{check((d.driver.launch)(d.function,n.div_ceil(self.block),1,1,self.block,1,1,0,std::ptr::null_mut(),args.as_mut_ptr(),std::ptr::null_mut()))?;check((d.driver.sync)())?;}
+            // Queue a bounded group on the same CUDA stream. No overlap between
+            // dependent chain steps; only host launch/synchronization is batched.
+            for _ in 0..group {
+                if done>=EXTENSION_ITERATIONS || cancel.load(Ordering::Relaxed){break}
+                let mut k=(EXTENSION_ITERATIONS-done).min(self.chunk as u64) as u32;
+                let mut count=n;let mut ptr=d.state;
+                let mut one=1u32;let mut args=[(&mut ptr as *mut u64).cast(),(&mut count as *mut u32).cast(),(&mut k as *mut u32).cast(),(&mut one as *mut u32).cast()];
+                unsafe{check((d.driver.launch)(d.function,n.div_ceil(self.block),1,1,self.block,1,1,0,std::ptr::null_mut(),args.as_mut_ptr(),std::ptr::null_mut()))?;}
+                done+=k as u64;
+            }
+            // Drain all submitted work even on cancellation before reusing state.
+            unsafe{check((d.driver.sync)())?;}
             let elapsed=start.elapsed();self.compute_ns.fetch_add(elapsed.as_nanos() as u64,Ordering::Relaxed);
             if throttle {self.pacing_ns.fetch_add(budget.pace(elapsed,self.duty,cancel).as_nanos() as u64,Ordering::Relaxed);}
-            counter.fetch_add(n as u64*(done+k as u64)/EXTENSION_ITERATIONS-n as u64*done/EXTENSION_ITERATIONS,Ordering::Relaxed);
-            done+=k as u64;
+            counter.fetch_add(n as u64*done/EXTENSION_ITERATIONS-n as u64*previous/EXTENSION_ITERATIONS,Ordering::Relaxed);
         }
+        self.gpu_complete.fetch_add(n as u64,Ordering::Relaxed);
         let start=Instant::now();unsafe{check((d.driver.download)(states.as_mut_ptr().cast(),d.state,states.len()*4))?;}
         let mut hashes=vec![[0u8;32];n as usize];
         for i in 0..n as usize {for w in 0..8 {hashes[i][w*4..w*4+4].copy_from_slice(&states[w*n as usize+i].to_le_bytes());}}
@@ -199,10 +212,13 @@ impl CudaMiner {
             let actual=self.hashes(&mut d,header,base,n,&AtomicBool::new(false),&AtomicU64::new(0),false)?.unwrap();
             for (i,hash) in actual.iter().enumerate(){ensure!(*hash==create_extension(header,base.wrapping_add(i as u64)).final_hash,"CUDA full chain mismatch at {base}+{i}");}
         }
-        self.compute_ns.store(0,Ordering::Relaxed);self.transfer_ns.store(0,Ordering::Relaxed);
+        self.compute_ns.store(0,Ordering::Relaxed);self.transfer_ns.store(0,Ordering::Relaxed);self.gpu_complete.store(0,Ordering::Relaxed);
         Ok(())
     }
-    pub fn mine_stream<F:FnMut(MiningResult)->bool+Send>(&self,header:[u8;32],target:[u8;32],pool:Option<[u8;32]>,cancel:Arc<AtomicBool>,counter:Arc<AtomicU64>,mut output:F)->Result<()> {
+    pub fn mine_stream<F:FnMut(MiningResult)->bool+Send>(&self,header:[u8;32],target:[u8;32],pool:Option<[u8;32]>,cancel:Arc<AtomicBool>,counter:Arc<AtomicU64>,output:F)->Result<()> {
+        self.mine_stream_with_prefix(header,target,pool,cancel,counter,output,None)
+    }
+    pub fn mine_stream_with_prefix<F:FnMut(MiningResult)->bool+Send>(&self,header:[u8;32],target:[u8;32],pool:Option<[u8;32]>,cancel:Arc<AtomicBool>,counter:Arc<AtomicU64>,mut output:F, prefix:Option<u32>)->Result<()> {
         let mut d=self.device.lock().map_err(|_|anyhow!("CUDA device poisoned"))?;unsafe{check((d.driver.set)(d.context))?;}
         let(tx,rx)=std::sync::mpsc::sync_channel::<Vec<u64>>(1);
         std::thread::scope(|scope|->Result<()> {
@@ -220,8 +236,12 @@ impl CudaMiner {
                 }
             });
             let result=(||->Result<()> {
+                let mut next_low=0u64;
                 while !cancel.load(Ordering::Relaxed){
-                    let base=rand::random::<u64>();
+                    let base=if let Some(high)=prefix {
+                        ensure!(next_low+self.batch as u64<=1u64<<32,"LuckyPool nonce domain exhausted");
+                        let value=((high as u64)<<32)|next_low;next_low+=self.batch as u64;value
+                    }else{rand::random::<u64>()};
                     let Some(hashes)=self.hashes(&mut d,header,base,self.batch,&cancel,&counter,true)? else{break};
                     let mut candidates:Vec<_>=hashes.iter().enumerate().filter(|(_,hash)|**hash<target||pool.is_some_and(|p|**hash<p)).map(|(i,_)|base.wrapping_add(i as u64)).collect();
                     let waiting=Instant::now();

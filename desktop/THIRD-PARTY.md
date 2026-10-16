@@ -42,6 +42,8 @@ Bundled CPU worker with Argon2id SIMD support. The exact source and dependency n
 - Seine's upstream developer fee is **2.5%**, or **1%** on bntpool.com/subdomains, in addition to Gozero's disclosed 0.5% service time. No upstream fee code is modified.
 - **Blocknet Core 0.20.0** — [official release](https://github.com/blocknetprivacy/core/releases/tag/v0.20.0). External original full-node download only; not bundled or selectable as a pool worker. Its own upstream license applies.
 
-## Gozero MDS CUDA 0.1.11 preview
+## Gozero MDS CUDA 0.1.12-rc.2 preview
 
 Derived from [Midstate](https://github.com/ciphernom/midstate), commit `a1d5a05aadac09262a6ab44a399c2f59ad6dbeaa`, GPL-3.0. The standalone executable, GPL license, provenance, notices, performance evidence, and full corresponding source archive (including vendored Rust dependencies and CUDA source/PTX) ship in `native/mds`. It runs as a separate process and is installed only when the user selects Install kernel. Native CUDA is explicitly selected, every candidate receives full CPU verification, and the million-round consensus algorithm is unchanged. NVRTC is a build-only dependency; the runtime uses the system NVIDIA driver. No additional core fee; the assistant's disclosed 0.5% service schedule applies separately. RTX 3090/4090 performance is not yet measured in this build.
+
+

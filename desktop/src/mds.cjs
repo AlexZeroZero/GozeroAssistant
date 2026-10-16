@@ -12,9 +12,11 @@ function args(config,gpu){
  if(gpu.vendor!=='NVIDIA'||!/^GPU-[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(gpu.sensors?.uuid||''))throw Error('MDS CUDA 需要可读取 UUID 的 NVIDIA RTX 30 / 40 / 50 显卡');
  if(!Number.isFinite(gpu.sensors?.temp)||Date.now()-(gpu.sensors?.at||0)>10000)throw Error('MDS 需要有效的实时 GPU 温度读数');
  if((config.poolBackups?.MDS||[]).length)throw Error('MDS 当前支持单一矿池自动重连，暂不支持备用地址');
+ const tested3090=/\bRTX\s+3090\s*$/i.test(gpu.name||'');
  return ['--backend','cuda','--gpu-index','0','--pool-url',pool(config.pools.MDS),'--payout-address',config.wallets.MDS,
   '--worker',require('./pool-identity.cjs').label(config,gpu,32),'--duty',(config.performance*.009).toFixed(3),
-  '--cuda-batch','0','--cuda-dispatch','0','--cuda-block','0','--mss-confirmed'];
+  '--cuda-batch',tested3090?'20992':'0','--cuda-dispatch',tested3090?'4000':'0','--cuda-block',tested3090?'256':'0',
+  '--cuda-unroll',tested3090?'2':'0','--mss-confirmed'];
 }
 function record(line){if(!line.startsWith('MDS '))return null;try{const v=JSON.parse(line.slice(4));return v&&typeof v==='object'?v:null}catch{return null}}
 function parseTelemetry(line,now=Date.now()){

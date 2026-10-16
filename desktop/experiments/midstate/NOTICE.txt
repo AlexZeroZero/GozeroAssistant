@@ -1,3 +1,10 @@
+Gozero MDS Core 0.1.12-rc.2
+
+Message-first integer scheduling and bounded queued CUDA dispatches.
+Full 1,000,000 rounds and CPU verification retained. Linux and Windows
+hosts use the identical embedded PTX. See VALIDATION.txt and linux/README.txt.
+
+Previous attribution and implementation history:
 Gozero MDS Core 0.1.9
 
 Derived from Midstate, https://github.com/ciphernom/midstate
