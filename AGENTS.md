@@ -164,3 +164,15 @@ fee ledger and all prior native payloads preserved. Original0.5% fee unchanged.
 MSS reusable addresses only; never one-time WOTS. No CUDA requirement on Mac.
 MDS not published to GitHub in this task. Prior public0.1.12 asset switch had
 already happened before MDS work; old public0.1.9 statements are superseded.
+
+Latest checkpoint: Mac0.1.14 MDS scheduling optimization is M3-tested/deployed.
+Production ABBA4x90s:359.286->476.088N/s (+32.51%), same90%duty; complete batches
+5.707->5.380s. BaseApple M3 auto2560, other adapter names2048; explicit overrides
+win. Metal completion polling sleeps500us; fullmillion-round shader and CPU
+verification unchanged. Only this10-coreM3 measured (8-coreM3 shares its name).
+45GUI tests each host,11protocol,2profile,2consensus,2GPU tests pass.262.2sGUI
+last487.486N/s, submitted0/accepted0/rejected0; do not claim new pool acceptance.
+DesktopApp/DMG0.1.14 opened idle; settings/fee bytes and19397 other native files
+preserved, previous0.1.13 backed up. See latest handoff and MDS-RESULTS.txt.
+Research large-dispatch800N/s peaks collapsed to275 and were rejected. No
+experimental shader/QoS/activity/pacing overrides ship. No GitHub publication.

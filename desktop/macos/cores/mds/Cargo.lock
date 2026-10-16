@@ -623,7 +623,7 @@ dependencies = [
 
 [[package]]
 name = "gozero-mds-core"
-version = "0.1.13-mac"
+version = "0.1.14-mac"
 dependencies = [
  "anyhow",
  "bincode",

@@ -1,4 +1,5 @@
-batch_nonces = 2048
+# Auto: validated base Apple M3 = 2560; other GPUs retain 2048.
+batch_nonces = 0
 iters_per_dispatch = 2000
 responsive_iters = 2000
 workgroup_size = 64

@@ -1,0 +1,332 @@
+{
+  "version": "0.1.14",
+  "date": "2026-10-16",
+  "coin": "MDS",
+  "hardware": {
+    "gpu": "Apple M3",
+    "gpuCores": 10,
+    "memoryGiB": 16,
+    "validatedMachines": 1
+  },
+  "changes": {
+    "shaderUnchanged": true,
+    "shaderSha256": "0c70b8c8cdb529c7dcd37bf2c7a13a9c1f14c3071de7510186623268c2397dc3",
+    "iterations": 1000000,
+    "batchProfile": "auto0: Apple M3 + Metal =2560, other adapter names=2048; explicit override wins",
+    "dispatchIterations": 2000,
+    "workgroupSize": 64,
+    "verificationThreads": 2,
+    "requestedDuty": 0.9,
+    "completionPollingSleepMicroseconds": 500,
+    "serviceFeePercent": 0.5
+  },
+  "comparison": {
+    "design": "ABBA; signed production binaries; 90seconds each; no pool; same requested duty",
+    "summary": {
+      "A": {
+        "workEquivalentNps": 359.2856291608788,
+        "completedBatchNps": 358.88669771660534,
+        "meanBatchSeconds": 5.706536388866667,
+        "lateMedianNps": 358.6626682319839
+      },
+      "B": {
+        "workEquivalentNps": 476.08760930984573,
+        "completedBatchNps": 475.8126425596865,
+        "meanBatchSeconds": 5.380268977781251,
+        "lateMedianNps": 474.82819832903544
+      },
+      "gainPercent": 32.50950515938005
+    },
+    "runs": [
+      {
+        "label": "A",
+        "benchmark": {
+          "backend": "gpu",
+          "duty": 0.8999999761581421,
+          "gpuDiagnostics": {
+            "batchNonces": 2048,
+            "completedBatchNonces": 30720,
+            "computeSeconds": 85.742292125,
+            "dispatchIterations": 2000,
+            "responsiveIterations": 2000,
+            "verificationSeconds": 0.0,
+            "verificationThreads": 2,
+            "workgroupSize": 64
+          },
+          "iterations": 1000000,
+          "localSharesPerSecond": 0.0,
+          "locallyVerifiedShares": 0,
+          "mode": "compute-only",
+          "networkUsed": false,
+          "noncesPerSecond": 358.4289034155852,
+          "seconds": 90.026221916,
+          "shareTargetBits": null,
+          "threads": 1,
+          "type": "benchmark",
+          "unit": "N/s",
+          "workNonces": 32268
+        },
+        "lateSamples": [
+          351.5349826966928,
+          358.59198223773006,
+          362.85271598349027,
+          362.34779544478044,
+          358.73335422623774,
+          363.3564886363919,
+          360.43740318260745,
+          355.59225186185074,
+          348.10519471964454,
+          344.0479138486503,
+          357.8894938784117,
+          359.4786213948694
+        ],
+        "cpuPercentOfOneCoreMedian": 5.8
+      },
+      {
+        "label": "B",
+        "benchmark": {
+          "backend": "gpu",
+          "duty": 0.8999999761581421,
+          "gpuDiagnostics": {
+            "batchNonces": 2560,
+            "completedBatchNonces": 40960,
+            "computeSeconds": 86.241858625,
+            "dispatchIterations": 2000,
+            "responsiveIterations": 2000,
+            "verificationSeconds": 0.0,
+            "verificationThreads": 2,
+            "workgroupSize": 64
+          },
+          "iterations": 1000000,
+          "localSharesPerSecond": 0.0,
+          "locallyVerifiedShares": 0,
+          "mode": "compute-only",
+          "networkUsed": false,
+          "noncesPerSecond": 475.1211990737804,
+          "seconds": 90.012822167,
+          "shareTargetBits": null,
+          "threads": 1,
+          "type": "benchmark",
+          "unit": "N/s",
+          "workNonces": 42767
+        },
+        "lateSamples": [
+          465.7190466257256,
+          464.90033636686627,
+          476.1134970967877,
+          474.6790555907696,
+          466.27838096677476,
+          474.9773410673012,
+          463.82689372931765,
+          481.18141910058847,
+          464.4248643395587,
+          479.44683696381355,
+          470.84828945183756,
+          480.53112427415647
+        ],
+        "cpuPercentOfOneCoreMedian": 7.1
+      },
+      {
+        "label": "B",
+        "benchmark": {
+          "backend": "gpu",
+          "duty": 0.8999999761581421,
+          "gpuDiagnostics": {
+            "batchNonces": 2560,
+            "completedBatchNonces": 40960,
+            "computeSeconds": 85.926748664,
+            "dispatchIterations": 2000,
+            "responsiveIterations": 2000,
+            "verificationSeconds": 0.0,
+            "verificationThreads": 2,
+            "workgroupSize": 64
+          },
+          "iterations": 1000000,
+          "localSharesPerSecond": 0.0,
+          "locallyVerifiedShares": 0,
+          "mode": "compute-only",
+          "networkUsed": false,
+          "noncesPerSecond": 477.05401954591105,
+          "seconds": 90.033828959,
+          "shareTargetBits": null,
+          "threads": 1,
+          "type": "benchmark",
+          "unit": "N/s",
+          "workNonces": 42951
+        },
+        "lateSamples": [
+          479.8702775909164,
+          478.5495901372743,
+          472.8226577848088,
+          461.34302121314124,
+          486.20516296713737,
+          491.0188262097715,
+          464.08619108544326,
+          484.001340196114,
+          473.6400530405544,
+          484.6496514351182,
+          468.01680357293685,
+          483.7101304107385
+        ],
+        "cpuPercentOfOneCoreMedian": 7.3
+      },
+      {
+        "label": "A",
+        "benchmark": {
+          "backend": "gpu",
+          "duty": 0.8999999761581421,
+          "gpuDiagnostics": {
+            "batchNonces": 2048,
+            "completedBatchNonces": 30720,
+            "computeSeconds": 85.453799541,
+            "dispatchIterations": 2000,
+            "responsiveIterations": 2000,
+            "verificationSeconds": 0.0,
+            "verificationThreads": 2,
+            "workgroupSize": 64
+          },
+          "iterations": 1000000,
+          "localSharesPerSecond": 0.0,
+          "locallyVerifiedShares": 0,
+          "mode": "compute-only",
+          "networkUsed": false,
+          "noncesPerSecond": 360.14235490617233,
+          "seconds": 90.042172375,
+          "shareTargetBits": null,
+          "threads": 1,
+          "type": "benchmark",
+          "unit": "N/s",
+          "workNonces": 32428
+        },
+        "lateSamples": [
+          349.0235592582761,
+          356.9114320530799,
+          366.45238359882495,
+          354.20287101630674,
+          357.59598326424884,
+          357.1342536057217,
+          365.7819339428537,
+          365.06542703578066,
+          363.02609745779444,
+          364.86717065551744,
+          346.7729713747269,
+          376.29937134601875
+        ],
+        "cpuPercentOfOneCoreMedian": 6.4
+      }
+    ]
+  },
+  "offlineVerification": {
+    "backend": "gpu",
+    "duty": 0.8999999761581421,
+    "gpuDiagnostics": {
+      "batchNonces": 2560,
+      "completedBatchNonces": 20480,
+      "computeSeconds": 42.886861,
+      "dispatchIterations": 2000,
+      "responsiveIterations": 2000,
+      "verificationSeconds": 1.638414251,
+      "verificationThreads": 2,
+      "workgroupSize": 64
+    },
+    "iterations": 1000000,
+    "localSharesPerSecond": 0.35544253339215254,
+    "locallyVerifiedShares": 16,
+    "mode": "compute-and-cpu-share-verification",
+    "networkUsed": false,
+    "noncesPerSecond": 478.60337121253343,
+    "seconds": 45.014308916,
+    "shareTargetBits": 10,
+    "threads": 1,
+    "type": "benchmark",
+    "unit": "N/s",
+    "workNonces": 21544
+  },
+  "gui": {
+    "seconds": 262.2,
+    "totals": {
+      "accepted": 0,
+      "rejected": 0,
+      "submitted": 0
+    },
+    "last": {
+      "total": 487.48580159424455,
+      "gpu": 487.48580159424455,
+      "cpu": null
+    },
+    "recordedSampleMean": 465.6987339132182,
+    "positiveSampleMean": 474.86603182489574,
+    "positiveSampleMedian": 475.7934830949489,
+    "zeroSamples": 5,
+    "unavailableSamples": 3,
+    "stopClean": true,
+    "activeQuit": true,
+    "hiddenWindowContinued": true,
+    "rendererErrors": []
+  },
+  "visualQA": {
+    "passed": true,
+    "languages": [
+      "zh",
+      "en"
+    ],
+    "views": [
+      "mining",
+      "about"
+    ],
+    "minimumWidth": 780
+  },
+  "tests": {
+    "guiWindows": 45,
+    "guiMac": 45,
+    "nativeProtocol": 11,
+    "profileSelection": 2,
+    "cpuConsensus": 2,
+    "metalHardware": 2,
+    "actualBatchGeometryCompared": true
+  },
+  "package": {
+    "version": "0.1.14",
+    "guiSeconds": 262.2,
+    "guiTotals": {
+      "accepted": 0,
+      "rejected": 0,
+      "submitted": 0
+    },
+    "guiLastRate": {
+      "total": 487.48580159424455,
+      "gpu": 487.48580159424455,
+      "cpu": null
+    },
+    "preservedNativeFiles": 19397,
+    "dmgVerified": true,
+    "mountedFilesVerified": 19480,
+    "dmgSha256": "1c51a639803cca765512871c9cf0eda48a7524b47fd02533946cb11b2516f1b9",
+    "dmgBytes": 575590892,
+    "coreSha256": "c54d998df91b953d2e8e7425ec0dd8235a0782a0c779ae0b3bde360efc10f4bf"
+  },
+  "deployment": {
+    "desktopApp": "/Users/apple/Desktop/Gozero助手.app",
+    "desktopDmg": "/Users/apple/Desktop/Gozero-Assistant-Mac-0.1.14-arm64.dmg",
+    "settingsAndFeeLedgerPreserved": true,
+    "openedIdle": true,
+    "localDmgHashVerified": true
+  },
+  "screenshots": [
+    ".local/mds-opt/MDS-live.png",
+    ".local/mds-opt/MDS-en.png"
+  ],
+  "limits": [
+    "One 10-core base M3 measured; the untested 8-core M3 reports the same adapter name.",
+    "Local N/s includes fractional unfinished work; it is not pool-estimated rate or guaranteed revenue.",
+    "This 262.2-second GUI pool run submitted0/accepted0/rejected0; no0.1.14 external share acceptance demonstrated.",
+    "No multi-day, all-model, power-efficiency or Apple-notarization claim."
+  ],
+  "rejectedExperiments": [
+    "Specialized/unrolled/vector/interleaved BLAKE3 variants did not prove repeatable gains.",
+    "4096/4000 could peak near800 then drop near275 N/s; excluded.",
+    "QoS, process activities, sleep-credit pacing and grouped passes did not fix the cliff."
+  ],
+  "rawEvidence": ".local/mds-opt/research-results.tar.gz; .local/mds-opt/final; authorized M3 session/mds-opt",
+  "githubPublished": false
+}

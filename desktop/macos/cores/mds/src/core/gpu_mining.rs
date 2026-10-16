@@ -123,23 +123,23 @@ fn verify_candidate_chunk(
 // file is optional; if it's absent or unparseable these defaults are used.
 //
 //     # GPU_OC_SETTINGS.toml
-//     batch_nonces       = 24576   # nonces per batch (GPU saturation ↔ share latency)
+//     batch_nonces       = 0       # auto: measured base-M3 profile, conservative fallback
 //     iters_per_dispatch = 2000    # chain steps per dispatch (host round-trips ↔ watchdog)
-//     responsive_iters   = 1000    # dispatch size while throttled (duty < 1.0)
+//     responsive_iters   = 2000    # dispatch size while throttled (duty < 1.0)
 //     duty               = 1.0     # 0.02..=1.0 fraction of time the GPU works
 
-const DEFAULT_BATCH_NONCES: u32 = 1 << 13; // 8,192
+const DEFAULT_BATCH_NONCES: u32 = 0; // resolved after selecting the actual GPU
 const DEFAULT_ITERS_PER_DISPATCH: u32 = 2_000;
-// Fewer host round-trips / sub-millisecond sleeps at the same requested duty.
-// Keep the 8192-nonce batch and cancellation check after every dispatch.
-const DEFAULT_RESPONSIVE_ITERS: u32 = 1_000;
+// Keep cancellation checks after every bounded dispatch.
+const DEFAULT_RESPONSIVE_ITERS: u32 = 2_000;
 const DEFAULT_DUTY: f32 = 1.0;
 
 /// Runtime-tunable GPU knobs, loaded once from `GPU_OC_SETTINGS.toml`.
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(default)]
 pub struct GpuSettings {
-    /// Nonces ground per batch. **Critical for finding blocks/shares:** a batch
+    /// Nonces ground per batch; zero selects a device-specific profile.
+    /// **Critical for finding blocks/shares:** a batch
     /// is only tested after every nonce finishes the full EXTENSION_ITERATIONS
     /// chain, so it must *complete* faster than the mining job changes
     /// (≈ batch_nonces ÷ nonces_per_sec < job interval) or nothing is surfaced.
@@ -186,7 +186,7 @@ impl Default for GpuSettings {
 
 impl GpuSettings {
     fn sanitized(mut self) -> Self {
-        self.batch_nonces = self.batch_nonces.clamp(64, 65536);
+        if self.batch_nonces != 0 { self.batch_nonces = self.batch_nonces.clamp(64, 65536); }
         self.iters_per_dispatch = self.iters_per_dispatch.clamp(1, 4000);
         self.responsive_iters = self.responsive_iters.clamp(1, 4000);
         if ![32,64,128,256].contains(&self.workgroup_size) { self.workgroup_size = 64; }
@@ -247,6 +247,33 @@ fn gpu_duty() -> f32 {
 }
 
 const SELFTEST_N: u32 = 8;
+
+// Only the base Apple M3 has been measured. Do not silently apply its geometry
+// to Pro/Max/Ultra or other generations; explicit settings always take priority.
+fn resolved_batch_nonces(configured: u32, name: &str, backend: wgpu::Backend) -> u32 {
+    if configured != 0 { return configured; }
+    if backend == wgpu::Backend::Metal && name == "Apple M3" { 2560 } else { 2048 }
+}
+
+#[cfg(test)]
+mod metal_profile_tests {
+    use super::*;
+    #[test]
+    fn auto_geometry_is_limited_to_the_measured_device() {
+        assert_eq!(resolved_batch_nonces(0, "Apple M3", wgpu::Backend::Metal), 2560);
+        for name in ["Apple M1", "Apple M3 Pro", "Apple M3 Max", "Apple M4"] {
+            assert_eq!(resolved_batch_nonces(0, name, wgpu::Backend::Metal), 2048);
+        }
+        assert_eq!(resolved_batch_nonces(0, "Apple M3", wgpu::Backend::Vulkan), 2048);
+        assert_eq!(resolved_batch_nonces(8192, "Apple M3", wgpu::Backend::Metal), 8192);
+    }
+    #[test]
+    fn auto_sentinel_survives_settings_validation() {
+        assert_eq!(GpuSettings::default().sanitized().batch_nonces, 0);
+        let mut settings = GpuSettings::default(); settings.batch_nonces = 1;
+        assert_eq!(settings.sanitized().batch_nonces, 64);
+    }
+}
 
 // NOTE: `wasm-wallet/pow.wgsl` is a copy of this kernel, loaded by the browser
 // miner (`gpu_miner.js`) via WebGPU. A fix here should be ported there.
@@ -738,6 +765,8 @@ struct MinerState {
 }
 
 pub struct GpuMiner {
+    batch_nonces: u32,
+    poll_completions: bool,
     device: wgpu::Device,
     queue: wgpu::Queue,
     pipe_init: wgpu::ComputePipeline,
@@ -857,7 +886,9 @@ impl GpuMiner {
         if workgroup_size > limits.max_compute_invocations_per_workgroup || workgroup_size > limits.max_compute_workgroup_size_x {
             bail!("configured workgroup size unsupported by this GPU");
         }
-        let winners_bytes = 16 + u64::from(settings().batch_nonces) * 16;
+        let batch_nonces = resolved_batch_nonces(settings().batch_nonces, &info.name, info.backend);
+        let poll_completions = info.backend == wgpu::Backend::Metal;
+        let winners_bytes = 16 + u64::from(batch_nonces) * 16;
 
         // VERSION: wgpu >=24 takes a single `&DeviceDescriptor` and returns
         // Result. The `trace` field exists on >=~25; delete it on older
@@ -924,7 +955,7 @@ impl GpuMiner {
         });
         let state_buf = device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("state"),
-            size: (settings().batch_nonces as u64) * 8 * 4,
+            size: (batch_nonces as u64) * 8 * 4,
             usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_SRC,
             mapped_at_creation: false,
         });
@@ -952,6 +983,7 @@ impl GpuMiner {
         });
 
         Ok(Self {
+            batch_nonces, poll_completions,
             device, queue, pipe_init, pipe_step, pipe_test, bind_group,
             params_buf, state_buf, winners_buf, readback_buf, adapter_name,
             workgroup_size, winners_bytes,
@@ -962,7 +994,7 @@ impl GpuMiner {
 
     pub fn adapter_name(&self) -> &str { &self.adapter_name }
     pub fn diagnostics(&self) -> serde_json::Value {
-        serde_json::json!({"workgroupSize":self.workgroup_size,"batchNonces":settings().batch_nonces,
+        serde_json::json!({"workgroupSize":self.workgroup_size,"batchNonces":self.batch_nonces,
             "dispatchIterations":settings().iters_per_dispatch,"responsiveIterations":settings().responsive_iters,
             "verificationThreads":settings().verification_threads,"completedBatchNonces":self.completed_nonces.load(Ordering::Relaxed),
             "computeSeconds":self.compute_ns.load(Ordering::Relaxed) as f64/1e9,
@@ -984,6 +1016,16 @@ impl GpuMiner {
     }
 
     fn wait(&self) {
+        if self.poll_completions {
+            // Metal completion polling measured slightly faster than the
+            // blocking wait on M3. Sleep between checks; never spin a CPU core
+            // or access buffers before wgpu confirms that submissions retired.
+            loop {
+                let status = self.device.poll(wgpu::PollType::Poll).expect("GPU completion poll failed");
+                if status.is_queue_empty() { return; }
+                std::thread::sleep(std::time::Duration::from_micros(500));
+            }
+        }
         // wgpu 29: PollType::Wait now carries { submission_index, timeout };
         // wait_indefinitely() is the old "block until all submitted work is done".
         let _ = self.device.poll(wgpu::PollType::wait_indefinitely());
@@ -1025,7 +1067,7 @@ impl GpuMiner {
         params.n_nonces = n_nonces;
         params.iters = 0;
         self.queue.write_buffer(&self.params_buf, 0, bytemuck::bytes_of(&*params));
-        self.queue.write_buffer(&self.winners_buf, 0, bytemuck::cast_slice(&[0u32, settings().batch_nonces]));
+        self.queue.write_buffer(&self.winners_buf, 0, bytemuck::cast_slice(&[0u32, self.batch_nonces]));
 
         let groups = self.groups(n_nonces);
         self.dispatch(&self.pipe_init, groups);
@@ -1119,19 +1161,19 @@ impl GpuMiner {
                         }
                     }
                     if !cancel.load(Ordering::Relaxed) {
-                        self.completed_nonces.fetch_add(u64::from(settings().batch_nonces), Ordering::Relaxed);
+                        self.completed_nonces.fetch_add(u64::from(self.batch_nonces), Ordering::Relaxed);
                     }
                 }
             }) };
             let (pool, has_pool) = pool_target.map_or(([0; 8], 0), |p| (words_be(&p), 1));
             let mut params = Params {
                 midstate: words_le(&midstate), target: words_be(&target), pool,
-                base_lo: 0, base_hi: 0, n_nonces: settings().batch_nonces,
+                base_lo: 0, base_hi: 0, n_nonces: self.batch_nonces,
                 iters: 0, has_pool, pad0: 0, pad1: 0, pad2: 0,
             };
             'compute: while !cancel.load(Ordering::Relaxed) {
                 let start = Instant::now();
-                let Some(winners) = self.run_batch(&mut params, rand::random(), settings().batch_nonces,
+                let Some(winners) = self.run_batch(&mut params, rand::random(), self.batch_nonces,
                     &cancel, &hash_counter, true) else { break; };
                 self.compute_ns.fetch_add(start.elapsed().as_nanos() as u64, Ordering::Relaxed);
                 let mut candidates = winners.into_iter().map(|(nonce, _)| nonce).collect();
@@ -1194,7 +1236,7 @@ impl GpuMiner {
             midstate: words_le(&midstate),
             target: words_be(&target),
             pool: pool_words,
-            base_lo: 0, base_hi: 0, n_nonces: settings().batch_nonces, iters: 0, has_pool,
+            base_lo: 0, base_hi: 0, n_nonces: self.batch_nonces, iters: 0, has_pool,
             pad0: 0, pad1: 0, pad2: 0,
         };
 
@@ -1205,7 +1247,7 @@ impl GpuMiner {
             }
             let base: u64 = rand::random();
             let compute_start = Instant::now();
-            let winners = self.run_batch(&mut params, base, settings().batch_nonces, &cancel, &hash_counter, true)?;
+            let winners = self.run_batch(&mut params, base, self.batch_nonces, &cancel, &hash_counter, true)?;
             self.compute_ns.fetch_add(compute_start.elapsed().as_nanos() as u64, Ordering::Relaxed);
 
             // CPU-verify every candidate; the CPU result is authoritative. Blocks
@@ -1214,7 +1256,7 @@ impl GpuMiner {
             let verification_start = Instant::now();
             let mut hits = verify_gpu_candidates(midstate, &candidates, target, pool_target, &cancel)?;
             self.verification_ns.fetch_add(verification_start.elapsed().as_nanos() as u64, Ordering::Relaxed);
-            self.completed_nonces.fetch_add(u64::from(settings().batch_nonces), Ordering::Relaxed);
+            self.completed_nonces.fetch_add(u64::from(self.batch_nonces), Ordering::Relaxed);
             if hits.is_empty() {
                 continue; // no winner this batch -> next batch, fresh random base
             }
@@ -1385,11 +1427,43 @@ impl GpuMiner {
         Ok(())
     }
 
+    /// Compare sparse full-chain results at the configured mining batch size,
+    /// with a partial final workgroup and nonce low-word carry. This exercises
+    /// the production dispatch geometry without CPU-verifying every nonce.
+    pub fn geometry_self_test(&self) -> Result<()> {
+        let _guard = self.state.lock().unwrap_or_else(|p| p.into_inner());
+        let n = self.batch_nonces - 3;
+        let base = u32::MAX as u64 - 7;
+        let midstate = [0x6Du8; 32];
+        let samples = [0, 7, 8, 31, 32, n / 2, n - 1];
+        let mut p = Params { midstate: words_le(&midstate), target: [0;8], pool: [0;8],
+            base_lo:0, base_hi:0, n_nonces:n, iters:0, has_pool:0, pad0:0, pad1:0, pad2:0 };
+        let never = AtomicBool::new(false);
+        let counter = AtomicU64::new(0);
+        self.run_batch(&mut p, base, n, &never, &counter, false)
+            .ok_or_else(||anyhow!("geometry self-test unexpectedly cancelled"))?;
+        if counter.load(Ordering::Relaxed) != u64::from(n) { bail!("GPU geometry work count mismatch"); }
+        let mut enc = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+        for (i, gid) in samples.iter().enumerate() {
+            enc.copy_buffer_to_buffer(&self.state_buf, u64::from(*gid) * 32,
+                                      &self.readback_buf, i as u64 * 32, 32);
+        }
+        self.queue.submit([enc.finish()]);
+        let bytes = self.map_readback(samples.len() as u64 * 32);
+        for (i, gid) in samples.iter().enumerate() {
+            let expected = create_extension(midstate, base + u64::from(*gid)).final_hash;
+            if bytes[i*32..(i+1)*32] != expected {
+                bail!("GPU geometry self-test mismatch at lane {gid} of {n}");
+            }
+        }
+        Ok(())
+    }
+
     /// Hardware regression check: surface >256 hits, including a low-word
     /// nonce carry and a partial workgroup, without truncation or duplication.
     pub fn candidate_self_test(&self) -> Result<()> {
         let _guard = self.state.lock().unwrap_or_else(|p| p.into_inner());
-        let n = 321.min(settings().batch_nonces);
+        let n = 321.min(self.batch_nonces);
         let base = u32::MAX as u64 - 7;
         let mut p = Params { midstate: words_le(&[0x39;32]), target:[0;8], pool:[u32::MAX;8],
             base_lo:0, base_hi:0, n_nonces:n, iters:0, has_pool:1, pad0:0, pad1:0, pad2:0 };

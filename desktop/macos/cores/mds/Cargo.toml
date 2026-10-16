@@ -1,6 +1,6 @@
 [package]
 name = "gozero-mds-core"
-version = "0.1.13-mac"
+version = "0.1.14-mac"
 edition = "2021"
 license = "GPL-3.0-only"
 [[bin]]

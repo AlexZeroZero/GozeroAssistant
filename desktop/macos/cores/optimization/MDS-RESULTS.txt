@@ -1,0 +1,64 @@
+MDS / Midstate - Mac 0.1.14 scheduling optimization
+Measured 2026-10-16 on one base Apple M3, 10 GPU cores, 16 GiB.
+
+Retained changes
+- Auto batch size resolves to 2560 only for the exact Apple M3 / Metal adapter.
+  Other adapters retain 2048. Explicit nonzero batch settings take precedence.
+- Metal completion polling sleeps 500 microseconds between checks. It does not
+  busy-spin or return until wgpu reports that GPU submissions have retired.
+- 2000 iterations/dispatch, 64 threads/group, two CPU verification threads and
+  the GUI's 90% requested duty remain. Stop/quit and the 0.5% fee are unchanged.
+- BLAKE3 WGSL is byte-identical to 0.1.13; its SHA256 is
+  0c70b8c8cdb529c7dcd37bf2c7a13a9c1f14c3071de7510186623268c2397dc3.
+  Every nonce still executes the full million rounds; every GPU candidate is
+  checked by the CPU. No research shader override or experimental policy ships.
+
+Controlled comparison of the actual signed production binaries
+Order: old, new, new, old; 90 seconds each, same M3 and 90% duty.
+Old: 2048 nonces, blocking completion wait. New: 2560, sleeping completion poll.
+Each process completed the original CPU and Metal selftests before timing.
+
+                 Old A1      New B1      New B2      Old A2
+Work rate N/s    358.429     475.121     477.054     360.142
+CPU % / 1 core     5.8         7.1         7.3         6.4
+
+Mean work rate: 359.286 -> 476.088 N/s (+32.51%).
+Completed-batch compute rate: 358.887 -> 475.813 N/s.
+Mean time per complete batch: 5.707 -> 5.380 seconds.
+Median samples after the first 30 seconds: 358.663 -> 474.828 N/s.
+These are local full-chain work equivalents, including fractional progress in
+the work-rate counter. They are not pool-estimated hashrate or revenue claims.
+CPU percentages use macOS's one-core=100% convention, not whole-machine usage.
+
+An additional 45.014-second offline test with an easy 10-bit share target ran
+at 478.603 N/s and produced 16 CPU-verified proofs. This did not use a network
+or produce pool-accepted shares. Real GUI/pool results and installer integrity
+are recorded separately in gui/evidence/mac-mds-optimization-0.1.14.json.
+
+Rejected experiments / limitations
+- Specialized 32-byte BLAKE3, struct states, reordered additions, loop unrolling,
+  vector4 expressions and interleaved independent chains did not establish a
+  useful repeatable shader improvement. Original shader retained.
+- 4096/4000 configurations sometimes began near 800 N/s then fell to about
+  275 N/s after roughly 20 seconds. Their short averages are misleading and
+  those profiles were excluded. Other large batches also lost useful latency.
+- QoS changes, NSProcessInfo activities, sleep-credit pacing and grouping short
+  passes did not reliably eliminate that cliff. None is enabled in the release.
+- 2560/2000 performed better than tested 3072/2000, 5120/1500 and 2560/3000
+  alternatives while retaining short batch completion time. The mechanism of
+  the large-dispatch cliff is not proven by hardware counters.
+- No claim of all-M-series performance, multi-day stability, power efficiency
+  or guaranteed pool returns. Other adapter names use the conservative profile.
+  The untested 8-core M3 reports the same name and also selects the M3 profile;
+  the measured result here applies only to the tested 10-core machine.
+
+Validation
+45 GUI/controller tests on Windows and Mac; 11 native protocol tests;
+2 profile-selection tests; 2 CPU consensus tests; 2 actual GPU tests.
+GPU tests include full-chain equality, a sparse comparison at batch-size minus
+three with nonce low-word carry and a partial workgroup, candidate capacity,
+and CPU verification/cancellation across jobs. Existing source licenses remain.
+
+Private raw logs/scripts: .local/mds-opt and the authorized M3 session/mds-opt.
+Production comparison: production-ab/results.json and summary.json.
+Negative screening samples are retained in research-results.tar.gz.

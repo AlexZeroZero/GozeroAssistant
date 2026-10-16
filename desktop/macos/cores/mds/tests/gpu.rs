@@ -5,6 +5,7 @@ use gozero_mds_core::core::gpu_mining::GpuMiner;
 fn full_chain_and_candidate_capacity() {
     let miner = GpuMiner::new_index(0).unwrap();
     miner.self_test().unwrap();
+    miner.geometry_self_test().unwrap();
     miner.candidate_self_test().unwrap();
 }
 

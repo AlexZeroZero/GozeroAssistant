@@ -1146,3 +1146,56 @@ MDS METAL / MAC 0.1.13 M3 TESTED AND DEPLOYED - 2026-10-16
   than displaying reconnect; explicitly expired jobs await replacement and zero
   telemetry/fee work until a new job.45 tests rerun on both hosts, bilingual GUI
   QA repeated, final app/DMG re-signed/reverified. Mining core unchanged.
+
+
+MDS SCHEDULING OPTIMIZATION / MAC 0.1.14 DEPLOYED - 2026-10-16
+- User requested higher Mac MDS hashrate. Extensive M3 screening retained the
+  original exact BLAKE3 shader; specialized32-byte/struct/vector/unrolled/interleaved
+  alternatives did not prove useful gains. Shader SHA256 unchanged from4334070:
+  0c70b8c8cdb529c7dcd37bf2c7a13a9c1f14c3071de7510186623268c2397dc3.
+- Core auto batch0 resolves to2560 only for adapter name Apple M3 viaMetal;
+  other names retain2048 and explicit nonzero settings win. This10-coreM3 was
+  measured; the8-core variant shares the name and was NOT separately validated.
+  Metal completion polling sleeps500us between polls; no busy spin or premature
+  buffer access. Dispatch2000/group64/verify2, GUI90%duty and fullmillion rounds
+  retained. No research shader overrides, QoS, activity, pacing or grouped passes
+  enter production. Other coins/profiles and original0.5%fee math unchanged.
+- Signed production binaries, ABBA4x90sec at same90%duty:
+  old358.429,new475.121,new477.054,old360.142N/s. Mean359.286->476.088 (+32.51%).
+  Completed-batch compute rate358.887->475.813N/s; mean complete-batch latency
+  5.707->5.380s. Late-sample medians358.663->474.828N/s. CPU medians5.8/6.4%
+  old versus7.1/7.3%new, where100%is one CPU core. No power measurement.
+- Extra45.014s offline compute+CPU-verification benchmark:478.603N/s,16 locally
+  verified proofs at a10-bit test target; no network and not accepted shares.
+-45GUI/controller tests on Windows AND Mac,11native protocol,2profile-selection,
+  2CPU-consensus and2actual GPU tests pass. Added sparse full-hash comparison at
+  real batch-size minus3, including partial workgroup and nonce low-word carry.
+- Real GUI/pool262.2s:submitted0/accepted0/rejected0. Last487.486N/s; positive
+  observation mean474.866/median475.793. Recorded numeric mean465.699 includes
+  five zero samples; three initial unavailable samples excluded. No0.1.14 external
+  accepted-share evidence. Protocol and mathematical shader unchanged from0.1.13.
+  Bilingual780px QA, hidden/menu continuation, Stop/no orphan, reload and active
+  Quit pass. Screenshots.local/mds-opt/MDS-live.png and MDS-en.png are actual GUI.
+- Desktop Gozero助手.app and Gozero-Assistant-Mac-0.1.14-arm64.dmg installed,
+  opened idle. Exact latest settings/fee-ledger bytes preserved;19397 other native
+  payload files and retained README/MULTICOIN/BNT docs unchanged. Oldapp and old
+  0.1.13DMG backed up under authorized session/mds-opt. No unattended mining.
+- DMG575590892bytes; hdiutil verification, ad-hoc code signature and readonly-
+  mounted19480 file hashes pass. Matching Windows copy.local/mds-opt verified.
+  DMG SHA256:1c51a639803cca765512871c9cf0eda48a7524b47fd02533946cb11b2516f1b9.
+  Signed core:c54d998df91b953d2e8e7425ec0dd8235a0782a0c779ae0b3bde360efc10f4bf.
+  Developer ID signing/notarization and all-model/multi-day stability not claimed.
+- Evidence gui/evidence/mac-mds-optimization-0.1.14.json; research summary
+  cores/optimization/MDS-RESULTS.txt. Raw scripts/logs.local/mds-opt and matching
+  remote session/mds-opt. Negative samples retained:4096/4000 could start~800N/s
+  then fall~275 after20s; short averages were rejected. Hardware root cause of
+  that cliff not proven. NSProcessInfo/QoS/pacing/grouped attempts did not fix it.
+- CAUTION: old remote mds-mac/mds/target was reused for research then clean
+  production rebuild. The installed signed app/production-core are the shipping
+  artifacts; never package research-core/timed-core/qos-core/grouped-core/
+  activity-core/poll-core or source under mds-opt/core. Clean release source is
+  mds-opt/release-repo and source bundled in0.1.14. Production contains no
+  GZ_RESEARCH_* hooks or experimental dylib loader.
+- No GitHub publication for this task. Public0.1.12 remains the last switched
+  release; earlier public-asset cleanup notes remain separate. Windows/main and
+  the publishing checkout were not modified.
