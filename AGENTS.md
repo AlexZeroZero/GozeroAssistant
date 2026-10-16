@@ -207,3 +207,16 @@ were rejected. Full correctness/lifecycle and actual GUI checks pass. Desktop
 App/DMG installed idle; this M3 MDS CPU preference8, other settings/fees preserved.
 See latest handoff/evidence for thermal drift, GUI counts and limits. One M3,
 no multi-day/all-M/energy-efficiency guarantee; no GitHub publication.
+
+
+Latest checkpoint: Mac0.1.18 splits the GUI from pinned on-demand core archives.
+DMG146988534bytes vs full0.1.17 586065763bytes (74.92% smaller). NOID/BNT share
+Node; QTC/PRL share Python; MDS needs neither. Archives and all extracted files
+are verified, cache replacement atomic, Stop cancels download, cache works offline.
+Proxy connection failure falls back to HTTPS without OS settings changes.
+55 tests pass on Windows and Mac; all relocated native checks pass. Actual MDS
+GUI downloaded from GitHub, mined/hidden/stopped/quit cleanly;111s had0 submitted,
+accepted or rejected. No new speedup or pool-acceptance claim. Algorithms/fees
+unchanged. Desktop0.1.18 idle, settings/ledger bytes preserved, MDS cache ready.
+See mac-lite-0.1.18 evidence/handoff. Publication in progress; preserve release
+body, links, README, screenshots, main and Windows.

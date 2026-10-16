@@ -28,12 +28,12 @@ def main():
     shutil.copy2(core/'source/GPU_OC_SETTINGS.toml',core/'GPU_OC_SETTINGS.toml')
     (core/'MANIFEST.json').write_text(json.dumps({'arch':'arm64','version':'0.1.17-mac','files':{n:sha(core/n) for n in ['GozeroMdsCore','GPU_OC_SETTINGS.toml']}}),encoding='utf-8')
     shutil.copy2(core/'source/README-MAC.txt',target/'MDS-MAC.txt')
-    pkg=target/'package.json';d=json.loads(pkg.read_text());d['version']='0.1.17';pkg.write_text(json.dumps(d,ensure_ascii=False))
-    plist=a.output/'Contents/Info.plist';d=plistlib.loads(plist.read_bytes());d.update(CFBundleShortVersionString='0.1.17',CFBundleVersion='18');plist.write_bytes(plistlib.dumps(d))
+    pkg=target/'package.json';d=json.loads(pkg.read_text());d['version']='0.1.18';pkg.write_text(json.dumps(d,ensure_ascii=False))
+    plist=a.output/'Contents/Info.plist';d=plistlib.loads(plist.read_bytes());d.update(CFBundleShortVersionString='0.1.18',CFBundleVersion='19');plist.write_bytes(plistlib.dumps(d))
     run('codesign','--force','--sign','-',a.output)
     run('codesign','--verify','--deep','--strict',a.output)
     assert all(sha(native/n)==h for n,h in before.items()),'Previous cores changed'
-    manifest={'version':'0.1.17','baseAppVersion':plistlib.loads((a.base_app/'Contents/Info.plist').read_bytes())['CFBundleShortVersionString'],
+    manifest={'version':'0.1.18','baseAppVersion':plistlib.loads((a.base_app/'Contents/Info.plist').read_bytes())['CFBundleShortVersionString'],
               'files':{str(p.relative_to(target)):sha(p) for p in target.rglob('*') if p.is_file()}}
     (a.output.parent/'BUILD-MANIFEST.json').write_text(json.dumps(manifest,indent=2))
     print(json.dumps({'app':str(a.output),'core':json.loads((core/'MANIFEST.json').read_text())},ensure_ascii=False))

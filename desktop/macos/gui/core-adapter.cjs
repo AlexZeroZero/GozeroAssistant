@@ -2,20 +2,20 @@
 const path=require('node:path');
 const {GPU_ID,CPU_ID}=require('./config.cjs');
 const {formatRate}=require('./coins.cjs');
-function launchSpec(root,dir,cfg,report){
+function launchSpec(root,dir,cfg,report,runtime={}){
  const coin=cfg.coin,wallet=cfg.wallets[coin];
  if(!['QTC','PRL','BNT','MDS'].includes(coin)||!wallet)throw Error('内核配置无效');
  if(coin==='MDS'){
   require('./mds.cjs').confirm(cfg);
   return {executable:path.join(root,'mds/GozeroMdsCore'),args:['--backend',cfg.cpuThreads>0?'hybrid':'gpu','--threads',String(cfg.cpuThreads||1),'--pool-url',cfg.pools.MDS,'--payout-address',wallet,'--worker',cfg.worker,'--mss-confirmed','--duty','0.9','--parent-pid',String(process.pid)],cwd:path.join(root,'mds'),env:{...process.env,WGPU_BACKEND:'metal',GPU_OC_SETTINGS:path.join(root,'mds/GPU_OC_SETTINGS.toml')}};
  }
- if(coin==='BNT')return {executable:path.join(root,'../node'),args:[path.join(__dirname,'bnt-runner.cjs'),'--core',path.join(root,'bnt/gozero-blocknet-core'),'--wallet',wallet,'--worker',cfg.worker,'--url',cfg.pools.BNT,'--threads',String(cfg.cpuThreads)],cwd:root,env:{...process.env}};
+ if(coin==='BNT')return {executable:runtime.node||path.join(root,'../node'),args:[path.join(__dirname,'bnt-runner.cjs'),'--core',path.join(root,'bnt/gozero-blocknet-core'),'--wallet',wallet,'--worker',cfg.worker,'--url',cfg.pools.BNT,'--threads',String(cfg.cpuThreads)],cwd:root,env:{...process.env}};
  const env={...process.env,PYTHONUNBUFFERED:'1',PYTHONDONTWRITEBYTECODE:'1'};
  // Mutable admission records and pool ledger belong to the profile, never the app.
  env.PMK_HOME=path.join(dir,'prl-state');
  env.PMK_RESOURCE_BUNDLE=path.join(root,'prl/libpmk/.build/release/libpmk_PMK.bundle');
  const args=coin==='QTC'?[path.join(root,'qtc/pool_miner.py'),'--core',path.join(root,'qtc/gozero_worker'),'--wallet',wallet,'--worker',cfg.worker,'--host',cfg.host,'--port',String(cfg.port),'--seconds','0','--adaptive-batch','--max-batch','1048576','--report',report]:[path.join(root,'prl_gui.py'),'--wallet',wallet,'--worker',cfg.worker,'--pool',cfg.pools.PRL];
- return {executable:path.join(root,'python/bin/python3'),args,cwd:root,env};
+ return {executable:runtime.python||path.join(root,'python/bin/python3'),args,cwd:root,env};
 }
 function coreEvent(m,e){
  const coin=m.session.coin,event=e.event,id=coin==='BNT'?CPU_ID:GPU_ID;

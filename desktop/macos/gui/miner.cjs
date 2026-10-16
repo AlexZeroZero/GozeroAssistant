@@ -5,7 +5,7 @@ const {verifyNative}=require('../../experiments/noid-apple/miner_cli.cjs');
 const {launchSpec,coreEvent}=require('./core-adapter.cjs');
 const {GPU_ID,CPU_ID}=require('./config.cjs');
 class Miner extends EventEmitter{
- constructor(dir,nativeDir,log,deps={}){super();this.dir=dir;this.nativeDir=nativeDir;this.log=log;this.spawn=deps.spawn||spawn;this.verify=deps.verify||verifyNative;this.status='idle';this.jobs=new Map();this.child=null;this.epoch=0;this.serial=0;this.points=[];this.totals={accepted:0,rejected:0,submitted:0};this.rate={total:null,cpu:null,gpu:null};this.done=Promise.resolve();this.lastReport=null;}
+ constructor(dir,nativeDir,log,deps={}){super();this.dir=dir;this.nativeDir=nativeDir;this.log=log;this.spawn=deps.spawn||spawn;this.verify=deps.verify||verifyNative;this.resolve=deps.resolve;this.status='idle';this.jobs=new Map();this.child=null;this.epoch=0;this.serial=0;this.points=[];this.totals={accepted:0,rejected:0,submitted:0};this.rate={total:null,cpu:null,gpu:null};this.done=Promise.resolve();this.lastReport=null;}
  snapshot(){return{status:this.status,workState:this.workState,session:this.session,rate:this.rate,totals:this.totals,points:this.points,lastReport:this.lastReport,jobs:[...this.jobs.values()]};}
  update(){this.emit('update');}
  signal(child,signal){try{if(process.platform==='darwin'&&child.pid)process.kill(-child.pid,signal);else child.kill(signal);}catch(e){if(e.code!=='ESRCH')this.log('停止',e.message);}}
@@ -18,17 +18,19 @@ class Miner extends EventEmitter{
   let input;
   try{
    if(external&&benchmark)throw Error('离线测速目前仅支持 NOID');
-   const native=external?null:this.verify(this.nativeDir);await fs.mkdir(path.join(this.dir,'results'),{recursive:true});
+   const runtime=this.resolve?await this.resolve(cfg.coin||'NOID'):{nativeDir:this.nativeDir};const nativeDir=runtime.nativeDir;
+   if(epoch!==this.epoch)throw Error('启动已取消');
+   const native=external?null:this.verify(nativeDir);await fs.mkdir(path.join(this.dir,'results'),{recursive:true});
    if(epoch!==this.epoch)throw Error('启动已取消');
    const id=Date.now()+'-'+(++this.serial)+'-'+crypto.randomBytes(4).toString('hex');
    const report=path.join(this.dir,'results',id+'.json');this.lastReport=report;
-   let executable=path.join(this.nativeDir,'node'),args,options={cwd:this.nativeDir};
-   if(external){const spec=launchSpec(path.join(this.nativeDir,'cores'),this.dir,cfg,report);await fs.access(spec.executable);executable=spec.executable;args=spec.args;options={cwd:spec.cwd,env:spec.env};}
+   let executable=runtime.node||path.join(nativeDir,'node'),args,options={cwd:nativeDir};
+   if(external){const spec=launchSpec(path.join(nativeDir,'cores'),this.dir,cfg,report,runtime);await fs.access(spec.executable);executable=spec.executable;args=spec.args;options={cwd:spec.cwd,env:spec.env};}
    else if(benchmark){executable=native.executable;args=[native.flag,native.metal,'--search-seconds','30','--cpu-threads',String(cfg.cpuThreads)];}
    else{
     const seconds=0; // Explicit continuous mode in both controller and native worker.
     const command=[native.executable,native.flag,native.metal,'--worker-seconds','0','--cpu-threads',String(cfg.cpuThreads)];
-    const c={pool:cfg.pool,host:cfg.host,port:cfg.port,transport:cfg.transport||'tls',wallet:cfg.wallets.NOID,worker:cfg.worker,seconds,batch:65536,command,cwd:this.nativeDir};
+    const c={pool:cfg.pool,host:cfg.host,port:cfg.port,transport:cfg.transport||'tls',wallet:cfg.wallets.NOID,worker:cfg.worker,seconds,batch:65536,command,cwd:nativeDir};
     input=path.join(this.dir,'run-'+id+'.json');await fs.writeFile(input,JSON.stringify(c),{mode:0o600});
     args=[path.resolve(__dirname,'../../experiments/noid-apple/pool_runner.cjs'),input,report];
    }

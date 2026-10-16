@@ -23,6 +23,13 @@ function render(){if(!state?.config)return;document.body.classList.toggle('light
  text('#session-status',status);text('#overview-status',state.ready?'本机设备已连接 · '+status:'正在读取本机设备');text('#footer-state',state.ready?(h.chip+' · '+status):'正在读取本机设备');text('#footer-thermal','系统热状态：'+(thermal[h.thermalState]||'—'));text('#mining-device',state.config.coin==='BNT'?(h.chip+' CPU'):(h.gpu||'Apple GPU'));
  const coin=state.config.coin,cap=state.coins[coin];
  document.querySelectorAll('[data-coin]').forEach(e=>{e.disabled=busy;e.classList.toggle('active',e.dataset.coin===coin);});
+ const install=state.coreInstall,activeDownload=install&&install.coin===coin&&['checking','downloading','extracting'].includes(install.stage)&&state.starting;
+ $('#install-core').hidden=!install;$('#install-core').disabled=busy||!state.ready;
+ text('#install-core',install?.available[coin]?'校验内核':'下载内核');
+ text('#kernel-availability',!install?'内置 · 启动校验':install.available[coin]?'已缓存 · 启动校验':'按需下载 · 首次启动联网');
+ $('#download-status').hidden=!install;
+ const stages={checking:'正在校验内核',downloading:'正在下载内核',extracting:'正在解压并校验内核',ready:'内核已就绪，可离线复用',cancelled:'内核下载已取消',error:'内核下载失败，请重试'};
+ text('#download-status',activeDownload?(gozeroI18n.t(stages[install.stage],state.config.language)+' · '+install.package+' · '+fmt(install.received/1048576,' / ',1)+fmt(install.total/1048576,' MB',1)):install?.coin===coin&&['error','cancelled'].includes(install.stage)?(install.error||stages[install.stage]):install?.available[coin]?'内核已缓存；点击挖矿前会校验完整性':'首次挖矿自动下载所需内核；也可提前下载，下载完成后不会自动挖矿');
  text('#kernel-name',cap.kernel);$('#mds-address-row').hidden=coin!=='MDS';text('#core-status',coin==='MDS'?'MDS：Metal GPU + 可选 NEON CPU 协同 · 一百万轮 BLAKE3 · 完整校验':coin==='BNT'?'BNT：ARM64 CPU · 每线程 2 GiB 内存 · 短测已收到实池接受份额':coin==='NOID'?'NOID：已验证矿池接受份额':coin==='QTC'?'QTC：短测已收到实池接受份额；长期表现待验证':'PRL v3：本地校验通过；外部矿池接受份额待验证。电池供电时暂停；TMAC/s 为本地矩阵吞吐。');
  $('#wallet').placeholder=gozeroI18n.t('填写对应币种的公开收款地址',state.config.language)+' · '+coin;
  text('#fee-rule','内核费 0% · 软件服务费 0.5%');text('#cpu-label',cap.cpuOnly?'CPU · Argon2id':coin==='MDS'?'CPU · NEON':cap.cpu?'CPU · PMULL':'CPU');text('#cpu-note',cap.cpuOnly?'每线程 2 GiB；内存充足自动增线程，压力解除自动恢复':cap.cpu?'未启用协同时为 0':'此内核不支持 CPU 协同');
@@ -45,6 +52,7 @@ $('#language').onchange=()=>action(async()=>{await api.language($('#language').v
 $('#preset').onchange=()=>{const p=state.pools.find(p=>p.id===$('#preset').value);if(p){$('#pool').value=p.pool;$('#host').value=p.host;$('#port').value=p.port;$('#transport').value=p.transport;}dirty=true;};
 for(const id of ['pool','host','port','transport'])$('#'+id).addEventListener('input',()=>{$('#preset').value='custom';});
 $('#save-mining').onclick=()=>action(async()=>{await save();toast('挖矿配置已保存');});$('#save-settings').onclick=()=>action(async()=>{await save();toast('设置已保存');});
+$('#install-core').onclick=()=>action(async()=>{await save();await api.install();});
 $('#start').onclick=()=>action(async()=>{await save();await api.start();});$('#benchmark').onclick=()=>action(async()=>{await save();await api.benchmark();});
 $('#scan').onclick=()=>action(async()=>{state=await api.scan();render();});$('#theme').onclick=()=>action(async()=>{$('#theme-select').value=state.config.theme==='dark'?'light':'dark';await save();});$('#export-logs').onclick=()=>action(async()=>{if(await api.exportLogs())toast('日志已导出');});
 api.subscribe(s=>{const initial=!state;state=s;if(initial)hydrate();render();});action(async()=>{state=await api.bootstrap();hydrate();render();});setInterval(clock,1000);

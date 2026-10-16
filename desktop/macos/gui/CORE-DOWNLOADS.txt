@@ -1,0 +1,33 @@
+Gozero Mac 0.1.18 — 按需内核 / On-demand cores
+
+安装包只包含图形界面与设备监测。首次点击“一键挖矿”会先下载当前币种
+所需内核，再启动；“下载内核”只准备文件，不开始挖矿。可以随时停止。
+下载失败会显示错误，可再次点击重试；不会运行未完成或未通过校验的内核。
+
+缓存位于 ~/Library/Application Support/gozero-assistant-mac/kernels。
+已经完整下载的内核可离线复用；连接矿池仍需要网络。
+NOID、BNT 共用 Node；QTC、PRL 共用 Python，同版本不重复下载。
+MDS 不依赖这两个运行环境。地址、矿池、CPU设置和服务费账本仍在原配置目录。
+
+下载使用应用内固定的 GitHub URL、长度和 SHA256。解压后校验清单及全部文件，
+启动前再次检查。新缓存验证完成后才替换损坏缓存。不会执行在线脚本或安装
+系统 Python。系统代理连接失败时使用 HTTPS 直连，不修改系统代理设置。
+源代码和许可证在对应内核包、Mac源码标签及 Core-Sources 发布附件中提供。
+
+精简的是分发方式，NOID/QTC/PRL/BNT/MDS算法与0.1.17一致。
+保持完整共识校验、原始0.5%服务费、持续挖矿、停止/退出及温控保护。
+只在一台基础M3验证；ad-hoc签名，未经Apple公证。
+
+The small app downloads pinned cores on first Start. Download Core prepares
+files without starting mining. Stop cancels setup; retry after a network error.
+Verified caches work offline; mining pools still need network connectivity.
+NOID/BNT share Node; QTC/PRL share Python. MDS needs neither runtime.
+All packages and extracted files are checked against app-pinned SHA256 values.
+An unreachable system proxy falls back to HTTPS directly, without OS changes.
+Algorithms, settings and the original 0.5% fee mechanism are unchanged.
+Only a base M3 was tested. Ad-hoc signed; not Apple notarized.
+
+Build: package_lite.py packs --base-app <verified full .app> --output <new pack dir>
+Then package_lite.py app --base-app <same .app> --output <new build dir>
+     --catalog <pack dir>/core-catalog.json
+Publish all pinned core archives before publishing the GUI that references them.

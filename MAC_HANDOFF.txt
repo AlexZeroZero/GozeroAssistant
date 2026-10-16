@@ -1337,3 +1337,47 @@ The unchanged FeeController.load recomputes derived balance; one balance changed
 by1.3322676295501878e-15 seconds from floating-point rounding. Installation itself
 preserved ledger bytes; no fee formula or accrued-time change. App open idle,
 qualified core hash verified again after the equal-thread comparison.
+
+
+MAC0.1.18 ON-DEMAND DISTRIBUTION - 2026-10-16
+- User requested GitHub publication, then reducing package size using the Windows
+  download-on-demand approach. Full0.1.17 canonical DMG was uploaded and public
+  hash verified; compatibility assets were staged but NOT switched. Those are
+  temporary until0.1.18 publication completes. Keep full0.1.17 DMG as offline option.
+- Native payload was827MiB:Python520,source archives122,Node117;Electron287MiB.
+  New small app146988534bytes DMG /130152845bytes ZIP;74.92% DMG reduction.
+- New core-download.cjs uses app-pinned archive sizes/SHA256 and payload manifest
+  hashes, then verifies every file/mode/symlink before launch. Streaming download,
+  isolated temporary extraction, atomic replacement and cancellation; no scripts
+  fetched or executed outside the pinned packages. Cache under userData/kernels.
+  Node shared NOID/BNT;Python shared QTC/PRL. Separate source archive retained.
+  Native cores are byte-identical to0.1.17, including MDS QoS/NEON/Metal work.
+- Added bilingual Download/Verify Core control, first-Start automatic preparation,
+  progress/error state; prepare alone never mines. No user config shipped.
+  Existing full builders remain supported; package_lite.py builds the small app.
+- M3 system proxy was unreachable (ERR_PROXY_CONNECTION_FAILED); added limited
+  proxy-error fallback to normal certificate-verified HTTPS without OS edits.
+  Direct M3 GitHub downloads were slow. MDS GUI downloaded4.15MB successfully;
+  all other native packs were installed from byte-identical local published
+  archives for relocation validation. Do not claim all were network-downloaded
+  on M3. Windows GitHub digest/public verification recorded separately.
+- Fixed tar extraction preserving original file modes (-p); Python mode validation
+  had correctly rejected the initial default-umask extraction.55 tests each host
+  pass, including corruption, bad SHA/length, cancel/retry, duplicate setup,
+  shared runtime, offline reuse, proxy fallback and TLS/abort protections.
+- All relocated checks passed: Node version, NOID CPU/Metal, full2GiB BNT verify,
+  MDS hybrid selftest, QTC25GPU/CPU cases, PRL admission, both Python adapters.
+  Entire cache hashes reverified after execution. MDS GUI111.193s:0submitted,
+  accepted/rejected; positive GPU+CPU work, hidden continuation, Stop/no residual,
+  reload and active Quit passed. Do not claim new acceptance or faster hashrate.
+  Bilingual780px mining/about checked and screenshots inspected.
+- Final DMG SHA25635b1a578418cb8f98f1a8fdd1d445586bdc21b00fcd84116d31d47c5909820fd.
+  ZIP SHA25627c1236647a26b43065f62aca9d15d77c273dc5c9199acf8d02ea43fed369e5a.
+  Ad-hoc signatures, hdiutil and read-only-mounted46 payload hashes passed.
+  No personal config/SSH keys, cores or Node embedded in the small app.
+- Desktop app/DMG0.1.18 installed/opened idle. Prior full0.1.17 app/DMG backed up
+  under authorized session/lite-018. Settings/ledger bytes preserved; only the
+  verified public-downloaded MDS cache seeded in user's profile for next Start.
+- Evidence:gui/evidence/mac-lite-0.1.18.json. Private release state/scripts:
+  .local/release-0.1.18; M3 session/lite-018. Publishing not yet marked complete.
+  Preserve original body/links/README/screenshots and unrelated releases/main.

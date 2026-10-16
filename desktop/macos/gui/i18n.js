@@ -2,6 +2,27 @@
 (function(root){
 'use strict';
 const entries=`
+下载内核|Download core
+校验内核|Verify core
+已缓存 · 启动校验|Cached · verified before starting
+按需下载 · 首次启动联网|On demand · internet needed for first use
+正在校验内核|Verifying core
+正在下载内核|Downloading core
+正在解压并校验内核|Extracting and verifying core
+内核已就绪，可离线复用|Core ready; reusable offline
+内核下载已取消|Core download cancelled
+内核下载失败，请重试|Core download failed; please retry
+内核已缓存；点击挖矿前会校验完整性|Core cached; integrity is checked before mining
+首次挖矿自动下载所需内核；也可提前下载，下载完成后不会自动挖矿|First start downloads the required core. You can also download it in advance without starting mining.
+内核路径无效|Invalid core path
+内核完整性校验失败|Core integrity check failed
+内核包含未知文件|Core contains unexpected files
+内核下载超时，请重试|Core download timed out; please retry
+内核下载失败，请检查网络后重试|Core download failed; check your connection and retry
+内核下载大小不符|Core download size mismatch
+内核下载校验失败，请重试|Core download verification failed; please retry
+已有内核下载任务|A core download is already in progress
+
 MDS 内核完整性校验失败|MDS core integrity verification failed
 MDS 需要 64 或 72 位十六进制 MSS 可重复收款地址|MDS requires a 64- or 72-character hexadecimal reusable MSS address
 请确认 MDS 收款地址由 generate-mss 生成，不能使用一次性 WOTS 地址|Confirm the MDS address was generated with generate-mss; one-time WOTS addresses cannot be used

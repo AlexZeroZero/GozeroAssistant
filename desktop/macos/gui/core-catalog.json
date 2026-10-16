@@ -1,0 +1,69 @@
+{
+  "format": 1,
+  "version": "0.1.18",
+  "packages": {
+    "node": {
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Mac-Core-node-0.1.18-arm64.tar.gz",
+      "bytes": 39321476,
+      "sha256": "333a0eb07da7971d09c9903e6f63f41f87ccf0277a32f3c715b667f287b1b5ea",
+      "manifestSha256": "96c85c0d84e1c887d6336acaf4cca2e1eb92119fb97ef124e6a74945532f4bd8"
+    },
+    "noid": {
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Mac-Core-noid-0.1.18-arm64.tar.gz",
+      "bytes": 221176,
+      "sha256": "d2f92ec2777f2784c09b5f752295464f4dbd2a13d173d9da22db73a8402e1579",
+      "manifestSha256": "a233438f63fa69673137bdd1dc21d42a7874e67804d0710e5fb8a7283ab06e95"
+    },
+    "python": {
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Mac-Core-python-0.1.18-arm64.tar.gz",
+      "bytes": 121970533,
+      "sha256": "4d0ba54f20431ea338781e204be2bc09d2d1be0fcf9031eeda1c5c84fb4ba052",
+      "manifestSha256": "6d1edd3cdfe1aa051f22469fa7d5dfddba8b1ae5397a434617924da4cba97e9c"
+    },
+    "qtc": {
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Mac-Core-qtc-0.1.18-arm64.tar.gz",
+      "bytes": 8770522,
+      "sha256": "e02aae549e3773f17aaf4d43e0eb144348f9cc80e83179005f2b912dcda44a75",
+      "manifestSha256": "c51057c5340ca73d59d5b18333fcf6121a230245b15e2e3eb962147ca25700c0"
+    },
+    "prl": {
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Mac-Core-prl-0.1.18-arm64.tar.gz",
+      "bytes": 29762803,
+      "sha256": "ab2c4640b54882005a3203d543f16b5752e785b2edfa50f1f3b6d3402e9f26ee",
+      "manifestSha256": "35fa0eba6a71607fd61fc3abf3790ca558b98fee1b35f6a90424a294ae62a811"
+    },
+    "bnt": {
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Mac-Core-bnt-0.1.18-arm64.tar.gz",
+      "bytes": 312982,
+      "sha256": "cf7274683fbf36a5bfcb21e5d821560c9d8cf1c98a6932d77a7366904b4b2daf",
+      "manifestSha256": "9cc657f44b23ad18f02702b9f922614a8373fd3a76a58126657f4cc683139f21"
+    },
+    "mds": {
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Mac-Core-mds-0.1.18-arm64.tar.gz",
+      "bytes": 4153034,
+      "sha256": "a07ddb4f606a78b789268e6a99223879d3481763217b906cf1b3f41efd85966f",
+      "manifestSha256": "1dfcbe8b83cdf146c3f7dc56adbb924bb4dcd944f257b09b9fe3a171ab63e859"
+    }
+  },
+  "coins": {
+    "NOID": [
+      "node",
+      "noid"
+    ],
+    "BNT": [
+      "node",
+      "bnt"
+    ],
+    "MDS": [
+      "mds"
+    ],
+    "QTC": [
+      "python",
+      "qtc"
+    ],
+    "PRL": [
+      "python",
+      "prl"
+    ]
+  }
+}
