@@ -176,3 +176,12 @@ DesktopApp/DMG0.1.14 opened idle; settings/fee bytes and19397 other native files
 preserved, previous0.1.13 backed up. See latest handoff and MDS-RESULTS.txt.
 Research large-dispatch800N/s peaks collapsed to275 and were rejected. No
 experimental shader/QoS/activity/pacing overrides ship. No GitHub publication.
+
+
+Latest checkpoint: Mac0.1.15 further MDS scheduling optimization deployed on M3.
+Signed ABBA4x120s 477.992->543.185N/s (+13.64%), same90%duty.
+BaseM3 auto2500-round dispatch/100us sleeping poll; other adapters2000/500us;
+batch defaults unchanged. Exact million-round shader/CPU verification retained.
+45GUI tests each host,11protocol,2profile,2consensus,2GPU pass. GUI and Desktop
+app/DMG verified, opened idle, settings/fee/other cores preserved. See latest
+handoff/evidence for live share counts and limits. No GitHub publication.

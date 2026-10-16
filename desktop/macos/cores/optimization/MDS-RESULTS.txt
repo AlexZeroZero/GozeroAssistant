@@ -62,3 +62,52 @@ and CPU verification/cancellation across jobs. Existing source licenses remain.
 Private raw logs/scripts: .local/mds-opt and the authorized M3 session/mds-opt.
 Production comparison: production-ab/results.json and summary.json.
 Negative screening samples are retained in research-results.tar.gz.
+
+
+MDS / Midstate - Mac 0.1.15 follow-up, 2026-10-16
+One base Apple M3, 10 GPU cores, 16 GiB; same 90% requested GUI duty.
+
+Retained change: base M3 uses 2500 rounds/dispatch and sleeps 100us between
+completion polls, retaining 2560 nonces/batch. Auto dispatch/responsive fields
+are zero in TOML; other adapter names retain 2000 rounds/500us (and 2048 nonces).
+Explicit nonzero dispatch overrides win. The untested 8-core M3 shares the name.
+Original WGSL, full million rounds, CPU verification, cancellation, thermal
+protection, continuous mining and the original 0.5% fee arithmetic unchanged.
+
+Signed production ABBA, 120 seconds each: A 479.203, B 541.931, B 544.439, A 476.782 N/s.
+Mean 477.992 -> 543.185 N/s,
+gain 13.64%.
+Completed-batch compute rate 478.078 -> 543.256 N/s.
+Mean complete-batch latency 5.355 -> 4.712s.
+Median samples after first 30 seconds 474.805 -> 540.317 N/s.
+CPU process medians (100%=one core): A 6.7%, B 2.4%, B 2.4%, A 6.8%. No power measurement.
+These are local chain-work equivalents, not pool hashrate or revenue estimates.
+
+Screened and rejected: smaller 1000/1500-round dispatches, 2880/3200 batches,
+direct Metal shift/rotate implementations, compiler thread limits, uniform
+parameters and avoiding redundant parameter uploads. Native Metal variants
+matched seven independently CPU-computed million-round hashes each; rewriting
+the shader did not establish a worthwhile sustained advantage. Uniform/static
+uploads were below 1% relative to the sleeping-100us baseline and were omitted.
+All raw negative results are retained; no experimental hooks ship.
+
+Validation: 45 GUI/controller tests each on Windows and Mac; 11 protocol,
+2 profile selection, 2 CPU consensus and 2 hardware GPU tests. Original sparse
+geometry, candidate capacity, full CPU verification and job cancellation checks
+pass. Extra 45.039s offline easy-target benchmark: 547.346 N/s,
+27 locally CPU-verified proofs; no network or accepted-share claim.
+Real GUI/pool 90.795s: {"accepted": 1, "rejected": 0, "submitted": 1}; last 536.654 N/s.
+Positive sample mean 523.681, median 536.577; numeric mean
+including 5 zeros 494.261; 2 unavailable samples excluded.
+Bilingual 780px, hidden/menu continuation, Stop/no orphan, reload, active Quit pass.
+
+Desktop app/DMG 0.1.15 installed idle; latest settings/fee bytes preserved.
+19397 other native payload files unchanged. Prior 0.1.14 app/DMG backed
+up under authorized session/mds-opt2. DMG signature/hdiutil verification and
+19480 read-only-mounted file hashes pass. DMG 578855005 bytes,
+SHA256 6a2eae13b2fe04116f891f8b51cc403dc07dcb62de1440846870a231373f1131.
+Core SHA256 321ddd9842b0d48969a36f1dc85fa5cad13dcb1edb5f76183b6e3128e2a47dab.
+Ad-hoc signed; no Developer ID notarization, all-model or multi-day claim.
+Evidence: gui/evidence/mac-mds-optimization-0.1.15.json. Private raw scripts,
+screenshots and measurements: .local/mds-opt2 and matching authorized Mac path.
+No GitHub publication; Windows/main and retained README/release links unchanged.

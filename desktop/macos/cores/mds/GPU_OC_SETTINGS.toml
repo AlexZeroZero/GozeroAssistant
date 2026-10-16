@@ -1,6 +1,8 @@
 # Auto: validated base Apple M3 = 2560; other GPUs retain 2048.
 batch_nonces = 0
-iters_per_dispatch = 2000
-responsive_iters = 2000
+# Auto: base M3 = 2500 rounds, other adapters = 2000.
+iters_per_dispatch = 0
+# Zero follows the resolved dispatch size; explicit values remain a cap.
+responsive_iters = 0
 workgroup_size = 64
 verification_threads = 2

@@ -124,14 +124,14 @@ fn verify_candidate_chunk(
 //
 //     # GPU_OC_SETTINGS.toml
 //     batch_nonces       = 0       # auto: measured base-M3 profile, conservative fallback
-//     iters_per_dispatch = 2000    # chain steps per dispatch (host round-trips ↔ watchdog)
-//     responsive_iters   = 2000    # dispatch size while throttled (duty < 1.0)
+//     iters_per_dispatch = 0       # auto: device-specific bounded dispatch
+//     responsive_iters   = 0       # auto: follows resolved dispatch size
 //     duty               = 1.0     # 0.02..=1.0 fraction of time the GPU works
 
 const DEFAULT_BATCH_NONCES: u32 = 0; // resolved after selecting the actual GPU
-const DEFAULT_ITERS_PER_DISPATCH: u32 = 2_000;
+const DEFAULT_ITERS_PER_DISPATCH: u32 = 0;
 // Keep cancellation checks after every bounded dispatch.
-const DEFAULT_RESPONSIVE_ITERS: u32 = 2_000;
+const DEFAULT_RESPONSIVE_ITERS: u32 = 0;
 const DEFAULT_DUTY: f32 = 1.0;
 
 /// Runtime-tunable GPU knobs, loaded once from `GPU_OC_SETTINGS.toml`.
@@ -146,10 +146,11 @@ pub struct GpuSettings {
     /// Bigger = better GPU saturation but longer batches; keep it ≥ a few
     /// thousand to keep the GPU busy. State buffer is batch_nonces × 32 bytes.
     pub batch_nonces: u32,
-    /// Chain steps per GPU dispatch. Higher cuts host↔GPU round-trips but each
+    /// Chain steps per GPU dispatch; zero selects a device-specific profile.
+    /// Higher cuts host↔GPU round-trips but each
     /// dispatch holds the GPU longer (watchdog / display-freeze risk).
     pub iters_per_dispatch: u32,
-    /// Dispatch size used while throttled (duty < 1.0); smaller = smoother desktop.
+    /// Dispatch size while throttled; zero follows the resolved dispatch size.
     pub responsive_iters: u32,
     /// Fraction of time the GPU works, `0.02..=1.0`. Overridden by the
     /// `GPU_MINE_DUTY` env var and by `set_gpu_duty()` when those are set.
@@ -187,8 +188,8 @@ impl Default for GpuSettings {
 impl GpuSettings {
     fn sanitized(mut self) -> Self {
         if self.batch_nonces != 0 { self.batch_nonces = self.batch_nonces.clamp(64, 65536); }
-        self.iters_per_dispatch = self.iters_per_dispatch.clamp(1, 4000);
-        self.responsive_iters = self.responsive_iters.clamp(1, 4000);
+        if self.iters_per_dispatch != 0 { self.iters_per_dispatch = self.iters_per_dispatch.clamp(1, 4000); }
+        if self.responsive_iters != 0 { self.responsive_iters = self.responsive_iters.clamp(1, 4000); }
         if ![32,64,128,256].contains(&self.workgroup_size) { self.workgroup_size = 64; }
         self.duty = self.duty.clamp(0.02, 1.0);
         self.verification_threads = self.verification_threads.clamp(1, 4);
@@ -255,6 +256,15 @@ fn resolved_batch_nonces(configured: u32, name: &str, backend: wgpu::Backend) ->
     if backend == wgpu::Backend::Metal && name == "Apple M3" { 2560 } else { 2048 }
 }
 
+fn resolved_dispatch_iters(configured: u32, name: &str, backend: wgpu::Backend) -> u32 {
+    if configured != 0 { return configured; }
+    if backend == wgpu::Backend::Metal && name == "Apple M3" { 2500 } else { 2000 }
+}
+
+fn completion_poll_micros(name: &str, backend: wgpu::Backend) -> u64 {
+    if backend == wgpu::Backend::Metal && name == "Apple M3" { 100 } else { 500 }
+}
+
 #[cfg(test)]
 mod metal_profile_tests {
     use super::*;
@@ -266,12 +276,28 @@ mod metal_profile_tests {
         }
         assert_eq!(resolved_batch_nonces(0, "Apple M3", wgpu::Backend::Vulkan), 2048);
         assert_eq!(resolved_batch_nonces(8192, "Apple M3", wgpu::Backend::Metal), 8192);
+        assert_eq!(resolved_dispatch_iters(0, "Apple M3", wgpu::Backend::Metal), 2500);
+        assert_eq!(completion_poll_micros("Apple M3", wgpu::Backend::Metal), 100);
+        for name in ["Apple M1", "Apple M3 Pro", "Apple M3 Max", "Apple M4"] {
+            assert_eq!(resolved_dispatch_iters(0, name, wgpu::Backend::Metal), 2000);
+            assert_eq!(completion_poll_micros(name, wgpu::Backend::Metal), 500);
+        }
+        assert_eq!(resolved_dispatch_iters(0, "Apple M3", wgpu::Backend::Vulkan), 2000);
+        assert_eq!(completion_poll_micros("Apple M3", wgpu::Backend::Vulkan), 500);
+        assert_eq!(resolved_dispatch_iters(2000, "Apple M3", wgpu::Backend::Metal), 2000);
     }
     #[test]
     fn auto_sentinel_survives_settings_validation() {
         assert_eq!(GpuSettings::default().sanitized().batch_nonces, 0);
+        assert_eq!(GpuSettings::default().sanitized().iters_per_dispatch, 0);
+        assert_eq!(GpuSettings::default().sanitized().responsive_iters, 0);
         let mut settings = GpuSettings::default(); settings.batch_nonces = 1;
         assert_eq!(settings.sanitized().batch_nonces, 64);
+        let mut settings = GpuSettings::default();
+        settings.iters_per_dispatch = 9000; settings.responsive_iters = 1000;
+        let settings = settings.sanitized();
+        assert_eq!(settings.iters_per_dispatch, 4000);
+        assert_eq!(settings.responsive_iters, 1000);
     }
 }
 
@@ -767,6 +793,9 @@ struct MinerState {
 pub struct GpuMiner {
     batch_nonces: u32,
     poll_completions: bool,
+    dispatch_iters: u32,
+    responsive_iters: u32,
+    poll_micros: u64,
     device: wgpu::Device,
     queue: wgpu::Queue,
     pipe_init: wgpu::ComputePipeline,
@@ -888,6 +917,9 @@ impl GpuMiner {
         }
         let batch_nonces = resolved_batch_nonces(settings().batch_nonces, &info.name, info.backend);
         let poll_completions = info.backend == wgpu::Backend::Metal;
+        let dispatch_iters = resolved_dispatch_iters(settings().iters_per_dispatch, &info.name, info.backend);
+        let responsive_iters = if settings().responsive_iters == 0 { dispatch_iters } else { settings().responsive_iters };
+        let poll_micros = completion_poll_micros(&info.name, info.backend);
         let winners_bytes = 16 + u64::from(batch_nonces) * 16;
 
         // VERSION: wgpu >=24 takes a single `&DeviceDescriptor` and returns
@@ -984,6 +1016,7 @@ impl GpuMiner {
 
         Ok(Self {
             batch_nonces, poll_completions,
+            dispatch_iters, responsive_iters, poll_micros,
             device, queue, pipe_init, pipe_step, pipe_test, bind_group,
             params_buf, state_buf, winners_buf, readback_buf, adapter_name,
             workgroup_size, winners_bytes,
@@ -995,7 +1028,8 @@ impl GpuMiner {
     pub fn adapter_name(&self) -> &str { &self.adapter_name }
     pub fn diagnostics(&self) -> serde_json::Value {
         serde_json::json!({"workgroupSize":self.workgroup_size,"batchNonces":self.batch_nonces,
-            "dispatchIterations":settings().iters_per_dispatch,"responsiveIterations":settings().responsive_iters,
+            "dispatchIterations":self.dispatch_iters,"responsiveIterations":self.responsive_iters,
+            "completionPollMicros":if self.poll_completions { Some(self.poll_micros) } else { None },
             "verificationThreads":settings().verification_threads,"completedBatchNonces":self.completed_nonces.load(Ordering::Relaxed),
             "computeSeconds":self.compute_ns.load(Ordering::Relaxed) as f64/1e9,
             "verificationSeconds":self.verification_ns.load(Ordering::Relaxed) as f64/1e9})
@@ -1023,7 +1057,7 @@ impl GpuMiner {
             loop {
                 let status = self.device.poll(wgpu::PollType::Poll).expect("GPU completion poll failed");
                 if status.is_queue_empty() { return; }
-                std::thread::sleep(std::time::Duration::from_micros(500));
+                std::thread::sleep(std::time::Duration::from_micros(self.poll_micros));
             }
         }
         // wgpu 29: PollType::Wait now carries { submission_index, timeout };
@@ -1079,8 +1113,8 @@ impl GpuMiner {
         // responsive. `collect_winners` is false only for the self-test.
         let duty = if collect_winners { gpu_duty() } else { 1.0 };
         let throttling = duty < 0.999;
-        let ipd = settings().iters_per_dispatch;
-        let chunk = if throttling { ipd.min(settings().responsive_iters) } else { ipd };
+        let ipd = self.dispatch_iters;
+        let chunk = if throttling { ipd.min(self.responsive_iters) } else { ipd };
 
         let mut remaining = total;
         while remaining > 0 {

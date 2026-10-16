@@ -1199,3 +1199,33 @@ MDS SCHEDULING OPTIMIZATION / MAC 0.1.14 DEPLOYED - 2026-10-16
 - No GitHub publication for this task. Public0.1.12 remains the last switched
   release; earlier public-asset cleanup notes remain separate. Windows/main and
   the publishing checkout were not modified.
+
+
+MDS FOLLOW-UP / MAC 0.1.15 DEPLOYED - 2026-10-16
+- User asked to seek further MDS performance. Exact original WGSL retained.
+  Base Apple M3 now auto2560/2500-round dispatch and sleeping100us poll;
+  other adapter names retain2048/2000/500us. Explicit geometry overrides win.
+  Dispatch/responsive zero means auto. Untested8-coreM3 shares adapter name.
+- Signed production ABBA4x120s: A 479.203, B 541.931, B 544.439, A 476.782N/s. Mean
+  477.992->543.185N/s (+13.64%), same90%duty;
+  complete-batch latency5.355->4.712s. CPU medians
+  A 6.7%, B 2.4%, B 2.4%, A 6.8% (100%=one core). No power/long-term/all-model claim.
+-45GUI tests each host,11protocol,2profile,2consensus,2actualGPU tests pass.
+  Extra45.039s easy-target offline 547.346N/s,
+  27CPU-verified proofs, no network. RealGUI 90.795s,
+  totals{"accepted": 1, "rejected": 0, "submitted": 1}, last536.654N/s. Local rate
+  is chain-work equivalents; do not infer pool-side effective rate.
+- GUI bilingual780px, hidden/menu continuation, Stop, reload, activeQuit pass.
+  Desktop app/DMG0.1.15 opened idle; settings/fee bytes and19397 other
+  native files preserved. Old0.1.14 app/DMG in session/mds-opt2 backup.
+  DMG578855005bytes, readonly19480files verified, SHA256
+  6a2eae13b2fe04116f891f8b51cc403dc07dcb62de1440846870a231373f1131.
+  Signed core 321ddd9842b0d48969a36f1dc85fa5cad13dcb1edb5f76183b6e3128e2a47dab.
+- See cores/optimization/MDS-RESULTS.txt and evidence/mac-mds-optimization-0.1.15.json.
+  Raw results.local/mds-opt2, remote session/mds-opt2. Native Metal rewrite,
+  constant parameters and redundant-upload suppression did not justify inclusion.
+  Original million-round math, CPU verification, lifecycle and0.5%fee unchanged.
+- CAUTION: mds-opt2/core/research-core/native-bench are experiments, NEVER ship.
+  Clean source is mds-opt2/release-repo; target under mds-mac was reused and
+  rebuilt clean for this release. Installed signed app/DMG is authoritative.
+  No GitHub publication; public0.1.12 and prior release-cleanup notes unchanged.

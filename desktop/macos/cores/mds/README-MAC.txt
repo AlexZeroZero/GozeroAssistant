@@ -1,4 +1,4 @@
-Gozero MDS Apple Silicon port / Mac GUI 0.1.14
+Gozero MDS Apple Silicon port / Mac GUI 0.1.15
 
 Midstate full 1,000,000-round BLAKE3 PoW. wgpu WGSL runs through
 Apple Metal; ARM64 NEON verifies every GPU candidate on the CPU.
@@ -49,3 +49,12 @@ Previous 0.1.13 M3 validation, 2026-10-16:
   including a partial final workgroup and nonce low-word carry.
 - Controlled performance evidence is recorded separately; short startup peaks
   from large dispatches must not be presented as sustained hashrate.
+
+0.1.15 scheduling update:
+- Auto dispatch size is 2500 rounds on the base Apple M3 / Metal; other
+  adapter names retain 2000. Explicit nonzero overrides are honored.
+- Completion checks sleep 100 microseconds on base M3 and retain 500 on
+  other Metal adapters. Checks still wait for confirmed GPU completion.
+- Full million-round BLAKE3, CPU verification, 90% GUI duty, thermal
+  protection, job cancellation and the service-fee ledger remain unchanged.
+- Performance evidence is recorded separately; only one 10-core M3 measured.
