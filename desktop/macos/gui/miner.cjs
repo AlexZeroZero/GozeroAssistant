@@ -13,7 +13,7 @@ class Miner extends EventEmitter{
   if(this.status!=='idle')throw Error('已有运行任务');
   const epoch=++this.epoch;this.status='starting';this.points=[];this.rate={total:null,cpu:null,gpu:null};this.totals={accepted:0,rejected:0,submitted:0};this.session={startedAt:Date.now(),benchmark,coin:cfg.coin||'NOID',cpuThreads:cfg.cpuThreads};this.update();
   this.workState='waiting';this.lastRateLog=0;
-  const external=['QTC','PRL','BNT'].includes(cfg.coin);
+  const external=['QTC','PRL','BNT','MDS'].includes(cfg.coin);
   this.coreSample=null;this.coreSummary=null;this.powerPaused=false;this.memoryPaused=false;this.lastSampleAt=Date.now();
   let input;
   try{
@@ -31,6 +31,11 @@ class Miner extends EventEmitter{
     const c={pool:cfg.pool,host:cfg.host,port:cfg.port,transport:cfg.transport||'tls',wallet:cfg.wallets.NOID,worker:cfg.worker,seconds,batch:65536,command,cwd:this.nativeDir};
     input=path.join(this.dir,'run-'+id+'.json');await fs.writeFile(input,JSON.stringify(c),{mode:0o600});
     args=[path.resolve(__dirname,'../../experiments/noid-apple/pool_runner.cjs'),input,report];
+   }
+   if(cfg.coin==='MDS'){
+    const coreDir=path.dirname(executable),manifest=JSON.parse(await fs.readFile(path.join(coreDir,'MANIFEST.json'),'utf8'));
+    if(manifest.arch!=='arm64')throw Error('MDS 内核完整性校验失败');
+    for(const name of ['GozeroMdsCore','GPU_OC_SETTINGS.toml'])if(manifest.files?.[name]!==crypto.createHash('sha256').update(await fs.readFile(path.join(coreDir,name))).digest('hex'))throw Error('MDS 内核完整性校验失败');
    }
    if(epoch!==this.epoch)throw Error('启动已取消');
    const child=this.spawn(executable,args,{...options,detached:process.platform==='darwin',stdio:['ignore','pipe','pipe'],windowsHide:true});this.child=child;
@@ -50,7 +55,7 @@ class Miner extends EventEmitter{
    child.stderr.on('data',chunk=>this.log('内核',String(chunk).slice(0,800)));
    child.stdout.on('data',chunk=>{if(benchmark){output+=String(chunk);if(output.length>2*1024*1024){this.log('错误','测速报告过大');this.stop();}return;}
     line+=String(chunk);if(line.length>1024*1024){this.log('错误','内核输出过大');this.stop();return;}
-    let i;while((i=line.indexOf('\n'))>=0){const raw=line.slice(0,i);line=line.slice(i+1);if(!raw.trim())continue;try{external?coreEvent(this,JSON.parse(raw)):this.event(JSON.parse(raw));}catch(e){this.log('内核',raw.slice(0,300));}}
+    let i;while((i=line.indexOf('\n'))>=0){const raw=line.slice(0,i);line=line.slice(i+1);if(!raw.trim())continue;try{cfg.coin==='MDS'?require('./mds.cjs').event(this,JSON.parse(raw.replace(/^MDS /,''))):external?coreEvent(this,JSON.parse(raw)):this.event(JSON.parse(raw));}catch(e){this.log('内核',raw.slice(0,300));}}
    });
    this.log(benchmark?'测速':'挖矿',benchmark?'离线自检和30秒测速已启动，不连接矿池':'正在校验内核并连接矿池 · '+(cfg.transport==='tcp'?'TCP 兼容（非加密）':'TLS 加密'));return true;
   }catch(e){if(input)await fs.unlink(input).catch(()=>{});this.status='idle';this.update();throw e;}
@@ -78,7 +83,7 @@ class Miner extends EventEmitter{
  }
  async stop(reason='用户停止'){
   ++this.epoch;const child=this.child;if(!child){this.status='idle';this.update();return;}
-  if(this.status!=='stopping'){this.status='stopping';this.log('停止',reason);this.update();this.signal(child,['QTC','PRL','BNT'].includes(this.session?.coin)?'SIGINT':'SIGTERM');this.forceTimer=setTimeout(()=>this.signal(child,'SIGKILL'),this.session?.coin==='PRL'?35000:this.session?.coin==='QTC'?15000:6000);}
+  if(this.status!=='stopping'){this.status='stopping';this.log('停止',reason);this.update();this.signal(child,['QTC','PRL','BNT','MDS'].includes(this.session?.coin)?'SIGINT':'SIGTERM');this.forceTimer=setTimeout(()=>this.signal(child,'SIGKILL'),this.session?.coin==='PRL'?35000:['QTC','MDS'].includes(this.session?.coin)?15000:6000);}
   await this.done;
  }
 }

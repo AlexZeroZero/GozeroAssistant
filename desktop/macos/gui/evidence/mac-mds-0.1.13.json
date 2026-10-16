@@ -1,0 +1,111 @@
+{
+  "date": "2026-10-16",
+  "version": "0.1.13",
+  "hardware": "Apple M3, 16 GiB, 8 logical CPU threads",
+  "scope": "One Apple M3; short real-pool test, not long-term or all-model validation",
+  "algorithm": {
+    "coin": "MDS / Midstate",
+    "rounds": 1000000,
+    "backend": "wgpu / Apple Metal",
+    "verification": "ARM64 NEON / canonical CPU BLAKE3; every candidate rechecked",
+    "source": "https://github.com/ciphernom/midstate",
+    "upstreamCommit": "a1d5a05aadac09262a6ab44a399c2f59ad6dbeaa",
+    "windowsInputVersion": "0.1.12-rc.2",
+    "macCoreVersion": "0.1.13-mac",
+    "settings": {
+      "batchNonces": 2048,
+      "dispatchIterations": 2000,
+      "workgroupSize": 64,
+      "verificationThreads": 2,
+      "duty": 0.9
+    }
+  },
+  "tests": {
+    "nodeWindows": 45,
+    "nodeMac": 45,
+    "nativeProtocol": 11,
+    "fullChainConsensus": 2,
+    "metalHardware": 2,
+    "finalRebuildSelftest": true,
+    "note": "After full native and GUI tests, only package-version strings changed in Cargo.toml/lock. Final binary reran CPU+Metal selftests, fee address checksum and parent-exit cleanup.",
+    "finalStatusAdapterRegression": "45 JS tests repeated on Windows/Mac; final bilingual GUI QA passed after separating authorized waiting, expired job waiting and reconnect states."
+  },
+  "gui": {
+    "seconds": 97.345,
+    "totals": {
+      "accepted": 1,
+      "rejected": 0,
+      "submitted": 1
+    },
+    "lastRate": {
+      "total": 349.950643274691,
+      "gpu": 349.950643274691,
+      "cpu": null
+    },
+    "rateSamples": 18,
+    "meanAllSamplesNps": 174.27665311688952,
+    "meanPositiveSamplesNps": 348.55330623377904,
+    "medianPositiveSamplesNps": 352.21644733484675,
+    "initialPoolJobWaitSeconds": 44.242,
+    "notes": [
+      "N/s includes equivalent work on unfinished or cancelled chains. Not pool-estimated effective rate.",
+      "Nine initial rate samples were zero while waiting for the first pool job; the last/positive rate is not whole-session average.",
+      "Pool target observed 00003fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, about 262144 nonces per share in expectation.",
+      "1 accepted share does not establish long-term payout or stale rate."
+    ],
+    "hiddenWindowContinued": true,
+    "stopClean": true,
+    "activeQuit": true,
+    "profileReload": true,
+    "bilingualMinimumWidth": 780,
+    "rendererErrors": []
+  },
+  "parentExit": {
+    "parentDeathCleanup": true,
+    "seconds": 0.12309516699997403
+  },
+  "packaging": {
+    "version": "0.1.13",
+    "guiSeconds": 97.345,
+    "guiTotals": {
+      "accepted": 1,
+      "rejected": 0,
+      "submitted": 1
+    },
+    "guiLastRate": {
+      "total": 349.950643274691,
+      "gpu": 349.950643274691,
+      "cpu": null
+    },
+    "preservedNativeFiles": 19397,
+    "dmgVerified": true,
+    "mountedFilesVerified": 19479,
+    "dmgSha256": "87585f07b2c0e3ac3cd20bd4cf358683537b5c7e43e6c40eae21590fbd3b5397",
+    "dmgBytes": 580420944,
+    "coreSha256": "e86bd88a38d6e75e5d15768593899589bd2b25d979a5e81538433949c5663c0b",
+    "finalStatusFixVerified": true,
+    "localDownloadVerified": true
+  },
+  "preserved": [
+    "All 19397 pre-existing native payload files",
+    "NOID/QTC/PRL/BNT algorithms and existing profiles",
+    "Original 0.5% service fee arithmetic/ledger",
+    "Retained README and previous screenshots",
+    "Windows checkout and public GitHub assets"
+  ],
+  "distribution": "Ad-hoc signed, not Developer ID signed/notarized; Mac Desktop app and DMG",
+  "deployment": {
+    "desktopAppVersion": "0.1.13",
+    "desktopDmgVersion": "0.1.13",
+    "testAddressConfigured": true,
+    "openedIdle": true,
+    "previousAppBackedUp": true,
+    "previousInstallersBackedUp": [
+      "0.1.10",
+      "0.1.11",
+      "0.1.12"
+    ],
+    "existingProfilesPreserved": true,
+    "feeLedgerPreservedByteForByte": true
+  }
+}

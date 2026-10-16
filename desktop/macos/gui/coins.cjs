@@ -1,5 +1,6 @@
 'use strict';
 const COINS=Object.freeze({
+ MDS:{name:'Midstate',kernel:'Gozero MDS · BLAKE3 / Metal',unit:'N/s',divisor:1,cpu:false,benchmark:false,pool:'gozero',host:'mds.gozero.trade',port:13333,transport:'tcp',site:'https://midstate.cash/'},
  NOID:{name:'Parano1d',kernel:'Gozero NOID · Apple Metal / PMULL',unit:'MH/s',divisor:1e6,cpu:true,benchmark:true,pool:'innovlab',host:'hk2.innovlab.cc',port:19601,site:'https://noid.innovlab.cc/'},
  QTC:{name:'Quantus',kernel:'Quantus 4.2.0 · Poseidon2 / Metal',unit:'MH/s',divisor:1e6,cpu:false,benchmark:false,pool:'kryptex',host:'qtc-hk.kryptex.network',port:8049,site:'https://pool.kryptex.com/qtc'},
  BNT:{name:'Blocknet',kernel:'Gozero BNT · ARM64 CPU / Argon2id',unit:'H/s',divisor:1,cpu:true,cpuOnly:true,benchmark:false,pool:'gozero',host:'bnt.pool.gozero.trade',port:14444,transport:'tcp',site:'https://bnt.pool.gozero.trade'},

@@ -1,0 +1,13 @@
+{
+  "upstream": "https://github.com/ciphernom/midstate",
+  "commit": "a1d5a05aadac09262a6ab44a399c2f59ad6dbeaa",
+  "license": "GPL-3.0",
+  "algorithm": "BLAKE3 sequential PoW",
+  "iterations": 1000000,
+  "gozeroOptimization": {
+    "date": "2026-10-16",
+    "cudaSchedule": "mad-message-first",
+    "validatedGpu": "NVIDIA GeForce RTX 3090",
+    "status": "0.1.12-rc.2 release candidate; Windows and Linux x86-64"
+  }
+}

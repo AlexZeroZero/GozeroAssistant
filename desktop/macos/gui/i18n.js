@@ -2,6 +2,15 @@
 (function(root){
 'use strict';
 const entries=`
+MDS 内核完整性校验失败|MDS core integrity verification failed
+MDS 需要 64 或 72 位十六进制 MSS 可重复收款地址|MDS requires a 64- or 72-character hexadecimal reusable MSS address
+请确认 MDS 收款地址由 generate-mss 生成，不能使用一次性 WOTS 地址|Confirm the MDS address was generated with generate-mss; one-time WOTS addresses cannot be used
+MDS 当前仅支持 TCP 矿池|MDS currently supports TCP pools only
+MDS 地址确认无效|Invalid MDS address confirmation
+此 MDS 地址由 generate-mss 生成，可重复收款；不能使用 WOTS 一次性地址|This MDS address was generated with generate-mss and is reusable; do not use a one-time WOTS address
+MDS：Metal GPU · 一百万轮 BLAKE3 · CPU 校验份额 · N/s 为本地链计算速率|MDS: Metal GPU · one million BLAKE3 rounds · CPU-verified shares · N/s is local chain computation rate
+N/s：含未完成链的等效计算量；接受数以矿池确认为准|N/s: equivalent work including unfinished chains; accepted shares require pool confirmation
+
 内存|Memory
 自动 · 按可用内存增加或恢复线程|Auto · grow or resume workers as memory permits
 每线程 2 GiB；内存充足自动增线程，压力解除自动恢复|2 GiB per thread; grows with available memory and resumes after pressure clears
@@ -17,7 +26,7 @@ BNT 当前内存压力过高或不足以分配一个 2 GiB 线程，请稍后重
 
 BNT：ARM64 CPU · 每线程 2 GiB 内存 · 短测已收到实池接受份额|BNT: ARM64 CPU · 2 GiB per thread · live pool shares accepted in short testing
 每线程 2 GiB；按内存压力自动减少线程|2 GiB per thread; threads adjust to memory pressure
-当前提供 NOID、QTC、PRL、BNT 挖矿|Supports NOID, QTC, PRL and BNT mining
+当前提供 NOID、QTC、PRL、BNT、MDS 挖矿|Supports NOID, QTC, PRL, BNT and MDS mining
 按有效设备运行时间分时|Time sharing based on active device runtime
 BNT 矿池登录成功|BNT pool login succeeded
 连接中断|Disconnected
@@ -39,7 +48,7 @@ PRL v3：本地校验通过；外部矿池接受份额待验证。电池供电�
 离线测速目前仅支持 NOID|Offline benchmark currently supports NOID only
 币种不支持|Unsupported coin
 请输入对应币种的公开收款地址|Enter a valid public payout address for this coin
-当前提供 NOID、QTC、PRL、BNT 挖矿、设备监控、NOID 离线测速、公开服务费调度、实时日志与结果导出。QTC 已获得实池接受份额；PRL 已通过本地证明验证，外部矿池接受份额仍待验证。|NOID, QTC, PRL and BNT mining, device monitoring, NOID offline benchmark, disclosed fee scheduling, live logs and export. QTC has a live pool accepted share; PRL passes local proof verification, with live pool acceptance still pending.
+当前提供 NOID、QTC、PRL、BNT、MDS 挖矿、设备监控、NOID 离线测速、公开服务费调度、实时日志与结果导出。QTC 已获得实池接受份额；PRL 已通过本地证明验证，外部矿池接受份额仍待验证。|NOID, QTC, PRL, BNT and MDS mining, device monitoring, NOID offline benchmark, disclosed fee scheduling, live logs and export. QTC has a live pool accepted share; PRL passes local proof verification, with live pool acceptance still pending.
 
 Gozero助手 Mac|Gozero Assistant Mac
 Gozero助手|Gozero Assistant

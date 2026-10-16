@@ -13,7 +13,7 @@ const profile=process.argv.find(a=>a.startsWith('--profile-dir='));if(profile){c
 let win,store,hardware,miner,fee,timer,awake,menubar,ready=false,starting=false,quitting=false,shutdownPromise,logId=0,runEpoch=0,logs=[];
 function redact(s){s=String(s).slice(0,1200);for(const wallet of [store?.value.wallet,...Object.values(store?.value.profiles||{}).map(p=>p.wallet),...Object.values(fee?.snapshot().addresses||{})])if(wallet)s=s.split(wallet).join('[收款地址]');return s;}
 function log(type,text){logs.push({id:++logId,at:Date.now(),type,text:redact(text)});if(logs.length>300)logs.shift();push();}
-function state(){return{version:'Mac 0.1.12',coins:COINS,pools:ALL_PRESETS.filter(p=>p.coin===(store?.value.coin||'NOID')),ready,starting,config:store?.value,hardware:hardware?.value,miner:miner?.snapshot(),fee:fee?.snapshot(),logs};}
+function state(){return{version:'Mac 0.1.13',coins:COINS,pools:ALL_PRESETS.filter(p=>p.coin===(store?.value.coin||'NOID')),ready,starting,config:store?.value,hardware:hardware?.value,miner:miner?.snapshot(),fee:fee?.snapshot(),logs};}
 function push(){const s=state();menubar?.update(s);if(win&&!win.isDestroyed())win.webContents.send('state',s);}
 function showMain(){if(win&&!win.isDestroyed()){if(win.isMinimized())win.restore();win.show();win.focus();}}
 function hideMain(){if(menubar?.available()){win.hide();log('窗口','主窗口已收起，任务继续；顶部菜单栏可查看算力、停止或退出');}else return shutdown();}
@@ -25,7 +25,7 @@ async function start(benchmark=false){
  if(!ready||busy())throw Error('请先停止当前任务或等待设备扫描完成');
  starting=true;const epoch=++runEpoch;push();try{
   const exec=require('node:util').promisify(require('node:child_process').execFile);
-  for(const args of [['-f','/gozero-blocknet-core worker'],['-x','noid-apple-check'],['-x','gozero_worker'],['-f','/(prl_gui|pmk_mine)\\.py']]){
+  for(const args of [['-x','GozeroMdsCore'],['-f','/gozero-blocknet-core worker'],['-x','noid-apple-check'],['-x','gozero_worker'],['-f','/(prl_gui|pmk_mine)\\.py']]){
    if((await exec('/usr/bin/pgrep',args).catch(e=>{if(e.code===1)return{stdout:''};throw e;})).stdout.trim())throw Error('已有命令行内核在运行，请先停止它，避免重复占用设备');
   }
   if(['QTC','PRL'].includes(store.value.coin)&&Number(require('node:os').release().split('.')[0])<23)throw Error('QTC / PRL 需要 macOS 14 或更新版本');
@@ -64,7 +64,7 @@ async function boot(){
  win.on('close',e=>{if(!quitting){e.preventDefault();hideMain();}});
  await win.loadFile(PAGE);win.show();log('系统','Gozero助手 Mac 已启动；不会自动挖矿');if(store.warning)log('配置',store.warning);
  try{await hardware.scan();log('设备','已连接 '+hardware.value.chip+' / Metal');}catch(e){log('设备',e.message);}ready=true;hardware.start(store.value.interval);push();
- if(process.argv.includes('--ui-smoke')){try{await require(process.argv.includes('--bnt-smoke')?'./bnt-smoke.cjs':process.argv.includes('--multicoin-smoke')?'./multicoin-smoke.cjs':'./smoke.cjs').run({win,state,store,start,stop,dir,menubar,showMain});}catch(e){console.error(e.stack);process.exitCode=1;}finally{await shutdown();}}
+ if(process.argv.includes('--ui-smoke')){try{await require(process.argv.includes('--mds-smoke')?'./mds-smoke.cjs':process.argv.includes('--bnt-smoke')?'./bnt-smoke.cjs':process.argv.includes('--multicoin-smoke')?'./multicoin-smoke.cjs':'./smoke.cjs').run({win,state,store,start,stop,dir,menubar,showMain});}catch(e){console.error(e.stack);process.exitCode=1;}finally{await shutdown();}}
 }
 function shutdown(){if(shutdownPromise)return shutdownPromise;shutdownPromise=(async()=>{ready=false;hardware?.stop();if(fee)await stop('退出应用');quitting=true;menubar?.destroy();app.quit();})();return shutdownPromise;}
 if(!app.requestSingleInstanceLock())app.quit();else{app.on('second-instance',showMain);app.on('activate',showMain);app.whenReady().then(boot).catch(e=>{dialog.showErrorBox('Gozero助手 Mac',e.message);quitting=true;app.quit();});}

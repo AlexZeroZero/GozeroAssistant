@@ -1095,3 +1095,54 @@ MAC 0.1.12 M3 TESTED AND DEPLOYED - 2026-10-14
   remote session path. Initial failed run retained under sibling live/.
 - GitHub/public0.1.9, Windows and original fee arithmetic unchanged. No long-term
   all-core/maximum-speed claim; peak3.60H/s did not persist under memory warning.
+
+
+MDS METAL / MAC 0.1.13 M3 TESTED AND DEPLOYED - 2026-10-16
+- User requested Windows MDS in Mac GUI with local M3 debugging. Reconnected to
+  the same host key at its changed LAN IP; connection details remain .local/.
+- Imported Windows desktop/experiments/midstate 0.1.12-rc.2 into independent
+  desktop/macos/cores/mds. GPL3 provenance/license retained; input source hashes
+  in WINDOWS-SOURCE.json. Upstream a1d5a05aadac09262a6ab44a399c2f59ad6dbeaa.
+- Uses existing WGSL through wgpu/Metal, native ARM64 NEON CPU verification.
+  Full1,000,000 BLAKE3 rounds, no consensus changes. fast-mining forbidden.
+  Mac adds native parent-exit watchdog and explicit submitted-request events.
+  Core version0.1.13-mac; GUI0.1.13. No CUDA dependency on Mac.
+- Bundled2048 nonce batch /2000 iterations per dispatch /64 threads per group,
+  2verification threads,90% duty. Initial8192 batch needed~18s and could delay
+  shares;2048 completes~6s. No paired speedup claim: throughput lower but latency
+  shorter. Final GUI positive sample mean348.553N/s, last349.951N/s.
+- Real GUI97.345s:1submitted/1accepted/0rejected. Initial pool authorized then
+  waited44.242s for first job; mean including all zero samples174.277N/s.
+  Rate includes equivalent unfinished/cancelled chain work, not pool hashrate.
+  Pool target~262144 nonces/share expected; no long-term performance assertion.
+-45 JS tests Windows/Mac,11 protocol tests,2full consensus tests,2Metal hardware
+  tests pass. GUI bilingual780px layout, hidden/menu continuation, Stop, profile
+  reload and active Quit pass. Parent crash cleanup0.123s observed, no orphan.
+  After version-only rebuild, final core CPU+Metal selftests and both address
+  checks pass. Real screenshots .local/mds-mac/MDS-live.png and MDS-en.png.
+- MDS GUI uses separate profile, MSS reusable address checkbox, TCP-only default
+  mds.gozero.trade:13333, N/s and explicit send/ACK counters, integrity checks.
+  Preserve existing0.5% fee arithmetic; MDS recipient matches Windows, with
+  tests for fee switch/reload. No automatic mining and no session time limit.
+- Desktop Gozero助手.app0.1.13 opened idle, MDS user's supplied address configured.
+  All previous profiles and ledger bytes preserved. Old app is backed up under
+  authorized session/mds-mac/previous-Gozero-0.1.12.app. Prior Desktop DMGs
+  0.1.10/0.1.11/0.1.12 moved into session/mds-mac/previous-installers.
+- Desktop DMG and matching local .local/mds-mac copy verified:580420944bytes,
+  SHA25687585f07b2c0e3ac3cd20bd4cf358683537b5c7e43e6c40eae21590fbd3b5397.
+  Final signed core e86bd88a38d6e75e5d15768593899589bd2b25d979a5e81538433949c5663c0b.
+  Ad-hoc signature and read-only-mounted19479 file hashes passed;19397 existing
+  native payload files unchanged. Not Developer ID signed/notarized.
+- New full-builder MDS input and package_mds_update.py overlay provided. New
+  MDS-MAC.txt added; retained README/MULTICOIN/BNT docs unchanged. Evidence:
+  desktop/macos/gui/evidence/mac-mds-0.1.13.json. Remote test/build/deploy scripts
+  and raw logs under session/mds-mac; local scripts/results .local/mds-mac.
+- Windows parent checkout read-only. No GitHub publication for this MDS task.
+  Prior0.1.12 publication had already switched release assets/tags onOct14;
+  old handoff lines saying public0.1.9 are stale. Final old public-DMG download
+  verification and temporary superseded-asset cleanup were interrupted by this
+  new request; retain .local/release-0.1.12 state and do not rerun --switch.
+- Final review also corrected MDS GUI state: authorization awaits work rather
+  than displaying reconnect; explicitly expired jobs await replacement and zero
+  telemetry/fee work until a new job.45 tests rerun on both hosts, bilingual GUI
+  QA repeated, final app/DMG re-signed/reverified. Mining core unchanged.

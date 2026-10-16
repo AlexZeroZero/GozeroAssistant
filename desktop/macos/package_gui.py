@@ -24,6 +24,7 @@ def main():
     parser.add_argument('--miner-package',type=Path,required=True,help='Previously verified native CPU-GPU miner ZIP')
     parser.add_argument('--cores-package',type=Path,required=True,help='Verified relocatable QTC/PRL package')
     parser.add_argument('--bnt-core',type=Path,required=True,help='Native ARM64 Gozero BNT executable')
+    parser.add_argument('--mds-core',type=Path,required=True,help='Native ARM64 Gozero MDS executable')
     args=parser.parse_args()
     if platform.system()!='Darwin' or platform.machine()!='arm64':raise RuntimeError('Build on Apple Silicon')
     runtime=json.loads((DESKTOP/'macos/electron-runtime.json').read_text())
@@ -41,7 +42,7 @@ def main():
     run('/usr/bin/ditto','-x','-k',args.electron_archive,build/'runtime')
     app=build/'Gozero助手.app';shutil.move(str(build/'runtime/Electron.app'),str(app))
     contents=app/'Contents';resources=contents/'Resources';target=resources/'app'
-    target.mkdir();(target/'package.json').write_text(json.dumps({'name':'gozero-assistant-mac','version':'0.1.12','productName':'Gozero助手 Mac','main':'desktop/macos/gui/main.cjs'},ensure_ascii=False))
+    target.mkdir();(target/'package.json').write_text(json.dumps({'name':'gozero-assistant-mac','version':'0.1.13','productName':'Gozero助手 Mac','main':'desktop/macos/gui/main.cjs'},ensure_ascii=False))
     licenses=target/'licenses';licenses.mkdir()
     shutil.copy2(build/'runtime/LICENSE',licenses/'ELECTRON-LICENSE.txt')
     shutil.copy2(build/'runtime/LICENSES.chromium.html',licenses/'LICENSES.chromium.html')
@@ -77,6 +78,14 @@ def main():
     (bnt/'MANIFEST.json').write_text(json.dumps({'arch':'arm64','version':'0.2.1-mac','sha256':sha(bnt/'gozero-blocknet-core')}))
     shutil.copytree(DESKTOP/'macos/cores/bnt',bnt/'source',ignore=shutil.ignore_patterns('target','__pycache__'))
     shutil.copy2(DESKTOP/'macos/cores/bnt/README-MAC.txt',target/'BNT-MAC.txt')
+    mds=cores/'mds';mds.mkdir()
+    if subprocess.check_output(['lipo','-archs',str(args.mds_core)],text=True).strip()!='arm64':raise RuntimeError('MDS must be ARM64')
+    shutil.copy2(args.mds_core,mds/'GozeroMdsCore');(mds/'GozeroMdsCore').chmod(0o755)
+    run('codesign','--force','--sign','-',mds/'GozeroMdsCore')
+    shutil.copytree(DESKTOP/'macos/cores/mds',mds/'source',ignore=shutil.ignore_patterns('target','__pycache__'))
+    shutil.copy2(mds/'source/GPU_OC_SETTINGS.toml',mds/'GPU_OC_SETTINGS.toml')
+    (mds/'MANIFEST.json').write_text(json.dumps({'arch':'arm64','version':'0.1.13-mac','files':{n:sha(mds/n) for n in ['GozeroMdsCore','GPU_OC_SETTINGS.toml']}}),encoding='utf-8')
+    shutil.copy2(mds/'source/README-MAC.txt',target/'MDS-MAC.txt')
     shutil.copy2(DESKTOP/'macos/cores/prl_gui.py',cores/'prl_gui.py')
     shutil.copy2(DESKTOP/'macos/cores/qtc/pool_miner.py',cores/'qtc/pool_miner.py')
     for name in ('sources.json','README-CORES.txt'):
@@ -90,7 +99,7 @@ def main():
             run('/usr/bin/sips','-z',size*scale,size*scale,DESKTOP/'assets/icon.png','--out',iconset/name)
     run('/usr/bin/iconutil','-c','icns',iconset,'-o',resources/'gozero.icns')
     info_path=contents/'Info.plist';info=plistlib.loads(info_path.read_bytes())
-    info.update(CFBundleDisplayName='Gozero助手 Mac',CFBundleName='Gozero助手',CFBundleIdentifier='trade.gozero.assistant.mac',CFBundleShortVersionString='0.1.12',CFBundleVersion='13',CFBundleIconFile='gozero.icns',LSMinimumSystemVersion='13.5',NSHighResolutionCapable=True)
+    info.update(CFBundleDisplayName='Gozero助手 Mac',CFBundleName='Gozero助手',CFBundleIdentifier='trade.gozero.assistant.mac',CFBundleShortVersionString='0.1.13',CFBundleVersion='14',CFBundleIconFile='gozero.icns',LSMinimumSystemVersion='13.5',NSHighResolutionCapable=True)
     info_path.write_bytes(plistlib.dumps(info))
     # Re-seal Electron helper bundles after ZIP extraction (empty resources
     # directories may be omitted upstream). Do not re-sign the proven miner.

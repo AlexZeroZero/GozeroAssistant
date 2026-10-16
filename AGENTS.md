@@ -154,3 +154,13 @@ Windows/Mac;150s GUI accepted2/rejected0. Another run grew1->4 then reduced to1;
 peak3.60H/s is short-lived, not sustained. Real worker release/recovery tested
 with injected controller pressure only. See latest handoff/evidence. GitHub
 remains0.1.9; Windows and fee arithmetic unchanged.
+
+Latest checkpoint: Mac0.1.13 adds MDS / Midstate Metal and ARM64 NEON verification,
+with full million-round consensus.45 GUI tests,11 protocol,2 consensus and2 GPU
+checks pass. Real M3 GUI97s accepted1/rejected0; last350N/s, full sample mean174N/s
+includes initial44s job wait. See handoff/evidence; no sustained/all-M claim.
+Desktop app/DMG deployed idle, supplied MDS address configured; existing profiles,
+fee ledger and all prior native payloads preserved. Original0.5% fee unchanged.
+MSS reusable addresses only; never one-time WOTS. No CUDA requirement on Mac.
+MDS not published to GitHub in this task. Prior public0.1.12 asset switch had
+already happened before MDS work; old public0.1.9 statements are superseded.

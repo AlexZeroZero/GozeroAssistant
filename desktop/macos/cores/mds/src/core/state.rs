@@ -1,0 +1,1052 @@
+use super::types::*;
+use super::transaction::{apply_transaction_no_sig_check, verify_transaction_sigs};
+use super::extension::verify_extension;
+use anyhow::{bail, Result};
+use primitive_types::U256;
+use std::time::{SystemTime, UNIX_EPOCH};
+use rayon::prelude::*;
+
+/// Adjusts the mining difficulty using the ASERT algorithm.
+///
+/// ASERT compares absolute elapsed time since genesis against the ideal
+/// schedule (height × TARGET_BLOCK_TIME) and applies an exponential
+/// correction with a configurable half-life. This eliminates the
+/// sliding-window exploits (time warp, hash-and-flee, echo effects)
+/// inherent to relative algorithms like LWMA.
+///
+/// All arithmetic is deterministic integer math (16.16 fixed-point Taylor
+/// polynomial for 2^x) — no floating-point is used.
+pub fn calculate_target(height: u64, timestamp: u64) -> [u8; 32] {
+    let (genesis, _) = State::genesis();
+    if height == 0 { return genesis.target; }
+
+    // 1. Drift = how far actual time is from ideal time
+    let ideal_time = (height - genesis.height) as i64 * (TARGET_BLOCK_TIME as i64);
+    let actual_time = (timestamp as i64).saturating_sub(genesis.timestamp as i64);
+    let drift = actual_time - ideal_time;
+
+    // 2. Fixed-point exponent: drift / half_life in 16.16
+    let exponent = drift.saturating_mul(65536) / ASERT_HALF_LIFE;
+    let shifts = exponent >> 16;       // integer part (whole powers of 2)
+    let frac = exponent & 0xFFFF;      // fractional part
+
+    // 3. Taylor polynomial approximation of 2^frac (16.16 fixed-point)
+    //    Coefficients match the BCH aserti3-2d reference implementation.
+    let mut factor = 65536i64;
+    factor += (frac * 45426) >> 16;
+    factor += (frac * frac * 15746) >> 32;
+    factor += (frac * frac * frac * 3643) >> 48;
+
+    // 4. Apply factor to genesis target (divide-first to avoid U256 overflow,
+    //    since genesis target can be ~2^253 and factor ~2^17)
+    let mut target = U256::from_big_endian(&genesis.target);
+    let f = U256::from(factor as u64);
+    let base = U256::from(65536u64);
+    target = target / base * f + (target % base) * f / base;
+
+    let ceiling = U256::from_big_endian(&[0xff; 32]);
+
+    if shifts > 0 {
+        let s = (shifts as usize).min(255);
+        let headroom = ceiling >> s;
+        target = if target > headroom { ceiling } else { target << s };
+    } else if shifts < 0 {
+        let s = ((-shifts) as usize).min(255);
+        target = target >> s;
+    }
+
+    // 5. Clamp: never zero, never above the absolute ceiling
+    if target > ceiling {
+        target = ceiling;
+    } else if target.is_zero() {
+        target = U256::one();
+    }
+
+    target.to_big_endian()
+}
+
+/// Convenience wrapper around `calculate_target` for a full `State` object.
+pub fn adjust_difficulty(state: &State) -> [u8; 32] {
+    calculate_target(state.height, state.timestamp)
+}
+
+pub fn current_timestamp() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs()
+}
+
+/// Validate a block's timestamp against the chain.
+///
+/// # Formal specification
+///
+/// ```text
+///   pre:   true
+///   post:  result = Ok(())
+///          ⇔  new_timestamp ≤ current_time + MAX_FUTURE_BLOCK_TIME
+///             ∧ (#previous_timestamps ≥ MEDIAN_TIME_PAST_WINDOW
+///                 ⇒ new_timestamp > median(last MEDIAN_TIME_PAST_WINDOW
+///                                          entries of previous_timestamps))
+///             ∧ (#previous_timestamps < MEDIAN_TIME_PAST_WINDOW
+///                 ⇒ new_timestamp > last(previous_timestamps))
+/// ```
+pub fn validate_timestamp(
+    new_timestamp: u64,
+    previous_timestamps: &[u64],
+    current_time: u64,
+    height: u64,
+) -> Result<()> {
+    let max_future_time: u64 = if height >= crate::core::types::TIMEWARP_FIX_ACTIVATION_HEIGHT {
+        15 * 60 // 15 minutes
+    } else {
+        10 * 60 * 60 // 10 hours (legacy)
+    };
+
+    if new_timestamp > current_time + max_future_time {
+        bail!(
+            "Block timestamp too far in future: {} > {} (max future: {}s)",
+            new_timestamp,
+            current_time,
+            max_future_time
+        );
+    }
+
+    if previous_timestamps.len() >= MEDIAN_TIME_PAST_WINDOW {
+        let mut recent_timestamps: Vec<u64> = previous_timestamps
+            .iter()
+            .rev()
+            .take(MEDIAN_TIME_PAST_WINDOW)
+            .copied()
+            .collect();
+
+        recent_timestamps.sort_unstable();
+        let median = recent_timestamps[MEDIAN_TIME_PAST_WINDOW / 2];
+
+        if new_timestamp <= median {
+            bail!(
+                "Block timestamp {} must be greater than median of last {} blocks ({})",
+                new_timestamp,
+                MEDIAN_TIME_PAST_WINDOW,
+                median
+            );
+        }
+    } else if let Some(&last_ts) = previous_timestamps.last() {
+        if new_timestamp <= last_ts {
+            bail!(
+                "Block timestamp {} must be greater than previous block timestamp {}",
+                new_timestamp,
+                last_ts
+            );
+        }
+    }
+
+    Ok(())
+}
+
+/// Compute cumulative work contributed by a block with the given target.
+///
+/// Saturating: targets so low that work would exceed `u128::MAX` clamp to
+/// `u128::MAX` rather than wrapping.
+pub(crate) fn calculate_work(target: &[u8; 32]) -> u128 {
+    let t = U256::from_big_endian(target);
+    if t.is_zero() { return 0; }
+    let w = U256::MAX / t;
+    if w > U256::from(u128::MAX) {
+        u128::MAX
+    } else {
+        let lo = w.low_u64() as u128;
+        let hi = (w >> 64).low_u64() as u128;
+        (hi << 64) | lo
+    }
+}
+
+/// Apply a batch to the state, performing full PoW + signature verification.
+pub fn apply_batch(
+    state: &mut State,
+    batch: &Batch,
+    previous_timestamps: &[u64],
+    spent_oracle: &mut std::collections::HashMap<[u8; 32], [u8; 32]>,
+) -> Result<()> {
+    apply_batch_internal(state, batch, previous_timestamps, spent_oracle, None, false)
+}
+
+/// # Safety
+///
+/// Caller MUST provide the exact `verified_mining_hash` that was successfully
+/// checked against `verify_extension` (usually via Rayon). This function
+/// guarantees that the applied transactions mathematically reduce to that
+/// pre-verified hash. Calling this with an arbitrary hash allows forged
+/// blocks to corrupt the state.
+pub fn apply_batch_skip_pow(
+    state: &mut State,
+    batch: &Batch,
+    previous_timestamps: &[u64],
+    spent_oracle: &mut std::collections::HashMap<[u8; 32], [u8; 32]>,
+    verified_mining_hash: [u8; 32],
+) -> Result<()> {
+    apply_batch_internal(state, batch, previous_timestamps, spent_oracle, Some(verified_mining_hash), false)
+}
+
+/// # Safety
+/// Bypasses ALL cryptography (PoW and Signatures). MUST ONLY be used when
+/// replaying blocks loaded from the local trusted disk database.
+pub fn apply_batch_trusted(
+    state: &mut State,
+    batch: &Batch,
+    previous_timestamps: &[u64],
+    spent_oracle: &mut std::collections::HashMap<[u8; 32], [u8; 32]>,
+    verified_mining_hash: [u8; 32],
+) -> Result<()> {
+    apply_batch_internal(state, batch, previous_timestamps, spent_oracle, Some(verified_mining_hash), true)
+}
+
+/// Apply a single batch to `state`, advancing it by exactly one block.
+///
+/// # Formal specification
+///
+/// ```text
+///   pre:   batch is well-formed and structurally valid
+///          batch.prev_midstate    = state.midstate
+///          batch.prev_header_hash = state.header_hash
+///          batch.target           = state.target
+///          batch.timestamp passes validate_timestamp
+///          (other consensus checks per section comments below)
+///
+///   post:  state'.height    = state.height + 1
+///          state'.midstate  = future_midstate (per Step 4)
+///          state'.depth     = state.depth + calculate_work(state.target)
+///          state'.coins     = state.coins  ∪  coinbase_ids
+///                                          - spent_input_ids
+///                                          ∪  new_output_ids
+///          state'.commitments and commitment_heights updated per
+///                                  Commit/Reveal/Consolidate semantics
+///          state'.chain_mmr appends batch.extension.final_hash
+///          all hashing under is_v2 = is_v2_at(state.height) (BEFORE the
+///          height increment)
+/// ```
+///
+/// # V2 activation
+///
+/// At the moment `state.height` becomes `V2_ACTIVATION_HEIGHT` (i.e. just
+/// after the increment in step 7), the SMT caches inside `state.coins` and
+/// `state.commitments` were populated under V1 hashing during this same
+/// block's transactions. We rebuild them in place with `is_v2 = true` so
+/// every subsequent `root(true)` returns the correct V2 hash. The MMR's
+/// `nodes` array is *not* rebuilt — its entries are historical commitments
+/// that remain valid under V1 forever; only the next `append`/`root`
+/// invocation, which uses `is_v2_at(state.height)` and now sees the new
+/// height, switches to V2.
+fn apply_batch_internal(
+    state: &mut State,
+    batch: &Batch,
+    previous_timestamps: &[u64],
+    spent_oracle: &mut std::collections::HashMap<[u8; 32], [u8; 32]>,
+    preverified_hash: Option<[u8; 32]>,
+    skip_signatures: bool,
+) -> Result<()> {
+    // Single source of truth for the hashing mode of THIS block. Captured
+    // once at function entry; every accumulator call below reads it instead
+    // of re-deriving from state.height to avoid post-increment drift.
+    let v2 = crate::core::types::is_v2_at(state.height);
+
+    // 1. Check parent linkage
+    if batch.prev_midstate != state.midstate {
+        bail!("Block parent mismatch: expected {}, got {}",
+              hex::encode(state.midstate), hex::encode(batch.prev_midstate));
+    }
+    if batch.prev_header_hash != state.header_hash {
+        bail!("Block header hash mismatch: expected {}, got {}",
+              hex::encode(state.header_hash), hex::encode(batch.prev_header_hash));
+    }
+    if batch.target != state.target {
+        bail!("Batch target mismatch: expected {}, got {}",
+              hex::encode(state.target), hex::encode(batch.target));
+    }
+
+    // 1. O(N) Topological Ordering & Pre-pass Extraction
+    let mut seen_non_commit = false;
+    let mut in_block_commits = std::collections::HashSet::new();
+    let mut commit_count = 0;
+    let mut reveal_count = 0;
+    let mut consolidated_addresses = std::collections::HashSet::new();
+
+    for tx in &batch.transactions {
+        match tx {
+            Transaction::Commit { commitment, .. } => {
+                if seen_non_commit {
+                    bail!("Block ordering violation: Commit appears after a Reveal or Consolidate");
+                }
+                in_block_commits.insert(*commitment);
+                commit_count += 1;
+            }
+            Transaction::Reveal { .. } => {
+                seen_non_commit = true;
+                reveal_count += 1;
+            }
+            Transaction::Consolidate { inputs, .. } => {
+                seen_non_commit = true;
+                reveal_count += 1;
+                if !inputs.is_empty() {
+                    let addr = inputs[0].predicate.address();
+                    if !consolidated_addresses.insert(addr) {
+                        bail!("Batch contains multiple Consolidate transactions for the same address");
+                    }
+                }
+            }
+        }
+    }
+
+    if reveal_count > MAX_BATCH_REVEALS {
+        bail!("Batch exceeds max reveal count: {} > {}", reveal_count, MAX_BATCH_REVEALS);
+    }
+    if commit_count > MAX_BATCH_COMMITS {
+        bail!("Batch exceeds max commit count: {} > {}", commit_count, MAX_BATCH_COMMITS);
+    }
+
+    // timewarp prevention: validate timestamp
+    validate_timestamp(batch.timestamp, previous_timestamps, current_timestamp(), state.height)?;
+    
+    // WOTS & MSS address/leaf-reuse consensus check.
+    // Uses the pre-built oracle so state.rs stays pure (no storage I/O here).
+    for tx in &batch.transactions {
+        match tx {
+            Transaction::Reveal { inputs, witnesses, outputs, salt } => {
+                let input_ids: Vec<[u8; 32]> = inputs.iter().map(|i| i.coin_id()).collect();
+                let output_hashes: Vec<[u8; 32]> = outputs.iter().map(|o| o.hash_for_commitment()).collect();
+                let this_commitment = crate::core::types::compute_commitment(&input_ids, &output_hashes, salt);
+
+                for (input, witness) in inputs.iter().zip(witnesses.iter()) {
+                    let crate::core::types::Witness::ScriptInputs(wit_inputs) = witness;
+                    if let Some(sig) = wit_inputs.first() {
+                        if sig.len() == crate::core::wots::SIG_SIZE {
+                            let addr = input.predicate.address();
+                                if let Some(&prior_commitment) = spent_oracle.get(&addr) {
+                                    if prior_commitment != this_commitment {
+                                        tracing::warn!("WOTS address {} reused. The Bounty Hunter will sweep this.", hex::encode(addr));
+                                    }
+                                }
+                            spent_oracle.insert(addr, this_commitment);
+                        } else if let Ok(mss_sig) = crate::core::mss::MssSignature::from_bytes(sig) {
+                            if let Some(&prior_commitment) = spent_oracle.get(&mss_sig.wots_pk) {
+                                if prior_commitment != this_commitment {
+                                    tracing::warn!("MSS leaf {} reused. The Bounty Hunter will sweep this.", hex::encode(mss_sig.wots_pk));
+                                }
+                            }
+                            spent_oracle.insert(mss_sig.wots_pk, this_commitment);
+                        }
+                    }
+                }
+            }
+            Transaction::Consolidate { inputs, witness, outputs, salt } => {
+                if inputs.is_empty() { continue; }
+                let input_ids: Vec<[u8; 32]> = inputs.iter().map(|i| i.coin_id()).collect();
+                let output_hashes: Vec<[u8; 32]> = outputs.iter().map(|o| o.hash_for_commitment()).collect();
+                let this_commitment = crate::core::types::compute_commitment(&input_ids, &output_hashes, salt);
+
+                let crate::core::types::Witness::ScriptInputs(wit_inputs) = witness;
+                if let Some(sig) = wit_inputs.first() {
+                    if sig.len() == crate::core::wots::SIG_SIZE {
+                        let addr = inputs[0].predicate.address();
+                        if let Some(&prior_commitment) = spent_oracle.get(&addr) {
+                                    if prior_commitment != this_commitment {
+                                        tracing::warn!("WOTS address {} reused. The Bounty Hunter will sweep this.", hex::encode(addr));
+                                    }
+                                }
+                        spent_oracle.insert(addr, this_commitment);
+                    } else if let Ok(mss_sig) = crate::core::mss::MssSignature::from_bytes(sig) {
+                        if let Some(&prior_commitment) = spent_oracle.get(&mss_sig.wots_pk) {
+                                if prior_commitment != this_commitment {
+                                    tracing::warn!("MSS leaf {} reused. The Bounty Hunter will sweep this.", hex::encode(mss_sig.wots_pk));
+                                }
+                            }
+                        spent_oracle.insert(mss_sig.wots_pk, this_commitment);
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+
+    // 2. Reject batches that would require excessive signature verification
+    //    OR exceed network bandwidth limits.
+    let mut total_inputs = 0;
+    let mut total_outputs = 0;
+
+    for tx in &batch.transactions {
+        match tx {
+            Transaction::Reveal { inputs, outputs, .. } => {
+                total_inputs += inputs.len();
+                total_outputs += outputs.len();
+            }
+            Transaction::Consolidate { outputs, .. } => {
+                total_inputs += 1; // Structurally bounds validation to 1 signature
+                total_outputs += outputs.len();
+            }
+            _ => {}
+        }
+    }
+
+    if total_inputs > MAX_BATCH_INPUTS {
+        bail!("Batch exceeds max total inputs: {} > {}", total_inputs, MAX_BATCH_INPUTS);
+    }
+    if total_outputs > MAX_BATCH_OUTPUTS {
+        bail!("Batch exceeds max total outputs: {} > {}", total_outputs, MAX_BATCH_OUTPUTS);
+    }
+
+    // 3. Apply transactions and tally fees
+    // Phase 1: verify all signatures in parallel (pure, no state mutation)
+    if !skip_signatures {
+        batch.transactions.par_iter().try_for_each(|tx| {
+            verify_transaction_sigs(tx, state.height, &state.commitments, &in_block_commits)
+        })?;
+    }
+
+    // Phase 2: apply sequentially (state mutation, sigs already verified)
+    let mut total_fees: u64 = 0;
+    for tx in &batch.transactions {
+        total_fees = total_fees.checked_add(tx.fee()).ok_or_else(|| anyhow::anyhow!("Fee overflow"))?;
+        apply_transaction_no_sig_check(state, tx)?;
+    }
+
+    // 3. Validate coinbase outputs
+    let reward = block_reward(state.height);
+    let allowed_value = reward.checked_add(total_fees).ok_or_else(|| anyhow::anyhow!("Reward overflow"))?;
+
+    // Pre-check: reject duplicate coinbase coin IDs (same address+value+salt).
+    // Duplicates would silently lose coins since the second insert returns false.
+    {
+        let mut seen_cb = std::collections::HashSet::new();
+        for (i, cb) in batch.coinbase.iter().enumerate() {
+            if !seen_cb.insert(cb.coin_id()) {
+                bail!("Duplicate coinbase output coin ID at index {}", i);
+            }
+        }
+    }
+
+    let mut coinbase_total: u64 = 0;
+    for (i, cb) in batch.coinbase.iter().enumerate() {
+        if cb.value == 0 {
+            bail!("Zero-value coinbase output {}", i);
+        }
+        if !cb.value.is_power_of_two() {
+            bail!("Coinbase output {} value {} is not a power of 2", i, cb.value);
+        }
+        coinbase_total = coinbase_total.checked_add(cb.value)
+            .ok_or_else(|| anyhow::anyhow!("Coinbase value overflow"))?;
+    }
+    if coinbase_total != allowed_value {
+        bail!("Coinbase total {} != expected {} (reward {} + fees {})",
+              coinbase_total, allowed_value, reward, total_fees);
+    }
+
+    // 4. Compute future midstate with coinbase coin IDs
+    let mut future_midstate = state.midstate;
+    let coinbase_ids: Vec<[u8; 32]> = batch.coinbase.iter().map(|cb| cb.coin_id()).collect();
+    for coin_id in &coinbase_ids {
+        future_midstate = hash_concat(&future_midstate, coin_id);
+    }
+
+    // --- State Root Validation ---
+    let mut temp_state_coins = state.coins.clone();
+    for coin_id in &coinbase_ids {
+        temp_state_coins.insert(*coin_id, v2);
+    }
+     let smt_root = hash_concat(&temp_state_coins.root(v2), &state.commitments.root(v2));
+    let mut expected_state_root = hash_concat(&smt_root, &state.chain_mmr.root(v2));
+    if state.height >= crate::core::types::V4_ACTIVATION_HEIGHT {
+        expected_state_root = hash_concat(&expected_state_root, &state.burned_wots.root(v2));
+    }
+
+    if batch.state_root != expected_state_root {
+        bail!("State root mismatch: expected {}, got {}", hex::encode(expected_state_root), hex::encode(batch.state_root));
+    }
+
+    future_midstate = hash_concat(&future_midstate, &batch.state_root);
+    // -----------------------------------
+
+    // 5. Verify extension against the NEW HEADER HASH
+    let candidate_header = BatchHeader {
+        height: state.height,
+        prev_header_hash: state.header_hash,
+        prev_midstate: state.midstate,
+        post_tx_midstate: future_midstate,
+        extension: batch.extension.clone(),
+        timestamp: batch.timestamp,
+        target: batch.target,
+        state_root: batch.state_root,
+    };
+
+    let mining_target = crate::core::types::compute_header_hash(&candidate_header);
+
+    match preverified_hash {
+        None => {
+            // Standard path: verify the 1,000,000 hashes right now
+            verify_extension(mining_target, &batch.extension, &batch.target)?;
+        }
+        Some(expected_hash) => {
+            // Fast path: explicit invariant check. Guarantees that the applied
+            // transactions actually form the header that Rayon verified.
+            if mining_target != expected_hash {
+                bail!(
+                    "CRITICAL: Batch integrity failure! Computed header hash {} does not match pre-verified PoW hash {}",
+                    hex::encode(mining_target),
+                    hex::encode(expected_hash)
+                );
+            }
+        }
+    }
+
+    // 6. Add coinbase coins to state
+    for coin_id in &coinbase_ids {
+        if !state.coins.insert(*coin_id, v2) {
+            bail!("Duplicate coinbase coin");
+        }
+    }
+
+    // 7. Finalize
+    state.midstate = future_midstate;
+    state.header_hash = batch.extension.final_hash;
+    state.chain_mmr.append(&batch.extension.final_hash, v2);
+
+    let mut block_work = calculate_work(&batch.target);
+    
+    // NAKAMOTO CONSENSUS UPGRADE: Incentivize Commit inclusion.
+    // Starting at the activation height, we add the base Proof-of-Work value 
+    // of each Commit to the block's total weight. This solves the Free-Rider 
+    // problem: blocks with more Commits are strictly heavier, ensuring they win 
+    // all tie-breakers and minimizing the miner's orphan rate.
+    if state.height >= crate::core::types::COMMIT_WEIGHT_ACTIVATION_HEIGHT {
+        // 2^24 hashes = 16,777,216 base work per Commit
+        let commit_bonus = (commit_count as u128) * 16_777_216; 
+
+        // COMMIT WEIGHT CAP (see COMMIT_WEIGHT_CAP_ACTIVATION_HEIGHT).
+        //
+        // Uncapped, this bonus can exceed the block's own PoW by orders of
+        // magnitude, and Commit work is NOT exclusive to one fork: a Commit
+        // sealed in an honest block is still absent from a competing fork's
+        // `commitments` set, so an attacker can re-include the same freely
+        // gossiped Commits and claim weight the honest chain took hundreds of
+        // blocks to accrue. Capping the bonus at a fraction of the block's own
+        // work keeps the tie-break incentive while restoring the invariant that
+        // out-weighting the chain requires majority Proof-of-Work.
+        let commit_bonus = if state.height >= crate::core::types::COMMIT_WEIGHT_CAP_ACTIVATION_HEIGHT {
+            let cap = block_work
+                .saturating_mul(crate::core::types::COMMIT_WEIGHT_CAP_NUM)
+                / crate::core::types::COMMIT_WEIGHT_CAP_DEN;
+            commit_bonus.min(cap)
+        } else {
+            commit_bonus
+        };
+
+        block_work = block_work.saturating_add(commit_bonus);
+    }
+
+    state.depth += block_work;
+    state.height += 1;
+
+    state.timestamp = batch.timestamp;
+
+    // V2 activation crossing: the SMT caches were populated under V1 hashing
+    // during this block's transactions; rebuild them now under V2 so all
+    // subsequent root() calls produce correct V2 roots. The MMR doesn't need
+    // a rebuild — its `nodes` array stores cumulative historical hashes
+    // which remain valid commitments under their original mode; only newly-
+    // appended leaves and the bagging at root time switch to V2.
+    if state.height == crate::core::types::V2_ACTIVATION_HEIGHT {
+        tracing::warn!(
+            "BLOCK {}: V2 activation — rebuilding SMT caches with domain-separated hashing",
+            state.height
+        );
+        state.coins.rebuild_tree(true);
+        state.commitments.rebuild_tree(true);
+    }
+
+    state.timestamp = batch.timestamp;
+
+    // 8. Deterministic GC: remove expired commitments from state.
+    // This MUST happen at a deterministic point (after height increment)
+    // so all nodes expire the same commitments at the same height.
+    //
+    // NOTE ON FUND SAFETY: Commits do not lock or modify UTXOs. If a
+    // commitment expires here, the user's funds are NOT lost or burned.
+    // The user simply loses their PoW effort and must submit a new Commit.
+    //
+    // Uses strict '>' so a commitment at height H expires at H + TTL + 1,
+    // giving the full TTL window for reveals.
+    if state.height < crate::core::types::V2_ACTIVATION_HEIGHT + COMMITMENT_TTL {
+        // Legacy O(K) scan to ensure smooth overlap during V2 network upgrade
+        let expired: Vec<[u8; 32]> = state.commitment_heights.iter()
+            .filter(|(_, &h)| state.height.saturating_sub(h) > COMMITMENT_TTL)
+            .map(|(k, _)| *k)
+            .collect();
+        for k in &expired {
+            state.commitments.remove(k, v2);
+            state.commitment_heights.remove(k);
+        }
+    } else {
+        // V2 path: instant O(log H) cleanup via B-Tree index
+        let expired_height = state.height.saturating_sub(COMMITMENT_TTL + 1);
+        if let Some(expired_keys) = state.expirations.remove(&expired_height) {
+            for k in expired_keys {
+                state.commitments.remove(&k, v2);
+                state.commitment_heights.remove(&k);
+            }
+        }
+    }
+
+    Ok(())
+}
+
+/// Choose the better of two states (fork resolution).
+///
+/// # Formal specification
+///
+/// ```text
+///   post:  result = a   if a.depth > b.depth
+///          result = b   if a.depth < b.depth
+///          result = a   if a.depth = b.depth ∧ a.midstate < b.midstate
+///          result = b   if a.depth = b.depth ∧ a.midstate ≥ b.midstate
+/// ```
+///
+/// The midstate tiebreaker ensures all honest nodes converge on the same
+/// canonical chain even when two chains have identical accumulated work.
+pub fn choose_best_state<'a>(a: &'a State, b: &'a State) -> &'a State {
+    match a.depth.cmp(&b.depth) {
+        std::cmp::Ordering::Greater => a,
+        std::cmp::Ordering::Less => b,
+        std::cmp::Ordering::Equal => {
+            if a.midstate < b.midstate { a } else { b }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::core::extension::create_extension;
+    use crate::core::mmr::UtxoAccumulator;
+    use crate::core::wots;
+
+    fn easy_target() -> [u8; 32] {
+        [0xff; 32]
+    }
+
+    /// Mirrors the bonus arithmetic in `apply_batch` so the cap can be exercised
+    /// without constructing thousands of Commits.
+    fn commit_bonus_at(height: u64, commit_count: u64, block_work: u128) -> u128 {
+        if height < crate::core::types::COMMIT_WEIGHT_ACTIVATION_HEIGHT {
+            return 0;
+        }
+        let raw = (commit_count as u128) * 16_777_216;
+        if height >= crate::core::types::COMMIT_WEIGHT_CAP_ACTIVATION_HEIGHT {
+            let cap = block_work.saturating_mul(crate::core::types::COMMIT_WEIGHT_CAP_NUM)
+                / crate::core::types::COMMIT_WEIGHT_CAP_DEN;
+            raw.min(cap)
+        } else {
+            raw
+        }
+    }
+
+    /// A full block of Commits must never out-weigh the block's own PoW after
+    /// the cap activates. Uses the mainnet work-per-block observed around
+    /// height 232_600 (~1.05e8), where the uncapped bonus was ~318 blocks'
+    /// worth of work.
+    #[test]
+    fn commit_bonus_is_capped_after_activation() {
+        let block_work: u128 = 105_466_415;
+        let full = crate::core::types::MAX_BATCH_COMMITS as u64;
+
+        let before = commit_bonus_at(
+            crate::core::types::COMMIT_WEIGHT_CAP_ACTIVATION_HEIGHT - 1,
+            full,
+            block_work,
+        );
+        let after = commit_bonus_at(
+            crate::core::types::COMMIT_WEIGHT_CAP_ACTIVATION_HEIGHT,
+            full,
+            block_work,
+        );
+
+        // Pre-cap: a single block carries hundreds of blocks of weight.
+        assert!(before > block_work * 100, "pre-cap bonus should dwarf block work");
+        // Post-cap: strictly a minority of the block's own Proof-of-Work.
+        assert!(after < block_work, "capped bonus must not exceed block work");
+        assert_eq!(after, block_work / 4);
+    }
+
+    /// The cap must not change behaviour for ordinary blocks — the tie-break
+    /// incentive has to survive, or miners go back to omitting Commits.
+    #[test]
+    fn typical_commit_counts_are_unaffected_by_cap() {
+        let block_work: u128 = 105_466_415;
+        // A handful of Commits, as seen on the live chain.
+        for count in [1u64, 2, 5] {
+            let capped = commit_bonus_at(
+                crate::core::types::COMMIT_WEIGHT_CAP_ACTIVATION_HEIGHT,
+                count,
+                block_work,
+            );
+            assert_eq!(
+                capped,
+                (count as u128) * 16_777_216,
+                "cap must not bite at realistic Commit counts"
+            );
+        }
+    }
+
+    /// More Commits must still mean strictly more weight up to the cap, so the
+    /// free-rider fix keeps working.
+    #[test]
+    fn commit_bonus_remains_monotonic() {
+        let block_work: u128 = 105_466_415;
+        let h = crate::core::types::COMMIT_WEIGHT_CAP_ACTIVATION_HEIGHT;
+        assert!(commit_bonus_at(h, 2, block_work) > commit_bonus_at(h, 1, block_work));
+    }
+
+    fn genesis_state() -> State {
+        State::genesis().0
+    }
+
+    /// Build a valid batch on top of the given state (no transactions).
+    fn make_empty_batch(state: &State, reward: u64, timestamp: u64) -> Batch {
+        let v2 = crate::core::types::is_v2_at(state.height);
+        let coinbase = make_coinbase(state, reward);
+        let mut mining_midstate = state.midstate;
+
+        let mut temp_coins = state.coins.clone();
+        for cb in &coinbase {
+            let coin_id = cb.coin_id();
+            mining_midstate = hash_concat(&mining_midstate, &coin_id);
+            temp_coins.insert(coin_id, v2);
+        }
+
+        let temp_commitments = state.commitments.clone();
+        let smt_root = hash_concat(&temp_coins.root(v2), &temp_commitments.root(v2));
+        let state_root = hash_concat(&smt_root, &state.chain_mmr.root(v2));
+        mining_midstate = hash_concat(&mining_midstate, &state_root);
+
+        // Search for a nonce that meets the target
+        let candidate_header = BatchHeader {
+            height: state.height,
+            prev_header_hash: state.header_hash,
+            prev_midstate: state.midstate,
+            post_tx_midstate: mining_midstate,
+            extension: Extension { nonce: 0, final_hash: [0u8; 32] },
+            timestamp,
+            target: state.target,
+            state_root,
+        };
+        let mining_target = crate::core::types::compute_header_hash(&candidate_header);
+
+        let mut nonce = 0u64;
+        let extension = loop {
+            let ext = create_extension(mining_target, nonce);
+            if ext.final_hash < state.target {
+                break ext;
+            }
+            nonce += 1;
+        };
+
+        Batch {
+            prev_midstate: state.midstate,
+            prev_header_hash: state.header_hash,
+            transactions: vec![],
+            extension,
+            coinbase,
+            timestamp,
+            target: state.target,
+            state_root,
+        }
+    }
+
+    fn make_coinbase(state: &State, total_value: u64) -> Vec<CoinbaseOutput> {
+        let denoms = decompose_value(total_value);
+        denoms.iter().enumerate().map(|(i, &value)| {
+            let seed = hash_concat(&state.midstate, &(i as u64).to_le_bytes());
+            let pk = wots::keygen(&seed);
+            let address = compute_address(&pk);
+            let salt = hash_concat(&seed, &[0xCBu8; 32]);
+            CoinbaseOutput { address, value, salt }
+        }).collect()
+    }
+
+    // ── apply_batch ─────────────────────────────────────────────────────
+
+    #[test]
+    fn apply_batch_advances_height() {
+        let mut state = genesis_state();
+        let reward = block_reward(state.height);
+        let batch = make_empty_batch(&state, reward, state.timestamp + 1);
+        let timestamps = vec![state.timestamp];
+        apply_batch(&mut state, &batch, &timestamps, &mut std::collections::HashMap::new()).unwrap();
+        assert_eq!(state.height, 1);
+    }
+
+    #[test]
+    fn apply_batch_advances_depth() {
+        let mut state = genesis_state();
+        let initial_depth = state.depth;
+        let expected_work = calculate_work(&state.target);
+        let reward = block_reward(state.height);
+        let batch = make_empty_batch(&state, reward, state.timestamp + 1);
+        let timestamps = vec![state.timestamp];
+        apply_batch(&mut state, &batch, &timestamps, &mut std::collections::HashMap::new()).unwrap();
+        assert_eq!(state.depth, initial_depth + expected_work);
+        assert!(expected_work > 0, "work per block must be nonzero");
+    }
+
+    #[test]
+    fn apply_batch_updates_midstate() {
+        let mut state = genesis_state();
+        let old_midstate = state.midstate;
+        let reward = block_reward(state.height);
+        let batch = make_empty_batch(&state, reward, state.timestamp + 1);
+        let timestamps = vec![state.timestamp];
+        apply_batch(&mut state, &batch, &timestamps, &mut std::collections::HashMap::new()).unwrap();
+        assert_ne!(state.midstate, old_midstate);
+        // The midstate is the running hash chain over applied coin ids and the
+        // state root. The extension's final_hash is the proof-of-work computed
+        // *over* that midstate, so the two are different by design; asserting
+        // equality was testing an invariant the chain never had.
+        assert_ne!(state.midstate, batch.extension.final_hash);
+    }
+
+    #[test]
+    fn apply_batch_adds_coinbase_coins() {
+        let mut state = genesis_state();
+        let reward = block_reward(state.height);
+        let batch = make_empty_batch(&state, reward, state.timestamp + 1);
+        let coinbase_ids: Vec<[u8; 32]> = batch.coinbase.iter().map(|c| c.coin_id()).collect();
+        let timestamps = vec![state.timestamp];
+        apply_batch(&mut state, &batch, &timestamps, &mut std::collections::HashMap::new()).unwrap();
+        for id in &coinbase_ids {
+            assert!(state.coins.contains(id), "coinbase coin should be in state");
+        }
+    }
+
+    #[test]
+    fn apply_batch_rejects_wrong_prev_midstate() {
+        let state = genesis_state();
+        let reward = block_reward(state.height);
+        let mut batch = make_empty_batch(&state, reward, state.timestamp + 1);
+        batch.prev_midstate = [0xFFu8; 32]; // wrong parent
+        let mut state2 = state.clone();
+        let timestamps = vec![state2.timestamp];
+        assert!(apply_batch(&mut state2, &batch, &timestamps, &mut std::collections::HashMap::new()).is_err());
+    }
+
+    #[test]
+    fn apply_batch_rejects_wrong_target() {
+        let mut state = genesis_state();
+        let reward = block_reward(state.height);
+        let mut batch = make_empty_batch(&state, reward, state.timestamp + 1);
+        batch.target = [0x00; 32]; // wrong target
+        let timestamps = vec![state.timestamp];
+        assert!(apply_batch(&mut state, &batch, &timestamps, &mut std::collections::HashMap::new()).is_err());
+    }
+
+    #[test]
+    fn apply_batch_rejects_wrong_coinbase_total() {
+        let mut state = genesis_state();
+        let batch = make_empty_batch(&state, block_reward(state.height) + 100, state.timestamp + 1);
+        let timestamps = vec![state.timestamp];
+        assert!(apply_batch(&mut state, &batch, &timestamps, &mut std::collections::HashMap::new()).is_err());
+    }
+
+    #[test]
+    fn apply_batch_rejects_non_power_of_two_coinbase() {
+        let mut state = genesis_state();
+        let mut batch = make_empty_batch(&state, block_reward(state.height), state.timestamp + 1);
+        // Corrupt a coinbase value to be non-power-of-2
+        if let Some(cb) = batch.coinbase.first_mut() {
+            cb.value = 3; // not a power of 2
+        }
+        let timestamps = vec![state.timestamp];
+        assert!(apply_batch(&mut state, &batch, &timestamps, &mut std::collections::HashMap::new()).is_err());
+    }
+
+    #[test]
+    fn apply_batch_rejects_past_timestamp() {
+        let mut state = genesis_state();
+        // Apply genesis batch first to get height > 0
+        let reward = block_reward(state.height);
+        let batch0 = make_empty_batch(&state, reward, state.timestamp + 1);
+        let timestamps_0 = vec![state.timestamp];
+        apply_batch(&mut state, &batch0, &timestamps_0, &mut std::collections::HashMap::new()).unwrap();
+
+        // Now try a batch with timestamp <= previous
+        let reward = block_reward(state.height);
+        let batch1 = make_empty_batch(&state, reward, state.timestamp); // same timestamp
+        let timestamps_1 = vec![state.timestamp];
+        assert!(apply_batch(&mut state, &batch1, &timestamps_1, &mut std::collections::HashMap::new()).is_err());
+    }
+
+    #[test]
+    fn apply_batch_validates_timestamp() {
+        let mut state = genesis_state();
+        let reward = block_reward(state.height);
+
+        // 1. Apply a valid block so height > 0
+        let valid_batch = make_empty_batch(&state, reward, state.timestamp + 1);
+        let timestamps_0 = vec![state.timestamp];
+        apply_batch(&mut state, &valid_batch, &timestamps_0, &mut std::collections::HashMap::new()).unwrap();
+
+        // 2. Try to apply an invalid block (timestamp not strictly greater)
+        let reward2 = block_reward(state.height);
+        let invalid_batch = make_empty_batch(&state, reward2, state.timestamp);
+        let timestamps_1 = vec![state.timestamp];
+
+        let result = apply_batch(&mut state, &invalid_batch, &timestamps_1, &mut std::collections::HashMap::new());
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("greater than previous"));
+    }
+
+    // ── choose_best_state ───────────────────────────────────────────────
+
+    #[test]
+    fn choose_best_state_higher_depth_wins() {
+        let mut a = genesis_state();
+        let mut b = genesis_state();
+        a.depth = 100;
+        b.depth = 200;
+        assert_eq!(choose_best_state(&a, &b).depth, 200);
+        assert_eq!(choose_best_state(&b, &a).depth, 200);
+    }
+
+    #[test]
+    fn choose_best_state_equal_depth_uses_midstate() {
+        let mut a = genesis_state();
+        let mut b = genesis_state();
+        a.depth = 100;
+        b.depth = 100;
+        a.midstate = [0x01; 32];
+        b.midstate = [0x02; 32];
+        // Lower midstate wins
+        assert_eq!(choose_best_state(&a, &b).midstate, [0x01; 32]);
+    }
+
+    // ── adjust_difficulty (ASERT) ─────────────────────────────────────
+
+    #[test]
+    fn adjust_difficulty_no_change_at_height_zero() {
+        let state = genesis_state();
+        let result = adjust_difficulty(&state);
+        assert_eq!(result, state.target);
+    }
+
+    #[test]
+    fn adjust_difficulty_stable_when_on_target() {
+        let genesis = genesis_state();
+        let mut state = genesis.clone();
+        state.height = 100;
+        state.timestamp = genesis.timestamp + (100 * TARGET_BLOCK_TIME);
+
+        let result = adjust_difficulty(&state);
+        assert_eq!(result, genesis.target, "Target should not change when blocks are exactly on schedule");
+    }
+
+    #[test]
+    fn adjust_difficulty_drops_when_blocks_slow() {
+        let genesis = genesis_state();
+        let mut state = genesis.clone();
+        state.height = 10;
+        // 10 blocks should take 600s. They took 2000s (too slow).
+        state.timestamp = genesis.timestamp + 2000;
+
+        let result = adjust_difficulty(&state);
+        let old_u256 = U256::from_big_endian(&genesis.target);
+        let new_u256 = U256::from_big_endian(&result);
+        assert!(new_u256 > old_u256, "Target should increase (get easier) when blocks are slow");
+    }
+
+    #[test]
+    fn adjust_difficulty_rises_when_blocks_fast() {
+        let genesis = genesis_state();
+        let mut state = genesis.clone();
+        state.height = 10;
+        // 10 blocks should take 600s. They took 100s (too fast).
+        state.timestamp = genesis.timestamp + 100;
+
+        let result = adjust_difficulty(&state);
+        let old_u256 = U256::from_big_endian(&genesis.target);
+        let new_u256 = U256::from_big_endian(&result);
+        assert!(new_u256 < old_u256, "Target should decrease (get harder) when blocks are fast");
+    }
+
+    #[test]
+    fn adjust_difficulty_exact_halving() {
+        let genesis = genesis_state();
+        let mut state = genesis.clone();
+        // Mine 240 blocks instantly → drift = -14400s = exactly -1 half-life.
+        state.height = 240;
+        state.timestamp = genesis.timestamp; // no time passed
+
+        let result = adjust_difficulty(&state);
+        let old_u256 = U256::from_big_endian(&genesis.target);
+        let new_u256 = U256::from_big_endian(&result);
+        let expected = old_u256 >> 1;
+        assert_eq!(new_u256, expected, "Target must exactly halve after 1 half-life of negative drift");
+    }
+
+    #[test]
+    fn adjust_difficulty_ceiling_clamp() {
+        let genesis = genesis_state();
+        let mut state = genesis.clone();
+        // Extreme stall: huge positive drift.
+        state.height = 1;
+        state.timestamp = genesis.timestamp + 999_999_999;
+
+        let result = adjust_difficulty(&state);
+        assert_eq!(result, [0xff; 32], "Target must clamp to the 0xff ceiling");
+    }
+
+    // ── validate_timestamp ──────────────────────────────────────────────
+
+    #[test]
+    fn validate_timestamp_accepts_recent() {
+        let current_time = 1_000_000;
+        let result = validate_timestamp(current_time - 10, &[], current_time, 0);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn validate_timestamp_rejects_far_future() {
+        let current_time = 1_000_000;
+        // The tolerance is height-gated: 15 minutes after the timewarp fix,
+        // 10 hours before it. The old test asserted a 3-hour block was rejected
+        // at height 0, which the legacy window legitimately allows.
+        let post_fix = crate::core::types::TIMEWARP_FIX_ACTIVATION_HEIGHT;
+
+        // Post-fix: anything beyond 15 minutes is refused.
+        assert!(validate_timestamp(current_time + 16 * 60, &[], current_time, post_fix).is_err());
+        assert!(validate_timestamp(current_time + 14 * 60, &[], current_time, post_fix).is_ok());
+
+        // Legacy: 3 hours is inside the 10-hour window, 11 hours is not.
+        assert!(validate_timestamp(current_time + 3 * 60 * 60, &[], current_time, 0).is_ok());
+        assert!(validate_timestamp(current_time + 11 * 60 * 60, &[], current_time, 0).is_err());
+    }
+
+    #[test]
+    fn validate_timestamp_rejects_before_previous() {
+        let prev = State {
+            midstate: [0; 32],
+            coins: UtxoAccumulator::new(),
+            commitments: UtxoAccumulator::new(),
+            depth: 0,
+            target: easy_target(),
+            height: 1,
+            timestamp: 1000,
+            commitment_heights: im::HashMap::new(),
+            expirations: im::OrdMap::new(),
+            chain_mmr: crate::core::mmr::MerkleMountainRange::new(),
+            header_hash: [0; 32],
+            burned_wots: crate::core::mmr::UtxoAccumulator::new(),
+        };
+
+        let timestamps = vec![prev.timestamp];
+
+        let result = validate_timestamp(999, &timestamps, 2000, 0);
+        assert!(result.is_err());
+    }
+}

@@ -1,0 +1,5 @@
+batch_nonces = 2048
+iters_per_dispatch = 2000
+responsive_iters = 2000
+workgroup_size = 64
+verification_threads = 2
