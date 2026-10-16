@@ -1,8 +1,8 @@
 'use strict';
 const {resolve,choices}=require('./kernel-catalog.cjs');
 const {poolChoices}=require('./pool-catalog.cjs');
-const GPU_COINS=['PRL','QTC','NOID','YSR'];
-const PROFILE_KEYS=['reportPoolIdentity','coin','performance','worker','selected','hashWindowMinutes','cpuThreads','zcdPassword','wallets','pools','poolBackups','kernels','noidConnection'];
+const GPU_COINS=['PRL','QTC','NOID','YSR','MDS'];
+const PROFILE_KEYS=['mdsMssConfirmed','reportPoolIdentity','coin','performance','worker','selected','hashWindowMinutes','cpuThreads','zcdPassword','wallets','pools','poolBackups','kernels','noidConnection'];
 function taskConfig(base,id){
  if(!['gpu','cpu'].includes(id))throw Error('无效任务');
  const {taskProfiles,workbenchMode,...shared}=base;

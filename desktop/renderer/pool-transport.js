@@ -10,6 +10,7 @@
  }
  function convert(value,coin,target,adapter){
   if(!['tcp','ssl'].includes(target)||coin==='YSR')throw Error('此币种使用 HTTPS 矿池接口');
+  if(coin==='MDS'&&target!=='tcp')throw Error('MDS 当前仅支持 TCP');
   if(adapter==='bnt-seine'&&target!=='tcp')throw Error('Seine 0.2.15 仅支持 stratum+tcp 矿池地址');
   let u;try{u=new URL(value.trim())}catch{throw Error('请先填写有效矿池地址')}
   if(!stratum.includes(u.protocol)||!u.hostname||!u.port||u.username||u.password||u.search||u.hash||(u.pathname&&u.pathname!=='/'))throw Error('请先填写有效矿池地址');

@@ -1,0 +1,17 @@
+{
+  "architecture": "compute_80",
+  "chainUnroll": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "options": [
+    "--gpu-architecture=compute_80",
+    "--std=c++17",
+    "--restrict"
+  ],
+  "sourceSha256": "35312539e6a9e56d62448fdde614cbc724405f5ea19a3874d9b210c65770d8d1",
+  "ptxSha256": "ca04930cb3ead27aef6e0737e4f62d9b248c84c339afad642c1c3998eaad1a96",
+  "compilerSha256": "28d1021a82003f4aed742ea36ece1d595e32a107f915dfbd07d3ee8764858bce"
+}

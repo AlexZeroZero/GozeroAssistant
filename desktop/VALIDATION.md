@@ -31,5 +31,14 @@
 
 - Portable Windows package verified: all 304 manifest hashes and ZIP SHA256 passed; main window, floating monitor and clean exit passed without mining. Public source checkout retest: 181 passed, 1 optional archive test skipped, 0 failed after rebuilding generated helpers.
 
-- 1.0.42 portable package: all 312 manifest hashes and ZIP SHA256 verified; main window, floating monitor and clean exit passed without mining.
-- Public-source checkout verification on 2026-10-11: 192 passed, 1 optional pinned KRig archive check skipped, 0 failed.
+## 1.0.48 / MDS0.1.11
+
+- **MDS mining:** Gozero MDS CUDA 0.1.11 supports compatible NVIDIA RTX 30/40/50 GPUs, with `stratum+tcp://mds.gozero.trade:13333` as the default pool. A reusable MSS payout address and explicit confirmation are required. MDS price/income estimates are not integrated.
+- **Measured CUDA scheduling:** select loop unroll, batch size, thread-block size and dispatch length on the actual GPU. Full million-round consensus, CPU candidate verification and the existing 90% maximum GPU compute budget are preserved.
+- **Pool congestion handling:** a small pending-share window and paced submissions; explicit verifier-busy replies lower concurrency and apply cooldown across reconnects. Rejected or unconfirmed shares are not counted as accepted or automatically resubmitted.
+- **Readable diagnostics:** startup and periodic logs include U/block/dispatch/batch settings and queue/acknowledgement state. Existing MDS engine selections migrate to the new recommended version.
+- **Measured limits:** the local RTX 5060 Laptop old/new/new/old comparison was 4467.32 versus 4469.96 N/s (+0.06%, effectively unchanged). No significant speedup or RTX 3090/4090 result is claimed for this build. A finite pool check recorded 3 accepted shares and 11 verifier-busy rejections; server-side verification remains an issue to investigate.
+
+203 application regression tests, 6 scheduling/budget tests, 11 protocol tests, 2 CPU consensus tests and 4 CUDA tests passed. The real UI/install check and all 332 packaged-file hashes passed. See [MDS validation](../docs/mds-1.0.48-validation.txt).
+
+Publication checkout regression rerun: 202 passed, 0 failed, 1 optional pinned-KRig-archive test skipped (fixture not distributed). The tested application workspace previously passed all 203 tests.

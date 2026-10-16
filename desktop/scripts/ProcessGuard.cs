@@ -41,7 +41,7 @@ class ProcessGuard {
  [DllImport("kernel32.dll")] static extern bool AttachConsole(uint pid);
  [DllImport("kernel32.dll")] static extern bool SetConsoleCtrlHandler(IntPtr handler,bool add);
  [DllImport("kernel32.dll")] static extern bool GenerateConsoleCtrlEvent(uint code,uint group);
- public class Request { public string exe {get;set;} public string cwd {get;set;} public string[] args {get;set;} public int duty {get;set;} public string capturePath {get;set;} public string cudaUuid {get;set;} public bool cpuOnly {get;set;} public bool gracefulConsole {get;set;} }
+ public class Request { public string exe {get;set;} public string cwd {get;set;} public string[] args {get;set;} public int duty {get;set;} public string capturePath {get;set;} public string cudaUuid {get;set;} public bool nativeBudget {get;set;} public bool cpuOnly {get;set;} public bool gracefulConsole {get;set;} }
  static void CpuBudget(IntPtr job,int value){var rate=new CpuRate();rate.Flags=5;rate.Rate=(uint)value*100;if(!SetCpuRate(job,15,ref rate,(uint)Marshal.SizeOf(rate)))throw new Exception("Cannot apply CPU budget");}
  static void GracefulStop(ProcessInfo p){if(WaitForSingleObject(p.process,0)==0)return;FreeConsole();if(AttachConsole(p.pid)){SetConsoleCtrlHandler(IntPtr.Zero,true);GenerateConsoleCtrlEvent(0,0);WaitForSingleObject(p.process,8000);FreeConsole();}}
  static string Quote(string s) { var b=new StringBuilder("\"");int slashes=0;foreach(char c in s){if(c=='\\'){slashes++;continue;}if(c=='\"'){b.Append('\\',slashes*2+1);b.Append(c);slashes=0;continue;}b.Append('\\',slashes);slashes=0;b.Append(c);}b.Append('\\',slashes*2);b.Append('"');return b.ToString(); }
@@ -54,7 +54,7 @@ class ProcessGuard {
    parent=OpenProcess(0x100000,false,parentId);if(parent==IntPtr.Zero)throw new Exception("Parent unavailable");
    var line=Console.ReadLine();if(line==null||line.Length>16000)throw new Exception("Invalid request");
    var r=new JavaScriptSerializer().Deserialize<Request>(line);if(r==null||r.args==null||r.args.Length>100||!System.IO.Path.IsPathRooted(r.exe))throw new Exception("Invalid process configuration");
-   if(r.duty!=0){if(r.duty<5||r.duty>(r.cpuOnly?100:90))throw new Exception("Invalid duty budget");duty=r.duty;}
+   if(r.duty!=0){if(r.duty<5||r.duty>(r.cpuOnly||r.nativeBudget?100:90))throw new Exception("Invalid duty budget");duty=r.duty;}
    if(!String.IsNullOrEmpty(r.cudaUuid)){if(!Regex.IsMatch(r.cudaUuid,"^GPU-[a-fA-F0-9]{8}(-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12}$"))throw new Exception("Invalid CUDA UUID");Environment.SetEnvironmentVariable("CUDA_DEVICE_ORDER","PCI_BUS_ID");Environment.SetEnvironmentVariable("CUDA_VISIBLE_DEVICES",r.cudaUuid);}
    job=CreateJobObject(IntPtr.Zero,null);if(job==IntPtr.Zero)throw new Exception("Cannot create job");
    var limits=new Limits();limits.Basic.Flags=0x2000;
@@ -83,7 +83,7 @@ class ProcessGuard {
    if(WaitForSingleObject(parent,0)==0)throw new Exception("Parent exited before start");
    if(ResumeThread(p.thread)==0xffffffff)throw new Exception("Cannot resume process");
    Console.WriteLine("{\"pid\":"+p.pid+"}");Console.Out.Flush();
-   var stopped=new ManualResetEvent(false);var reader=new Thread(delegate(){try{while(true){string s=Console.ReadLine();if(s==null||s=="stop")break;if(s.StartsWith("duty:")){int v;if(int.TryParse(s.Substring(5),out v)&&v>=5&&v<=(r.cpuOnly?100:90)){duty=v;Console.WriteLine("{\"duty\":"+v+"}");Console.Out.Flush();}}}}catch{}stopped.Set();});reader.IsBackground=true;reader.Start();
+   var stopped=new ManualResetEvent(false);var reader=new Thread(delegate(){try{while(true){string s=Console.ReadLine();if(s==null||s=="stop")break;if(s.StartsWith("duty:")){int v;if(int.TryParse(s.Substring(5),out v)&&v>=5&&v<=(r.cpuOnly||r.nativeBudget?100:90)){duty=v;Console.WriteLine("{\"duty\":"+v+"}");Console.Out.Flush();}}}}catch{}stopped.Set();});reader.IsBackground=true;reader.Start();
    // Bound host submission time; already queued GPU work may complete during rest.
    // This is not a driver power limit or a promise of instantaneous GPU utilization.
    var clock=Stopwatch.StartNew();bool paused=false;int appliedDuty=duty;
@@ -91,6 +91,7 @@ class ProcessGuard {
     if(WaitForSingleObject(parent,0)==0)break;
     if(WaitForSingleObject(p.process,0)==0){uint code;GetExitCodeProcess(p.process,out code);Console.WriteLine("{\"exitCode\":"+code+"}");break;}
     if(r.cpuOnly){if(appliedDuty!=duty){CpuBudget(job,duty);appliedDuty=duty;}continue;}
+    if(r.nativeBudget)continue; // Core enforces its own dispatch-level duty; retain job ownership and stop.
     bool shouldPause=clock.ElapsedMilliseconds%500>=duty*5;
     if(shouldPause!=paused){int result=shouldPause?NtSuspendProcess(p.process):NtResumeProcess(p.process);if(result!=0)throw new Exception("Cannot apply performance budget: "+result);paused=shouldPause;}
    }

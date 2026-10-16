@@ -1,0 +1,1803 @@
+//! MidstateScript — A Turing-incomplete stack machine for Midstate.
+//!
+//! Every UTXO is locked by a compiled bytecode script. The VM executes
+//! witness inputs pushed onto the stack, then evaluates the script.
+//! Execution succeeds iff the final top-of-stack item is exactly `[1]`.
+use super::types::{hash, OutputData};
+use super::wots;
+use super::mss;
+use smallvec::SmallVec;
+
+/// Stack element type alias. 32 bytes covers hashes and public keys inline;
+/// larger items (e.g. WOTS signatures at 576 bytes) spill to the heap exactly
+/// as a Vec would, so there is no correctness change — only fewer allocations
+/// for the 99% case.
+type StackItem = SmallVec<[u8; 32]>;
+
+// ── Opcodes ────────────────────────────────────────────────────────────────
+
+pub const OP_PUSH_DATA: u8        = 0x01;
+
+pub const OP_DROP: u8             = 0x10;
+pub const OP_DUP: u8              = 0x11;
+pub const OP_SWAP: u8             = 0x12;
+
+pub const OP_EQUAL: u8            = 0x20;
+pub const OP_VERIFY: u8           = 0x21;
+pub const OP_EQUALVERIFY: u8      = 0x22;
+pub const OP_ADD: u8              = 0x23;
+pub const OP_GREATER_OR_EQUAL: u8 = 0x24;
+
+pub const OP_HASH: u8             = 0x30;
+pub const OP_CHECKSIG: u8         = 0x31;
+pub const OP_CHECKSIGVERIFY: u8   = 0x32;
+pub const OP_CHECKTIMEVERIFY: u8  = 0x33;
+
+pub const OP_IF: u8               = 0x40;
+pub const OP_ELSE: u8             = 0x41;
+pub const OP_ENDIF: u8            = 0x42;
+
+pub const OP_SUM_TO_ADDR: u8      = 0x50;
+
+pub const OP_READ_INPUT_STATE: u8 = 0x51;
+pub const OP_READ_OUTPUT_STATE: u8= 0x52;
+
+///v3 opcodes
+pub const OP_OVER: u8             = 0x13;
+pub const OP_ROT: u8              = 0x14;
+pub const OP_SLICE: u8            = 0x15;
+pub const OP_CONCAT: u8           = 0x16;
+
+pub const OP_SUB: u8              = 0x25;
+pub const OP_MUL: u8              = 0x26;
+pub const OP_DIV: u8              = 0x27;
+
+///v4 opcodes
+pub const OP_PICK: u8             = 0x17;
+pub const OP_MOD: u8              = 0x28;
+pub const OP_SIZE: u8             = 0x29;
+pub const OP_INPUT_VALUE: u8      = 0x53;
+
+///v5 opcodes — covenant primitives
+pub const OP_OUTPUT_ADDRESS: u8   = 0x54;
+pub const OP_THIS_ADDRESS: u8     = 0x55;
+
+/// Sum of the values of every input in this transaction that shares the
+/// currently-executing predicate. The multi-input counterpart of
+/// `OP_INPUT_VALUE`, and the mirror of `OP_SUM_TO_ADDR` on the output side.
+///
+/// # Reasoning
+/// Without this, a covenant can only reason about the coin it is guarding, so
+/// any rule of the form "leave a remainder behind" fails to compose: a taker
+/// spending several covenant coins in one transaction satisfies each of them
+/// against the same shared remainder output and keeps the difference. Making
+/// the sum available turns a per-coin rule into a per-transaction one.
+///
+/// # Safety / Invariants
+/// - **Consensus-gated.** Only valid at or after
+///   `COVENANT_SUM_ACTIVATION_HEIGHT`; before that it is `InvalidOpcode`, so a
+///   node running older rules and one running newer rules agree on every block
+///   below the activation height.
+/// - **Saturating.** An overflowing sum saturates to `u64::MAX`, which makes
+///   remainder comparisons demand more, never less — failure is in the safe
+///   direction.
+pub const OP_SUM_INPUT_VALUE: u8  = 0x56;
+
+///v6 opcodes — stack, comparison and Merkle verification
+///
+/// Gated on `V6_ACTIVATION_HEIGHT`. See that constant for why the bank exists.
+
+/// Remove the item beneath the top of stack. `a b -> b`.
+///
+/// Saves a byte over `SWAP DROP` everywhere a value must be kept while
+/// something underneath it is discarded, which is the shape of every macro
+/// argument cleanup the compiler emits.
+pub const OP_NIP: u8              = 0x18;
+
+/// Copy the top of stack beneath the second item. `a b -> b a b`.
+pub const OP_TUCK: u8             = 0x19;
+
+/// Boolean inversion. `a -> !a`.
+///
+/// Without it `!=` has to be spelled `EQUAL PUSH 0 EQUAL`, and there is no way
+/// to negate a condition at all without an empty `IF/ELSE` pair.
+pub const OP_NOT: u8              = 0x2A;
+
+/// Strict less-than. `a b -> a < b`.
+///
+/// The VM has only `OP_GREATER_OR_EQUAL`, so the compiler synthesises `<` as
+/// `SWAP PUSH 1 ADD GREATER_OR_EQUAL`, which is four opcodes and an addition
+/// that can overflow at `u64::MAX`.
+pub const OP_LESS_THAN: u8        = 0x2B;
+
+/// Fold a Merkle proof and push the root it implies. `leaf proof -> root`.
+///
+/// `proof` is a flat blob of 33-byte records, each a 32-byte sibling hash
+/// followed by a one-byte direction flag; `1` places the sibling on the left.
+/// Records are walked from the leaf upward. An empty proof returns the leaf
+/// unchanged, which is a well-formed depth-0 tree.
+///
+/// # Reasoning
+/// Returning the root rather than a pass/fail against a supplied one costs one
+/// extra `OP_EQUAL` to check inclusion, and buys two things the boolean form
+/// cannot express. A contract with fewer than 32 bytes of state to spare can
+/// compare against a truncated root. And a ledger can derive its NEXT root by
+/// folding the same path with an updated leaf: checking old-leaf-to-old-root
+/// and new-leaf-to-new-root over one proof shows the update was a single-leaf
+/// replacement, which is a complete Merkle ledger update in two opcodes rather
+/// than a per-level unrolled walk.
+///
+/// # Safety / Invariants
+/// - **Consensus-gated.** `InvalidOpcode` below `V6_ACTIVATION_HEIGHT`.
+/// - **Bounded work.** Deeper than `MAX_MERKLE_DEPTH` is rejected outright, so
+///   a malformed witness cannot make a verifier hash longer than the bound.
+/// - **Ragged proofs are invalid**, not truncated: a length that is not a
+///   multiple of 33 is `VerifyFailed`, so two nodes cannot disagree about what
+///   a trailing partial record means.
+/// - **Direction flags are 0 or 1.** Any other byte is `VerifyFailed` rather
+///   than coerced, for the same reason.
+pub const OP_MERKLE_ROOT: u8      = 0x57;
+
+// ── Consensus limits ───────────────────────────────────────────────────────
+
+pub const MAX_SCRIPT_SIZE: usize  = 1_024;
+pub const MAX_STACK_DEPTH: usize  = 64;
+
+/// Large enough for WOTS and MSS signatures (max ~1.5 KB).
+pub const MAX_ITEM_SIZE: usize    = 1_536;
+pub const MAX_SIGOPS_PER_SCRIPT: usize = 3;
+
+/// Deepest Merkle proof `OP_MERKLE_ROOT` will walk.
+///
+/// 32 levels addresses 4.3 billion leaves and needs a 1,056-byte proof, which
+/// already exceeds what fits alongside anything else in a witness. The bound is
+/// stated explicitly so the work an opcode can demand is legible from the
+/// consensus limits rather than implied by `MAX_ITEM_SIZE`.
+pub const MAX_MERKLE_DEPTH: usize = 32;
+
+
+
+// ── Errors ─────────────────────────────────────────────────────────────────
+
+/// Represents execution failures in the script VM.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ScriptError {
+    ScriptTooLarge,
+    StackOverflow,
+    StackUnderflow,
+    ItemTooLarge,
+    InvalidOpcode(u8),
+    PushDataOutOfBounds,
+    UnbalancedConditional,
+    VerifyFailed,
+    MathOverflow,
+    InvalidBooleanOnStack,
+    ScriptMustFinishTrue,
+    EmptyStack,
+    CleanStackRuleFailed,
+    InvalidStateRead,
+    DivisionByZero,
+}
+
+impl std::fmt::Display for ScriptError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::ScriptTooLarge => write!(f, "script exceeds {} bytes", MAX_SCRIPT_SIZE),
+            Self::StackOverflow => write!(f, "stack depth exceeds {}", MAX_STACK_DEPTH),
+            Self::StackUnderflow => write!(f, "stack underflow"),
+            Self::ItemTooLarge => write!(f, "item exceeds {} bytes", MAX_ITEM_SIZE),
+            Self::InvalidOpcode(op) => write!(f, "invalid opcode 0x{:02x}", op),
+            Self::PushDataOutOfBounds => write!(f, "PUSH_DATA length exceeds bytecode"),
+            Self::UnbalancedConditional => write!(f, "unbalanced IF/ELSE/ENDIF"),
+            Self::VerifyFailed => write!(f, "VERIFY failed"),
+            Self::MathOverflow => write!(f, "integer overflow in ADD"),
+            Self::InvalidBooleanOnStack => write!(f, "expected boolean on stack"),
+            Self::ScriptMustFinishTrue => write!(f, "script did not finish with [1] on top"),
+            Self::EmptyStack => write!(f, "stack empty at end of execution"),
+            Self::CleanStackRuleFailed => write!(f, "script execution finished with extra items on the stack (Clean Stack Rule)"),
+            Self::InvalidStateRead => write!(f, "invalid state read (no state present or index out of bounds)"),
+            Self::DivisionByZero => write!(f, "division by zero"),
+        }
+    }
+}
+
+impl std::error::Error for ScriptError {}
+
+// ── Execution context ──────────────────────────────────────────────────────
+
+/// Everything the VM needs beyond the script itself.
+pub struct ExecContext<'a> {
+    pub commitment: &'a [u8; 32],
+    pub height: u64,
+    pub outputs: &'a [OutputData],
+    pub input_value: u64,
+    pub input_state: Option<[u8; 32]>,
+    /// Address of the predicate currently executing.
+    /// Equals `Predicate::Script { bytecode }.address()` for the input being verified.
+    pub this_address: [u8; 32],
+    /// Total value of every input in this transaction guarded by the same
+    /// predicate as the one executing. Equals `input_value` for a single-coin
+    /// spend. Read by `OP_SUM_INPUT_VALUE`; computed once per transaction by
+    /// the caller so verification stays O(n) rather than O(n^2).
+    pub sum_input_value: u64,
+}
+
+// ── AOT validation ─────────────────────────────────────────────────────────
+
+/// Ahead-of-time structural validation. O(N) single pass.
+pub fn validate_structure(bytecode: &[u8], height: u64) -> Result<(), ScriptError> {
+
+    if bytecode.len() > MAX_SCRIPT_SIZE {
+        return Err(ScriptError::ScriptTooLarge);
+    }
+
+    let mut pc = 0usize;
+    let mut if_depth: i32 = 0;
+
+    while pc < bytecode.len() {
+        let op = bytecode[pc];
+        pc += 1;
+
+        match op {
+            OP_PUSH_DATA => {
+                if pc + 2 > bytecode.len() {
+                    return Err(ScriptError::PushDataOutOfBounds);
+                }
+                let len = u16::from_le_bytes([bytecode[pc], bytecode[pc + 1]]) as usize;
+                pc += 2;
+                if pc + len > bytecode.len() {
+                    return Err(ScriptError::PushDataOutOfBounds);
+                }
+                if len > MAX_ITEM_SIZE {
+                    return Err(ScriptError::ItemTooLarge);
+                }
+                pc += len;
+            }
+            OP_IF => { if_depth += 1; }
+            OP_ELSE => {
+                if if_depth <= 0 { return Err(ScriptError::UnbalancedConditional); }
+            }
+            OP_ENDIF => {
+                if_depth -= 1;
+                if if_depth < 0 { return Err(ScriptError::UnbalancedConditional); }
+            }
+            OP_DROP | OP_DUP | OP_SWAP |
+            OP_EQUAL | OP_VERIFY | OP_EQUALVERIFY |
+            OP_ADD | OP_GREATER_OR_EQUAL |
+            OP_HASH | OP_CHECKSIG | OP_CHECKSIGVERIFY | OP_CHECKTIMEVERIFY |
+            OP_SUM_TO_ADDR => {}
+            OP_OVER | OP_ROT | OP_SLICE | OP_CONCAT | OP_SUB | OP_MUL | OP_DIV => {}
+            OP_READ_INPUT_STATE | OP_READ_OUTPUT_STATE => {}
+            OP_PICK | OP_SIZE | OP_MOD | OP_INPUT_VALUE => {}
+            OP_OUTPUT_ADDRESS | OP_THIS_ADDRESS => {}
+            // Height-gated: rejecting this below the activation height is what
+            // keeps pre-fork and post-fork nodes agreeing on historical blocks.
+            OP_SUM_INPUT_VALUE => {
+                if height < crate::core::types::COVENANT_SUM_ACTIVATION_HEIGHT {
+                    return Err(ScriptError::InvalidOpcode(op));
+                }
+            }
+            OP_NIP | OP_TUCK | OP_NOT | OP_LESS_THAN | OP_MERKLE_ROOT => {
+                if height < crate::core::types::V6_ACTIVATION_HEIGHT {
+                    return Err(ScriptError::InvalidOpcode(op));
+                }
+            }
+            _ => return Err(ScriptError::InvalidOpcode(op)),
+        }
+    }
+
+    if if_depth != 0 {
+        return Err(ScriptError::UnbalancedConditional);
+    }
+    
+    Ok(())
+}
+
+// ── Stack helpers ──────────────────────────────────────────────────────────
+
+fn stack_push(stack: &mut Vec<StackItem>, item: StackItem) -> Result<(), ScriptError> {
+    if item.len() > MAX_ITEM_SIZE {
+        return Err(ScriptError::ItemTooLarge);
+    }
+    if stack.len() >= MAX_STACK_DEPTH {
+        return Err(ScriptError::StackOverflow);
+    }
+    stack.push(item);
+    Ok(())
+}
+
+fn stack_pop(stack: &mut Vec<StackItem>) -> Result<StackItem, ScriptError> {
+    stack.pop().ok_or(ScriptError::StackUnderflow)
+}
+
+fn to_u64(item: &[u8]) -> Result<u64, ScriptError> {
+    if item.len() > 8 {
+        return Err(ScriptError::InvalidOpcode(0)); 
+    }
+    let mut buf = [0u8; 8];
+    buf[..item.len()].copy_from_slice(item);
+    Ok(u64::from_le_bytes(buf))
+}
+
+fn from_u64(v: u64) -> StackItem {
+    if v == 0 {
+        return SmallVec::from_slice(&[0]);
+    }
+    let bytes = v.to_le_bytes();
+    let mut len = 8;
+    while len > 1 && bytes[len - 1] == 0 {
+        len -= 1;
+    }
+    SmallVec::from_slice(&bytes[..len])
+}
+
+fn is_true(item: &[u8]) -> bool {
+    item.iter().any(|&b| b != 0)
+}
+
+// ── Signature verification ─────────────────────────────────────────────────
+
+fn verify_signature(sig_bytes: &[u8], message: &[u8; 32], pk_bytes: &[u8]) -> bool {
+    if pk_bytes.len() != 32 {
+        return false;
+    }
+    let pk: [u8; 32] = pk_bytes.try_into().unwrap();
+    if sig_bytes.len() == wots::SIG_SIZE {
+        match wots::sig_from_bytes(sig_bytes) {
+            Some(sig) => wots::verify(&sig, message, &pk),
+            None => false,
+        }
+    } else {
+        match mss::MssSignature::from_bytes(sig_bytes) {
+            Ok(mss_sig) => mss::verify(&mss_sig, message, &pk),
+            Err(_) => false,
+        }
+    }
+}
+
+// ── Main execution engine ──────────────────────────────────────────────────
+
+pub fn execute_script(
+    bytecode: &[u8],
+    witness: &[Vec<u8>],
+    ctx: &ExecContext,
+) -> Result<(), ScriptError> {
+    let _ = validate_structure(bytecode, ctx.height)?;
+
+    let mut stack: Vec<StackItem> = Vec::new();
+    for item in witness {
+        stack_push(&mut stack, SmallVec::from_slice(item))?;
+    }
+    
+    let mut sigop_count = 0;
+    let mut pc = 0usize;
+    let mut exec_stack: Vec<bool> = Vec::new();
+
+    while pc < bytecode.len() {
+        let executing = exec_stack.iter().all(|&e| e);
+        let op = bytecode[pc];
+        pc += 1;
+
+        match op {
+            OP_IF => {
+                if executing {
+                    let cond = stack_pop(&mut stack)?;
+                    exec_stack.push(is_true(&cond));
+                    if exec_stack.len() > MAX_STACK_DEPTH {
+                        return Err(ScriptError::UnbalancedConditional);
+                    }
+                } else {
+                    exec_stack.push(false);
+                }
+                continue;
+            }
+            OP_ELSE => {
+                if exec_stack.is_empty() {
+                    return Err(ScriptError::UnbalancedConditional);
+                }
+                let parent_executing = exec_stack.len() <= 1
+                    || exec_stack[..exec_stack.len() - 1].iter().all(|&e| e);
+                if parent_executing {
+                    let last = exec_stack.last_mut().unwrap();
+                    *last = !*last;
+                }
+                continue;
+            }
+            OP_ENDIF => {
+                if exec_stack.is_empty() {
+                    return Err(ScriptError::UnbalancedConditional);
+                }
+                exec_stack.pop();
+                continue;
+            }
+            OP_CHECKSIG | OP_CHECKSIGVERIFY => {
+                if executing {
+                    sigop_count += 1;
+                    if sigop_count > MAX_SIGOPS_PER_SCRIPT {
+                        return Err(ScriptError::VerifyFailed); 
+                    }
+                }
+            }
+            _ => {}
+        }
+
+        if !executing {
+            if op == OP_PUSH_DATA {
+                if pc + 2 > bytecode.len() {
+                    return Err(ScriptError::PushDataOutOfBounds);
+                }
+                let len = u16::from_le_bytes([bytecode[pc], bytecode[pc + 1]]) as usize;
+                pc += 2 + len;
+            }
+            continue;
+        }
+
+        // ── Execute opcode ─────────────────────────────────────────────
+        match op {
+            OP_PUSH_DATA => {
+                let len = u16::from_le_bytes([bytecode[pc], bytecode[pc + 1]]) as usize;
+                pc += 2;
+                let data = SmallVec::from_slice(&bytecode[pc..pc + len]);
+                pc += len;
+                stack_push(&mut stack, data)?;
+            }
+
+            OP_DROP => { stack_pop(&mut stack)?; }
+            OP_DUP => {
+                let top = stack.last().ok_or(ScriptError::StackUnderflow)?.clone();
+                stack_push(&mut stack, top)?;
+            }
+            OP_SWAP => {
+                let len = stack.len();
+                if len < 2 { return Err(ScriptError::StackUnderflow); }
+                stack.swap(len - 1, len - 2);
+            }
+            OP_OVER => {
+                let len = stack.len();
+                if len < 2 { return Err(ScriptError::StackUnderflow); }
+                let over_item = stack[len - 2].clone();
+                stack_push(&mut stack, over_item)?;
+            }
+            OP_ROT => {
+                let len = stack.len();
+                if len < 3 { return Err(ScriptError::StackUnderflow); }
+                let item = stack.remove(len - 3);
+                stack.push(item);
+            }
+            OP_SLICE => {
+                let len_u64 = to_u64(&stack_pop(&mut stack)?)?;
+                let offset_u64 = to_u64(&stack_pop(&mut stack)?)?;
+                let data = stack_pop(&mut stack)?;
+                
+                // 1. Safe addition using u64 to prevent wrap-around
+                let end_u64 = offset_u64.checked_add(len_u64).ok_or(ScriptError::MathOverflow)?;
+                
+                // 2. Validate against data bounds before casting to usize
+                if end_u64 > data.len() as u64 {
+                    return Err(ScriptError::VerifyFailed);
+                }
+                
+                // 3. Safe to cast because data.len() is constrained by MAX_ITEM_SIZE (1536)
+                let offset = offset_u64 as usize;
+                let end = end_u64 as usize;
+                
+                stack_push(&mut stack, SmallVec::from_slice(&data[offset..end]))?;
+            }
+            OP_CONCAT => {
+                let b = stack_pop(&mut stack)?;
+                let mut a = stack_pop(&mut stack)?;
+                if a.len() + b.len() > MAX_ITEM_SIZE {
+                    return Err(ScriptError::ItemTooLarge);
+                }
+                a.extend_from_slice(&b);
+                stack_push(&mut stack, a)?;
+            }
+            OP_EQUAL => {
+                let b = stack_pop(&mut stack)?;
+                let a = stack_pop(&mut stack)?;
+                let result: StackItem = if a == b { SmallVec::from_slice(&[1u8]) } else { SmallVec::from_slice(&[0u8]) };
+                stack_push(&mut stack, result)?;
+            }
+            OP_VERIFY => {
+                let top = stack_pop(&mut stack)?;
+                if !is_true(&top) { return Err(ScriptError::VerifyFailed); }
+            }
+            OP_EQUALVERIFY => {
+                let b = stack_pop(&mut stack)?;
+                let a = stack_pop(&mut stack)?;
+                if a != b { return Err(ScriptError::VerifyFailed); }
+            }
+            OP_ADD => {
+                let b = stack_pop(&mut stack)?;
+                let a = stack_pop(&mut stack)?;
+                let sum = to_u64(&a)?.checked_add(to_u64(&b)?).ok_or(ScriptError::MathOverflow)?;
+                stack_push(&mut stack, from_u64(sum))?;
+            }
+            OP_SUB => {
+                let b = stack_pop(&mut stack)?;
+                let a = stack_pop(&mut stack)?;
+                let diff = to_u64(&a)?.checked_sub(to_u64(&b)?).ok_or(ScriptError::MathOverflow)?;
+                stack_push(&mut stack, from_u64(diff))?;
+            }
+            OP_MUL => {
+                let b = stack_pop(&mut stack)?;
+                let a = stack_pop(&mut stack)?;
+                let prod = to_u64(&a)?.checked_mul(to_u64(&b)?).ok_or(ScriptError::MathOverflow)?;
+                stack_push(&mut stack, from_u64(prod))?;
+            }
+            OP_DIV => {
+                let b_val = to_u64(&stack_pop(&mut stack)?)?;
+                if b_val == 0 { return Err(ScriptError::DivisionByZero); }
+                let a_val = to_u64(&stack_pop(&mut stack)?)?;
+                let quot = a_val / b_val; // Integer division truncates (floors) natively
+                stack_push(&mut stack, from_u64(quot))?;
+            }
+            OP_GREATER_OR_EQUAL => {
+                let b = stack_pop(&mut stack)?;
+                let a = stack_pop(&mut stack)?;
+                let result: StackItem = if to_u64(&a)? >= to_u64(&b)? { SmallVec::from_slice(&[1u8]) } else { SmallVec::from_slice(&[0u8]) };
+                stack_push(&mut stack, result)?;
+            }
+
+            OP_HASH => {
+                let data = stack_pop(&mut stack)?;
+                let h = hash(&data);
+                stack_push(&mut stack, SmallVec::from_slice(&h))?;
+            }
+            OP_CHECKSIG => {
+                let pk = stack_pop(&mut stack)?;
+                let sig = stack_pop(&mut stack)?;
+                let valid = verify_signature(&sig, ctx.commitment, &pk);
+                stack_push(&mut stack, if valid { SmallVec::from_slice(&[1u8]) } else { SmallVec::from_slice(&[0u8]) })?;
+            }
+            OP_CHECKSIGVERIFY => {
+                let pk = stack_pop(&mut stack)?;
+                let sig = stack_pop(&mut stack)?;
+                if !verify_signature(&sig, ctx.commitment, &pk) {
+                    return Err(ScriptError::VerifyFailed);
+                }
+            }
+            OP_CHECKTIMEVERIFY => {
+                let height_item = stack_pop(&mut stack)?;
+                let required_height = to_u64(&height_item)?;
+                if ctx.height < required_height {
+                    return Err(ScriptError::VerifyFailed);
+                }
+            }
+
+            OP_SUM_TO_ADDR => {
+                let addr_item = stack_pop(&mut stack)?;
+                if addr_item.len() != 32 {
+                    return Err(ScriptError::VerifyFailed);
+                }
+                let addr: [u8; 32] = addr_item.as_slice().try_into().unwrap();
+                let mut sum: u64 = 0;
+                for out in ctx.outputs {
+                    if out.address() == addr {
+                        sum = sum.checked_add(out.value()).ok_or(ScriptError::MathOverflow)?;
+                    }
+                }
+                stack_push(&mut stack, from_u64(sum))?;
+            }
+            OP_SUM_INPUT_VALUE => {
+                if ctx.height < crate::core::types::COVENANT_SUM_ACTIVATION_HEIGHT {
+                    return Err(ScriptError::InvalidOpcode(OP_SUM_INPUT_VALUE));
+                }
+                stack_push(&mut stack, from_u64(ctx.sum_input_value))?;
+            }
+            OP_READ_INPUT_STATE => {
+                if let Some(state_bytes) = ctx.input_state {
+                    stack_push(&mut stack, SmallVec::from_slice(&state_bytes))?;
+                } else {
+                    return Err(ScriptError::InvalidStateRead);
+                }
+            }
+            OP_READ_OUTPUT_STATE => {
+                let idx_item = stack_pop(&mut stack)?;
+                let idx_u64 = to_u64(&idx_item)?;
+                
+                // Check bounds strictly using u64 before casting
+                if idx_u64 >= ctx.outputs.len() as u64 {
+                    return Err(ScriptError::InvalidStateRead);
+                }
+                
+                let idx = idx_u64 as usize; // Now guaranteed to fit in 32-bit and 64-bit alike
+                
+                if let Some(state_bytes) = ctx.outputs[idx].commitment() {
+                    stack_push(&mut stack, SmallVec::from_slice(&state_bytes))?;
+                } else {
+                    return Err(ScriptError::InvalidStateRead);
+                }
+            }
+            OP_PICK => {
+                let depth_item = to_u64(&stack_pop(&mut stack)?)? as usize;
+                let len = stack.len();
+                if depth_item >= len { return Err(ScriptError::StackUnderflow); }
+                let picked = stack[len - 1 - depth_item].clone();
+                stack_push(&mut stack, picked)?;
+            }
+            OP_SIZE => {
+                // Read the top item without popping it (just like DUP)
+                let top = stack.last().ok_or(ScriptError::StackUnderflow)?;
+                let len = top.len() as u64;
+                stack_push(&mut stack, from_u64(len))?;
+            }
+            OP_MOD => {
+                let b_val = to_u64(&stack_pop(&mut stack)?)?;
+                if b_val == 0 { return Err(ScriptError::DivisionByZero); }
+                let a_val = to_u64(&stack_pop(&mut stack)?)?;
+                let rem = a_val % b_val; 
+                stack_push(&mut stack, from_u64(rem))?;
+            }
+            OP_INPUT_VALUE => {
+                stack_push(&mut stack, from_u64(ctx.input_value))?;
+            }
+            OP_OUTPUT_ADDRESS => {
+                let idx_u64 = to_u64(&stack_pop(&mut stack)?)?;
+                if idx_u64 >= ctx.outputs.len() as u64 {
+                    return Err(ScriptError::InvalidStateRead);
+                }
+                let addr = ctx.outputs[idx_u64 as usize].address();
+                stack_push(&mut stack, SmallVec::from_slice(&addr))?;
+            }
+            OP_THIS_ADDRESS => {
+                stack_push(&mut stack, SmallVec::from_slice(&ctx.this_address))?;
+            }
+            OP_NIP => {
+                if ctx.height < crate::core::types::V6_ACTIVATION_HEIGHT {
+                    return Err(ScriptError::InvalidOpcode(OP_NIP));
+                }
+                let top = stack_pop(&mut stack)?;
+                let _discarded = stack_pop(&mut stack)?;
+                stack_push(&mut stack, top)?;
+            }
+            OP_TUCK => {
+                if ctx.height < crate::core::types::V6_ACTIVATION_HEIGHT {
+                    return Err(ScriptError::InvalidOpcode(OP_TUCK));
+                }
+                let top = stack_pop(&mut stack)?;
+                let second = stack_pop(&mut stack)?;
+                // Depth grows by one, so push the copy first and let
+                // `stack_push` enforce MAX_STACK_DEPTH before the rest land.
+                stack_push(&mut stack, top.clone())?;
+                stack_push(&mut stack, second)?;
+                stack_push(&mut stack, top)?;
+            }
+            OP_NOT => {
+                if ctx.height < crate::core::types::V6_ACTIVATION_HEIGHT {
+                    return Err(ScriptError::InvalidOpcode(OP_NOT));
+                }
+                let a = stack_pop(&mut stack)?;
+                let inverted: StackItem = if is_true(&a) {
+                    SmallVec::from_slice(&[0u8])
+                } else {
+                    SmallVec::from_slice(&[1u8])
+                };
+                stack_push(&mut stack, inverted)?;
+            }
+            OP_LESS_THAN => {
+                if ctx.height < crate::core::types::V6_ACTIVATION_HEIGHT {
+                    return Err(ScriptError::InvalidOpcode(OP_LESS_THAN));
+                }
+                let b_val = to_u64(&stack_pop(&mut stack)?)?;
+                let a_val = to_u64(&stack_pop(&mut stack)?)?;
+                let res: StackItem = if a_val < b_val {
+                    SmallVec::from_slice(&[1u8])
+                } else {
+                    SmallVec::from_slice(&[0u8])
+                };
+                stack_push(&mut stack, res)?;
+            }
+            OP_MERKLE_ROOT => {
+                if ctx.height < crate::core::types::V6_ACTIVATION_HEIGHT {
+                    return Err(ScriptError::InvalidOpcode(OP_MERKLE_ROOT));
+                }
+                let proof_item = stack_pop(&mut stack)?;
+                let leaf_item = stack_pop(&mut stack)?;
+
+                if leaf_item.len() != 32 {
+                    return Err(ScriptError::VerifyFailed);
+                }
+                if proof_item.len() % 33 != 0 {
+                    return Err(ScriptError::VerifyFailed);
+                }
+                let levels = proof_item.len() / 33;
+                if levels > MAX_MERKLE_DEPTH {
+                    return Err(ScriptError::VerifyFailed);
+                }
+
+                let mut acc: [u8; 32] = leaf_item.as_slice().try_into().unwrap();
+                for level in 0..levels {
+                    let rec = &proof_item[level * 33..level * 33 + 33];
+                    let sibling = &rec[..32];
+                    match rec[32] {
+                        0 => acc = crate::core::types::hash_concat(&acc, sibling),
+                        1 => acc = crate::core::types::hash_concat(sibling, &acc),
+                        _ => return Err(ScriptError::VerifyFailed),
+                    }
+                }
+                stack_push(&mut stack, SmallVec::from_slice(&acc))?;
+            }
+            _ => return Err(ScriptError::InvalidOpcode(op)),
+        }
+    }
+
+    if stack.is_empty() { return Err(ScriptError::EmptyStack); }
+    if stack.len() > 1 { return Err(ScriptError::CleanStackRuleFailed); }
+    
+    let top = stack.last().unwrap();
+    if top.as_slice() == &[1u8] { Ok(()) } else { Err(ScriptError::ScriptMustFinishTrue) }
+}
+
+// ── Script builders ────────────────────────────────────────────────────────
+
+/// Standard Pay-to-Public-Key script.
+///
+/// ```rust
+/// use midstate::core::script::{compile_p2pk, OP_PUSH_DATA, OP_CHECKSIGVERIFY};
+/// let pk = [0xAA; 32];
+/// let script = compile_p2pk(&pk);
+/// assert_eq!(script[0], OP_PUSH_DATA);
+/// assert_eq!(script[35], OP_CHECKSIGVERIFY);
+/// ```
+pub fn compile_p2pk(owner_pk: &[u8; 32]) -> Vec<u8> {
+    let mut bc = Vec::new();
+    push_data(&mut bc, owner_pk);
+    bc.push(OP_CHECKSIGVERIFY);
+    push_int(&mut bc, 1);
+    bc
+}
+
+/// HTLC script. Claim: [Sig, Preimage, 1], Refund: [Sig, <dummy>, 0]
+/// Midwimble mining bond, for bonded proof of work:
+///
+/// ```text
+/// PUSH_DATA <mining key>    DROP              binds the key into the address
+/// PUSH_INT  <bonded_until>  CHECKTIMEVERIFY   unspendable below that height
+/// PUSH_DATA <owner key>     CHECKSIGVERIFY    only the owner can spend it
+/// PUSH_INT  1
+/// ```
+///
+/// To midstate this is an ordinary P2SH coin; consensus never needs to know
+/// what it is for. Midwimble recognises the exact byte layout (its
+/// `core/bond.rs` carries the same vector as `mining_bond_golden_vector`), so
+/// the encoding must not change.
+pub fn compile_mining_bond(mining_key: &[u8; 32], bonded_until: u64, owner_pk: &[u8; 32]) -> Vec<u8> {
+    let mut bc = Vec::with_capacity(83);
+    push_data(&mut bc, mining_key);
+    bc.push(OP_DROP);
+    push_int(&mut bc, bonded_until);
+    bc.push(OP_CHECKTIMEVERIFY);
+    push_data(&mut bc, owner_pk);
+    bc.push(OP_CHECKSIGVERIFY);
+    push_int(&mut bc, 1);
+    bc
+}
+
+pub fn compile_htlc(
+    secret_hash: &[u8; 32],
+    receiver_pk: &[u8; 32],
+    timeout_height: u64,
+    refund_pk: &[u8; 32],
+) -> Vec<u8> {
+    let mut bc = Vec::new();
+    bc.push(OP_IF);
+    bc.push(OP_HASH);
+    push_data(&mut bc, secret_hash);
+    bc.push(OP_EQUALVERIFY);
+    push_data(&mut bc, receiver_pk);
+    bc.push(OP_CHECKSIGVERIFY);
+    bc.push(OP_ELSE);
+    bc.push(OP_DROP);
+    push_int(&mut bc, timeout_height);
+    bc.push(OP_CHECKTIMEVERIFY);
+    push_data(&mut bc, refund_pk);
+    bc.push(OP_CHECKSIGVERIFY);
+    bc.push(OP_ENDIF);
+    push_int(&mut bc, 1);
+    bc
+}
+
+
+/// HTLC whose CLAIM path is a covenant rather than a signature check.
+///
+/// The claim branch verifies the secret AND forces the spending transaction to
+/// pay at least `min_payout` onto `receiver_addr` (OP_SUM_TO_ADDR). It carries NO
+/// signature, so once the secret is public ANYONE can broadcast the claim and the
+/// value is pinned to the buyer's address. That is what lets a buyer holding zero
+/// MDS receive (or self-deliver) MDS without funding a separate fee coin: the
+/// delivery fee is taken from the value the seller over-funded into the lock.
+///
+/// Witnesses (pushed bottom -> top):
+///   claim  (covenant): [secret, 0x01]            // no signature
+///   refund (timeout):  [sig, <32 bytes>, 0x00]   // unchanged from compile_htlc
+pub fn compile_covenant_htlc(
+    secret_hash:    &[u8; 32],
+    receiver_addr:  &[u8; 32],   // the buyer's P2PK address = compute_address(buyer_pk)
+    min_payout:     u64,         // force >= this much value onto receiver_addr
+    timeout_height: u64,
+    refund_pk:      &[u8; 32],
+) -> Vec<u8> {
+    let mut bc = Vec::new();
+    bc.push(OP_IF);
+        bc.push(OP_HASH);
+        push_data(&mut bc, secret_hash);
+        bc.push(OP_EQUALVERIFY);                 // secret matches the hashlock
+        push_data(&mut bc, receiver_addr);
+        bc.push(OP_SUM_TO_ADDR);                 // sum of outputs going to the buyer
+        push_int(&mut bc, min_payout);
+        bc.push(OP_GREATER_OR_EQUAL);            // ... must be >= min_payout
+        bc.push(OP_VERIFY);
+    bc.push(OP_ELSE);
+        bc.push(OP_DROP);                        // drop the 32-byte dummy
+        push_int(&mut bc, timeout_height);
+        bc.push(OP_CHECKTIMEVERIFY);
+        push_data(&mut bc, refund_pk);
+        bc.push(OP_CHECKSIGVERIFY);              // seller reclaims after timeout
+    bc.push(OP_ENDIF);
+    push_int(&mut bc, 1);
+    bc
+}
+
+/// Limit-order covenant with partial fills (Feature 1).
+///
+/// A maker locks bulk MDS — as the usual power-of-two coins — at this covenant's
+/// address. The claim path lets ANYONE spend a coin provided they:
+///   (a) satisfy the hashlock (HASH(secret) == secret_hash). This is the same
+///       preimage the maker harvests from the spend witness to claim the ETH that
+///       the taker locked on Base; and
+///   (b) route the untouched remainder back to THIS covenant address (OP_THIS_ADDRESS),
+///       keeping the order alive on the book.
+///
+/// `max_claim` caps how much a single fill may extract from the covenant coins
+/// spent by one transaction (see SOUNDNESS below). The remainder
+/// rule is written as `(value_back_to_self + max_claim) >= INPUT_VALUE` using OP_ADD
+/// (NOT OP_SUB) on purpose: with OP_SUB, any coin whose value is below `max_claim`
+/// would underflow and abort the script, making that coin permanently unspendable.
+/// The OP_ADD form instead makes a sub-`max_claim` spend simply fully claimable.
+///
+/// ── SOUNDNESS ──────────────────────────────────────────────────────────────
+/// The remainder rule is written against `OP_SUM_INPUT_VALUE`, not
+/// `OP_INPUT_VALUE`, and this is the whole point. The per-coin form did not
+/// compose: a taker spending several covenant coins in ONE transaction
+/// satisfied every input against the same shared remainder output and kept the
+/// difference. Because a maker's ask is split into several independently
+/// sellable coins, all guarded by this identical predicate, that was a live
+/// fund-loss path rather than a theoretical one.
+///
+/// Summing over every input that shares this predicate makes the rule
+/// per-transaction: however many coins a taker sweeps, the remainder owed is
+/// computed against their total.
+///
+/// Requires height >= `COVENANT_SUM_ACTIVATION_HEIGHT`. Coins locked under the
+/// pre-activation script keep the old per-coin rule — makers with live orders
+/// from before the fork should cancel and re-post.
+///
+/// Note a hashlock alone still does NOT prove the Base ETH lock; that is the
+/// swap protocol's job, not this covenant's.
+///
+/// Witnesses (pushed bottom -> top):
+///   claim : [secret, 0x01]
+///   refund: [refund_sig, <32-byte dummy>, 0x00]
+pub fn compile_limit_order_covenant(
+    secret_hash:    &[u8; 32],
+    max_claim:      u64,
+    timeout_height: u64,
+    refund_pk:      &[u8; 32],
+) -> Vec<u8> {
+    let mut bc = Vec::new();
+    bc.push(OP_IF);
+        // (a) hashlock — the preimage the maker harvests to sweep ETH on Base
+        bc.push(OP_HASH);
+        push_data(&mut bc, secret_hash);
+        bc.push(OP_EQUALVERIFY);
+        // (b) remainder continuation, summed across every covenant coin this
+        //     transaction spends: (back_to_self + max_claim) >= sum(inputs)
+        bc.push(OP_THIS_ADDRESS);
+        bc.push(OP_SUM_TO_ADDR);          // sum of outputs paying back into this covenant
+        push_int(&mut bc, max_claim);
+        bc.push(OP_ADD);
+        bc.push(OP_SUM_INPUT_VALUE);      // sum of THIS transaction's coins at this address
+        bc.push(OP_GREATER_OR_EQUAL);
+        bc.push(OP_VERIFY);
+    bc.push(OP_ELSE);
+        bc.push(OP_DROP);                 // drop the 32-byte dummy
+        push_int(&mut bc, timeout_height);
+        bc.push(OP_CHECKTIMEVERIFY);
+        push_data(&mut bc, refund_pk);
+        bc.push(OP_CHECKSIGVERIFY);       // maker reclaims the whole order after timeout
+    bc.push(OP_ENDIF);
+    push_int(&mut bc, 1);
+    bc
+}
+
+pub fn compile_multisig_2of2(pk1: &[u8; 32], pk2: &[u8; 32]) -> Vec<u8> {
+    let mut bc = Vec::new();
+    push_data(&mut bc, pk2);
+    bc.push(OP_CHECKSIG);
+    bc.push(OP_SWAP);
+    push_data(&mut bc, pk1);
+    bc.push(OP_CHECKSIG);
+    bc.push(OP_ADD);
+    push_int(&mut bc, 2);
+    bc.push(OP_GREATER_OR_EQUAL);
+    bc
+}
+
+/// 2-of-3 multisig script. Witness: [Sig1, Sig2, Sig3] (0x00 for missing)
+pub fn compile_multisig_2of3(
+    pk1: &[u8; 32], pk2: &[u8; 32], pk3: &[u8; 32],
+) -> Vec<u8> {
+    let mut bc = Vec::new();
+    push_data(&mut bc, pk3);
+    bc.push(OP_CHECKSIG);
+    bc.push(OP_SWAP);
+    push_data(&mut bc, pk2);
+    bc.push(OP_CHECKSIG);
+    bc.push(OP_ADD);
+    bc.push(OP_SWAP);
+    push_data(&mut bc, pk1);
+    bc.push(OP_CHECKSIG);
+    bc.push(OP_ADD);
+    push_int(&mut bc, 2);
+    bc.push(OP_GREATER_OR_EQUAL);
+    bc
+}
+
+// ── Bytecode assembly helpers ──────────────────────────────────────────────
+
+pub fn push_data(bc: &mut Vec<u8>, data: &[u8]) {
+    bc.push(OP_PUSH_DATA);
+    let len = data.len() as u16;
+    bc.extend_from_slice(&len.to_le_bytes());
+    bc.extend_from_slice(data);
+}
+
+/// Append a PUSH_DATA instruction encoding a u64 as a minimal LE byte array.
+pub fn push_int(bc: &mut Vec<u8>, value: u64) {
+    push_data(bc, &from_u64(value));
+}
+
+// ── Assembler ──────────────────────────────────────────────────────────────
+
+pub fn assemble(source: &str) -> Result<Vec<u8>, String> {
+    let mut bc = Vec::new();
+    
+    // NEW: Strip out comments (// or #) and rebuild a clean string
+    let clean_source: String = source
+        .lines()
+        .map(|line| {
+            let no_slashes = line.split("//").next().unwrap_or("");
+            no_slashes.split('#').next().unwrap_or("").trim()
+        })
+        .collect::<Vec<_>>()
+        .join(" ");
+
+    // Tokenize the clean string
+    let tokens: Vec<&str> = clean_source.split_whitespace().collect();
+    let mut i = 0;
+
+    while i < tokens.len() {
+        match tokens[i].to_uppercase().as_str() {
+            "PUSH_HEX" => {
+                i += 1;
+                if i >= tokens.len() { return Err("PUSH_HEX requires a hex argument".into()); }
+                let hex_str = tokens[i].trim_start_matches('<').trim_end_matches('>');
+                let bytes = hex::decode(hex_str)
+                    .map_err(|e| format!("invalid hex '{}': {}", hex_str, e))?;
+                push_data(&mut bc, &bytes);
+            }
+            "PUSH_INT" => {
+                i += 1;
+                if i >= tokens.len() { return Err("PUSH_INT requires an integer argument".into()); }
+                let val_str = tokens[i].trim_start_matches('<').trim_end_matches('>');
+                let val: u64 = val_str.parse()
+                    .map_err(|e| format!("invalid integer '{}': {}", val_str, e))?;
+                push_int(&mut bc, val);
+            }
+            "DROP"              => bc.push(OP_DROP),
+            "DUP"               => bc.push(OP_DUP),
+            "SWAP"              => bc.push(OP_SWAP),
+            "OVER"              => bc.push(OP_OVER),
+            "ROT"               => bc.push(OP_ROT),
+            "PICK"              => bc.push(OP_PICK),
+            "SIZE"              => bc.push(OP_SIZE),
+            "SLICE"             => bc.push(OP_SLICE),
+            "CONCAT"            => bc.push(OP_CONCAT),
+            "EQUAL"             => bc.push(OP_EQUAL),
+            "VERIFY"            => bc.push(OP_VERIFY),
+            "EQUALVERIFY"       => bc.push(OP_EQUALVERIFY),
+            "ADD"               => bc.push(OP_ADD),
+            "SUB"               => bc.push(OP_SUB),
+            "MUL"               => bc.push(OP_MUL),
+            "DIV"               => bc.push(OP_DIV),
+            "MOD"               => bc.push(OP_MOD),
+            "GREATER_OR_EQUAL"  => bc.push(OP_GREATER_OR_EQUAL),
+            "HASH"              => bc.push(OP_HASH),
+            "CHECKSIG"          => bc.push(OP_CHECKSIG),
+            "CHECKSIGVERIFY"    => bc.push(OP_CHECKSIGVERIFY),
+            "CHECKTIMEVERIFY"   => bc.push(OP_CHECKTIMEVERIFY),
+            "IF"                => bc.push(OP_IF),
+            "ELSE"              => bc.push(OP_ELSE),
+            "ENDIF"             => bc.push(OP_ENDIF),
+            "SUM_TO_ADDR"       => bc.push(OP_SUM_TO_ADDR),
+            "READ_INPUT_STATE"  => bc.push(OP_READ_INPUT_STATE),
+            "READ_OUTPUT_STATE" => bc.push(OP_READ_OUTPUT_STATE),
+            "INPUT_VALUE"       => bc.push(OP_INPUT_VALUE),
+            "OUTPUT_ADDRESS"    => bc.push(OP_OUTPUT_ADDRESS),
+            "THIS_ADDRESS"      => bc.push(OP_THIS_ADDRESS),
+            other => return Err(format!("unknown mnemonic '{}'", other)),
+        }
+        i += 1;
+    }
+
+    let _ = validate_structure(&bc, u64::MAX).map_err(|e| e.to_string())?;
+    Ok(bc)
+}
+
+// ── Tests ──────────────────────────────────────────────────────────────────
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::core::wots;
+    use crate::core::types::{hash, OutputData};
+
+    fn empty_ctx() -> ExecContext<'static> {
+        static ZERO: [u8; 32] = [0u8; 32];
+        static OUTPUTS: [OutputData; 0] = [];
+        ExecContext {
+            commitment: &ZERO,
+            height: 100,
+            outputs: &OUTPUTS,
+            input_value: 0,
+            input_state: None,
+            this_address: [0u8; 32],
+            sum_input_value: 0,
+        }
+    }
+
+    /// The multi-input fund-loss regression.
+    ///
+    /// A maker's ask is split into several covenant coins sharing one predicate.
+    /// Under the old per-coin rule a taker could spend all of them in one
+    /// transaction and satisfy every input against a single shared remainder
+    /// output. The summed rule makes the remainder owed proportional to the
+    /// whole set.
+    #[test]
+    fn limit_order_covenant_resists_multi_input_sweep() {
+        use crate::core::types::OutputData;
+
+        let secret = [7u8; 32];
+        let secret_hash = hash(&secret);
+        let max_claim: u64 = 100;
+
+        let bc = compile_limit_order_covenant(&secret_hash, max_claim, 10_000, &[0u8; 32]);
+        let this_address = crate::core::types::Predicate::Script { bytecode: bc.clone() }.address();
+
+        // Taker sweeps three 500-unit coins (1500 total) and returns 1400,
+        // which satisfies max_claim=100 against the whole set.
+        let honest = vec![OutputData::Standard {
+            address: this_address,
+            value: 1400u64,
+            salt: [0u8; 32],
+        }];
+        let ctx_ok = ExecContext {
+            commitment: &[0u8; 32],
+            height: crate::core::types::COVENANT_SUM_ACTIVATION_HEIGHT,
+            outputs: &honest,
+            input_value: 500,
+            input_state: None,
+            this_address,
+            sum_input_value: 1500,
+        };
+        let witness = vec![secret.to_vec(), vec![0x01]];
+        assert!(
+            execute_script(&bc, &witness, &ctx_ok).is_ok(),
+            "an honest multi-coin fill must still succeed"
+        );
+
+        // The attack: same three coins, but only 400 returned — enough to pass
+        // the per-coin rule for a 500-unit coin, far short of the summed rule.
+        let cheating = vec![OutputData::Standard {
+            address: this_address,
+            value: 400u64,
+            salt: [0u8; 32],
+        }];
+        let ctx_bad = ExecContext {
+            commitment: &[0u8; 32],
+            height: crate::core::types::COVENANT_SUM_ACTIVATION_HEIGHT,
+            outputs: &cheating,
+            input_value: 500,
+            input_state: None,
+            this_address,
+            sum_input_value: 1500,
+        };
+        assert!(
+            execute_script(&bc, &witness, &ctx_bad).is_err(),
+            "sweeping several covenant coins against one remainder must fail"
+        );
+    }
+
+    /// The opcode must not exist before its activation height, or nodes on old
+    /// and new rules would disagree about historical blocks.
+    #[test]
+    fn sum_input_value_is_height_gated() {
+        let bc = vec![OP_SUM_INPUT_VALUE];
+        assert_eq!(
+            validate_structure(&bc, crate::core::types::COVENANT_SUM_ACTIVATION_HEIGHT - 1),
+            Err(ScriptError::InvalidOpcode(OP_SUM_INPUT_VALUE))
+        );
+        assert!(
+            validate_structure(&bc, crate::core::types::COVENANT_SUM_ACTIVATION_HEIGHT).is_ok()
+        );
+    }
+
+    /// A single-coin spend must behave exactly as before.
+    #[test]
+    fn sum_equals_input_value_for_single_coin_spend() {
+        use crate::core::types::OutputData;
+        let secret = [3u8; 32];
+        let bc = compile_limit_order_covenant(&hash(&secret), 100, 10_000, &[0u8; 32]);
+        let this_address = crate::core::types::Predicate::Script { bytecode: bc.clone() }.address();
+        let outs = vec![OutputData::Standard {
+            address: this_address,
+            value: 400u64,
+            salt: [0u8; 32],
+        }];
+        let ctx = ExecContext {
+            commitment: &[0u8; 32],
+            height: crate::core::types::COVENANT_SUM_ACTIVATION_HEIGHT,
+            outputs: &outs,
+            input_value: 500,
+            input_state: None,
+            this_address,
+            sum_input_value: 500,
+        };
+        assert!(execute_script(&bc, &vec![secret.to_vec(), vec![0x01]], &ctx).is_ok());
+    }
+
+    #[test]
+    fn aot_rejects_oversized_script() {
+        let big = vec![OP_DUP; MAX_SCRIPT_SIZE + 1];
+        assert_eq!(validate_structure(&big, u64::MAX), Err(ScriptError::ScriptTooLarge));
+    }
+
+    #[test]
+    fn aot_rejects_push_data_oob() {
+        let bc = vec![OP_PUSH_DATA, 0xFF, 0x00];
+       assert_eq!(validate_structure(&bc, u64::MAX),  Err(ScriptError::PushDataOutOfBounds));
+    }
+
+    #[test]
+    fn aot_rejects_unbalanced_if() {
+        assert_eq!(validate_structure(&[OP_IF], u64::MAX), Err(ScriptError::UnbalancedConditional));
+    }
+
+    #[test]
+    fn aot_rejects_extra_endif() {
+        assert_eq!(validate_structure(&[OP_ENDIF], u64::MAX), Err(ScriptError::UnbalancedConditional));
+    }
+
+    #[test]
+    fn aot_rejects_else_without_if() {
+        assert_eq!(validate_structure(&[OP_ELSE], u64::MAX), Err(ScriptError::UnbalancedConditional));
+    }
+
+    #[test]
+    fn aot_accepts_balanced_if_else_endif() {
+        assert!(validate_structure(&[OP_IF, OP_ELSE, OP_ENDIF], u64::MAX).is_ok());
+    }
+
+    #[test]
+    fn aot_rejects_invalid_opcode() {
+        assert_eq!(validate_structure(&[0xFF], u64::MAX), Err(ScriptError::InvalidOpcode(0xFF)));
+    }
+
+    #[test]
+    fn trivial_true_script() {
+        let mut bc = Vec::new();
+        push_int(&mut bc, 1);
+        assert!(execute_script(&bc, &[], &empty_ctx()).is_ok());
+    }
+
+    #[test]
+    fn trivial_false_script() {
+        let mut bc = Vec::new();
+        push_int(&mut bc, 0);
+        assert_eq!(execute_script(&bc, &[], &empty_ctx()), Err(ScriptError::ScriptMustFinishTrue));
+    }
+
+    #[test]
+    fn empty_script_fails() {
+        assert_eq!(execute_script(&[], &[], &empty_ctx()), Err(ScriptError::EmptyStack));
+    }
+
+    #[test]
+    fn dup_works() {
+        let mut bc = Vec::new();
+        bc.push(OP_DUP);
+        bc.push(OP_EQUALVERIFY);
+        push_int(&mut bc, 1);
+        assert!(execute_script(&bc, &[vec![1u8]], &empty_ctx()).is_ok());
+    }
+
+    #[test]
+    fn swap_works() {
+        let mut bc = Vec::new();
+        bc.push(OP_SWAP);
+        bc.push(OP_DROP);
+        assert!(execute_script(&bc, &[vec![42u8], vec![1u8]], &empty_ctx()).is_ok());
+    }
+
+    #[test]
+    fn drop_underflow() {
+        assert_eq!(execute_script(&[OP_DROP], &[], &empty_ctx()), Err(ScriptError::StackUnderflow));
+    }
+
+    #[test]
+    fn equal_true() {
+        let witness = vec![vec![0xAA; 4], vec![0xAA; 4]];
+        assert!(execute_script(&[OP_EQUAL], &witness, &empty_ctx()).is_ok());
+    }
+
+    #[test]
+    fn add_basic() {
+        let mut bc = Vec::new();
+        push_int(&mut bc, 3);
+        push_int(&mut bc, 4);
+        bc.push(OP_ADD);
+        push_int(&mut bc, 7);
+        bc.push(OP_EQUAL);
+        assert!(execute_script(&bc, &[], &empty_ctx()).is_ok());
+    }
+
+    #[test]
+    fn add_overflow_fails() {
+        let witness = vec![u64::MAX.to_le_bytes().to_vec(), 1u64.to_le_bytes().to_vec()];
+        assert_eq!(execute_script(&[OP_ADD], &witness, &empty_ctx()), Err(ScriptError::MathOverflow));
+    }
+
+    #[test]
+    fn greater_or_equal_true() {
+        let mut bc = Vec::new();
+        push_int(&mut bc, 10);
+        push_int(&mut bc, 5);
+        bc.push(OP_GREATER_OR_EQUAL);
+        assert!(execute_script(&bc, &[], &empty_ctx()).is_ok());
+    }
+
+    #[test]
+    fn hash_opcode() {
+        let preimage = b"secret";
+        let expected = hash(preimage);
+        let mut bc = Vec::new();
+        bc.push(OP_HASH);
+        push_data(&mut bc, &expected);
+        bc.push(OP_EQUALVERIFY);
+        push_int(&mut bc, 1);
+        assert!(execute_script(&bc, &[preimage.to_vec()], &empty_ctx()).is_ok());
+    }
+
+    #[test]
+    fn p2pk_valid_signature() {
+        let seed = hash(b"test key seed");
+        let pk = wots::keygen(&seed);
+        let commitment = hash(b"test commitment");
+        let sig = wots::sign(&seed, &commitment);
+        let sig_bytes = wots::sig_to_bytes(&sig);
+        let bytecode = compile_p2pk(&pk);
+        let ctx = ExecContext { commitment: &commitment, height: 100, outputs: &[], input_value: 0, input_state: None, this_address: [0u8; 32], sum_input_value: 0 };
+        assert!(execute_script(&bytecode, &[sig_bytes], &ctx).is_ok());
+    }
+
+    #[test]
+    fn p2pk_invalid_signature() {
+        let seed = hash(b"test key seed");
+        let pk = wots::keygen(&seed);
+        let commitment = hash(b"test commitment");
+        let wrong_sig = vec![0u8; wots::SIG_SIZE];
+        let bytecode = compile_p2pk(&pk);
+        let ctx = ExecContext { commitment: &commitment, height: 31000, outputs: &[], input_value: 0, input_state: None, this_address: [0u8; 32], sum_input_value: 0 };
+        assert!(execute_script(&bytecode, &[wrong_sig], &ctx).is_err());
+    }
+
+    #[test]
+    fn checktimeverify_pass() {
+        let mut bc = Vec::new();
+        push_int(&mut bc, 50);
+        bc.push(OP_CHECKTIMEVERIFY);
+        push_int(&mut bc, 1);
+        assert!(execute_script(&bc, &[], &empty_ctx()).is_ok());
+    }
+
+    #[test]
+    fn checktimeverify_fail() {
+        let mut bc = Vec::new();
+        push_int(&mut bc, 200);
+        bc.push(OP_CHECKTIMEVERIFY);
+        push_int(&mut bc, 1);
+        assert!(execute_script(&bc, &[], &empty_ctx()).is_err());
+    }
+
+    #[test]
+    fn if_true_branch() {
+        let mut bc = Vec::new();
+        bc.push(OP_IF);
+        push_int(&mut bc, 1);
+        bc.push(OP_ELSE);
+        push_int(&mut bc, 0);
+        bc.push(OP_ENDIF);
+        assert!(execute_script(&bc, &[vec![1u8]], &empty_ctx()).is_ok());
+    }
+
+    #[test]
+    fn if_false_branch() {
+        let mut bc = Vec::new();
+        bc.push(OP_IF);
+        push_int(&mut bc, 0);
+        bc.push(OP_ELSE);
+        push_int(&mut bc, 1);
+        bc.push(OP_ENDIF);
+        assert!(execute_script(&bc, &[vec![0u8]], &empty_ctx()).is_ok());
+    }
+
+    fn bond_ctx(commitment: &[u8; 32], height: u64) -> ExecContext<'_> {
+        ExecContext { commitment, height, outputs: &[], input_value: 0, input_state: None, this_address: [0u8; 32], sum_input_value: 0 }
+    }
+
+    #[test]
+    fn mining_bond_golden_vector() {
+        let bc = compile_mining_bond(&[0x11; 32], 400_000, &[0x22; 32]);
+        assert_eq!(
+            hex::encode(&bc),
+            "0120001111111111111111111111111111111111111111111111111111111111111111\
+             10010300801a0633012000222222222222222222222222222222222222222222222222\
+             22222222222222223201010001"
+        );
+        assert_eq!(
+            hex::encode(crate::core::types::Predicate::Script { bytecode: bc }.address()),
+            "22fd4a4255a093856e1b4a714deb228676742accbe4e3145a6fbcb50f757b67f"
+        );
+    }
+
+    #[test]
+    fn mining_bond_unlocks_for_its_owner_at_the_lock_height() {
+        let owner_seed = hash(b"bond owner");
+        let owner_pk = wots::keygen(&owner_seed);
+        let commitment = hash(b"bond spend");
+        let bc = compile_mining_bond(&[0x11; 32], 400_000, &owner_pk);
+        assert!(validate_structure(&bc, 400_000).is_ok());
+        let sig = wots::sig_to_bytes(&wots::sign(&owner_seed, &commitment));
+        assert!(execute_script(&bc, &[sig.clone()], &bond_ctx(&commitment, 400_000)).is_ok());
+        assert!(execute_script(&bc, &[sig], &bond_ctx(&commitment, 399_999)).is_err());
+    }
+
+    #[test]
+    fn mining_bond_is_not_spendable_by_anyone_else() {
+        let owner_pk = wots::keygen(&hash(b"bond owner"));
+        let commitment = hash(b"bond spend");
+        let bc = compile_mining_bond(&[0x11; 32], 400_000, &owner_pk);
+        let thief = wots::sig_to_bytes(&wots::sign(&hash(b"thief"), &commitment));
+        assert!(execute_script(&bc, &[thief], &bond_ctx(&commitment, 900_000)).is_err());
+        // No witness at all, even long after unlocking.
+        assert!(execute_script(&bc, &[], &bond_ctx(&commitment, 900_000)).is_err());
+    }
+
+    #[test]
+    fn mining_bond_address_commits_to_the_mining_key() {
+        let a = compile_mining_bond(&[0x11; 32], 400_000, &[0x22; 32]);
+        let b = compile_mining_bond(&[0x12; 32], 400_000, &[0x22; 32]);
+        assert_ne!(hash(&a), hash(&b));
+    }
+
+    #[test]
+    fn htlc_claim_path() {
+        let secret = b"my secret preimage!!!!!!!!!!!!!!";
+        let secret_hash = hash(secret);
+        let receiver_seed = hash(b"receiver seed");
+        let receiver_pk = wots::keygen(&receiver_seed);
+        let refund_pk = [0xBB; 32];
+        let commitment = hash(b"htlc commitment");
+        let bytecode = compile_htlc(&secret_hash, &receiver_pk, 500, &refund_pk);
+        let sig = wots::sign(&receiver_seed, &commitment);
+        let sig_bytes = wots::sig_to_bytes(&sig);
+        let witness = vec![sig_bytes, secret.to_vec(), vec![1u8]];
+        let ctx = ExecContext { commitment: &commitment, height: 100, outputs: &[], input_value: 0, input_state: None, this_address: [0u8; 32], sum_input_value: 0 };
+        assert!(execute_script(&bytecode, &witness, &ctx).is_ok());
+    }
+
+    #[test]
+    fn htlc_refund_path() {
+        let secret_hash = [0xAA; 32];
+        let receiver_pk = [0xCC; 32];
+        let refund_seed = hash(b"refund seed");
+        let refund_pk = wots::keygen(&refund_seed);
+        let commitment = hash(b"htlc refund commitment");
+        let bytecode = compile_htlc(&secret_hash, &receiver_pk, 500, &refund_pk);
+        let sig = wots::sign(&refund_seed, &commitment);
+        let sig_bytes = wots::sig_to_bytes(&sig);
+        let witness = vec![sig_bytes, vec![0u8; 32], vec![0u8]];
+        let ctx = ExecContext { commitment: &commitment, height: 31000, outputs: &[], input_value: 0, input_state: None, this_address: [0u8; 32], sum_input_value: 0 };
+        assert!(execute_script(&bytecode, &witness, &ctx).is_ok());
+    }
+
+    #[test]
+    fn htlc_refund_too_early_fails() {
+        let secret_hash = [0xAA; 32];
+        let receiver_pk = [0xCC; 32];
+        let refund_seed = hash(b"refund seed");
+        let refund_pk = wots::keygen(&refund_seed);
+        let commitment = hash(b"htlc refund commitment");
+        let bytecode = compile_htlc(&secret_hash, &receiver_pk, 500, &refund_pk);
+        let sig = wots::sign(&refund_seed, &commitment);
+        let sig_bytes = wots::sig_to_bytes(&sig);
+        let witness = vec![sig_bytes, vec![0u8; 32], vec![0u8]];
+        let ctx = ExecContext { commitment: &commitment, height: 100, outputs: &[], input_value: 0, input_state: None, this_address: [0u8; 32], sum_input_value: 0 };
+        assert!(execute_script(&bytecode, &witness, &ctx).is_err());
+    }
+
+    #[test]
+    fn sum_to_addr_covenant() {
+        let alice_addr = [0xAA; 32];
+        let outputs = vec![
+            OutputData::Standard { address: alice_addr, value: 32, salt: [0; 32] },
+            OutputData::Standard { address: alice_addr, value: 16, salt: [1; 32] },
+            OutputData::Standard { address: [0xBB; 32], value: 4, salt: [2; 32] },
+            OutputData::Standard { address: alice_addr, value: 2, salt: [3; 32] },
+        ];
+        let mut bc = Vec::new();
+        push_data(&mut bc, &alice_addr);
+        bc.push(OP_SUM_TO_ADDR);
+        push_int(&mut bc, 50);
+        bc.push(OP_GREATER_OR_EQUAL);
+        bc.push(OP_VERIFY);
+        push_int(&mut bc, 1);
+        let commitment = [0u8; 32];
+        let ctx = ExecContext { commitment: &commitment, height: 0, outputs: &outputs, input_value: 0, input_state: None, this_address: [0u8; 32], sum_input_value: 0 };
+        assert!(execute_script(&bc, &[], &ctx).is_ok());
+    }
+
+    #[test]
+    fn sum_to_addr_insufficient_fails() {
+        let alice_addr = [0xAA; 32];
+        let outputs = vec![OutputData::Standard { address: alice_addr, value: 16, salt: [0; 32] }];
+        let mut bc = Vec::new();
+        push_data(&mut bc, &alice_addr);
+        bc.push(OP_SUM_TO_ADDR);
+        push_int(&mut bc, 50);
+        bc.push(OP_GREATER_OR_EQUAL);
+        bc.push(OP_VERIFY);
+        push_int(&mut bc, 1);
+        let commitment = [0u8; 32];
+        let ctx = ExecContext { commitment: &commitment, height: 0, outputs: &outputs, input_value: 0, input_state: None, this_address: [0u8; 32], sum_input_value: 0 };
+        assert!(execute_script(&bc, &[], &ctx).is_err());
+    }
+
+    #[test]
+    fn assemble_p2pk() {
+        let pk_hex = "aa".repeat(32);
+        let source = format!("PUSH_HEX {} CHECKSIGVERIFY PUSH_INT 1", pk_hex);
+        let bc = assemble(&source).unwrap();
+        assert_eq!(bc, compile_p2pk(&[0xAA; 32]));
+    }
+
+    #[test]
+    fn assemble_invalid_mnemonic() {
+        assert!(assemble("FOOBAR").is_err());
+    }
+
+    #[test]
+    fn stack_overflow_rejected() {
+        let witness: Vec<Vec<u8>> = (0..=MAX_STACK_DEPTH as u8).map(|_| vec![1u8]).collect();
+        let mut bc = Vec::new();
+        push_int(&mut bc, 1);
+        assert!(execute_script(&bc, &witness, &empty_ctx()).is_err());
+    }
+
+    #[test]
+    fn multisig_2of3_two_valid() {
+        let seed1 = hash(b"key1");
+        let seed2 = hash(b"key2");
+        let seed3 = hash(b"key3");
+        let pk1 = wots::keygen(&seed1);
+        let pk2 = wots::keygen(&seed2);
+        let pk3 = wots::keygen(&seed3);
+        let commitment = hash(b"multisig commitment");
+        let bytecode = compile_multisig_2of3(&pk1, &pk2, &pk3);
+        let sig1 = wots::sig_to_bytes(&wots::sign(&seed1, &commitment));
+        let sig2 = wots::sig_to_bytes(&wots::sign(&seed2, &commitment));
+        let witness = vec![sig1, sig2, vec![0u8]];
+        let ctx = ExecContext { commitment: &commitment, height: 0, outputs: &[], input_value: 0, input_state: None, this_address: [0u8; 32], sum_input_value: 0 };
+        assert!(execute_script(&bytecode, &witness, &ctx).is_ok());
+    }
+
+    #[test]
+    fn multisig_2of3_one_valid_fails() {
+        let seed1 = hash(b"key1");
+        let seed2 = hash(b"key2");
+        let seed3 = hash(b"key3");
+        let pk1 = wots::keygen(&seed1);
+        let pk2 = wots::keygen(&seed2);
+        let pk3 = wots::keygen(&seed3);
+        let commitment = hash(b"multisig commitment");
+        let bytecode = compile_multisig_2of3(&pk1, &pk2, &pk3);
+        let sig1 = wots::sig_to_bytes(&wots::sign(&seed1, &commitment));
+        let witness = vec![sig1, vec![0u8], vec![0u8]];
+        let ctx = ExecContext { commitment: &commitment, height: 0, outputs: &[], input_value: 0, input_state: None, this_address: [0u8; 32], sum_input_value: 0 };
+        assert!(execute_script(&bytecode, &witness, &ctx).is_err());
+    }
+
+    #[test]
+    fn over_works() {
+        let mut bc = Vec::new();
+        bc.push(OP_OVER);
+        bc.push(OP_ADD);
+        bc.push(OP_ADD);
+        push_int(&mut bc, 4);
+        bc.push(OP_EQUAL);
+
+        let witness = vec![vec![1u8], vec![2u8]];
+        let mut ctx = empty_ctx();
+        ctx.height = 100_000;
+        assert!(execute_script(&bc, &witness, &ctx).is_ok());
+    }
+
+    #[test]
+    fn rot_works() {
+        let mut bc = Vec::new();
+        bc.push(OP_ROT);
+        push_int(&mut bc, 1);
+        bc.push(OP_EQUALVERIFY);
+        push_int(&mut bc, 3);
+        bc.push(OP_EQUALVERIFY);
+        push_int(&mut bc, 2);
+        bc.push(OP_EQUAL);
+
+        let witness = vec![vec![1u8], vec![2u8], vec![3u8]];
+        let mut ctx = empty_ctx();
+        ctx.height = 100_000;
+        assert!(execute_script(&bc, &witness, &ctx).is_ok());
+    }
+
+    #[test]
+    fn sub_works() {
+        let mut bc = Vec::new();
+        bc.push(OP_SUB);
+        push_int(&mut bc, 2);
+        bc.push(OP_EQUAL);
+
+        let witness = vec![vec![5u8], vec![3u8]];
+        let mut ctx = empty_ctx();
+        ctx.height = 100_000;
+        assert!(execute_script(&bc, &witness, &ctx).is_ok());
+    }
+
+    #[test]
+    fn sub_underflow_fails() {
+        let mut bc = Vec::new();
+        bc.push(OP_SUB);
+
+        let witness = vec![vec![3u8], vec![5u8]];
+        let mut ctx = empty_ctx();
+        ctx.height = 100_000;
+        assert_eq!(execute_script(&bc, &witness, &ctx), Err(ScriptError::MathOverflow));
+    }
+
+    
+     #[test]
+    fn multisig_2of3_all_three_valid() {
+        let seed1 = hash(b"key1");
+        let seed2 = hash(b"key2");
+        let seed3 = hash(b"key3");
+        let pk1 = wots::keygen(&seed1);
+        let pk2 = wots::keygen(&seed2);
+        let pk3 = wots::keygen(&seed3);
+        let commitment = hash(b"multisig commitment");
+        let bytecode = compile_multisig_2of3(&pk1, &pk2, &pk3);
+        let sig1 = wots::sig_to_bytes(&wots::sign(&seed1, &commitment));
+        let sig2 = wots::sig_to_bytes(&wots::sign(&seed2, &commitment));
+        let sig3 = wots::sig_to_bytes(&wots::sign(&seed3, &commitment));
+        let witness = vec![sig1, sig2, sig3];
+        let ctx = ExecContext { commitment: &commitment, height: 0, outputs: &[], input_value: 0, input_state: None, this_address: [0u8; 32], sum_input_value: 0 };
+        assert!(execute_script(&bytecode, &witness, &ctx).is_ok());
+    }
+    
+
+
+    #[test]
+    fn pick_works() {
+        let mut bc = Vec::new();
+        push_int(&mut bc, 2); // The depth we want to pick (0-indexed)
+        bc.push(OP_PICK);
+        push_int(&mut bc, 10);
+        bc.push(OP_EQUAL);
+        // PICK copies rather than consumes, so the three witness items are still
+        // on the stack under the result. The Clean Stack Rule requires exactly
+        // one item at the end, so drop them — verifying the comparison first so
+        // a wrong PICK still fails rather than being dropped silently.
+        bc.push(OP_VERIFY);
+        bc.push(OP_DROP);
+        bc.push(OP_DROP);
+        push_int(&mut bc, 10);
+        bc.push(OP_EQUAL);
+
+        // Stack: Bottom [10, 20, 30] Top
+        let witness = vec![vec![10u8], vec![20u8], vec![30u8]];
+        let mut ctx = empty_ctx();
+        ctx.height = 100_000;
+        assert!(execute_script(&bc, &witness, &ctx).is_ok());
+    }
+
+    #[test]
+    fn size_works() {
+        let mut bc = Vec::new();
+        bc.push(OP_SIZE);
+        push_int(&mut bc, 4); // Expect size to be 4 bytes
+        bc.push(OP_EQUALVERIFY);
+        bc.push(OP_DROP); // Drop the original data
+        push_int(&mut bc, 1);
+
+        let witness = vec![vec![0xAA, 0xBB, 0xCC, 0xDD]];
+        let mut ctx = empty_ctx();
+        ctx.height = 100_000;
+        assert!(execute_script(&bc, &witness, &ctx).is_ok());
+    }
+
+    #[test]
+    fn input_value_works() {
+        let mut bc = Vec::new();
+        bc.push(OP_INPUT_VALUE);
+        push_int(&mut bc, 5000);
+        bc.push(OP_EQUAL);
+
+        let mut ctx = empty_ctx();
+        ctx.height = 100_000;
+        ctx.input_value = 5000; // Inject exactly 5000 into the VM context
+        assert!(execute_script(&bc, &[], &ctx).is_ok());
+    }
+
+    #[test]
+    fn mod_works() {
+        let mut bc = Vec::new();
+        bc.push(OP_MOD);
+        push_int(&mut bc, 2); // 17 % 5 = 2
+        bc.push(OP_EQUAL);
+
+        let witness = vec![vec![17u8], vec![5u8]];
+        let mut ctx = empty_ctx();
+        ctx.height = 100_000;
+        assert!(execute_script(&bc, &witness, &ctx).is_ok());
+    }
+    #[test]
+    fn this_address_returns_predicate_address() {
+        let expected = [0xAB; 32];
+        let mut bc = Vec::new();
+        bc.push(OP_THIS_ADDRESS);
+        push_data(&mut bc, &expected);
+        bc.push(OP_EQUALVERIFY);
+        push_int(&mut bc, 1);
+
+        let mut ctx = empty_ctx();
+        ctx.this_address = expected;
+        assert!(execute_script(&bc, &[], &ctx).is_ok());
+    }
+
+    #[test]
+    fn output_address_returns_correct_address() {
+        let alice = [0xAA; 32];
+        let bob = [0xBB; 32];
+        let outputs = vec![
+            OutputData::Standard { address: alice, value: 1, salt: [0; 32] },
+            OutputData::Standard { address: bob,   value: 2, salt: [0; 32] },
+        ];
+        let mut bc = Vec::new();
+        push_int(&mut bc, 1);
+        bc.push(OP_OUTPUT_ADDRESS);
+        push_data(&mut bc, &bob);
+        bc.push(OP_EQUALVERIFY);
+        push_int(&mut bc, 1);
+
+        let ctx = ExecContext {
+            commitment: &[0u8; 32], height: 0, outputs: &outputs,
+            input_value: 0, input_state: None, this_address: [0u8; 32],
+            sum_input_value: 0,
+        };
+        assert!(execute_script(&bc, &[], &ctx).is_ok());
+    }
+
+    #[test]
+    fn output_address_index_oob_fails() {
+        let outputs: Vec<OutputData> = vec![];
+        let mut bc = Vec::new();
+        push_int(&mut bc, 0);
+        bc.push(OP_OUTPUT_ADDRESS);
+        let ctx = ExecContext {
+            commitment: &[0u8; 32], height: 0, outputs: &outputs,
+            input_value: 0, input_state: None, this_address: [0u8; 32],
+            sum_input_value: 0,
+        };
+        assert_eq!(execute_script(&bc, &[], &ctx), Err(ScriptError::InvalidStateRead));
+    }
+
+    #[test]
+    fn output_address_of_databurn_is_zero() {
+        let outputs = vec![
+            OutputData::DataBurn { payload: vec![1, 2, 3], value_burned: 0 },
+        ];
+        let mut bc = Vec::new();
+        push_int(&mut bc, 0);
+        bc.push(OP_OUTPUT_ADDRESS);
+        push_data(&mut bc, &[0u8; 32]);
+        bc.push(OP_EQUALVERIFY);
+        push_int(&mut bc, 1);
+        let ctx = ExecContext {
+            commitment: &[0u8; 32], height: 0, outputs: &outputs,
+            input_value: 0, input_state: None, this_address: [0u8; 32],
+            sum_input_value: 0,
+        };
+        assert!(execute_script(&bc, &[], &ctx).is_ok());
+    }
+    #[test]
+    fn covenant_htlc_claim_pays_buyer() {
+        let secret = *b"covenant secret preimage!!!!!!!!"; // 32 bytes
+        let secret_hash = hash(&secret);
+        let buyer = [0xBB; 32];
+        let bc = compile_covenant_htlc(&secret_hash, &buyer, 48, 500, &[0xCC; 32]);
+
+        // Pays the buyer exactly 48 (32 + 16) across two coins; change sits elsewhere.
+        let outputs = vec![
+            OutputData::Standard { address: buyer,     value: 32, salt: [0; 32] },
+            OutputData::Standard { address: buyer,     value: 16, salt: [1; 32] },
+            OutputData::Standard { address: [0xEE;32], value: 8,  salt: [2; 32] },
+        ];
+        let ctx = ExecContext { commitment: &[0u8;32], height: 0, outputs: &outputs,
+                                input_value: 0, input_state: None, this_address: [0u8;32],
+                                sum_input_value: 0 };
+        let witness = vec![secret.to_vec(), vec![0x01]]; // [secret, selector] — no signature
+        assert!(execute_script(&bc, &witness, &ctx).is_ok());
+    }
+
+    #[test]
+    fn covenant_htlc_underpay_fails() {
+        let secret = *b"covenant secret preimage!!!!!!!!";
+        let secret_hash = hash(&secret);
+        let buyer = [0xBB; 32];
+        let bc = compile_covenant_htlc(&secret_hash, &buyer, 48, 500, &[0xCC; 32]);
+        let outputs = vec![ OutputData::Standard { address: buyer, value: 16, salt: [0;32] } ]; // < 48
+        let ctx = ExecContext { commitment: &[0u8;32], height: 0, outputs: &outputs,
+                                input_value: 0, input_state: None, this_address: [0u8;32],
+                                sum_input_value: 0 };
+        let witness = vec![secret.to_vec(), vec![0x01]];
+        assert!(execute_script(&bc, &witness, &ctx).is_err()); // covenant blocks short-paying the buyer
+    }
+
+    #[test]
+    fn covenant_htlc_wrong_secret_fails() {
+        let secret_hash = hash(b"the real preimage");
+        let buyer = [0xBB; 32];
+        let bc = compile_covenant_htlc(&secret_hash, &buyer, 16, 500, &[0xCC; 32]);
+        let outputs = vec![ OutputData::Standard { address: buyer, value: 16, salt: [0;32] } ];
+        let ctx = ExecContext { commitment: &[0u8;32], height: 0, outputs: &outputs,
+                                input_value: 0, input_state: None, this_address: [0u8;32],
+                                sum_input_value: 0 };
+        let witness = vec![[0x99u8;32].to_vec(), vec![0x01]]; // wrong preimage
+        assert!(execute_script(&bc, &witness, &ctx).is_err());
+    }
+
+    #[test]
+    fn covenant_htlc_refund_after_timeout() {
+        let secret_hash = [0xAA; 32];
+        let buyer = [0xBB; 32];
+        let refund_seed = hash(b"covenant refund seed");
+        let refund_pk = wots::keygen(&refund_seed);
+        let commitment = hash(b"covenant refund commitment");
+        let bc = compile_covenant_htlc(&secret_hash, &buyer, 16, 500, &refund_pk);
+        let sig = wots::sig_to_bytes(&wots::sign(&refund_seed, &commitment));
+        let witness = vec![sig, vec![0u8; 32], vec![0u8]]; // [sig, dummy, selector=0]
+        let ctx = ExecContext { commitment: &commitment, height: 600, outputs: &[],
+                                input_value: 0, input_state: None, this_address: [0u8;32],
+                                sum_input_value: 0 };
+        assert!(execute_script(&bc, &witness, &ctx).is_ok());
+    }
+}

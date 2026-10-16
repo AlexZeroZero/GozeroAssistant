@@ -1,0 +1,12 @@
+MDS 默认矿池
+stratum+tcp://mds.gozero.trade:13333
+
+2026-10-16：已在此矿池完成真实份额接受验证，详见PERFORMANCE.txt和原始日志。
+有效份额接受不等同于已验证实际出块、收益金额或链上支付。
+
+CLI 挖矿示例（MSS 可重复使用收款地址）：
+GozeroMdsCore.exe --backend cuda --payout-address YOUR_MSS_ADDRESS --worker Rig1 --mss-confirmed --duty 0.9
+省略 --pool-url 时使用上述默认矿池；显式指定 --pool-url 仍可连接其它池。
+--benchmark、--self-test 和 --list-devices 不会因默认矿池而连接网络挖矿。
+
+助手适配器已同步默认地址。MDS 仍为独立预览内核，尚未注册到正式助手币种列表。

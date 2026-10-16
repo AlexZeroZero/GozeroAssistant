@@ -47,6 +47,15 @@ test('YSR fee switches to the confirmed recipient and restores a different user 
  assert.equal(f.snapshot().recipient,ADDRESSES.YSR);await f.transition('user');
  assert.equal(m.starts.at(-1).c.wallets.YSR,original.wallets.YSR);assert.deepEqual(c,original);assert.equal(kernelFee(c),0);
 });
+test('MDS fee switches to the separately confirmed recipient, preserves MSS confirmation, then restores user wallet',async t=>{
+ const {f,m}=await setup(t),c={...config(),coin:'MDS',mdsMssConfirmed:true};
+ c.wallets.MDS='9bd7f16ae5827118e93239e75a98a6ec564c9247f94b5c5de63d1be4d083af03c1f035b7';
+ const original=structuredClone(c);await f.start(c,hw());clearInterval(f.timer);f.ledger.credit(f.key,199*60);await f.transition('service');
+ assert.equal(m.starts.at(-1).c.wallets.MDS,'01572f7d2efa32fb412d53542f5ab4b11f352f16ccb51b63be9d99297e32629f24b6237d');
+ assert.equal(m.starts.at(-1).c.mdsMssConfirmed,true);assert.equal(f.snapshot().recipient,ADDRESSES.MDS);
+ await f.transition('user');assert.equal(m.starts.at(-1).c.wallets.MDS,original.wallets.MDS);assert.deepEqual(c,original);assert.equal(kernelFee(c),0);
+ await f.stop();
+});
 test('NOID fee phase uses confirmed recipient and restores user wallet without mutating saved config',async t=>{
  const {f,m}=await setup(t),c={...config(),coin:'NOID'};
  c.wallets.NOID='o1666egg8r9aeedd0p6fgdn0mjhqg3wk33ages082pky567u65dslq7k03qa';

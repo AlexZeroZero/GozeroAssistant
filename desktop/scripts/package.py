@@ -97,7 +97,7 @@ def main():
             raise RuntimeError('Unsafe stale CPU kernel path')
         shutil.rmtree(excluded_cpu)
     for folder in ['src','renderer','assets','vendor','native']:
-        shutil.copytree(ROOT/folder, app_dir/folder, dirs_exist_ok=True, ignore=shutil.ignore_patterns('noid','zcd') if folder == 'native' else None)
+        shutil.copytree(ROOT/folder, app_dir/folder, dirs_exist_ok=True, ignore=shutil.ignore_patterns('noid','zcd','__pycache__','*.pyc') if folder == 'native' else None)
     if any(p.name.lower() in ('xmrig.exe','seine.exe') for p in target.rglob('*')):
         raise RuntimeError('Third-party CPU miners must be downloaded on demand, never bundled')
     shutil.copy2(ROOT/'package.json', app_dir/'package.json')

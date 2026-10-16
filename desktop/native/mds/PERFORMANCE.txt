@@ -1,0 +1,41 @@
+MDS0.1.11 / Assistant1.0.48 / 2026-10-16
+
+User RTX3090: 7 supplied stable samples mean14829.09 N/s (14821.54..14838.04).
+Compute1398.49s / pacing154.41s / CPU verification backpressure0.01s.
+Subsequent Verifier busy replies and forced disconnects coincided with7.8..9.8k.
+Those are separate from local compute throughput. No GPU clocks/power/temp or
+startup U/block/batch values were supplied. New core NOT tested on RTX3090.
+
+Local RTX5060Laptop, same60%budget,25seconds each, old/new/new/old:
+Old0.1.10: 4447.02, 4487.62 N/s
+New0.1.11: 4475.59, 4464.34 N/s
+Means: 4467.32 -> 4469.96 N/s (+0.06%).
+This small single-sequence change is NOT proof of a large speedup or18k on3090.
+Defaults auto-tune, so selected U/block/batch/dispatch can differ; each is in
+RESULT.json. Startup/probe work is excluded. All1million rounds, CPU candidate
+verification and real-work counters remain. Maximum 83C.
+
+Implemented: block64/128/256 probing (prefer128 within3%); dispatch4000..32000
+probing with mean40ms eligibility guard, preferring shorter within3%. Retains
+manual override,4000 baseline and assistant90%maximum budget. Shader PTX is
+unchanged: interleaved instructions, byte permutations, explicit PTX and grouped dispatches
+did not demonstrate reliable large gains, so none was forced into production.
+
+Pool: default4 pending shares, paced submission, busy->window1/cooldown2..8s,
+retained across reconnects.8 accepted ACKs recover gradually. No unconfirmed or
+rejected share is reported accepted or automatically resubmitted. Client cannot
+repair server-wide verifier overload. Bounded queues/current-job checks remain.
+
+Finite live test: accepted3, rejected11;
+errors: [{"message": "pool disconnected", "type": "error"}]
+reject reasons: ["Verifier busy, retry", "Verifier busy, retry", "Verifier busy, retry", "Verifier busy, retry", "Verifier busy, retry", "Verifier busy, retry", "Verifier busy, retry", "Verifier busy, retry", "Verifier busy, retry", "Verifier busy, retry", "Verifier busy, retry"]
+max83C. This is a functional check, NOT a matched pool A/B.
+No invalid hash/fatal errors observed. Miner stopped at the configured duration.
+
+6 scheduling/budget unit tests,11 protocol tests,2 CPU consensus tests and4 CUDA
+tests passed. Fullmillion hashes, wrapping nonces,3999/32000 remainder,64/256
+blocks, candidate verification/cancellation and probe counter isolation covered.
+
+Use COMPARE-CUDA.cmd on3090; select0.1.10 core from assistant1.0.47. Same90%
+budget; ABBA;85C stop; clock/power/temp logs. No overclock/driver/security edits.
+Keep old package. Send RESULT.json and the new startup/30s diagnostics.

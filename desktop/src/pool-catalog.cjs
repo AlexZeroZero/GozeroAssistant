@@ -1,6 +1,7 @@
 'use strict';
 // Official Kryptex pool pages /prl and /qtc; TLS ports are coin-specific.
 function poolChoices(coin){
+ if(coin==='MDS')return[{label:'Gozero MDS · TCP',url:require('./mds.cjs').DEFAULT_POOL}];
  if(coin==='BNT')return[{label:'Gozero BNT · TCP',url:'stratum+tcp://bnt.pool.gozero.trade:14444'}];
  if(coin==='ZCD')return[{label:'Gozero ZCD · TCP',url:'stratum+tcp://zcd.pool.gozero.trade:3333'}];
  if(coin==='YSR')return[{label:'Gozero YSR · HTTPS',url:require('./ysr-protocol.cjs').PUBLIC_API}];

@@ -18,7 +18,7 @@ async function installKernel({dir,exe,metadata,request,update,log,extractArchive
  try{
   await fs.mkdir(dir,{recursive:true});stage('connecting',metadata.bundled?'校验随附内核文件':'连接 '+(metadata.name||'KRig')+' '+metadata.version+' 下载源');
   if(metadata.bundled){
-   if(!['ysr','bnt'].includes(metadata.bundleDirectory)||!metadata.files)throw Error('内置内核元数据无效');
+   if(!['ysr','bnt','mds'].includes(metadata.bundleDirectory)||!metadata.files)throw Error('内置内核元数据无效');
    stage('verifying','校验内置开源内核 '+metadata.name);const source=path.join(__dirname,'../native',metadata.bundleDirectory);
    const files=[];for(const [name,expected] of Object.entries(metadata.files)){if(path.basename(name)!==name)throw Error('无效内核文件名');const body=await fs.readFile(path.join(source,name));if(hash(body)!==expected)throw Error('内置内核文件校验失败：'+name);files.push([name,body])}
    stage('extracting','安装内置开源内核');for(const [name,body] of files){const tmp=path.join(dir,name+'.tmp');await fs.writeFile(tmp,body);await fs.rename(tmp,path.join(dir,name))}

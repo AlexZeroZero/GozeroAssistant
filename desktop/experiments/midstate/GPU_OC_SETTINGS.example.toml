@@ -1,0 +1,12 @@
+# Copy to GPU_OC_SETTINGS.toml beside the executable and launch from that folder.
+# Optional: set GPU_OC_SETTINGS to the absolute path of your configuration file.
+# CPU verification threads per GPU, allowed range 1..4 and capped by available CPUs.
+# Default: 2 on >=4 logical CPUs, otherwise 1. Use 1 to reduce CPU contention.
+verification_threads = 2
+workgroup_size = 64
+# Tested tuning choices: 32, 64, 128, 256. No model-name-only optimal preset.
+# TUNE-RTX.cmd measures this computer and writes a separate recommended config.
+# The existing GPU computation and full-chain verification remain unchanged.
+batch_nonces = 8192
+iters_per_dispatch = 2000
+responsive_iters = 1000

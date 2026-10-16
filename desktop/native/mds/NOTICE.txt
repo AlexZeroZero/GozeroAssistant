@@ -1,0 +1,97 @@
+Gozero MDS Core 0.1.9
+
+Derived from Midstate, https://github.com/ciphernom/midstate
+Pinned upstream commit: a1d5a05aadac09262a6ab44a399c2f59ad6dbeaa
+GPLv3. See LICENSE. The original algorithm is not claimed as a Gozero invention.
+
+Version 0.1.9 requests four-way unrolling of the repeated CUDA hash loop.
+The compiler retains exact loop bounds and a remainder path. Full CPU/GPU
+consensus tests include dispatch size 3999, a partial workgroup and the final
+million-round remainder. Launch defaults and full CPU verification are unchanged.
+On the tested RTX 5060 Laptop/596.08 driver, register usage falls from 48 to 40
+per thread without local spills. This is not a cross-device resource guarantee.
+
+Version 0.1.8 adds an explicitly selected --backend cuda implementation.
+Its fixed-32-byte CUDA compression is generated from the existing GPLv3 WGSL
+consensus rounds. No proprietary miner code is copied or reverse engineered.
+CUDA driver compilation uses the embedded compute_80 PTX, with SoA checkpoints
+and scalar register hashing. Every proposed nonce is still fully recomputed
+on the CPU. See CUDA-BUILD.txt and cuda/build.json for reproducible source and
+compiler identity; identical binary builds across toolchains are not claimed.
+Default CUDA launch geometry is only measured on an RTX5060Laptop; no blanket
+best-performance guarantee is made for Ampere, Ada or Blackwell hardware.
+
+Version 0.1.7 overlaps GPU batches with bounded full-chain CPU verification.
+Verified slices can be submitted while the rest of the batch is being checked.
+One candidate batch may wait for verification; all verifier threads are joined
+when a job is cancelled. Algorithm, targets and full candidate verification
+remain unchanged. Compute and verification timings now overlap; do not add
+them together to estimate wall time. Completed batches count only after full
+verification and delivery to the local consumer, not pool acceptance.
+Stratum retains the 32-pending-acknowledgement limit, reports queue/ACK age,
+uses a 3-second write timeout and reconnects after 15 seconds with outstanding
+requests and no acknowledgement progress (slow but progressing replies are OK).
+Unconfirmed requests are not counted as rejected or accepted. Replies retain
+their original job identity even after a job change. Old queued work is cleared
+after its producer stops. See PERFORMANCE.txt for measured results and limits.
+An explicit stale reply for the CURRENT job pauses that obsolete job; a stale
+reply for an older job does not cancel the new job. Reconnect if a replacement
+does not arrive within five seconds, using the normal reconnect backoff.
+
+The src/core directory contains the upstream consensus and mining code.
+Gozero adds a standalone Windows CLI, finite offline benchmark, explicit GPU
+index selection, structured telemetry, bounded Stratum messages, reconnects,
+template verification and optional fail-closed Merkle reward audit.
+The GPU work counter retains fractional progress across dispatches instead of
+discarding it at each dispatch. This changes accounting only, not hash results.
+CPU counters increment after a SIMD batch completes, not before it starts.
+Version 0.1.1 increases the default throttled dispatch from 384 to 1000 chain
+steps to reduce host synchronization and short-sleep overhead, retaining the
+8192-nonce batch, requested duty, and cancellation check after each dispatch.
+AVX2 compression exposes all seven round schedules to the optimizer and allows
+inlining; the hash algorithm, nonce inputs and iteration count are unchanged.
+No reduced-iteration or altered-difficulty mining is enabled.
+Version 0.1.2 bounds in-flight submissions and waits on a full share queue
+without abandoning the hashing worker or reconnecting. Cancellation remains
+available under backpressure and between CPU candidate verifications.
+Version 0.1.3 defaults mining connections to mds.gozero.trade:13333 when a
+payout address is supplied and no pool override is provided. Offline commands
+remain offline. This destination is awaiting synchronization and has not been
+validated for accepted shares or payouts; earlier live tests used Cypherpunk.
+Version 0.1.4 verifies GPU candidates in full-chain SIMD batches on supported
+CPUs, retaining scalar fallback for small tails and CPUs without SIMD. Every
+candidate's authoritative hash and both targets are checked as before.
+The optional --benchmark-share-bits mode measures GPU computation plus actual
+CPU candidate verification offline. Its locallyVerifiedShares are NOT pool
+accepted shares and it contains no simulated network credit or payments.
+Version 0.1.5 pads SIMD verification tails of two or more candidates and discards
+all padding results. Verification uses at most two CPU threads per GPU by
+default on CPUs with >=4 logical processors (otherwise one). The configurable
+verification_threads setting is capped at four and available CPU parallelism.
+This trades additional CPU use for less GPU waiting. Every candidate still
+passes full-chain CPU verification; scoped workers join before job exit.
+Version 0.1.6 sizes the GPU candidate buffer for the whole configured nonce
+batch, replacing the previous 256-candidate cap. Workgroups are configurable
+(32/64/128/256), batch size is bounded to 64..65536 and dispatches to 1..4000.
+GPU diagnostics report completed verified batches and completed-stage timings.
+TUNE-RTX is a finite offline Windows tuning tool with temperature monitoring,
+alternating confirmation, and explicit configuration application. It does not
+guarantee optimum settings for untested GPUs or pool payouts. Full CPU proof
+verification and consensus iteration counts remain unchanged.
+
+MDS uses one initial BLAKE3 hash plus 1,000,000 sequential BLAKE3 hashes per nonce.
+N/s means nonce-chain work equivalents per second, including partial GPU batches.
+It is not MH/s and not the pool's accepted-share hashrate.
+
+There is no additional developer fee inside this executable.
+Integration with the assistant's disclosed 0.5% time-sharing service fee requires
+a confirmed MDS service-fee address and pool validation; that is not active in
+this standalone preview package.
+
+Mining payout addresses MUST be reusable MSS addresses. Their type cannot be
+determined from the address hash alone. The program verifies format/checksum;
+--mss-confirmed means the operator confirms wallet generate-mss was used.
+
+Live-pool acceptance evidence is documented per version in PERFORMANCE.txt;
+payment settlement remains unverified. --audit-url must refer to the pool's HTTP audit API;
+if omitted, template hashes are checked but reward Merkle proofs are not.

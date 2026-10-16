@@ -1,0 +1,60 @@
+Gozero MDS CUDA 0.1.11 / Windows x64
+
+Source: GPLv3 Midstate/Gozero fixed-input BLAKE3 compression. See PROVENANCE.json.
+Initial 40-byte hash, seven compression rounds, 1,000,000 chain iterations,
+strict target comparison and complete CPU candidate verification are unchanged.
+No PeakMiner binary modification or proprietary source is used.
+
+Build:
+  python cuda/build.py --nvrtc PATH_TO_NVRTC13_DLL_DIRECTORY
+  cargo build --release --locked
+The generator checks NVIDIA compiler signatures and writes source/PTX/compiler
+hashes to cuda/build.json. Embedded compute_80 PTX9.0 requires a recent driver.
+
+Scheduling:
+- Absolute-time budget pacing compensates Windows oversleeps. Small delays
+  accumulate to >=2ms; longer waits are split into <=10ms cancelable sleeps.
+  No spin loop, timer-resolution modification, overclock or driver changes.
+- Chain-unroll variants 1/2/4/8: forward/reverse startup probes on the actual GPU.
+  Prefer existing unroll4 within 1% of the fastest measured compute throughput.
+- Batch candidates: 16384 and SM count x 256/512/768/1024, capped to 4096..65536.
+  Choose the smallest within 3% of the fastest probe to limit stale-work latency.
+- Probes use configured duty, submit no shares, and are excluded from counters.
+  probeComputeNps is not a completed-chain or pool result. Profiles are not copied
+  between GPUs. --cuda-batch 0 and --cuda-unroll 0 enable automatic selection;
+  explicit values remain available. Block=0 measures64/128/256, retaining128
+  within3% of the best. Dispatch=0 measures4000/8000/16000/32000 and picks the
+  shortest within3% of the best eligible rate. Measured mean dispatches >40ms
+  are excluded (original4000 always remains available). This is a measured
+  latency target, not a hard real-time guarantee under load. Full-chain final
+  remainders are always executed. Manual dispatch accepts1..32000.
+  Larger blocks, PRMT rotations, instruction transposition, explicit PTX G
+  schedules and grouped launches
+  did not show reliable large gains in screening; none is forced into the shader.
+  The embedded consensus PTX is unchanged from0.1.10.
+- Submission window starts at4, with40ms minimum spacing (event-loop tick can
+  make actual spacing longer). On explicit "Verifier busy, retry", window1,
+  250..2000ms spacing,2..8s cooldown. These survive reconnects;8 real accepted
+  ACKs gradually recover the window and spacing. No automatic resubmission of
+  rejected/unconfirmed shares; reject counters remain truthful. Queues are
+  bounded; obsolete job buffers are discarded as before. Client pacing cannot
+  cure server-wide verifier overload.
+- Working sessions reconnect after 1 second; repeated failures back off to 15s.
+  Explicit stale replies still pause obsolete work pending replacement jobs.
+
+Diagnostics: SM/unroll/grid/batch, registers/spills, probe scores, dispatch+sync
+wall time, pacing time, verification backpressure, transfer/host packing time,
+completed batch nonces. CPU verification overlaps GPU; times are not additive.
+
+Validation:
+  cargo test --release --locked --lib cuda -- --test-threads=1
+  cargo test --release --locked --bin GozeroMdsCore --test consensus
+  cargo test --release --locked --test cuda -- --ignored --test-threads=1
+Every unroll is checked against full CPU million-round hashes with wrapping
+nonces, partial groups and dispatch3999/32000 remainder handling. Streaming, candidate
+CPU verification, cancellation and isolation of probe counters are also tested.
+Runtime self-tests the selected variant before mining.
+
+Only RTX5060Laptop is locally available. See PERFORMANCE.txt and RESULT.json.
+RTX3090/4090 need on-device confirmation: no 18k guarantee or global optimum claim.
+Compare the same GPU/budget and stable period. Pool downtime is separately logged.

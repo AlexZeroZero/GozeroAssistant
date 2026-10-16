@@ -17,3 +17,7 @@ desktop/native/*.exe
 # CPU mining binaries and sources are distributed as a separate optional release.
 desktop/native/zcd/
 desktop/native/noid/
+
+# Restore the pinned MDS release bundle explicitly before packaging.
+desktop/native/mds/*.exe
+desktop/native/mds/*.zip

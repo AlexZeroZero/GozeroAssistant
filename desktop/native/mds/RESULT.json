@@ -1,0 +1,630 @@
+{
+  "coreVersion": "0.1.11",
+  "assistantVersion": "1.0.48",
+  "exeSha256": "20e28196c354053ddd0daace4e22c899e571b98b2250e40a8c1e962169cecadb",
+  "device": "RTX5060Laptop",
+  "budget": 0.6,
+  "baselineMean": 4467.31994444876,
+  "candidateMean": 4469.963248911723,
+  "changePercent": 0.05916980417415285,
+  "runs": [
+    {
+      "label": "base-a",
+      "sha256": "0365d55b91b5cd8bccc2737de31a77ed6c89332eea3c6640933ff8f1a07a293c",
+      "peakC": 82,
+      "result": {
+        "backend": "cuda",
+        "duty": 0.6000000238418579,
+        "gpuDiagnostics": {
+          "backend": "cuda",
+          "batchNonces": 13312,
+          "chainUnroll": 2,
+          "completedBatchNonces": 106496,
+          "computeSeconds": 15.0246713,
+          "device": "NVIDIA GeForce RTX 5060 Laptop GPU",
+          "duty": 0.6000000238418579,
+          "gridBlocks": 104,
+          "itersPerDispatch": 4000,
+          "localBytesPerThread": 0,
+          "pacingSeconds": 10.0170801,
+          "registersPerThread": 48,
+          "residentBlocksPerSm": 10,
+          "smCount": 26,
+          "transferSeconds": 0.0161444,
+          "tuning": [
+            {
+              "batch": 13312,
+              "preferred": false,
+              "probeComputeNps": 7439.962833719317,
+              "stage": "kernel",
+              "unroll": 1
+            },
+            {
+              "batch": 13312,
+              "preferred": true,
+              "probeComputeNps": 8052.247058267567,
+              "stage": "kernel",
+              "unroll": 2
+            },
+            {
+              "batch": 13312,
+              "preferred": false,
+              "probeComputeNps": 7830.480278304985,
+              "stage": "kernel",
+              "unroll": 4
+            },
+            {
+              "batch": 13312,
+              "preferred": false,
+              "probeComputeNps": 7552.412341743538,
+              "stage": "kernel",
+              "unroll": 8
+            },
+            {
+              "batch": 6656,
+              "probeComputeNps": 7546.953201817713,
+              "selected": false,
+              "stage": "geometry"
+            },
+            {
+              "batch": 13312,
+              "probeComputeNps": 7790.881948159426,
+              "selected": true,
+              "stage": "geometry"
+            },
+            {
+              "batch": 16384,
+              "probeComputeNps": 7785.632558142989,
+              "selected": false,
+              "stage": "geometry"
+            },
+            {
+              "batch": 19968,
+              "probeComputeNps": 7941.615129158628,
+              "selected": false,
+              "stage": "geometry"
+            },
+            {
+              "batch": 26624,
+              "probeComputeNps": 7814.015770780262,
+              "selected": false,
+              "stage": "geometry"
+            }
+          ],
+          "verificationBackpressureSeconds": 9.22e-05,
+          "verificationSeconds": 1.1068112,
+          "workgroupSize": 128
+        },
+        "iterations": 1000000,
+        "localSharesPerSecond": 1.1172604238123118,
+        "locallyVerifiedShares": 28,
+        "mode": "compute-and-cpu-share-verification",
+        "networkUsed": false,
+        "noncesPerSecond": 4447.015704036948,
+        "seconds": 25.0613012,
+        "shareTargetBits": 12,
+        "threads": 1,
+        "type": "benchmark",
+        "unit": "N/s",
+        "workNonces": 111448
+      }
+    },
+    {
+      "label": "new-a",
+      "sha256": "20e28196c354053ddd0daace4e22c899e571b98b2250e40a8c1e962169cecadb",
+      "peakC": 81,
+      "result": {
+        "backend": "cuda",
+        "duty": 0.6000000238418579,
+        "gpuDiagnostics": {
+          "backend": "cuda",
+          "batchNonces": 19968,
+          "chainUnroll": 8,
+          "completedBatchNonces": 99840,
+          "computeSeconds": 15.0338376,
+          "device": "NVIDIA GeForce RTX 5060 Laptop GPU",
+          "duty": 0.6000000238418579,
+          "gridBlocks": 156,
+          "itersPerDispatch": 8000,
+          "localBytesPerThread": 0,
+          "pacingSeconds": 10.0097615,
+          "registersPerThread": 40,
+          "residentBlocksPerSm": 12,
+          "smCount": 26,
+          "transferSeconds": 0.0101252,
+          "tuning": [
+            {
+              "batch": 13312,
+              "preferred": false,
+              "probeComputeNps": 7515.888054935089,
+              "stage": "kernel",
+              "unroll": 1
+            },
+            {
+              "batch": 13312,
+              "preferred": false,
+              "probeComputeNps": 7941.950735683444,
+              "stage": "kernel",
+              "unroll": 2
+            },
+            {
+              "batch": 13312,
+              "preferred": false,
+              "probeComputeNps": 7912.020965785724,
+              "stage": "kernel",
+              "unroll": 4
+            },
+            {
+              "batch": 13312,
+              "preferred": true,
+              "probeComputeNps": 8047.523734946929,
+              "stage": "kernel",
+              "unroll": 8
+            },
+            {
+              "block": 64,
+              "preferred": false,
+              "probeComputeNps": 7748.897195921671,
+              "stage": "block"
+            },
+            {
+              "block": 128,
+              "preferred": true,
+              "probeComputeNps": 7660.349637962954,
+              "stage": "block"
+            },
+            {
+              "block": 256,
+              "preferred": false,
+              "probeComputeNps": 7791.138435989095,
+              "stage": "block"
+            },
+            {
+              "batch": 6656,
+              "probeComputeNps": 7256.077619099531,
+              "selected": false,
+              "stage": "geometry"
+            },
+            {
+              "batch": 13312,
+              "probeComputeNps": 7624.024813016454,
+              "selected": false,
+              "stage": "geometry"
+            },
+            {
+              "batch": 16384,
+              "probeComputeNps": 7311.292042111663,
+              "selected": false,
+              "stage": "geometry"
+            },
+            {
+              "batch": 19968,
+              "probeComputeNps": 7893.045829560628,
+              "selected": true,
+              "stage": "geometry"
+            },
+            {
+              "batch": 26624,
+              "probeComputeNps": 8030.445202170752,
+              "selected": false,
+              "stage": "geometry"
+            },
+            {
+              "iterations": 4000,
+              "meanDispatchMs": 10.687343749999998,
+              "preferred": false,
+              "probeComputeNps": 7473.512770654543,
+              "stage": "dispatch"
+            },
+            {
+              "iterations": 8000,
+              "meanDispatchMs": 19.757306250000003,
+              "preferred": true,
+              "probeComputeNps": 8085.31274348192,
+              "stage": "dispatch"
+            },
+            {
+              "iterations": 16000,
+              "meanDispatchMs": 40.482075,
+              "preferred": false,
+              "probeComputeNps": 7892.085571206516,
+              "stage": "dispatch"
+            },
+            {
+              "iterations": 32000,
+              "meanDispatchMs": 80.9960625,
+              "preferred": false,
+              "probeComputeNps": 7888.976084485589,
+              "stage": "dispatch"
+            }
+          ],
+          "verificationBackpressureSeconds": 4.57e-05,
+          "verificationSeconds": 0.735756,
+          "workgroupSize": 128
+        },
+        "iterations": 1000000,
+        "localSharesPerSecond": 1.0376794830299971,
+        "locallyVerifiedShares": 26,
+        "mode": "compute-and-cpu-share-verification",
+        "networkUsed": false,
+        "noncesPerSecond": 4475.591431807073,
+        "seconds": 25.0559064,
+        "shareTargetBits": 12,
+        "threads": 1,
+        "type": "benchmark",
+        "unit": "N/s",
+        "workNonces": 112140
+      }
+    },
+    {
+      "label": "new-b",
+      "sha256": "20e28196c354053ddd0daace4e22c899e571b98b2250e40a8c1e962169cecadb",
+      "peakC": 83,
+      "result": {
+        "backend": "cuda",
+        "duty": 0.6000000238418579,
+        "gpuDiagnostics": {
+          "backend": "cuda",
+          "batchNonces": 13312,
+          "chainUnroll": 4,
+          "completedBatchNonces": 106496,
+          "computeSeconds": 14.995468,
+          "device": "NVIDIA GeForce RTX 5060 Laptop GPU",
+          "duty": 0.6000000238418579,
+          "gridBlocks": 104,
+          "itersPerDispatch": 4000,
+          "localBytesPerThread": 0,
+          "pacingSeconds": 9.9980937,
+          "registersPerThread": 40,
+          "residentBlocksPerSm": 12,
+          "smCount": 26,
+          "transferSeconds": 0.014599,
+          "tuning": [
+            {
+              "batch": 13312,
+              "preferred": false,
+              "probeComputeNps": 7484.222806302443,
+              "stage": "kernel",
+              "unroll": 1
+            },
+            {
+              "batch": 13312,
+              "preferred": false,
+              "probeComputeNps": 8026.590492843629,
+              "stage": "kernel",
+              "unroll": 2
+            },
+            {
+              "batch": 13312,
+              "preferred": true,
+              "probeComputeNps": 8103.600625864964,
+              "stage": "kernel",
+              "unroll": 4
+            },
+            {
+              "batch": 13312,
+              "preferred": false,
+              "probeComputeNps": 7867.910187941143,
+              "stage": "kernel",
+              "unroll": 8
+            },
+            {
+              "block": 64,
+              "preferred": false,
+              "probeComputeNps": 7705.577980755229,
+              "stage": "block"
+            },
+            {
+              "block": 128,
+              "preferred": true,
+              "probeComputeNps": 7916.682153715777,
+              "stage": "block"
+            },
+            {
+              "block": 256,
+              "preferred": false,
+              "probeComputeNps": 7960.599160368182,
+              "stage": "block"
+            },
+            {
+              "batch": 6656,
+              "probeComputeNps": 7370.169416454434,
+              "selected": false,
+              "stage": "geometry"
+            },
+            {
+              "batch": 13312,
+              "probeComputeNps": 8070.874794431267,
+              "selected": true,
+              "stage": "geometry"
+            },
+            {
+              "batch": 16384,
+              "probeComputeNps": 8172.500923577651,
+              "selected": false,
+              "stage": "geometry"
+            },
+            {
+              "batch": 19968,
+              "probeComputeNps": 8212.89550143924,
+              "selected": false,
+              "stage": "geometry"
+            },
+            {
+              "batch": 26624,
+              "probeComputeNps": 7943.479831707515,
+              "selected": false,
+              "stage": "geometry"
+            },
+            {
+              "iterations": 4000,
+              "meanDispatchMs": 6.5802,
+              "preferred": true,
+              "probeComputeNps": 8092.155253639708,
+              "stage": "dispatch"
+            },
+            {
+              "iterations": 8000,
+              "meanDispatchMs": 13.693875000000002,
+              "preferred": false,
+              "probeComputeNps": 7776.907559036429,
+              "stage": "dispatch"
+            },
+            {
+              "iterations": 16000,
+              "meanDispatchMs": 26.22295625,
+              "preferred": false,
+              "probeComputeNps": 8122.348905646365,
+              "stage": "dispatch"
+            },
+            {
+              "iterations": 32000,
+              "meanDispatchMs": 52.520450000000004,
+              "preferred": false,
+              "probeComputeNps": 8110.82159425519,
+              "stage": "dispatch"
+            }
+          ],
+          "verificationBackpressureSeconds": 9.99e-05,
+          "verificationSeconds": 0.7876037,
+          "workgroupSize": 128
+        },
+        "iterations": 1000000,
+        "localSharesPerSecond": 0.6796795311010858,
+        "locallyVerifiedShares": 17,
+        "mode": "compute-and-cpu-share-verification",
+        "networkUsed": false,
+        "noncesPerSecond": 4464.335066016373,
+        "seconds": 25.0117875,
+        "shareTargetBits": 12,
+        "threads": 1,
+        "type": "benchmark",
+        "unit": "N/s",
+        "workNonces": 111661
+      }
+    },
+    {
+      "label": "base-b",
+      "sha256": "0365d55b91b5cd8bccc2737de31a77ed6c89332eea3c6640933ff8f1a07a293c",
+      "peakC": 82,
+      "result": {
+        "backend": "cuda",
+        "duty": 0.6000000238418579,
+        "gpuDiagnostics": {
+          "backend": "cuda",
+          "batchNonces": 13312,
+          "chainUnroll": 4,
+          "completedBatchNonces": 106496,
+          "computeSeconds": 15.0281157,
+          "device": "NVIDIA GeForce RTX 5060 Laptop GPU",
+          "duty": 0.6000000238418579,
+          "gridBlocks": 104,
+          "itersPerDispatch": 4000,
+          "localBytesPerThread": 0,
+          "pacingSeconds": 10.0153375,
+          "registersPerThread": 40,
+          "residentBlocksPerSm": 12,
+          "smCount": 26,
+          "transferSeconds": 0.0129507,
+          "tuning": [
+            {
+              "batch": 13312,
+              "preferred": false,
+              "probeComputeNps": 7002.624438926519,
+              "stage": "kernel",
+              "unroll": 1
+            },
+            {
+              "batch": 13312,
+              "preferred": false,
+              "probeComputeNps": 7921.312011930763,
+              "stage": "kernel",
+              "unroll": 2
+            },
+            {
+              "batch": 13312,
+              "preferred": true,
+              "probeComputeNps": 8128.364286518429,
+              "stage": "kernel",
+              "unroll": 4
+            },
+            {
+              "batch": 13312,
+              "preferred": false,
+              "probeComputeNps": 7829.731858372108,
+              "stage": "kernel",
+              "unroll": 8
+            },
+            {
+              "batch": 6656,
+              "probeComputeNps": 7679.483111713635,
+              "selected": false,
+              "stage": "geometry"
+            },
+            {
+              "batch": 13312,
+              "probeComputeNps": 7889.447282714886,
+              "selected": true,
+              "stage": "geometry"
+            },
+            {
+              "batch": 16384,
+              "probeComputeNps": 8080.781925637535,
+              "selected": false,
+              "stage": "geometry"
+            },
+            {
+              "batch": 19968,
+              "probeComputeNps": 7730.1437328439415,
+              "selected": false,
+              "stage": "geometry"
+            },
+            {
+              "batch": 26624,
+              "probeComputeNps": 7963.895650353153,
+              "selected": false,
+              "stage": "geometry"
+            }
+          ],
+          "verificationBackpressureSeconds": 9.08e-05,
+          "verificationSeconds": 1.1113633,
+          "workgroupSize": 128
+        },
+        "iterations": 1000000,
+        "localSharesPerSecond": 1.0774224649982254,
+        "locallyVerifiedShares": 27,
+        "mode": "compute-and-cpu-share-verification",
+        "networkUsed": false,
+        "noncesPerSecond": 4487.624184860571,
+        "seconds": 25.0598079,
+        "shareTargetBits": 12,
+        "threads": 1,
+        "type": "benchmark",
+        "unit": "N/s",
+        "workNonces": 112459
+      }
+    }
+  ],
+  "user3090": {
+    "device": "RTX 3090 (user supplied logs)",
+    "meanNps": 14829.087142857143,
+    "rangeNps": [
+      14821.54,
+      14838.04
+    ],
+    "samples": [
+      14828.97,
+      14821.54,
+      14823.96,
+      14824.78,
+      14838.04,
+      14832.06,
+      14834.26
+    ],
+    "computeSeconds": 1398.49,
+    "pacingSeconds": 154.41,
+    "verificationBackpressureSeconds": 0.01,
+    "completedBatchNonces": 22104576,
+    "busyThenDisconnectObserved": true,
+    "selfTestSettingsProvided": false,
+    "temperaturePowerProvided": false
+  },
+  "live": {
+    "accepted": 3,
+    "rejected": 11,
+    "rejections": [
+      {
+        "accepted": false,
+        "ackSeconds": 0.2516911,
+        "error": "Verifier busy, retry",
+        "job": 1792108514,
+        "type": "share"
+      },
+      {
+        "accepted": false,
+        "ackSeconds": 0.3464377,
+        "error": "Verifier busy, retry",
+        "job": 1792108514,
+        "type": "share"
+      },
+      {
+        "accepted": false,
+        "ackSeconds": 0.2540993,
+        "error": "Verifier busy, retry",
+        "job": 1792108514,
+        "type": "share"
+      },
+      {
+        "accepted": false,
+        "ackSeconds": 0.2541413,
+        "error": "Verifier busy, retry",
+        "job": 1792108514,
+        "type": "share"
+      },
+      {
+        "accepted": false,
+        "ackSeconds": 0.2540809,
+        "error": "Verifier busy, retry",
+        "job": 1792108514,
+        "type": "share"
+      },
+      {
+        "accepted": false,
+        "ackSeconds": 0.2549501,
+        "error": "Verifier busy, retry",
+        "job": 1792108514,
+        "type": "share"
+      },
+      {
+        "accepted": false,
+        "ackSeconds": 0.2538179,
+        "error": "Verifier busy, retry",
+        "job": 1792108514,
+        "type": "share"
+      },
+      {
+        "accepted": false,
+        "ackSeconds": 0.254082,
+        "error": "Verifier busy, retry",
+        "job": 1792108514,
+        "type": "share"
+      },
+      {
+        "accepted": false,
+        "ackSeconds": 0.2536311,
+        "error": "Verifier busy, retry",
+        "job": 1792108515,
+        "type": "share"
+      },
+      {
+        "accepted": false,
+        "ackSeconds": 0.2540374,
+        "error": "Verifier busy, retry",
+        "job": 1792108515,
+        "type": "share"
+      },
+      {
+        "accepted": false,
+        "ackSeconds": 0.2530879,
+        "error": "Verifier busy, retry",
+        "job": 1792108515,
+        "type": "share"
+      }
+    ],
+    "errors": [
+      {
+        "message": "pool disconnected",
+        "type": "error"
+      }
+    ],
+    "peakC": 83,
+    "worker": "Cuda011_1016_115021"
+  },
+  "limitations": [
+    "No RTX3090 or RTX4090 measurement of 0.1.11",
+    "Only one short ABBA; small changes are not proof of substantial acceleration",
+    "Auto parameters can vary with clocks and measurement noise",
+    "Pool result is functionality, not a controlled effective-hashrate comparison",
+    "PTX unchanged after unsuccessful instruction-level screening"
+  ]
+}

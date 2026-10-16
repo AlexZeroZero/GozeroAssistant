@@ -122,3 +122,7 @@ YSR、ZCD、BNT 使用已保存的地址自动查询 `https://pool.gozero.trade/
 金额采用最小单位整数字符串和 BigInt，保留8位精度。错误、429和服务端缓存状态保留旧数据并退避；空值不补零。
 YSR 链上余额与本池已索引奖励分开，ZCD/BNT 可用、未成熟、预留、已付分开。BNT PPLNS 预估说明保留。
 双挖工具栏的 GPU/CPU 矿池账本按钮按对应任务的收款地址查询，不停止挖矿。
+
+## MDS release bundle
+
+Before packaging a source checkout, explicitly run `python desktop/scripts/restore-mds-bundle.py` from the repository root (or pass `--archive PATH` for a downloaded core ZIP). It verifies the pinned ZIP and every manifest file, does not run mining, and restores the bundle/source archive omitted from Git. Editable GPLv3 source is in `experiments/midstate`; see `CUDA-BUILD.txt`.

@@ -1,0 +1,7 @@
+{
+  "upstream": "https://github.com/ciphernom/midstate",
+  "commit": "a1d5a05aadac09262a6ab44a399c2f59ad6dbeaa",
+  "license": "GPL-3.0",
+  "algorithm": "BLAKE3 sequential PoW",
+  "iterations": 1000000
+}
