@@ -1381,3 +1381,31 @@ MAC0.1.18 ON-DEMAND DISTRIBUTION - 2026-10-16
 - Evidence:gui/evidence/mac-lite-0.1.18.json. Private release state/scripts:
   .local/release-0.1.18; M3 session/lite-018. Publishing not yet marked complete.
   Preserve original body/links/README/screenshots and unrelated releases/main.
+
+
+OFFICIAL MAC0.1.18 PUBLICATION COMPLETED - 2026-10-16
+- Release404660109 /AlexZeroZero/GozeroAssistant/releases/tag/mac-v0.1.2 now
+  titled Mac0.1.18 official small installer; not draft or prerelease.
+- Canonical DMG and compatibility0.1.6 DMG both146988534bytes, SHA256
+  35b1a578418cb8f98f1a8fdd1d445586bdc21b00fcd84116d31d47c5909820fd.
+  Compatibility0.1.2 ZIP130152845bytes, SHA256
+  27c1236647a26b43065f62aca9d15d77c273dc5c9199acf8d02ea43fed369e5a.
+- Seven pinned core/runtime tar.gz packages plus corresponding source archive
+  published before GUI. All eight, canonicalDMG, compatibilityZIP, CURRENT-VERSION
+  and retainedREADME were fully publicly downloaded and SHA256/size checked.
+  GitHub all23 asset digests checked; DMG alias has identical canonical bytes.
+- Retained original release body/links, README asset ID/bytes, two user JPGs and
+  PRL/QTC screenshot IDs/hashes. Windows/main and every other release verified
+  unchanged. Old actual source tags unchanged. Compatibilitymac-v0.1.2 updated
+  with a force-with-lease to annotated0.1.18 source588974574fd4568783360df6b5cdb93e6ecc1409.
+  Independent immutablemac-v0.1.18 points same source. Mac branch pushed; this
+  final evidence-only follow-up may advance its head without repointing tags.
+- Full0.1.17 DMG preserved/labeled as offline alternative with same core algorithms.
+  Historical0.1.9/0.1.12 versionedDMGs retained. Superseded0.1.9 temporary assets,
+  overwritten0.1.12 compatibility/metadata backups and unfinished0.1.17 staging
+  assets removed only after complete public download verification.
+- New metadata explains on-demand download, cache growth, exact tested limits,
+  no new performance gain, current shortGUI0shares and original ad-hoc signing.
+- Public evidence:gui/evidence/mac-release-0.1.18.json. Private full snapshots,
+  scripts, hash checks and metadata:.local/release-0.1.18. No work remains for
+  this publication; do not replay old --switch scripts.

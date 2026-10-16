@@ -1,0 +1,227 @@
+{
+  "published": true,
+  "version": "0.1.18",
+  "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/mac-v0.1.2",
+  "releaseId": 404660109,
+  "sourceTag": "mac-v0.1.18",
+  "sourceCommit": "588974574fd4568783360df6b5cdb93e6ecc1409",
+  "releaseBodyAndLinksPreserved": true,
+  "readmeAndScreenshotsPreserved": true,
+  "otherReleasesAndWindowsMainUnchanged": true,
+  "oldVersionedDmgRetainedAsHistorical": true,
+  "assets": {
+    "BUILD-MANIFEST.json": {
+      "sha256": "sha256:84177f9dbae5fe5edb2c3d641cd9472e0acc1dbdf7ad2e4d1691ea56342bc547",
+      "bytes": 4833,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/BUILD-MANIFEST.json"
+    },
+    "CURRENT-VERSION.txt": {
+      "sha256": "sha256:c59ea525b6cbc9baa0ac4a7278c807d2e7a86eac0c36f906b96a02ebd875e1fa",
+      "bytes": 3541,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/CURRENT-VERSION.txt"
+    },
+    "Gozero-Assistant-Mac-0.1.12-arm64.dmg": {
+      "sha256": "sha256:599561fb783d1c1c0744ddf0ea169ee282a2a8d2f3a96054a58070825d5968b6",
+      "bytes": 574446658,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Assistant-Mac-0.1.12-arm64.dmg"
+    },
+    "Gozero-Assistant-Mac-0.1.17-arm64.dmg": {
+      "sha256": "sha256:3293e5f0d440a99c6f13b404b1cb94319214a89cf91a539f79a9b790aa822af4",
+      "bytes": 586065763,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Assistant-Mac-0.1.17-arm64.dmg"
+    },
+    "Gozero-Assistant-Mac-0.1.18-arm64.dmg": {
+      "sha256": "sha256:35b1a578418cb8f98f1a8fdd1d445586bdc21b00fcd84116d31d47c5909820fd",
+      "bytes": 146988534,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Assistant-Mac-0.1.18-arm64.dmg"
+    },
+    "Gozero-Assistant-Mac-0.1.2-arm64.zip": {
+      "sha256": "sha256:27c1236647a26b43065f62aca9d15d77c273dc5c9199acf8d02ea43fed369e5a",
+      "bytes": 130152845,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Assistant-Mac-0.1.2-arm64.zip"
+    },
+    "Gozero-Assistant-Mac-0.1.6-arm64.dmg": {
+      "sha256": "sha256:35b1a578418cb8f98f1a8fdd1d445586bdc21b00fcd84116d31d47c5909820fd",
+      "bytes": 146988534,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Assistant-Mac-0.1.6-arm64.dmg"
+    },
+    "Gozero-Assistant-Mac-0.1.9-arm64.dmg": {
+      "sha256": "sha256:bb31bc7275cfd6a0e8ecbc21b08f3c0a17bee47b03e4bc71a9702006e6a86653",
+      "bytes": 584656303,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Assistant-Mac-0.1.9-arm64.dmg"
+    },
+    "Gozero-Mac-Core-bnt-0.1.18-arm64.tar.gz": {
+      "sha256": "sha256:cf7274683fbf36a5bfcb21e5d821560c9d8cf1c98a6932d77a7366904b4b2daf",
+      "bytes": 312982,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Mac-Core-bnt-0.1.18-arm64.tar.gz"
+    },
+    "Gozero-Mac-Core-mds-0.1.18-arm64.tar.gz": {
+      "sha256": "sha256:a07ddb4f606a78b789268e6a99223879d3481763217b906cf1b3f41efd85966f",
+      "bytes": 4153034,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Mac-Core-mds-0.1.18-arm64.tar.gz"
+    },
+    "Gozero-Mac-Core-node-0.1.18-arm64.tar.gz": {
+      "sha256": "sha256:333a0eb07da7971d09c9903e6f63f41f87ccf0277a32f3c715b667f287b1b5ea",
+      "bytes": 39321476,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Mac-Core-node-0.1.18-arm64.tar.gz"
+    },
+    "Gozero-Mac-Core-noid-0.1.18-arm64.tar.gz": {
+      "sha256": "sha256:d2f92ec2777f2784c09b5f752295464f4dbd2a13d173d9da22db73a8402e1579",
+      "bytes": 221176,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Mac-Core-noid-0.1.18-arm64.tar.gz"
+    },
+    "Gozero-Mac-Core-prl-0.1.18-arm64.tar.gz": {
+      "sha256": "sha256:ab2c4640b54882005a3203d543f16b5752e785b2edfa50f1f3b6d3402e9f26ee",
+      "bytes": 29762803,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Mac-Core-prl-0.1.18-arm64.tar.gz"
+    },
+    "Gozero-Mac-Core-python-0.1.18-arm64.tar.gz": {
+      "sha256": "sha256:4d0ba54f20431ea338781e204be2bc09d2d1be0fcf9031eeda1c5c84fb4ba052",
+      "bytes": 121970533,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Mac-Core-python-0.1.18-arm64.tar.gz"
+    },
+    "Gozero-Mac-Core-qtc-0.1.18-arm64.tar.gz": {
+      "sha256": "sha256:e02aae549e3773f17aaf4d43e0eb144348f9cc80e83179005f2b912dcda44a75",
+      "bytes": 8770522,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Mac-Core-qtc-0.1.18-arm64.tar.gz"
+    },
+    "Gozero-Mac-Core-Sources-0.1.18.tar.gz": {
+      "sha256": "sha256:f13d577e54d60764367f4bc953644d9e6a8aa08955b8b7f93739ca98154f2567",
+      "bytes": 126851047,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/Gozero-Mac-Core-Sources-0.1.18.tar.gz"
+    },
+    "PRL-hashrate.png": {
+      "sha256": "sha256:a829c45357701a1eafcd8c16786d366a9f369a0217d30fd7b83d066a2905a8e9",
+      "bytes": 276425,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/PRL-hashrate.png"
+    },
+    "QTC-hashrate.png": {
+      "sha256": "sha256:d0e8a7811ad37f341c53f9bf5ddbfb49d6af75c215c76b78b22fd7aa01cfd6f9",
+      "bytes": 270169,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/QTC-hashrate.png"
+    },
+    "README-MAC.txt": {
+      "sha256": "sha256:b32ec664b0d0596241ddd2cb7384e59614f87502665a4af492eec372a9d6f7d4",
+      "bytes": 2309,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/README-MAC.txt"
+    },
+    "SHA256SUMS.txt": {
+      "sha256": "sha256:de24636a1dc1b51ba61cb9b22e743ec4f36479cf4790298c227997ab7bc690df",
+      "bytes": 2157,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/SHA256SUMS.txt"
+    },
+    "user-logs.jpg": {
+      "sha256": "sha256:1442a797b348054c320bbc3f7be4ad8f440060be77ab3b805b3e2001e15459ab",
+      "bytes": 274265,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/user-logs.jpg"
+    },
+    "user-mining.jpg": {
+      "sha256": "sha256:45bb1f95526f9562d1997ddddd7186b3f06041fc1a4ffc8977b0863106490a63",
+      "bytes": 132442,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/user-mining.jpg"
+    },
+    "VALIDATION.json": {
+      "sha256": "sha256:2582fe4bff83e41a666601ef465326d1b26cd9e9e20452b034e5da8077ca5f01",
+      "bytes": 7621,
+      "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/mac-v0.1.2/VALIDATION.json"
+    }
+  },
+  "publicDownloadChecks": [
+    {
+      "name": "Gozero-Assistant-Mac-0.1.18-arm64.dmg",
+      "bytes": 146988534,
+      "sha256": "35b1a578418cb8f98f1a8fdd1d445586bdc21b00fcd84116d31d47c5909820fd",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 0.09
+    },
+    {
+      "name": "Gozero-Assistant-Mac-0.1.2-arm64.zip",
+      "bytes": 130152845,
+      "sha256": "27c1236647a26b43065f62aca9d15d77c273dc5c9199acf8d02ea43fed369e5a",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 8.52
+    },
+    {
+      "name": "CURRENT-VERSION.txt",
+      "bytes": 3541,
+      "sha256": "c59ea525b6cbc9baa0ac4a7278c807d2e7a86eac0c36f906b96a02ebd875e1fa",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 1.23
+    },
+    {
+      "name": "README-MAC.txt",
+      "bytes": 2309,
+      "sha256": "b32ec664b0d0596241ddd2cb7384e59614f87502665a4af492eec372a9d6f7d4",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 1.23
+    },
+    {
+      "name": "Gozero-Mac-Core-Sources-0.1.18.tar.gz",
+      "bytes": 126851047,
+      "sha256": "f13d577e54d60764367f4bc953644d9e6a8aa08955b8b7f93739ca98154f2567",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 12.31
+    },
+    {
+      "name": "Gozero-Mac-Core-bnt-0.1.18-arm64.tar.gz",
+      "bytes": 312982,
+      "sha256": "cf7274683fbf36a5bfcb21e5d821560c9d8cf1c98a6932d77a7366904b4b2daf",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 1.44
+    },
+    {
+      "name": "Gozero-Mac-Core-mds-0.1.18-arm64.tar.gz",
+      "bytes": 4153034,
+      "sha256": "a07ddb4f606a78b789268e6a99223879d3481763217b906cf1b3f41efd85966f",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 1.5
+    },
+    {
+      "name": "Gozero-Mac-Core-node-0.1.18-arm64.tar.gz",
+      "bytes": 39321476,
+      "sha256": "333a0eb07da7971d09c9903e6f63f41f87ccf0277a32f3c715b667f287b1b5ea",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 4.53
+    },
+    {
+      "name": "Gozero-Mac-Core-noid-0.1.18-arm64.tar.gz",
+      "bytes": 221176,
+      "sha256": "d2f92ec2777f2784c09b5f752295464f4dbd2a13d173d9da22db73a8402e1579",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 1.45
+    },
+    {
+      "name": "Gozero-Mac-Core-prl-0.1.18-arm64.tar.gz",
+      "bytes": 29762803,
+      "sha256": "ab2c4640b54882005a3203d543f16b5752e785b2edfa50f1f3b6d3402e9f26ee",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 3.66
+    },
+    {
+      "name": "Gozero-Mac-Core-python-0.1.18-arm64.tar.gz",
+      "bytes": 121970533,
+      "sha256": "4d0ba54f20431ea338781e204be2bc09d2d1be0fcf9031eeda1c5c84fb4ba052",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 7.64
+    },
+    {
+      "name": "Gozero-Mac-Core-qtc-0.1.18-arm64.tar.gz",
+      "bytes": 8770522,
+      "sha256": "e02aae549e3773f17aaf4d43e0eb144348f9cc80e83179005f2b912dcda44a75",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 1.84
+    }
+  ]
+}

@@ -220,3 +220,12 @@ accepted or rejected. No new speedup or pool-acceptance claim. Algorithms/fees
 unchanged. Desktop0.1.18 idle, settings/ledger bytes preserved, MDS cache ready.
 See mac-lite-0.1.18 evidence/handoff. Publication in progress; preserve release
 body, links, README, screenshots, main and Windows.
+
+Publication completed: GitHub Mac release404660109 /mac-v0.1.2 now0.1.18 small
+installer. Canonical DMG146988534bytes; legacyZIP/DMG also0.1.18. All public
+installer/core/source downloads hash-verified.23 final assets; temporary0.1.17
+staging and previous superseded assets cleaned. Body/links/README/screenshots,
+main, other releases and actual version tags preserved. Binary source tag
+mac-v0.1.18 points5889745; later evidence-only commit may advance Mac branch.
+Full0.1.17 DMG kept as offline alternative with the same mining algorithms.
+See mac-release-0.1.18.json. Do not rerun old publication switch scripts.
