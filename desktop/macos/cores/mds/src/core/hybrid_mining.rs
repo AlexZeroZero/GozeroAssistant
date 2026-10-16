@@ -39,6 +39,21 @@ impl Drop for CancelOnDrop {
     fn drop(&mut self) { self.0.store(true, Ordering::Relaxed); }
 }
 
+
+// CPU hashing workers can occupy every core. Keep the GPU's short submission
+// and completion-poll work responsive under that load. This changes host
+// scheduling only; GPU duty, nonce ranges and consensus work are unchanged.
+fn prioritize_gpu_submission() {
+    #[cfg(target_os = "macos")]
+    {
+        extern "C" { fn pthread_set_qos_class_self_np(class: u32, relative_priority: i32) -> i32; }
+        const QOS_CLASS_USER_INITIATED: u32 = 0x19;
+        // A scheduling hint is optional: failure must not stop mining.
+        let result = unsafe { pthread_set_qos_class_self_np(QOS_CLASS_USER_INITIATED, 0) };
+        if result != 0 { tracing::debug!(result, "GPU submission QoS unavailable; keeping system scheduling"); }
+    }
+}
+
 impl HybridMiner {
     pub fn new(gpu: GpuMiner, threads: usize) -> Self {
         assert!((1..=8).contains(&threads));
@@ -58,6 +73,7 @@ impl HybridMiner {
             let gpu_tx = tx.clone();
             scope.spawn(move || {
                 let _stop = CancelOnDrop(gpu_stop.clone());
+                prioritize_gpu_submission();
                 self.gpu.mine_gpu_stream_partitioned(header, target, pool, gpu_stop.clone(), gpu_counter,
                     |hit| send_hit(&gpu_tx, hit, &gpu_stop));
             });

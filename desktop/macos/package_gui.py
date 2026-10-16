@@ -42,7 +42,7 @@ def main():
     run('/usr/bin/ditto','-x','-k',args.electron_archive,build/'runtime')
     app=build/'Gozero助手.app';shutil.move(str(build/'runtime/Electron.app'),str(app))
     contents=app/'Contents';resources=contents/'Resources';target=resources/'app'
-    target.mkdir();(target/'package.json').write_text(json.dumps({'name':'gozero-assistant-mac','version':'0.1.16','productName':'Gozero助手 Mac','main':'desktop/macos/gui/main.cjs'},ensure_ascii=False))
+    target.mkdir();(target/'package.json').write_text(json.dumps({'name':'gozero-assistant-mac','version':'0.1.17','productName':'Gozero助手 Mac','main':'desktop/macos/gui/main.cjs'},ensure_ascii=False))
     licenses=target/'licenses';licenses.mkdir()
     shutil.copy2(build/'runtime/LICENSE',licenses/'ELECTRON-LICENSE.txt')
     shutil.copy2(build/'runtime/LICENSES.chromium.html',licenses/'LICENSES.chromium.html')
@@ -84,7 +84,7 @@ def main():
     run('codesign','--force','--sign','-',mds/'GozeroMdsCore')
     shutil.copytree(DESKTOP/'macos/cores/mds',mds/'source',ignore=shutil.ignore_patterns('target','__pycache__'))
     shutil.copy2(mds/'source/GPU_OC_SETTINGS.toml',mds/'GPU_OC_SETTINGS.toml')
-    (mds/'MANIFEST.json').write_text(json.dumps({'arch':'arm64','version':'0.1.16-mac','files':{n:sha(mds/n) for n in ['GozeroMdsCore','GPU_OC_SETTINGS.toml']}}),encoding='utf-8')
+    (mds/'MANIFEST.json').write_text(json.dumps({'arch':'arm64','version':'0.1.17-mac','files':{n:sha(mds/n) for n in ['GozeroMdsCore','GPU_OC_SETTINGS.toml']}}),encoding='utf-8')
     shutil.copy2(mds/'source/README-MAC.txt',target/'MDS-MAC.txt')
     shutil.copy2(DESKTOP/'macos/cores/prl_gui.py',cores/'prl_gui.py')
     shutil.copy2(DESKTOP/'macos/cores/qtc/pool_miner.py',cores/'qtc/pool_miner.py')
@@ -99,7 +99,7 @@ def main():
             run('/usr/bin/sips','-z',size*scale,size*scale,DESKTOP/'assets/icon.png','--out',iconset/name)
     run('/usr/bin/iconutil','-c','icns',iconset,'-o',resources/'gozero.icns')
     info_path=contents/'Info.plist';info=plistlib.loads(info_path.read_bytes())
-    info.update(CFBundleDisplayName='Gozero助手 Mac',CFBundleName='Gozero助手',CFBundleIdentifier='trade.gozero.assistant.mac',CFBundleShortVersionString='0.1.16',CFBundleVersion='17',CFBundleIconFile='gozero.icns',LSMinimumSystemVersion='13.5',NSHighResolutionCapable=True)
+    info.update(CFBundleDisplayName='Gozero助手 Mac',CFBundleName='Gozero助手',CFBundleIdentifier='trade.gozero.assistant.mac',CFBundleShortVersionString='0.1.17',CFBundleVersion='18',CFBundleIconFile='gozero.icns',LSMinimumSystemVersion='13.5',NSHighResolutionCapable=True)
     info_path.write_bytes(plistlib.dumps(info))
     # Re-seal Electron helper bundles after ZIP extraction (empty resources
     # directories may be omitted upstream). Do not re-sign the proven miner.

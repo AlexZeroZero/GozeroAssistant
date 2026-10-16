@@ -196,3 +196,14 @@ pass. Desktop app/DMG verified/opened idle; MDS CPU setting now4, other settings
 and fee ledger preserved. See latest handoff/evidence for real GUI share counts.
 Grouped GPU submissions rejected after sustained collapse. One10-coreM3 only;
 no all-M/multi-day/power-efficiency claim, no GitHub publication.
+
+
+Latest checkpoint: Mac0.1.17 prioritizes hybrid GPU host submission on macOS.
+Primary same8-thread ABBA 710.788->772.580N/s
+(+8.69%). Secondary CPU4->new8 comparison+9.18%; user already8
+before deployment, all settings bytes preserved. Do not conflate these gains.
+GPU duty/shader and NEON8 unchanged. Wider CPU, quad GPU and lowered CPU QoS
+were rejected. Full correctness/lifecycle and actual GUI checks pass. Desktop
+App/DMG installed idle; this M3 MDS CPU preference8, other settings/fees preserved.
+See latest handoff/evidence for thermal drift, GUI counts and limits. One M3,
+no multi-day/all-M/energy-efficiency guarantee; no GitHub publication.

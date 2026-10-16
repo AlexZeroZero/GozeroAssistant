@@ -1,4 +1,4 @@
-Gozero MDS Apple Silicon port / Mac GUI 0.1.16
+Gozero MDS Apple Silicon port / Mac GUI 0.1.17
 
 Midstate full 1,000,000-round BLAKE3 PoW. wgpu WGSL runs through
 Apple Metal; ARM64 NEON verifies every GPU candidate on the CPU.
@@ -77,3 +77,9 @@ Hybrid CLI: GozeroMdsCore --backend hybrid --threads 4 --benchmark 120 --duty 0.
   shift-insert for rotate-right 7/12. The seven compression rounds are explicit
   so the compiler can fold fixed message indices and zero words. Both four-
   and eight-lane paths retain the full chain and scalar consensus comparisons.
+
+0.1.17: macOS hybrid mining gives the GPU host submission thread
+user-initiated scheduling priority. CPU workers retain the system default;
+the million-round NEON/GPU algorithms, 90% GPU duty and fees are unchanged.
+Performance varies with the Mac and thermal conditions. Wider NEON and quad
+GPU research kernels are not included in this build.

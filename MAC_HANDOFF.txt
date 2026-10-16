@@ -1272,3 +1272,68 @@ MDS APPLE SILICON NEON + HYBRID / MAC 0.1.16 DEPLOYED - 2026-10-16
 - Research core/research-core/neon-core/grouped-integration are NOT shipping
   sources/binaries. Clean build source:mds-opt3/release-repo. Shared cargo target
   was reused then rebuilt clean; installed signed app/DMG are authoritative.
+
+
+MDS HYBRID HOST SCHEDULING / MAC 0.1.17 DEPLOYED - 2026-10-16
+- User requested a comprehensive further optimization pass. Screened CPU2/3/4/6/8,
+  compiler tuning, NEON12/16, native Metal quad cooperation, and worker QoS.
+  Retained only GPU host worker QOS_CLASS_USER_INITIATED(0x19), with graceful
+  fallback if unavailable. CPU search workers retain system scheduling. Original
+  NEON8/shader,2560/2500/100us geometry,90%GPU duty and1M rounds unchanged.
+- Primary comparison fixes BOTH versions to8 CPU workers and90%GPU duty:
+  90s warmup, then signed0.1.16/0.1.17/0.1.17/0.1.16,120s each.
+  Old [726.7615149544207, 694.7990108929395],new [771.7552967399791, 773.4043578844874]N/s; weighted
+  710.788->772.580
+  (+8.69%). Completed gain9.22%;
+  late gain10.09%. GPU component
+  460.707->543.243; CPU
+  250.080->229.336N/s.
+  The settings snapshot already selected8 before deployment; bytes were identical
+  before/after install. Earlier9.18% against prior recommended4 is SECONDARY,
+  not the gain over the user's actual8-thread preference.
+- Secondary signed clean binary comparison:120s warmup then A/B/C/C/B/A,180s each;
+  A=0.1.16 CPU4,B=0.1.16 CPU6,C=0.1.17 CPU8. Separate process starts introduce
+  short gaps; this was not one uninterrupted20-minute candidate run.
+  A rates [716.9012559164305, 703.2771087856825]; B [737.057710644797, 741.6717010266931]; C [774.648114350072, 775.8521694343386] N/s.
+  Weighted A 710.089, B 739.365,
+  C 775.250 N/s. C vs A +9.18%;
+  C vs B +4.85%. This is combined scheduling+
+  CPU-count improvement, NOT isolated GPU shader or energy-efficiency gain.
+  Completed throughput A 700.179 -> C 769.677;
+  late medians A 708.375 -> C 773.176.
+  Thermal states A[1],B[1],C[1].
+  Baseline drift is retained, not discarded. No frequency/power/temperature-C data.
+- Negative findings: Metal quad ABBA549.320/367.724/369.108/550.308N/s, full hashes
+  correct but slower. CPU genericNEON8~63.84 single-thread vs M1/M3 tuning~59.90;
+  genericNEON12~67.47 andNEON16~66.54 did not improve whole-machine hybrid.
+  Hybrid controls734.17/732.83,NEON12=722.74,NEON16=712.52; lowering CPU QoS=644.66.
+  Research sources/binaries are retained privately and MUST NOT ship.
+-47 GUI/controller tests each host;11protocol,2hybrid unit,1actual hybrid,
+  2profile,2consensus each NEON4/8,2actualGPU tests pass. Research12/16 hybrid
+  additionally checked both nonce domains/scalar proofs, two headers and joined
+  cancellation. Original fee arithmetic, nonces, GPU verification and lifecycle
+  retained. Offline target14 hits are NOT external accepted pool shares.
+- Actual GUI 115.990s, totals {'accepted': 2, 'rejected': 0, 'submitted': 2}, last {'total': 803.8447688608742, 'gpu': 542.6001969645484, 'cpu': 261.24457189632574}.
+  Positive mean 800.106, median 806.876; numeric
+  mean 765.013 includes 5 zeros;
+  2 unavailable samples excluded. Bilingual780px, hidden
+  continuation, Stop/no orphan, reload and activeQuit pass; actual screenshots
+  .local/mds-opt4/MDS-live.png and MDS-en.png. Pool rate/revenue not inferred.
+- Desktop App and DMG0.1.17 deployed/opened idle. MDS CPU preference8 for this
+  measured M3 only; general GPU-only default unchanged. Other settings/address
+  values and fee ledger preserved; previous0.1.16App/DMG/profile backed up under
+  authorized session/mds-opt4. Native payloads preserved:19397.
+- DMG 586065763bytes; SHA256 3293e5f0d440a99c6f13b404b1cb94319214a89cf91a539f79a9b790aa822af4.
+  Core SHA256 c1612687c6f2845ef8ca63388279316400dec69093abd0606d0cc64d1254a7dd. Ad-hoc signature/hdiutil and
+  19482read-only mounted files verified. Not notarized.
+- Evidence gui/evidence/mac-mds-optimization-0.1.17.json; raw scripts/results
+  .local/mds-opt4 and matching Mac session. Clean shipping source remote
+  mds-opt4/release-repo and bundled core/source. Shared cargo target was rebuilt
+  clean; installed signed binary is authoritative. Only one10-core M3 measured;
+  no all-M-series or multi-day guarantee. No GitHub publication in this task.
+
+Post-restart audit: settings bytes and fee accrued counters remain identical.
+The unchanged FeeController.load recomputes derived balance; one balance changed
+by1.3322676295501878e-15 seconds from floating-point rounding. Installation itself
+preserved ledger bytes; no fee formula or accrued-time change. App open idle,
+qualified core hash verified again after the equal-thread comparison.
