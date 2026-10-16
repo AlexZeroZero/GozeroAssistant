@@ -1409,3 +1409,18 @@ OFFICIAL MAC0.1.18 PUBLICATION COMPLETED - 2026-10-16
 - Public evidence:gui/evidence/mac-release-0.1.18.json. Private full snapshots,
   scripts, hash checks and metadata:.local/release-0.1.18. No work remains for
   this publication; do not replay old --switch scripts.
+
+
+GITHUB OLD MAC INSTALLER CLEANUP - 2026-10-16
+- User explicitly requested deleting old GitHub versions after0.1.18 publication.
+  Removed versioned0.1.9/0.1.12/0.1.17 DMGs from release404660109, superseding
+  prior instructions to retain the full0.1.17 offline installer. Do not restore.
+- Kept canonical0.1.18 DMG plus legacy0.1.2 ZIP/0.1.6 DMG, which both contain
+  current0.1.18 and preserve previously requested download links. Kept all seven
+  current core/runtime archives, source archive, README and screenshots.
+- Updated only CURRENT-VERSION and SHA256SUMS metadata to remove stale package
+  availability/references. Public metadata downloads verified;20 assets remain.
+  Original body/links/README/screenshots/current package IDs+hashes preserved.
+  Windows/main and all other releases verified unchanged; source tags untouched.
+- Public evidence:gui/evidence/mac-release-0.1.18-cleanup.json. Snapshots/scripts
+  and metadata backups:.local/release-0.1.18-cleanup. Cleanup complete.

@@ -229,3 +229,10 @@ main, other releases and actual version tags preserved. Binary source tag
 mac-v0.1.18 points5889745; later evidence-only commit may advance Mac branch.
 Full0.1.17 DMG kept as offline alternative with the same mining algorithms.
 See mac-release-0.1.18.json. Do not rerun old publication switch scripts.
+
+Latest user explicitly requested removing old GitHub Mac versions. Removed
+0.1.9/0.1.12/0.1.17 versioned DMG assets, including the offline full alternative.
+Only0.1.18 installers remain;0.1.2 ZIP and0.1.6 DMG names contain0.1.18 and stay
+for preserved links.20 assets remain. CURRENT-VERSION/SHA256SUMS updated and
+verified; body/README/screenshots, current cores, Windows/main/other releases
+unchanged. Source tags retained. Do not restore removed old packages.

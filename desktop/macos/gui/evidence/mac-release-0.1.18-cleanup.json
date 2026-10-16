@@ -1,0 +1,14 @@
+{
+  "completed": true,
+  "release": "https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/mac-v0.1.2",
+  "removedInstallers": [
+    "Gozero-Assistant-Mac-0.1.9-arm64.dmg",
+    "Gozero-Assistant-Mac-0.1.12-arm64.dmg",
+    "Gozero-Assistant-Mac-0.1.17-arm64.dmg"
+  ],
+  "remainingAssets": 20,
+  "bodyReadmeScreenshotsAndCurrentCoresPreserved": true,
+  "compatibilityNamesContain018": true,
+  "windowsMainAndOtherReleasesUnchanged": true,
+  "versionMetadataAndChecksumsUpdated": true
+}
