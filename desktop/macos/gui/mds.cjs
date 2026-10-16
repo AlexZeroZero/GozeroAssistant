@@ -8,7 +8,14 @@ function event(m,e){
  const log=s=>m.log('内核','MDS · '+s);
  if(e.type==='telemetry'){
   if(e.unit!=='N/s'||!Number.isFinite(e.hash)||e.hash<0||![e.accepted,e.rejected].every(n=>Number.isSafeInteger(n)&&n>=0))throw Error('Invalid MDS telemetry');
+  const split=e.gpuHash!==undefined||e.cpuHash!==undefined;
+  if(split&&(![e.gpuHash,e.cpuHash].every(n=>Number.isFinite(n)&&n>=0)||Math.abs(e.gpuHash+e.cpuHash-e.hash)>Math.max(1e-6,e.hash*1e-9)))throw Error('Invalid MDS component rates');
   coreEvent(m,{event:'hashrate',hashes_per_second:m.workState==='paused'?0:e.hash,accepted:e.accepted,rejected:e.rejected});
+  if(split){
+   const active=m.workState==='mining'&&m.rate.total===e.hash;
+   m.rate.gpu=active?e.gpuHash:0;m.rate.cpu=active?e.cpuHash:0;
+   const point=m.points.at(-1);if(point){point.gpu=m.rate.gpu;point.cpu=m.rate.cpu;}
+  }
  }else if(e.type==='job')coreEvent(m,{event:'job',job_id:e.job});
  else if(e.type==='submitted')coreEvent(m,{event:'share_submitted'});
  else if(e.type==='share'){

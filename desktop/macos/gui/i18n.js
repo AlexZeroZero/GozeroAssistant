@@ -8,7 +8,7 @@ MDS 需要 64 或 72 位十六进制 MSS 可重复收款地址|MDS requires a 64
 MDS 当前仅支持 TCP 矿池|MDS currently supports TCP pools only
 MDS 地址确认无效|Invalid MDS address confirmation
 此 MDS 地址由 generate-mss 生成，可重复收款；不能使用 WOTS 一次性地址|This MDS address was generated with generate-mss and is reusable; do not use a one-time WOTS address
-MDS：Metal GPU · 一百万轮 BLAKE3 · CPU 校验份额 · N/s 为本地链计算速率|MDS: Metal GPU · one million BLAKE3 rounds · CPU-verified shares · N/s is local chain computation rate
+MDS：Metal GPU + 可选 NEON CPU 协同 · 一百万轮 BLAKE3 · 完整校验|MDS: Metal GPU + optional NEON CPU mining · one million BLAKE3 rounds · full verification
 N/s：含未完成链的等效计算量；接受数以矿池确认为准|N/s: equivalent work including unfinished chains; accepted shares require pool confirmation
 
 内存|Memory

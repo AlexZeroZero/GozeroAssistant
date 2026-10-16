@@ -1,0 +1,2808 @@
+{
+  "version": "0.1.16",
+  "date": "2026-10-16",
+  "scope": "MDS only; one Apple M3, 10 GPU cores, 16 GiB",
+  "basis": "Full million-round local chain-work equivalents; not pool-estimated hashrate. GPU remains at 90% requested duty; hybrid adds four fully active CPU search workers.",
+  "sourceAudit": {
+    "shaderUnchanged": true,
+    "shaderSha256": "0c70b8c8cdb529c7dcd37bf2c7a13a9c1f14c3071de7510186623268c2397dc3",
+    "gpuGeometryAndDutyUnchanged": true,
+    "researchHooksAbsent": true,
+    "fullMillionRoundsUnchanged": true,
+    "feeSourceUnchanged": true,
+    "nonceDomains": "GPU below 2^63; CPU upper half, eight-aligned shared cursor",
+    "cpuInstructionChanges": [
+      "byte-table rotate 8",
+      "shift-insert rotate 7/12",
+      "explicit seven-round NEON message schedules"
+    ]
+  },
+  "changes": {
+    "gpuProfile": "Unchanged 0.1.15: 2560/2500/100us on base M3",
+    "cpu": "NEON byte-table/shift-insert rotations and explicit seven-round schedule",
+    "hybrid": "One pool session, disjoint nonce domains, bounded output, shared job cancellation and joined workers",
+    "default": "GPU-only remains the default; this tested Desktop profile is configured for GPU + four CPU workers."
+  },
+  "comparison": {
+    "order": "ABBA",
+    "A": "signed installed 0.1.15 GPU-only",
+    "B": "signed packaged 0.1.16 GPU + four CPU workers",
+    "seconds": [
+      120,
+      180,
+      180,
+      120
+    ],
+    "runs": [
+      {
+        "label": "A",
+        "benchmark": {
+          "backend": "gpu",
+          "duty": 0.8999999761581421,
+          "gpuDiagnostics": {
+            "batchNonces": 2560,
+            "completedBatchNonces": 64000,
+            "completionPollMicros": 100,
+            "computeSeconds": 118.250620876,
+            "dispatchIterations": 2500,
+            "responsiveIterations": 2500,
+            "verificationSeconds": 0.0,
+            "verificationThreads": 2,
+            "workgroupSize": 64
+          },
+          "iterations": 1000000,
+          "localSharesPerSecond": 0.0,
+          "locallyVerifiedShares": 0,
+          "mode": "compute-only",
+          "networkUsed": false,
+          "noncesPerSecond": 541.2320806985666,
+          "seconds": 120.092659541,
+          "shareTargetBits": null,
+          "threads": 4,
+          "type": "benchmark",
+          "unit": "N/s",
+          "workNonces": 64998
+        },
+        "samples": [
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 555.016505410379,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 2784
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 549.5925308422192,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 5542
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 545.447412547,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 8281
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 544.3041478869045,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 11008
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 529.0944905908434,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 13664
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 547.3833170576531,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 16409
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 544.4710743381114,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 19084
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 531.4657634123886,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 21747
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 539.9750419346672,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 24454
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 542.9391380140183,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 27180
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 541.7216946120126,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 29900
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 534.7011519913826,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 32582
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 547.2368886447947,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 35321
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 532.6283524680841,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 37939
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 538.2715300677455,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 40640
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 552.5482170015007,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 43411
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 533.1511783301252,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 46086
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 532.9376732855685,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 48761
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 536.2862907925648,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 51449
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 547.8014946224922,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 54144
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 547.0429901358522,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 56889
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 530.9417626867767,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 59552
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 537.9197791152523,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 62252
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 546.1100450741851,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 64992
+          }
+        ],
+        "cpuPercentOfOneCoreMedian": 2.3,
+        "cpuSamples": [
+          0.0,
+          49.3,
+          2.2,
+          2.4,
+          2.3,
+          2.5,
+          2.3,
+          2.5,
+          2.0,
+          2.4,
+          2.5,
+          2.0,
+          2.4,
+          2.2,
+          2.1,
+          2.3,
+          2.4,
+          2.3,
+          2.3,
+          2.1,
+          1.8,
+          2.4,
+          2.3,
+          2.4,
+          2.4,
+          2.4,
+          2.4,
+          2.3,
+          2.4,
+          2.4,
+          2.5,
+          2.0,
+          2.4,
+          2.1,
+          2.0,
+          2.4,
+          2.7,
+          2.0,
+          2.4,
+          2.4,
+          2.4,
+          2.4,
+          2.3,
+          2.4,
+          2.1,
+          2.3,
+          2.2,
+          2.4,
+          2.0,
+          2.2,
+          2.0,
+          2.5,
+          2.1,
+          2.5,
+          2.2,
+          2.3,
+          2.3,
+          2.4,
+          2.4,
+          2.4,
+          2.3
+        ],
+        "thermalSamples": [
+          {
+            "thermalState": 0
+          },
+          {
+            "thermalState": 0
+          },
+          {
+            "thermalState": 0
+          },
+          {
+            "thermalState": 0
+          },
+          {
+            "thermalState": 0
+          },
+          {
+            "thermalState": 0
+          }
+        ]
+      },
+      {
+        "label": "B",
+        "benchmark": {
+          "backend": "hybrid",
+          "cpuWorkNonces": 35280,
+          "duty": 0.8999999761581421,
+          "gpuDiagnostics": {
+            "batchNonces": 2560,
+            "completedBatchNonces": 94720,
+            "completionPollMicros": 100,
+            "computeSeconds": 176.556449667,
+            "dispatchIterations": 2500,
+            "responsiveIterations": 2500,
+            "verificationSeconds": 0.0,
+            "verificationThreads": 2,
+            "workgroupSize": 64
+          },
+          "gpuWorkNonces": 96518,
+          "iterations": 1000000,
+          "localSharesPerSecond": 0.0,
+          "locallyVerifiedShares": 0,
+          "mode": "compute-only",
+          "networkUsed": false,
+          "noncesPerSecond": 731.47282069552,
+          "seconds": 180.181677666,
+          "shareTargetBits": null,
+          "threads": 4,
+          "type": "benchmark",
+          "unit": "N/s",
+          "workNonces": 131798
+        },
+        "samples": [
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 225.79712931235935,
+            "gpuHash": 522.9398793449433,
+            "hash": 748.7370086573026,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 3820
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 216.52744231603523,
+            "gpuHash": 512.0141399127299,
+            "hash": 728.5415822287652,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 7400
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 217.12476456728228,
+            "gpuHash": 532.434624876387,
+            "hash": 749.5593894436693,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 11156
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 212.7638744387841,
+            "gpuHash": 541.5080563723941,
+            "hash": 754.2719308111782,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 14928
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 209.41303604142223,
+            "gpuHash": 535.7217076594018,
+            "hash": 745.134743700824,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 18657
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 211.17071944814862,
+            "gpuHash": 531.1263549756464,
+            "hash": 742.297074423795,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 22369
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 207.18309603032404,
+            "gpuHash": 540.6681948329802,
+            "hash": 747.8512908633043,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 26123
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 207.63711954125753,
+            "gpuHash": 531.4711655950265,
+            "hash": 739.108285136284,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 29825
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 204.86335054945312,
+            "gpuHash": 542.9679037023592,
+            "hash": 747.8312542518123,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 33563
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 204.54694646337717,
+            "gpuHash": 540.7310391370722,
+            "hash": 745.2779856004494,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 37294
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 203.1968673951741,
+            "gpuHash": 531.1918108283292,
+            "hash": 734.3886782235032,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 40966
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 199.99710836180847,
+            "gpuHash": 549.1920595615261,
+            "hash": 749.1891679233346,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 44712
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 201.40491416501692,
+            "gpuHash": 528.0884802957735,
+            "hash": 729.4933944607903,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 48363
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 193.45938887967753,
+            "gpuHash": 543.6048943726477,
+            "hash": 737.0642832523251,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 52051
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 182.63465356877148,
+            "gpuHash": 543.2980429079792,
+            "hash": 725.9326964767506,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 55676
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 189.84723130895927,
+            "gpuHash": 542.4206608827408,
+            "hash": 732.2678921917001,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 59348
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 191.67157237078388,
+            "gpuHash": 534.28450798356,
+            "hash": 725.956080354344,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 62984
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 188.43177288536228,
+            "gpuHash": 541.5417371165125,
+            "hash": 729.9735100018748,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 66641
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 190.9018331518015,
+            "gpuHash": 540.4806173635405,
+            "hash": 731.382450515342,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 70227
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 188.4457314471659,
+            "gpuHash": 541.5818531950858,
+            "hash": 730.0275846422518,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 73884
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 191.97787132510155,
+            "gpuHash": 535.1383163187206,
+            "hash": 727.1161876438222,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 77520
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 187.11372500491083,
+            "gpuHash": 535.9528811305191,
+            "hash": 723.06660613543,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 81137
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 190.13315287327117,
+            "gpuHash": 527.8591628614031,
+            "hash": 717.9923157346743,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 84732
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 187.18264970327024,
+            "gpuHash": 541.5498027739912,
+            "hash": 728.7324524772615,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 88376
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 190.3706004589852,
+            "gpuHash": 534.9173909955729,
+            "hash": 725.2879914545581,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 92003
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 185.01899100517693,
+            "gpuHash": 540.901425212333,
+            "hash": 725.9204162175099,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 95644
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 189.81935841354743,
+            "gpuHash": 535.9605414029575,
+            "hash": 725.7798998165049,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 99284
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 186.9508365987521,
+            "gpuHash": 534.4876482246374,
+            "hash": 721.4384848233894,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 102896
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 186.83367677934163,
+            "gpuHash": 542.9354709827021,
+            "hash": 729.7691477620438,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 106552
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 188.59762531815238,
+            "gpuHash": 531.8293205475865,
+            "hash": 720.4269458657388,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 110158
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 186.57354819147926,
+            "gpuHash": 538.3922581893007,
+            "hash": 724.96580638078,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 113795
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 185.50688319272803,
+            "gpuHash": 531.0948158072509,
+            "hash": 716.6016989999789,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 117318
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 186.81035876236646,
+            "gpuHash": 545.4622975401148,
+            "hash": 732.2726563024813,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 120987
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 186.9094367949519,
+            "gpuHash": 531.5736332779508,
+            "hash": 718.4830700729026,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 124585
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 183.7189498370177,
+            "gpuHash": 540.5730404443553,
+            "hash": 724.291990281373,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 128212
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 187.02880938868256,
+            "gpuHash": 521.922275772691,
+            "hash": 708.9510851613736,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 131760
+          }
+        ],
+        "cpuPercentOfOneCoreMedian": 402.6,
+        "cpuSamples": [
+          0.0,
+          0.0,
+          90.0,
+          327.6,
+          403.7,
+          403.1,
+          404.8,
+          400.2,
+          402.3,
+          401.2,
+          402.6,
+          405.1,
+          399.8,
+          402.5,
+          404.8,
+          402.8,
+          401.7,
+          403.1,
+          400.9,
+          403.3,
+          402.6,
+          404.2,
+          401.5,
+          403.5,
+          404.3,
+          401.8,
+          404.3,
+          403.0,
+          403.6,
+          404.6,
+          402.4,
+          401.3,
+          402.9,
+          403.8,
+          402.4,
+          404.9,
+          402.1,
+          402.4,
+          402.7,
+          402.3,
+          401.1,
+          404.9,
+          400.6,
+          400.2,
+          403.5,
+          403.6,
+          400.6,
+          403.2,
+          402.5,
+          393.3,
+          401.9,
+          404.0,
+          402.1,
+          405.9,
+          403.2,
+          400.2,
+          402.4,
+          403.0,
+          402.5,
+          404.8,
+          403.6,
+          400.9,
+          394.6,
+          401.9,
+          401.6,
+          404.4,
+          402.1,
+          403.5,
+          402.5,
+          402.2,
+          403.3,
+          406.7,
+          400.9,
+          401.1,
+          402.0,
+          402.2,
+          404.3,
+          406.6,
+          403.3,
+          401.0,
+          400.8,
+          403.4,
+          399.2,
+          404.4,
+          403.3,
+          403.2,
+          401.0,
+          404.2,
+          403.1,
+          401.4,
+          402.7,
+          403.2,
+          403.1
+        ],
+        "thermalSamples": [
+          {
+            "thermalState": 0
+          },
+          {
+            "thermalState": 0
+          },
+          {
+            "thermalState": 0
+          },
+          {
+            "thermalState": 0
+          },
+          {
+            "thermalState": 0
+          },
+          {
+            "thermalState": 1
+          },
+          {
+            "thermalState": 1
+          },
+          {
+            "thermalState": 1
+          },
+          {
+            "thermalState": 1
+          }
+        ]
+      },
+      {
+        "label": "B",
+        "benchmark": {
+          "backend": "hybrid",
+          "cpuWorkNonces": 32248,
+          "duty": 0.8999999761581421,
+          "gpuDiagnostics": {
+            "batchNonces": 2560,
+            "completedBatchNonces": 94720,
+            "completionPollMicros": 100,
+            "computeSeconds": 176.222381917,
+            "dispatchIterations": 2500,
+            "responsiveIterations": 2500,
+            "verificationSeconds": 0.0,
+            "verificationThreads": 2,
+            "workgroupSize": 64
+          },
+          "gpuWorkNonces": 96768,
+          "iterations": 1000000,
+          "localSharesPerSecond": 0.0,
+          "locallyVerifiedShares": 0,
+          "mode": "compute-only",
+          "networkUsed": false,
+          "noncesPerSecond": 715.8158626468044,
+          "seconds": 180.236296417,
+          "shareTargetBits": null,
+          "threads": 4,
+          "type": "benchmark",
+          "unit": "N/s",
+          "workNonces": 129016
+        },
+        "samples": [
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 207.16968636554108,
+            "gpuHash": 542.2509593885943,
+            "hash": 749.4206457541354,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 3820
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 195.69949511454638,
+            "gpuHash": 538.9890261279799,
+            "hash": 734.6885212425262,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 7424
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 198.01305939362214,
+            "gpuHash": 532.5593169981693,
+            "hash": 730.5723763917914,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 11084
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 191.93675361514636,
+            "gpuHash": 538.8224489508536,
+            "hash": 730.759202566,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 14739
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 198.53090301856489,
+            "gpuHash": 531.5504822755124,
+            "hash": 730.0813852940773,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 18387
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 188.57843448286522,
+            "gpuHash": 584.3134754898101,
+            "hash": 772.8919099726753,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 22256
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 194.80130340602054,
+            "gpuHash": 533.9072608720337,
+            "hash": 728.7085642780543,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 25907
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 190.92426430582947,
+            "gpuHash": 515.4955136257396,
+            "hash": 706.4197779315691,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 29459
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 153.34509953210508,
+            "gpuHash": 534.1121630838296,
+            "hash": 687.4572626159347,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 32902
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 153.38881939664128,
+            "gpuHash": 549.6432695046312,
+            "hash": 703.0320889012726,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 36422
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 188.53619073511388,
+            "gpuHash": 531.6560802297386,
+            "hash": 720.1922709648525,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 40028
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 188.62747029981952,
+            "gpuHash": 537.1087289893167,
+            "hash": 725.7361992891362,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 43660
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 185.5970103662376,
+            "gpuHash": 531.1914434619904,
+            "hash": 716.7884538282281,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 47244
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 185.16464551458225,
+            "gpuHash": 544.1206770670967,
+            "hash": 729.285322581679,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 50899
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 179.12096287513134,
+            "gpuHash": 539.9617418813948,
+            "hash": 719.0827047565261,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 54496
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 185.49001833088118,
+            "gpuHash": 529.4860544811468,
+            "hash": 714.976072812028,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 58073
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 182.42297769662125,
+            "gpuHash": 509.60347452527117,
+            "hash": 692.0264522218924,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 61472
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 180.43509257964425,
+            "gpuHash": 547.8919570034552,
+            "hash": 728.3270495830994,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 65121
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 181.9222796978647,
+            "gpuHash": 534.9951251641153,
+            "hash": 716.91740486198,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 68715
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 174.21852527314923,
+            "gpuHash": 535.6420484602214,
+            "hash": 709.8605737333706,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 72268
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 177.33341319035026,
+            "gpuHash": 539.3891317873154,
+            "hash": 716.7225449776656,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 75857
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 172.73310765310325,
+            "gpuHash": 545.1888710301071,
+            "hash": 717.9219786832103,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 79448
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 171.13190948823072,
+            "gpuHash": 541.1846717110287,
+            "hash": 712.3165811992594,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 83011
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 172.49980721050193,
+            "gpuHash": 531.4751004564307,
+            "hash": 703.9749076669326,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 86537
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 169.2885274265538,
+            "gpuHash": 543.0009370285687,
+            "hash": 712.2894644551225,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 90105
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 170.70678685003057,
+            "gpuHash": 536.0512185197222,
+            "hash": 706.7580053697527,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 93649
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 168.2056608563876,
+            "gpuHash": 543.4644804336142,
+            "hash": 711.6701412900018,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 97203
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 170.91271425427678,
+            "gpuHash": 535.3002183594814,
+            "hash": 706.2129326137582,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 100740
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 170.9553842146119,
+            "gpuHash": 533.0372902672888,
+            "hash": 703.9926744819006,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 104265
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 167.6741839095362,
+            "gpuHash": 544.3422613348871,
+            "hash": 712.0164452444233,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 107832
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 169.40948033785662,
+            "gpuHash": 532.8661178415514,
+            "hash": 702.275598179408,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 111281
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 170.90598189404855,
+            "gpuHash": 529.0897803962952,
+            "hash": 699.9957622903437,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 114787
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 170.83808948437178,
+            "gpuHash": 546.6419709085213,
+            "hash": 717.4800603928932,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 118382
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 169.36829993148623,
+            "gpuHash": 534.2691065055727,
+            "hash": 703.637406437059,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 121905
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 172.31583987680216,
+            "gpuHash": 529.711655917577,
+            "hash": 702.0274957943791,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 125425
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "cpuHash": 172.40219342066788,
+            "gpuHash": 536.3623795309668,
+            "hash": 708.7645729516347,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 128977
+          }
+        ],
+        "cpuPercentOfOneCoreMedian": 402.9,
+        "cpuSamples": [
+          0.0,
+          52.8,
+          403.5,
+          400.7,
+          401.9,
+          402.1,
+          401.7,
+          403.2,
+          405.2,
+          402.5,
+          403.5,
+          404.5,
+          400.9,
+          402.3,
+          403.6,
+          404.1,
+          403.2,
+          402.5,
+          403.3,
+          402.1,
+          402.9,
+          400.9,
+          395.8,
+          398.8,
+          403.2,
+          403.9,
+          403.7,
+          402.1,
+          403.9,
+          404.1,
+          404.3,
+          401.6,
+          404.1,
+          401.7,
+          401.6,
+          401.9,
+          401.3,
+          401.5,
+          403.2,
+          404.4,
+          402.1,
+          402.0,
+          405.3,
+          403.3,
+          404.0,
+          403.2,
+          403.2,
+          401.3,
+          405.3,
+          402.1,
+          402.7,
+          404.4,
+          403.2,
+          401.0,
+          403.9,
+          398.7,
+          401.6,
+          403.9,
+          404.2,
+          402.9,
+          403.4,
+          402.8,
+          404.3,
+          401.8,
+          400.6,
+          403.3,
+          401.7,
+          400.8,
+          403.4,
+          403.5,
+          401.0,
+          403.8,
+          403.2,
+          401.4,
+          402.8,
+          403.3,
+          403.6,
+          401.2,
+          402.5,
+          402.4,
+          399.9,
+          402.4,
+          401.5,
+          403.0,
+          403.5,
+          399.5,
+          403.2,
+          403.5,
+          400.9,
+          403.8,
+          403.4
+        ],
+        "thermalSamples": [
+          {
+            "thermalState": 1
+          },
+          {
+            "thermalState": 1
+          },
+          {
+            "thermalState": 1
+          },
+          {
+            "thermalState": 1
+          },
+          {
+            "thermalState": 1
+          },
+          {
+            "thermalState": 1
+          },
+          {
+            "thermalState": 1
+          },
+          {
+            "thermalState": 1
+          },
+          {
+            "thermalState": 1
+          }
+        ]
+      },
+      {
+        "label": "A",
+        "benchmark": {
+          "backend": "gpu",
+          "duty": 0.8999999761581421,
+          "gpuDiagnostics": {
+            "batchNonces": 2560,
+            "completedBatchNonces": 64000,
+            "completionPollMicros": 100,
+            "computeSeconds": 118.960043581,
+            "dispatchIterations": 2500,
+            "responsiveIterations": 2500,
+            "verificationSeconds": 0.0,
+            "verificationThreads": 2,
+            "workgroupSize": 64
+          },
+          "iterations": 1000000,
+          "localSharesPerSecond": 0.0,
+          "locallyVerifiedShares": 0,
+          "mode": "compute-only",
+          "networkUsed": false,
+          "noncesPerSecond": 537.9008067363766,
+          "seconds": 120.027706208,
+          "shareTargetBits": null,
+          "threads": 4,
+          "type": "benchmark",
+          "unit": "N/s",
+          "workNonces": 64563
+        },
+        "samples": [
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 552.1828393126139,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 2771
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 539.8850555399023,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 5478
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 538.906319488906,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 8179
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 540.2863676707955,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 10892
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 534.7242810480516,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 13574
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 493.30670646556035,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 16051
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 542.8088230052425,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 18764
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 534.210752965567,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 21395
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 537.3445064780439,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 24096
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 550.6817475897213,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 26860
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 533.6907580799543,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 29536
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 536.298637168564,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 32172
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 542.2796864598271,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 34899
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 544.4076748663377,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 37632
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 534.9642414825817,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 40313
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 532.4538059875456,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 42982
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 529.4948265652024,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 45632
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 532.9303738463979,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 48307
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 552.3004918374767,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 51027
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 533.0692144562904,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 53702
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 547.6312765916027,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 56454
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 542.3129728042007,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 59174
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 541.0286266481702,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 61836
+          },
+          {
+            "accepted": 0,
+            "basis": "executed chain-work equivalents; not pool-estimated hashrate",
+            "hash": 541.9699656456318,
+            "rejected": 0,
+            "type": "telemetry",
+            "unit": "N/s",
+            "workNonces": 64556
+          }
+        ],
+        "cpuPercentOfOneCoreMedian": 2.3,
+        "cpuSamples": [
+          0.0,
+          44.0,
+          2.2,
+          1.8,
+          2.5,
+          2.3,
+          2.5,
+          2.3,
+          2.4,
+          2.4,
+          2.4,
+          2.5,
+          2.5,
+          2.5,
+          2.3,
+          2.3,
+          1.7,
+          2.4,
+          2.0,
+          2.5,
+          2.0,
+          2.5,
+          2.0,
+          2.5,
+          2.4,
+          2.4,
+          2.4,
+          2.3,
+          2.4,
+          2.4,
+          2.4,
+          2.0,
+          2.4,
+          2.0,
+          2.5,
+          2.1,
+          2.5,
+          2.2,
+          2.3,
+          2.2,
+          2.3,
+          2.4,
+          2.1,
+          2.3,
+          2.4,
+          2.3,
+          2.3,
+          2.1,
+          2.5,
+          2.2,
+          2.4,
+          2.4,
+          2.3,
+          2.4,
+          2.3,
+          2.3,
+          2.3,
+          2.2,
+          2.5,
+          2.1,
+          2.5
+        ],
+        "thermalSamples": [
+          {
+            "thermalState": 1
+          },
+          {
+            "thermalState": 1
+          },
+          {
+            "thermalState": 0
+          },
+          {
+            "thermalState": 0
+          },
+          {
+            "thermalState": 0
+          },
+          {
+            "thermalState": 0
+          }
+        ]
+      }
+    ],
+    "summary": {
+      "A": {
+        "workEquivalentNps": 539.5668942776445,
+        "completedNps": 533.0659879712142,
+        "lateMedian": 539.1232860012063
+      },
+      "B": {
+        "workEquivalentNps": 723.6431553214869,
+        "completedNps": 712.9722113715209,
+        "lateMedian": 720.3096084152957
+      },
+      "gainPercent": 34.115558792812536
+    }
+  },
+  "cpuInstructionScreen": {
+    "oldEightLaneSingleThreadNps": 49.85182545811145,
+    "newEightLaneSingleThreadNps": 60.024032977279376,
+    "gainPercent": 20.40488472727089,
+    "note": "45-second single-thread candidate between old-code controls; this is CPU-only throughput, not a GPU gain."
+  },
+  "verificationBenchmark": {
+    "backend": "hybrid",
+    "cpuWorkNonces": 9504,
+    "duty": 0.8999999761581421,
+    "gpuDiagnostics": {
+      "batchNonces": 2560,
+      "completedBatchNonces": 23040,
+      "completionPollMicros": 100,
+      "computeSeconds": 42.971713667,
+      "dispatchIterations": 2500,
+      "responsiveIterations": 2500,
+      "verificationSeconds": 1.376457542,
+      "verificationThreads": 2,
+      "workgroupSize": 64
+    },
+    "gpuWorkNonces": 24198,
+    "iterations": 1000000,
+    "localSharesPerSecond": 0.8406229685438977,
+    "locallyVerifiedShares": 38,
+    "mode": "compute-and-cpu-share-verification",
+    "networkUsed": false,
+    "noncesPerSecond": 745.5440864701695,
+    "seconds": 45.204570208,
+    "shareTargetBits": 10,
+    "threads": 4,
+    "type": "benchmark",
+    "unit": "N/s",
+    "workNonces": 33702
+  },
+  "screening": {
+    "initialCpuAndConcurrent": [
+      {
+        "label": "0-gpu-0-8",
+        "reports": [
+          {
+            "backend": "gpu",
+            "duty": 0.8999999761581421,
+            "gpuDiagnostics": {
+              "batchNonces": 2560,
+              "completedBatchNonces": 17920,
+              "completionPollMicros": 100,
+              "computeSeconds": 32.637265999,
+              "dispatchIterations": 2500,
+              "responsiveIterations": 2500,
+              "verificationSeconds": 0.0,
+              "verificationThreads": 2,
+              "workgroupSize": 64
+            },
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 547.786129334239,
+            "seconds": 35.084860625,
+            "shareTargetBits": null,
+            "threads": 1,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 19219
+          }
+        ],
+        "sumNps": 547.786129334239
+      },
+      {
+        "label": "1-cpu-1-4",
+        "reports": [
+          {
+            "backend": "cpu",
+            "duty": 1.0,
+            "gpuDiagnostics": null,
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 29.04600203825723,
+            "seconds": 35.116708959,
+            "shareTargetBits": null,
+            "threads": 1,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 1020
+          }
+        ],
+        "sumNps": 29.04600203825723
+      },
+      {
+        "label": "2-cpu-1-8",
+        "reports": [
+          {
+            "backend": "cpu",
+            "duty": 1.0,
+            "gpuDiagnostics": null,
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 49.854044956098456,
+            "seconds": 35.14258475,
+            "shareTargetBits": null,
+            "threads": 1,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 1752
+          }
+        ],
+        "sumNps": 49.854044956098456
+      },
+      {
+        "label": "3-cpu-2-4",
+        "reports": [
+          {
+            "backend": "cpu",
+            "duty": 1.0,
+            "gpuDiagnostics": null,
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 57.1843739910459,
+            "seconds": 35.11448775,
+            "shareTargetBits": null,
+            "threads": 2,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 2008
+          }
+        ],
+        "sumNps": 57.1843739910459
+      },
+      {
+        "label": "4-cpu-2-8",
+        "reports": [
+          {
+            "backend": "cpu",
+            "duty": 1.0,
+            "gpuDiagnostics": null,
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 98.1712577992143,
+            "seconds": 35.2037865,
+            "shareTargetBits": null,
+            "threads": 2,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 3456
+          }
+        ],
+        "sumNps": 98.1712577992143
+      },
+      {
+        "label": "5-cpu-4-4",
+        "reports": [
+          {
+            "backend": "cpu",
+            "duty": 1.0,
+            "gpuDiagnostics": null,
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 111.63945228064573,
+            "seconds": 35.113035042,
+            "shareTargetBits": null,
+            "threads": 4,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 3920
+          }
+        ],
+        "sumNps": 111.63945228064573
+      },
+      {
+        "label": "6-cpu-4-8",
+        "reports": [
+          {
+            "backend": "cpu",
+            "duty": 1.0,
+            "gpuDiagnostics": null,
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 174.21753366148215,
+            "seconds": 35.220335583,
+            "shareTargetBits": null,
+            "threads": 4,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 6136
+          }
+        ],
+        "sumNps": 174.21753366148215
+      },
+      {
+        "label": "7-mixed-2-4",
+        "reports": [
+          {
+            "backend": "gpu",
+            "duty": 0.8999999761581421,
+            "gpuDiagnostics": {
+              "batchNonces": 2560,
+              "completedBatchNonces": 17920,
+              "completionPollMicros": 100,
+              "computeSeconds": 32.901836877,
+              "dispatchIterations": 2500,
+              "responsiveIterations": 2500,
+              "verificationSeconds": 0.0,
+              "verificationThreads": 2,
+              "workgroupSize": 64
+            },
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 545.6362853530502,
+            "seconds": 35.023330583,
+            "shareTargetBits": null,
+            "threads": 2,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 19110
+          },
+          {
+            "backend": "cpu",
+            "duty": 1.0,
+            "gpuDiagnostics": null,
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 55.89106751097728,
+            "seconds": 35.0682155,
+            "shareTargetBits": null,
+            "threads": 2,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 1960
+          }
+        ],
+        "sumNps": 601.5273528640275
+      },
+      {
+        "label": "8-mixed-4-4",
+        "reports": [
+          {
+            "backend": "gpu",
+            "duty": 0.8999999761581421,
+            "gpuDiagnostics": {
+              "batchNonces": 2560,
+              "completedBatchNonces": 17920,
+              "completionPollMicros": 100,
+              "computeSeconds": 33.129906958,
+              "dispatchIterations": 2500,
+              "responsiveIterations": 2500,
+              "verificationSeconds": 0.0,
+              "verificationThreads": 2,
+              "workgroupSize": 64
+            },
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 541.4402172193821,
+            "seconds": 35.069430375,
+            "shareTargetBits": null,
+            "threads": 4,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 18988
+          },
+          {
+            "backend": "cpu",
+            "duty": 1.0,
+            "gpuDiagnostics": null,
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 107.04615718893115,
+            "seconds": 35.125034833,
+            "shareTargetBits": null,
+            "threads": 4,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 3760
+          }
+        ],
+        "sumNps": 648.4863744083133
+      },
+      {
+        "label": "9-gpu-0-8",
+        "reports": [
+          {
+            "backend": "gpu",
+            "duty": 0.8999999761581421,
+            "gpuDiagnostics": {
+              "batchNonces": 2560,
+              "completedBatchNonces": 17920,
+              "completionPollMicros": 100,
+              "computeSeconds": 32.932737749,
+              "dispatchIterations": 2500,
+              "responsiveIterations": 2500,
+              "verificationSeconds": 0.0,
+              "verificationThreads": 2,
+              "workgroupSize": 64
+            },
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 542.9616411498392,
+            "seconds": 35.019048417,
+            "shareTargetBits": null,
+            "threads": 1,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 19014
+          }
+        ],
+        "sumNps": 542.9616411498392
+      }
+    ],
+    "groupedGpuSubmissions": [
+      {
+        "label": "0-group1",
+        "report": {
+          "backend": "gpu",
+          "duty": 0.8999999761581421,
+          "gpuDiagnostics": {
+            "batchNonces": 2560,
+            "completedBatchNonces": 38400,
+            "completionPollMicros": 100,
+            "computeSeconds": 70.937321752,
+            "dispatchIterations": 2500,
+            "responsiveIterations": 2500,
+            "verificationSeconds": 0.0,
+            "verificationThreads": 2,
+            "workgroupSize": 64
+          },
+          "iterations": 1000000,
+          "localSharesPerSecond": 0.0,
+          "locallyVerifiedShares": 0,
+          "mode": "compute-only",
+          "networkUsed": false,
+          "noncesPerSecond": 541.253742809503,
+          "seconds": 75.084931125,
+          "shareTargetBits": null,
+          "threads": 1,
+          "type": "benchmark",
+          "unit": "N/s",
+          "workNonces": 40640
+        },
+        "samples": [
+          561.1209533849579,
+          529.0942719439406,
+          525.4711268610747,
+          557.5508824981947,
+          528.0953741441843,
+          553.3339514571279,
+          544.0080661725649,
+          533.1100537426014,
+          543.6219259709584,
+          538.3192527484459,
+          538.2404593927317,
+          553.9537010231505,
+          529.551752483367,
+          542.4524103957615,
+          540.5988896605618
+        ]
+      },
+      {
+        "label": "1-group2",
+        "report": {
+          "backend": "gpu",
+          "duty": 0.8999999761581421,
+          "gpuDiagnostics": {
+            "batchNonces": 2560,
+            "completedBatchNonces": 51200,
+            "completionPollMicros": 100,
+            "computeSeconds": 71.896836791,
+            "dispatchIterations": 2500,
+            "responsiveIterations": 2500,
+            "verificationSeconds": 0.0,
+            "verificationThreads": 2,
+            "workgroupSize": 64
+          },
+          "iterations": 1000000,
+          "localSharesPerSecond": 0.0,
+          "locallyVerifiedShares": 0,
+          "mode": "compute-only",
+          "networkUsed": false,
+          "noncesPerSecond": 711.3203547722483,
+          "seconds": 75.073066083,
+          "shareTargetBits": null,
+          "threads": 1,
+          "type": "benchmark",
+          "unit": "N/s",
+          "workNonces": 53401
+        },
+        "samples": [
+          700.1172161117638,
+          687.9579065916024,
+          707.533387047884,
+          668.9663742729596,
+          749.8494149734646,
+          726.6044703196718,
+          767.2132459167389,
+          671.4311258447188,
+          680.812475680748,
+          714.6829126748561,
+          701.2833627588213,
+          735.7860873607333,
+          732.613624529635,
+          697.4201483781046,
+          726.6981912219867
+        ]
+      },
+      {
+        "label": "2-group4",
+        "report": {
+          "backend": "gpu",
+          "duty": 0.8999999761581421,
+          "gpuDiagnostics": {
+            "batchNonces": 2560,
+            "completedBatchNonces": 38400,
+            "completionPollMicros": 100,
+            "computeSeconds": 67.000054002,
+            "dispatchIterations": 2500,
+            "responsiveIterations": 2500,
+            "verificationSeconds": 0.0,
+            "verificationThreads": 2,
+            "workgroupSize": 64
+          },
+          "iterations": 1000000,
+          "localSharesPerSecond": 0.0,
+          "locallyVerifiedShares": 0,
+          "mode": "compute-only",
+          "networkUsed": false,
+          "noncesPerSecond": 544.4905261903566,
+          "seconds": 75.130783792,
+          "shareTargetBits": null,
+          "threads": 1,
+          "type": "benchmark",
+          "unit": "N/s",
+          "workNonces": 40908
+        },
+        "samples": [
+          1173.510141131635,
+          1179.4236253562135,
+          1173.3012588478334,
+          1162.1227135983463,
+          382.96119860073554,
+          307.1064899380677,
+          311.5377155056637,
+          305.79037773013823,
+          311.52381074669387,
+          306.1512838592514,
+          305.9400420462363,
+          312.4153578242375,
+          311.1619352814678,
+          306.12882969375715,
+          311.4733718890879
+        ]
+      },
+      {
+        "label": "3-group2",
+        "report": {
+          "backend": "gpu",
+          "duty": 0.8999999761581421,
+          "gpuDiagnostics": {
+            "batchNonces": 2560,
+            "completedBatchNonces": 23040,
+            "completionPollMicros": 100,
+            "computeSeconds": 74.960044416,
+            "dispatchIterations": 2500,
+            "responsiveIterations": 2500,
+            "verificationSeconds": 0.0,
+            "verificationThreads": 2,
+            "workgroupSize": 64
+          },
+          "iterations": 1000000,
+          "localSharesPerSecond": 0.0,
+          "locallyVerifiedShares": 0,
+          "mode": "compute-only",
+          "networkUsed": false,
+          "noncesPerSecond": 307.35036597254134,
+          "seconds": 75.086944917,
+          "shareTargetBits": null,
+          "threads": 1,
+          "type": "benchmark",
+          "unit": "N/s",
+          "workNonces": 23078
+        },
+        "samples": [
+          357.83000664244116,
+          303.82038170951427,
+          303.39412213730003,
+          303.5738621205657,
+          303.4091293013571,
+          303.96540722720204,
+          304.8484626180767,
+          303.0933255639867,
+          303.8546095569203,
+          303.17514503275373,
+          303.93529860805717,
+          303.50803369742846,
+          302.0690304897542,
+          303.6984584921103,
+          306.0200478993098
+        ]
+      },
+      {
+        "label": "4-group1",
+        "report": {
+          "backend": "gpu",
+          "duty": 0.8999999761581421,
+          "gpuDiagnostics": {
+            "batchNonces": 2560,
+            "completedBatchNonces": 20480,
+            "completionPollMicros": 100,
+            "computeSeconds": 67.919079918,
+            "dispatchIterations": 2500,
+            "responsiveIterations": 2500,
+            "verificationSeconds": 0.0,
+            "verificationThreads": 2,
+            "workgroupSize": 64
+          },
+          "iterations": 1000000,
+          "localSharesPerSecond": 0.0,
+          "locallyVerifiedShares": 0,
+          "mode": "compute-only",
+          "networkUsed": false,
+          "noncesPerSecond": 301.1417186698933,
+          "seconds": 75.104173875,
+          "shareTargetBits": null,
+          "threads": 1,
+          "type": "benchmark",
+          "unit": "N/s",
+          "workNonces": 22617
+        },
+        "samples": [
+          347.4848776828845,
+          297.30358509539957,
+          298.4371099573402,
+          297.085375243857,
+          298.94812454089833,
+          297.3367125886701,
+          297.00212112520694,
+          298.44223810361274,
+          297.3557352265462,
+          298.22869970445396,
+          296.775020221902,
+          297.86496037334,
+          298.5577870131498,
+          298.6437055244475,
+          296.98970257464083
+        ]
+      }
+    ],
+    "cpuInstructionsAndConcurrent": [
+      {
+        "label": "0-old-l8-t1-mix0",
+        "reports": [
+          {
+            "backend": "cpu",
+            "duty": 1.0,
+            "gpuDiagnostics": null,
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 49.85258983150906,
+            "seconds": 45.092943167,
+            "shareTargetBits": null,
+            "threads": 1,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 2248
+          }
+        ],
+        "sumNps": 49.85258983150906
+      },
+      {
+        "label": "1-new-l4-t1-mix0",
+        "reports": [
+          {
+            "backend": "cpu",
+            "duty": 1.0,
+            "gpuDiagnostics": null,
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 36.96497922641089,
+            "seconds": 45.123791083,
+            "shareTargetBits": null,
+            "threads": 1,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 1668
+          }
+        ],
+        "sumNps": 36.96497922641089
+      },
+      {
+        "label": "2-new-l8-t1-mix0",
+        "reports": [
+          {
+            "backend": "cpu",
+            "duty": 1.0,
+            "gpuDiagnostics": null,
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 60.024032977279376,
+            "seconds": 45.048622458,
+            "shareTargetBits": null,
+            "threads": 1,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 2704
+          }
+        ],
+        "sumNps": 60.024032977279376
+      },
+      {
+        "label": "3-new-l8-t4-mix0",
+        "reports": [
+          {
+            "backend": "cpu",
+            "duty": 1.0,
+            "gpuDiagnostics": null,
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 223.4554926609348,
+            "seconds": 45.217058125,
+            "shareTargetBits": null,
+            "threads": 4,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 10104
+          }
+        ],
+        "sumNps": 223.4554926609348
+      },
+      {
+        "label": "4-old-l8-t2-mix1",
+        "reports": [
+          {
+            "backend": "gpu",
+            "duty": 0.8999999761581421,
+            "gpuDiagnostics": {
+              "batchNonces": 2560,
+              "completedBatchNonces": 23040,
+              "completionPollMicros": 100,
+              "computeSeconds": 42.421555958,
+              "dispatchIterations": 2500,
+              "responsiveIterations": 2500,
+              "verificationSeconds": 0.0,
+              "verificationThreads": 2,
+              "workgroupSize": 64
+            },
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 543.1751309756415,
+            "seconds": 45.055450083,
+            "shareTargetBits": null,
+            "threads": 2,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 24473
+          },
+          {
+            "backend": "cpu",
+            "duty": 1.0,
+            "gpuDiagnostics": null,
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 93.96149631294027,
+            "seconds": 45.210008,
+            "shareTargetBits": null,
+            "threads": 2,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 4248
+          }
+        ],
+        "sumNps": 637.1366272885818
+      },
+      {
+        "label": "5-old-l8-t4-mix1",
+        "reports": [
+          {
+            "backend": "gpu",
+            "duty": 0.8999999761581421,
+            "gpuDiagnostics": {
+              "batchNonces": 2560,
+              "completedBatchNonces": 23040,
+              "completionPollMicros": 100,
+              "computeSeconds": 43.016408003,
+              "dispatchIterations": 2500,
+              "responsiveIterations": 2500,
+              "verificationSeconds": 0.0,
+              "verificationThreads": 2,
+              "workgroupSize": 64
+            },
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 536.7080647373382,
+            "seconds": 45.074783834,
+            "shareTargetBits": null,
+            "threads": 4,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 24192
+          },
+          {
+            "backend": "cpu",
+            "duty": 1.0,
+            "gpuDiagnostics": null,
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 157.71454847704055,
+            "seconds": 45.195576875,
+            "shareTargetBits": null,
+            "threads": 4,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 7128
+          }
+        ],
+        "sumNps": 694.4226132143788
+      },
+      {
+        "label": "6-new-l8-t2-mix1",
+        "reports": [
+          {
+            "backend": "gpu",
+            "duty": 0.8999999761581421,
+            "gpuDiagnostics": {
+              "batchNonces": 2560,
+              "completedBatchNonces": 23040,
+              "completionPollMicros": 100,
+              "computeSeconds": 42.061346918,
+              "dispatchIterations": 2500,
+              "responsiveIterations": 2500,
+              "verificationSeconds": 0.0,
+              "verificationThreads": 2,
+              "workgroupSize": 64
+            },
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 547.7240091046463,
+            "seconds": 45.04458375,
+            "shareTargetBits": null,
+            "threads": 2,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 24672
+          },
+          {
+            "backend": "cpu",
+            "duty": 1.0,
+            "gpuDiagnostics": null,
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 113.97174041534348,
+            "seconds": 45.133995333,
+            "shareTargetBits": null,
+            "threads": 2,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 5144
+          }
+        ],
+        "sumNps": 661.6957495199897
+      },
+      {
+        "label": "7-new-l8-t4-mix1",
+        "reports": [
+          {
+            "backend": "gpu",
+            "duty": 0.8999999761581421,
+            "gpuDiagnostics": {
+              "batchNonces": 2560,
+              "completedBatchNonces": 23040,
+              "completionPollMicros": 100,
+              "computeSeconds": 42.925634209,
+              "dispatchIterations": 2500,
+              "responsiveIterations": 2500,
+              "verificationSeconds": 0.0,
+              "verificationThreads": 2,
+              "workgroupSize": 64
+            },
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 537.1285443723195,
+            "seconds": 45.039498,
+            "shareTargetBits": null,
+            "threads": 4,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 24192
+          },
+          {
+            "backend": "cpu",
+            "duty": 1.0,
+            "gpuDiagnostics": null,
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 194.67949709614567,
+            "seconds": 45.202500167,
+            "shareTargetBits": null,
+            "threads": 4,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 8800
+          }
+        ],
+        "sumNps": 731.8080414684653
+      },
+      {
+        "label": "8-old-l8-t1-mix0",
+        "reports": [
+          {
+            "backend": "cpu",
+            "duty": 1.0,
+            "gpuDiagnostics": null,
+            "iterations": 1000000,
+            "localSharesPerSecond": 0.0,
+            "locallyVerifiedShares": 0,
+            "mode": "compute-only",
+            "networkUsed": false,
+            "noncesPerSecond": 49.85106108471385,
+            "seconds": 45.094326,
+            "shareTargetBits": null,
+            "threads": 1,
+            "type": "benchmark",
+            "unit": "N/s",
+            "workNonces": 2248
+          }
+        ],
+        "sumNps": 49.85106108471385
+      }
+    ],
+    "decision": "Reject grouped GPU submissions: an early 711 N/s run was followed by a collapse, including later baseline measurements. Root cause not proven. Retain original GPU scheduling. Concurrent-process sums use separately timed loops and are only screening; the single-process production ABBA is authoritative."
+  },
+  "tests": {
+    "guiWindows": 47,
+    "guiMac": 47,
+    "nativeProtocol": 11,
+    "hybridUnit": 2,
+    "hybridHardware": 1,
+    "profileSelection": 2,
+    "consensusEightLane": 2,
+    "consensusFourLane": 2,
+    "gpuHardware": 2,
+    "visual": {
+      "passed": true,
+      "languages": [
+        "zh",
+        "en"
+      ],
+      "views": [
+        "mining",
+        "about"
+      ],
+      "minimumWidth": 780
+    }
+  },
+  "gui": {
+    "seconds": 145.908,
+    "totals": {
+      "accepted": 0,
+      "rejected": 0,
+      "submitted": 0
+    },
+    "lastRate": {
+      "total": 717.6478328184942,
+      "gpu": 532.4998792862277,
+      "cpu": 185.1479535322665
+    },
+    "positiveMean": 701.8977040885925,
+    "positiveMedian": 722.9183187588995,
+    "numericMeanIncludingZeros": 653.1548079713292,
+    "zeroSamples": 10,
+    "unavailableSamples": 2,
+    "cpuThreads": 4,
+    "hiddenWindowContinued": true,
+    "stopClean": true,
+    "activeQuit": true,
+    "profileReload": true
+  },
+  "package": {
+    "version": "0.1.16",
+    "guiSeconds": 145.908,
+    "guiTotals": {
+      "accepted": 0,
+      "rejected": 0,
+      "submitted": 0
+    },
+    "guiLastRate": {
+      "total": 717.6478328184942,
+      "gpu": 532.4998792862277,
+      "cpu": 185.1479535322665
+    },
+    "preservedNativeFiles": 19397,
+    "dmgVerified": true,
+    "mountedFilesVerified": 19482,
+    "dmgSha256": "0be6dfe9aa8f48347c7b1ccbecc66710b0c998085122169009f51bb7343b3636",
+    "dmgBytes": 580064212,
+    "coreSha256": "2ccace397a0611fca6945762d6d1c761836317c0321210f6339a185e2bbb55ad"
+  },
+  "deployment": {
+    "version": "0.1.16",
+    "desktopApp": "/Users/apple/Desktop/Gozero助手.app",
+    "desktopDmg": "/Users/apple/Desktop/Gozero-Assistant-Mac-0.1.16-arm64.dmg",
+    "backup": "/Users/apple/Gozero-Mac-Test/run-20261006-t31JTC/mds-opt3/previous-Gozero-0.1.15.app",
+    "settingsPreservedExceptMdsCpuThreads": true,
+    "feeLedgerBytesPreserved": true,
+    "mdsCpuThreads": 4,
+    "beforeSettingsSha256": "d0d346b9e55189603b14c5d5b2bd7efb17468ea2921f0c9e27f9b27c0f6d7610",
+    "afterSettingsSha256": "ea3fa623f6f8ac796ea7d449c203e3f17dbaf9240c6903e010086e35914ab4fd",
+    "openedIdle": true
+  },
+  "limits": [
+    "Only this M3 was measured; no all-M or multi-day guarantee.",
+    "CPU assistance uses more CPU resources; no power-efficiency measurement.",
+    "Offline verified results are not pool acceptances.",
+    "App is ad-hoc signed, not Developer ID notarized."
+  ],
+  "privateRawEvidence": ".local/mds-opt3 and authorized M3 session/mds-opt3; research binaries must never ship.",
+  "thermalObservation": "macOS thermal state progressed from 0 (nominal) to 1 (fair). Second hybrid run averaged 715.816 versus first 731.473 N/s; no constant 724 N/s long-term claim."
+}

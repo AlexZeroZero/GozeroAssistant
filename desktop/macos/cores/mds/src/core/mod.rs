@@ -13,6 +13,8 @@ pub mod wots_simd;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod gpu_mining;  
 #[cfg(not(target_arch = "wasm32"))]
+pub mod hybrid_mining;
+#[cfg(not(target_arch = "wasm32"))]
 pub mod cuda_mining;
 #[cfg(not(target_arch = "wasm32"))]
 mod cuda_budget;

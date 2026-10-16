@@ -19,9 +19,11 @@ async function run({win,state,dir,menubar}){
  await wait(()=>state().ready);await click('[data-view="mining"]');
  for(const coin of ['PRL','QTC','NOID','BNT','MDS']){await click('[data-coin="'+coin+'"]');await wait(()=>state().config.coin===coin);assert.ok(await js(`document.querySelector('#kernel-name').textContent.length>5`));}
  const wallet=process.env.GOZERO_MDS_TEST_WALLET;assert.ok(wallet);
- await js(`document.querySelector('#wallet').value=${JSON.stringify(wallet)};document.querySelector('#wallet').type='password';document.querySelector('#mds-mss').checked=true;document.querySelector('#save-mining').click()`);
+ const threads=Number(process.env.GOZERO_MDS_TEST_THREADS||0);assert.ok([0,2,4,8].includes(threads));
+ await js(`document.querySelector('#wallet').value=${JSON.stringify(wallet)};document.querySelector('#wallet').type='password';document.querySelector('#cpu-threads').value=${JSON.stringify(String(threads))};document.querySelector('#mds-mss').checked=true;document.querySelector('#save-mining').click()`);
  await wait(()=>state().config.wallet===wallet);assert.equal(state().config.mdsMssConfirmed,true);
- assert.equal(await js(`document.querySelector('#cpu-threads').disabled`),true);
+ assert.equal(state().config.cpuThreads,threads);
+ assert.equal(await js(`document.querySelector('#cpu-threads').disabled`),false);
  assert.equal(await js(`document.querySelector('#benchmark').disabled`),true);
  if(process.env.GOZERO_MDS_VISUAL_ONLY==='1'){
   for(const language of ['en','zh']){
@@ -39,9 +41,11 @@ async function run({win,state,dir,menubar}){
   await fs.writeFile(path.join(out,'visual-smoke.json'),JSON.stringify({passed:true,languages:['zh','en'],views:['mining','about'],minimumWidth:780}));
   return;
  }
- const observations=[];const observe=()=>observations.push({at:Date.now(),threads:state().miner.session?.activeCpuThreads??0,rate:state().miner.rate.gpu,workState:state().miner.workState});
+ const observations=[];const observe=()=>observations.push({at:Date.now(),threads:state().miner.session?.cpuThreads??0,rate:state().miner.rate.total,gpu:state().miner.rate.gpu,cpu:state().miner.rate.cpu,workState:state().miner.workState});
  const observationTimer=setInterval(observe,1000);
- await click('#start');await wait(()=>state().miner.rate.gpu>0,90);assert.equal(state().miner.rate.cpu,null);
+ await click('#start');await wait(()=>state().miner.rate.gpu>0,90);
+ if(threads)assert.ok(state().miner.rate.cpu>0);else assert.equal(state().miner.rate.cpu,0);
+ assert.ok(Math.abs(state().miner.rate.total-state().miner.rate.gpu-state().miner.rate.cpu)<1e-6);
  const began=state().miner.session.startedAt;
  await js(`window.gozero.language('en')`);await wait(()=>state().config.language==='en');
  win.setSize(780,620);await sleep(500);
@@ -54,7 +58,7 @@ async function run({win,state,dir,menubar}){
  // Bound pool observation even if no share happens to meet the current target.
  for(let i=0;i<Number(process.env.GOZERO_MDS_OBSERVE_SECONDS||160)&&(state().miner.totals.accepted===0||(Date.now()-began)/1000<Number(process.env.GOZERO_MDS_MIN_SECONDS||0));i++)await sleep(1000);
  clearInterval(observationTimer);observe();
- const report={observations,logs:state().logs,requestedThreads:state().config.cpuThreads,activeThreads:state().miner.session.activeCpuThreads,seconds:(Date.now()-began)/1000,rate:state().miner.rate,totals:state().miner.totals,points:state().miner.points,hiddenWindowContinued:true,rendererErrors:errors};
+ const report={observations,logs:state().logs,requestedThreads:state().config.cpuThreads,activeThreads:state().miner.session.cpuThreads,seconds:(Date.now()-began)/1000,rate:state().miner.rate,totals:state().miner.totals,points:state().miner.points,hiddenWindowContinued:true,rendererErrors:errors};
  await wait(()=>js(`Number(document.querySelector('#accepted').textContent)===${report.totals.accepted}`));
  await capture('MDS-live');
  await click('[data-stop]');await wait(()=>state().miner.status==='idle'&&!state().fee.active,30);

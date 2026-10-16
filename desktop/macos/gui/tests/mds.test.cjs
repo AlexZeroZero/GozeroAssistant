@@ -30,6 +30,29 @@ test('MDS launches Metal with effective fee wallet, bundled tuning and GUI paren
  assert.equal(spec.args.includes('--duration'),false);assert.equal(spec.args.includes('cuda'),false);
  assert.throws(()=>launchSpec('/native/cores','/profile',{...c,mdsMssConfirmed:false},'/report'));
 });
+test('MDS CPU assistance stays in one core, one pool session and one fee recipient',()=>{
+ for(const threads of [0,2,4,8]){
+  const c=miningConfig({...selectCoin(DEFAULT,'MDS'),wallet,mdsMssConfirmed:true,cpuThreads:threads});
+  const spec=launchSpec('/native/cores','/profile',c,'/report');
+  assert.equal(c.cpuThreads,threads);
+  assert.equal(spec.args[spec.args.indexOf('--backend')+1],threads?'hybrid':'gpu');
+  assert.equal(spec.args[spec.args.indexOf('--threads')+1],String(threads||1));
+  assert.equal(spec.args.filter(x=>x==='--pool-url').length,1);
+  assert.equal(spec.args[spec.args.indexOf('--payout-address')+1],wallet);
+ }
+});
+test('MDS component telemetry sums to total and clears both components for obsolete work',()=>{
+ const m=new Miner('unused','unused',()=>{});m.session={coin:'MDS'};m.status='running';m.jobs.set(GPU_ID,{status:'running'});
+ mds.event(m,{type:'job',job:1});
+ const sample={type:'telemetry',hash:700,gpuHash:540,cpuHash:160,unit:'N/s',accepted:0,rejected:0};
+ mds.event(m,sample);assert.deepEqual(m.rate,{total:700,gpu:540,cpu:160});
+ assert.equal(m.points.at(-1).cpu,160);
+ assert.throws(()=>mds.event(m,{...sample,cpuHash:170}),/component/);
+ assert.throws(()=>mds.event(m,{...sample,gpuHash:NaN}),/component/);
+ mds.event(m,{type:'status',message:'Current job expired: paused obsolete work, waiting for replacement'});
+ mds.event(m,sample);assert.deepEqual(m.rate,{total:0,gpu:0,cpu:0});
+ mds.event(m,{type:'job',job:2});mds.event(m,sample);assert.equal(m.rate.total,700);
+});
 test('MDS counts real sends and ACKs, uses N/s, clears work for reconnect and stale jobs',()=>{
  const m=new Miner('unused','unused',()=>{});m.session={coin:'MDS'};m.status='running';m.jobs.set(GPU_ID,{status:'running'});
  mds.event(m,{type:'status',message:'Connecting pool:13333'});assert.equal(m.workState,'reconnecting');

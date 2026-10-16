@@ -23,9 +23,9 @@ function render(){if(!state?.config)return;document.body.classList.toggle('light
  text('#session-status',status);text('#overview-status',state.ready?'本机设备已连接 · '+status:'正在读取本机设备');text('#footer-state',state.ready?(h.chip+' · '+status):'正在读取本机设备');text('#footer-thermal','系统热状态：'+(thermal[h.thermalState]||'—'));text('#mining-device',state.config.coin==='BNT'?(h.chip+' CPU'):(h.gpu||'Apple GPU'));
  const coin=state.config.coin,cap=state.coins[coin];
  document.querySelectorAll('[data-coin]').forEach(e=>{e.disabled=busy;e.classList.toggle('active',e.dataset.coin===coin);});
- text('#kernel-name',cap.kernel);$('#mds-address-row').hidden=coin!=='MDS';text('#core-status',coin==='MDS'?'MDS：Metal GPU · 一百万轮 BLAKE3 · CPU 校验份额 · N/s 为本地链计算速率':coin==='BNT'?'BNT：ARM64 CPU · 每线程 2 GiB 内存 · 短测已收到实池接受份额':coin==='NOID'?'NOID：已验证矿池接受份额':coin==='QTC'?'QTC：短测已收到实池接受份额；长期表现待验证':'PRL v3：本地校验通过；外部矿池接受份额待验证。电池供电时暂停；TMAC/s 为本地矩阵吞吐。');
+ text('#kernel-name',cap.kernel);$('#mds-address-row').hidden=coin!=='MDS';text('#core-status',coin==='MDS'?'MDS：Metal GPU + 可选 NEON CPU 协同 · 一百万轮 BLAKE3 · 完整校验':coin==='BNT'?'BNT：ARM64 CPU · 每线程 2 GiB 内存 · 短测已收到实池接受份额':coin==='NOID'?'NOID：已验证矿池接受份额':coin==='QTC'?'QTC：短测已收到实池接受份额；长期表现待验证':'PRL v3：本地校验通过；外部矿池接受份额待验证。电池供电时暂停；TMAC/s 为本地矩阵吞吐。');
  $('#wallet').placeholder=gozeroI18n.t('填写对应币种的公开收款地址',state.config.language)+' · '+coin;
- text('#fee-rule','内核费 0% · 软件服务费 0.5%');text('#cpu-label',cap.cpuOnly?'CPU · Argon2id':cap.cpu?'CPU · PMULL':'CPU');text('#cpu-note',cap.cpuOnly?'每线程 2 GiB；内存充足自动增线程，压力解除自动恢复':cap.cpu?'未启用协同时为 0':'此内核不支持 CPU 协同');
+ text('#fee-rule','内核费 0% · 软件服务费 0.5%');text('#cpu-label',cap.cpuOnly?'CPU · Argon2id':coin==='MDS'?'CPU · NEON':cap.cpu?'CPU · PMULL':'CPU');text('#cpu-note',cap.cpuOnly?'每线程 2 GiB；内存充足自动增线程，压力解除自动恢复':cap.cpu?'未启用协同时为 0':'此内核不支持 CPU 协同');
  const r=m.rate||{};text('#total-hash',hash(r.total));text('#gpu-hash',hash(r.gpu));text('#cpu-hash',hash(r.cpu));text('#rate-label',coin==='MDS'?'N/s：含未完成链的等效计算量；接受数以矿池确认为准':m.status==='idle'?'最后一次采样 / 待机':'真实本地算力 · 非矿池结算');
  text('#accepted',m.totals?.accepted||0);text('#rejected',m.totals?.rejected||0);text('#submitted',m.totals?.submitted||0);
  text('#fee-phase',f.active?(f.phase==='service'?'0.5% 服务时段 · '+Math.ceil(f.feeRemainingSeconds)+'s':'当前为用户收款时段'):'分时服务费 0.5% · 余额跨任务累计');

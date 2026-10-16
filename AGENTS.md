@@ -185,3 +185,14 @@ batch defaults unchanged. Exact million-round shader/CPU verification retained.
 45GUI tests each host,11protocol,2profile,2consensus,2GPU pass. GUI and Desktop
 app/DMG verified, opened idle, settings/fee/other cores preserved. See latest
 handoff/evidence for live share counts and limits. No GitHub publication.
+
+
+Latest checkpoint: Mac0.1.16 MDS NEON+CPU/GPU cooperation deployed on M3.
+Signed ABBA GPU-only vs GPU+4CPU 539.567->723.643N/s
+(+34.12%), original90%GPU duty/shader/scheduling retained. Additional CPU
+work is real full-chain NEON; nonce domains disjoint, full GPU verification and
+joined cancellation retained.47GUI tests per host and native/hardware checks
+pass. Desktop app/DMG verified/opened idle; MDS CPU setting now4, other settings
+and fee ledger preserved. See latest handoff/evidence for real GUI share counts.
+Grouped GPU submissions rejected after sustained collapse. One10-coreM3 only;
+no all-M/multi-day/power-efficiency claim, no GitHub publication.

@@ -7,7 +7,7 @@ function launchSpec(root,dir,cfg,report){
  if(!['QTC','PRL','BNT','MDS'].includes(coin)||!wallet)throw Error('内核配置无效');
  if(coin==='MDS'){
   require('./mds.cjs').confirm(cfg);
-  return {executable:path.join(root,'mds/GozeroMdsCore'),args:['--backend','gpu','--pool-url',cfg.pools.MDS,'--payout-address',wallet,'--worker',cfg.worker,'--mss-confirmed','--duty','0.9','--parent-pid',String(process.pid)],cwd:path.join(root,'mds'),env:{...process.env,WGPU_BACKEND:'metal',GPU_OC_SETTINGS:path.join(root,'mds/GPU_OC_SETTINGS.toml')}};
+  return {executable:path.join(root,'mds/GozeroMdsCore'),args:['--backend',cfg.cpuThreads>0?'hybrid':'gpu','--threads',String(cfg.cpuThreads||1),'--pool-url',cfg.pools.MDS,'--payout-address',wallet,'--worker',cfg.worker,'--mss-confirmed','--duty','0.9','--parent-pid',String(process.pid)],cwd:path.join(root,'mds'),env:{...process.env,WGPU_BACKEND:'metal',GPU_OC_SETTINGS:path.join(root,'mds/GPU_OC_SETTINGS.toml')}};
  }
  if(coin==='BNT')return {executable:path.join(root,'../node'),args:[path.join(__dirname,'bnt-runner.cjs'),'--core',path.join(root,'bnt/gozero-blocknet-core'),'--wallet',wallet,'--worker',cfg.worker,'--url',cfg.pools.BNT,'--threads',String(cfg.cpuThreads)],cwd:root,env:{...process.env}};
  const env={...process.env,PYTHONUNBUFFERED:'1',PYTHONDONTWRITEBYTECODE:'1'};

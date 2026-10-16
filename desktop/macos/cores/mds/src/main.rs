@@ -4,6 +4,7 @@ use gozero_mds_core::core::{extension::{self, MiningResult}, gpu_mining::{self,G
 use serde_json::{json,Value};
 use std::{io::Write,sync::{Arc,atomic::{AtomicBool,AtomicU64,Ordering}},time::{Duration,Instant}};
 mod protocol;
+use gozero_mds_core::core::hybrid_mining::HybridMiner;
 const DEFAULT_POOL: &str = "stratum+tcp://mds.gozero.trade:13333";
 
 #[derive(Parser)]
@@ -12,7 +13,7 @@ struct Args {
  #[arg(long)] parent_pid:Option<u32>,
  #[arg(long)] list_devices:bool,
  #[arg(long)] self_test:bool,
- #[arg(long,default_value="gpu",value_parser=["gpu","cuda","cpu"])] backend:String,
+ #[arg(long,default_value="gpu",value_parser=["gpu","hybrid","cuda","cpu"])] backend:String,
  /// CUDA-only tuning; full million-round consensus and CPU verification stay enabled.
  /// 0 benchmarks bounded batch sizes on this GPU at startup; explicit overrides remain available.
  #[arg(long,default_value_t=0)] cuda_batch:u32,
@@ -40,11 +41,18 @@ struct Args {
 pub fn emit(v:Value){let mut out=std::io::stdout().lock();let _=writeln!(out,"MDS {}",v);let _=out.flush();}
 pub struct Counters{work:Arc<AtomicU64>,accepted:AtomicU64,rejected:AtomicU64,flow:std::sync::Mutex<protocol::SubmitFlow>}
 impl Counters{fn new()->Self{Self{work:Arc::new(AtomicU64::new(0)),accepted:AtomicU64::new(0),rejected:AtomicU64::new(0),flow:std::sync::Mutex::new(protocol::SubmitFlow::new())}}}
-pub enum Engine{Gpu(GpuMiner),Cuda(CudaMiner),Cpu(usize)}
+pub enum Engine{Gpu(GpuMiner),Hybrid(HybridMiner),Cuda(CudaMiner),Cpu(usize)}
 impl Engine{
+ fn work_counts(&self, stats:&Counters)->(u64,u64){
+  let work=stats.work.load(Ordering::Relaxed);
+  match self{Self::Cpu(_)=>(0,work),Self::Hybrid(h)=>(work,h.cpu_work.load(Ordering::Relaxed)),_=>(work,0)}
+ }
+ fn total_work(&self,stats:&Counters)->u64{let(g,c)=self.work_counts(stats);g+c}
+
  fn mine_stream<F:FnMut(MiningResult)->bool+Send>(&self,h:[u8;32],target:[u8;32],pool:Option<[u8;32]>,cancel:Arc<AtomicBool>,counter:Arc<AtomicU64>,mut output:F)->Result<()>{
   match self {
    Self::Gpu(g)=>g.mine_gpu_stream(h,target,pool,cancel,counter,output),
+   Self::Hybrid(g)=>g.mine_stream(h,target,pool,cancel,counter,output),
    Self::Cuda(g)=>g.mine_stream(h,target,pool,cancel,counter,output)?,
    Self::Cpu(_)=>while !cancel.load(Ordering::Relaxed){
     if let Some(hit)=self.mine(h,target,pool,cancel.clone(),counter.clone()){if !output(hit){break}}else{break}
@@ -52,7 +60,7 @@ impl Engine{
   }Ok(())
  }
  fn mine(&self,h:[u8;32],target:[u8;32],pool:Option<[u8;32]>,cancel:Arc<AtomicBool>,counter:Arc<AtomicU64>)->Option<MiningResult>{
-  match self{Self::Gpu(g)=>g.mine_gpu(h,target,pool,cancel,counter),Self::Cpu(t)=>extension::mine_extension(h,target,pool,*t,cancel,counter),Self::Cuda(_)=>unreachable!("CUDA uses the streaming interface")}
+  match self{Self::Gpu(g)=>g.mine_gpu(h,target,pool,cancel,counter),Self::Cpu(t)=>extension::mine_extension(h,target,pool,*t,cancel,counter),Self::Cuda(_)|Self::Hybrid(_)=>unreachable!("This backend uses the streaming interface")}
  }
 }
 fn self_test_cpu()->Result<()> {
@@ -73,11 +81,12 @@ fn initialize(a:&Args)->Result<Arc<Engine>>{
  }
  let g=GpuMiner::new_index(a.gpu_index)?;g.self_test()?;gpu_mining::set_gpu_duty(a.duty);
  emit(json!({"type":"selftest","backend":"gpu","device":g.adapter_name(),"gpuSettings":g.diagnostics(),"passed":true}));
- Ok(Arc::new(Engine::Gpu(g)))
+ Ok(Arc::new(if a.backend=="hybrid" {Engine::Hybrid(HybridMiner::new(g,a.threads))}else{Engine::Gpu(g)}))
 }
-fn rate_report(stats:&Counters,last:&mut(u64,Instant)){
- let now=Instant::now();let count=stats.work.load(Ordering::Relaxed);let seconds=now.duration_since(last.1).as_secs_f64();
- emit(json!({"type":"telemetry","hash":(count-last.0) as f64/seconds,"unit":"N/s","workNonces":count,"accepted":stats.accepted.load(Ordering::Relaxed),"rejected":stats.rejected.load(Ordering::Relaxed),"basis":"executed chain-work equivalents; not pool-estimated hashrate"}));*last=(count,now);
+fn rate_report(stats:&Counters,engine:&Engine,last:&mut(u64,u64,Instant)){
+ let now=Instant::now();let(gpu,cpu)=engine.work_counts(stats);let seconds=now.duration_since(last.2).as_secs_f64();
+ let gpu_rate=(gpu-last.0) as f64/seconds;let cpu_rate=(cpu-last.1) as f64/seconds;
+ emit(json!({"type":"telemetry","hash":gpu_rate+cpu_rate,"gpuHash":gpu_rate,"cpuHash":cpu_rate,"unit":"N/s","workNonces":gpu+cpu,"accepted":stats.accepted.load(Ordering::Relaxed),"rejected":stats.rejected.load(Ordering::Relaxed),"basis":"executed chain-work equivalents; not pool-estimated hashrate"}));*last=(gpu,cpu,now);
 }
 async fn run()->Result<()> {
  let mut a=Args::parse();
@@ -98,6 +107,7 @@ async fn run()->Result<()> {
   a.pool_url=Some(DEFAULT_POOL.to_string());
  }
  ensure!(a.threads>0&&a.threads<=1024,"threads must be 1..1024");
+ ensure!(a.backend!="hybrid"||a.threads<=8,"hybrid supports 1..8 CPU threads");
  ensure!(a.duty.is_finite()&&a.duty>=0.1&&a.duty<=1.0,"duty must be 0.1..1.0");
  if let Some(address)=&a.check_address {let bytes=parse_address_flexible(address).map_err(anyhow::Error::msg)?;emit(json!({"type":"address","valid":true,"canonical":encode_address_with_checksum(&bytes),"mssType":"not inferable from address hash"}));return Ok(())}
  if a.list_devices{emit(json!({"type":"devices","gpus":GpuMiner::list_devices()?,"logicalThreads":std::thread::available_parallelism()?.get()}));return Ok(())}
@@ -108,7 +118,7 @@ async fn run()->Result<()> {
  let engine=initialize(&a)?;
  if a.self_test{return Ok(())}
  let stop=Arc::new(AtomicBool::new(false));let c=stop.clone();ctrlc::set_handler(move||c.store(true,Ordering::Relaxed))?;
- let stats=Arc::new(Counters::new());let start=Instant::now();let mut last=(0,start);
+ let stats=Arc::new(Counters::new());let start=Instant::now();let mut last=(0,0,start);
  if let Some(seconds)=a.benchmark {
   let e=engine.clone();let s=stop.clone();let counter=stats.work.clone();
   let pool_target=a.benchmark_share_bits.map(|bits|{let mut t=[255u8;32];for bit in 0..bits{t[(bit/8) as usize]&=!(1<<(7-bit%8));}t});
@@ -117,18 +127,18 @@ async fn run()->Result<()> {
    e.mine_stream([0x42;32],[0;32],pool_target,s,counter,|_|{returned.fetch_add(1,Ordering::Relaxed);true})
   });
   let mut next=Instant::now()+Duration::from_secs(5);
-  while !stop.load(Ordering::Relaxed)&&start.elapsed()<Duration::from_secs(seconds){tokio::time::sleep(Duration::from_millis(100)).await;if Instant::now()>=next{rate_report(&stats,&mut last);next+=Duration::from_secs(5)}}
+  while !stop.load(Ordering::Relaxed)&&start.elapsed()<Duration::from_secs(seconds){tokio::time::sleep(Duration::from_millis(100)).await;if Instant::now()>=next{rate_report(&stats,&engine,&mut last);next+=Duration::from_secs(5)}}
   stop.store(true,Ordering::Relaxed);worker.join().map_err(|_|anyhow::anyhow!("benchmark worker failed"))??;
-  let elapsed=start.elapsed().as_secs_f64();emit(json!({"type":"benchmark","backend":a.backend,"threads":a.threads,"duty":if a.backend!="cpu"{a.duty}else{1.0},"seconds":elapsed,"noncesPerSecond":stats.work.load(Ordering::Relaxed) as f64/elapsed,"workNonces":stats.work.load(Ordering::Relaxed),"unit":"N/s","networkUsed":false,"iterations":EXTENSION_ITERATIONS,"mode":if pool_target.is_some(){"compute-and-cpu-share-verification"}else{"compute-only"},"shareTargetBits":a.benchmark_share_bits,"locallyVerifiedShares":verified.load(Ordering::Relaxed),"localSharesPerSecond":verified.load(Ordering::Relaxed) as f64/elapsed,"gpuDiagnostics":match engine.as_ref(){Engine::Gpu(g)=>g.diagnostics(),Engine::Cuda(g)=>g.diagnostics(),_=>Value::Null}}));return Ok(())
+  let elapsed=start.elapsed().as_secs_f64();emit(json!({"type":"benchmark","backend":a.backend,"threads":a.threads,"duty":if a.backend!="cpu"{a.duty}else{1.0},"seconds":elapsed,"noncesPerSecond":engine.total_work(&stats) as f64/elapsed,"workNonces":engine.total_work(&stats),"gpuWorkNonces":engine.work_counts(&stats).0,"cpuWorkNonces":engine.work_counts(&stats).1,"unit":"N/s","networkUsed":false,"iterations":EXTENSION_ITERATIONS,"mode":if pool_target.is_some(){"compute-and-cpu-share-verification"}else{"compute-only"},"shareTargetBits":a.benchmark_share_bits,"locallyVerifiedShares":verified.load(Ordering::Relaxed),"localSharesPerSecond":verified.load(Ordering::Relaxed) as f64/elapsed,"gpuDiagnostics":match engine.as_ref(){Engine::Gpu(g)=>g.diagnostics(),Engine::Hybrid(h)=>h.gpu.diagnostics(),Engine::Cuda(g)=>g.diagnostics(),_=>Value::Null}}));return Ok(())
  }
  let report_stop=stop.clone();let report_stats=stats.clone();let duration=a.duration;
  let report_engine=engine.clone();
  let reporter=tokio::spawn(async move {
-  let mut last=(0,Instant::now());let mut diagnostic=Instant::now();
+  let mut last=(0,0,Instant::now());let mut diagnostic=Instant::now();
   while !report_stop.load(Ordering::Relaxed) {
    tokio::time::sleep(Duration::from_secs(1)).await;
    if duration.is_some_and(|n|start.elapsed()>=Duration::from_secs(n)){report_stop.store(true,Ordering::Relaxed)}
-   if last.1.elapsed()>=Duration::from_secs(5){rate_report(&report_stats,&mut last)}
+   if last.2.elapsed()>=Duration::from_secs(5){rate_report(&report_stats,&report_engine,&mut last)}
    if diagnostic.elapsed()>=Duration::from_secs(30) {
     if let Engine::Cuda(g)=report_engine.as_ref(){emit(json!({"type":"cuda-diagnostics","gpuSettings":g.diagnostics()}));}
     diagnostic=Instant::now();
@@ -137,9 +147,9 @@ async fn run()->Result<()> {
  });
  let mut retry_seconds=1u64;
  while !stop.load(Ordering::Relaxed){
-  let previous_work=stats.work.load(Ordering::Relaxed);
+  let previous_work=engine.total_work(&stats);
   if let Err(err)=protocol::session(a.pool_url.as_deref().unwrap(),a.payout_address.as_deref().unwrap(),&a.worker,a.audit_url.as_deref(),engine.clone(),stats.clone(),stop.clone()).await{emit(json!({"type":"error","message":err.to_string()}));}
-  if stats.work.load(Ordering::Relaxed)>previous_work {retry_seconds=1;}
+  if engine.total_work(&stats)>previous_work {retry_seconds=1;}
   if !stop.load(Ordering::Relaxed){emit(json!({"type":"status","message":format!("Reconnecting in {retry_seconds}s")}));}
   for _ in 0..retry_seconds*10 {if stop.load(Ordering::Relaxed){break}tokio::time::sleep(Duration::from_millis(100)).await;}
   retry_seconds=(retry_seconds*2).min(15);

@@ -1229,3 +1229,46 @@ MDS FOLLOW-UP / MAC 0.1.15 DEPLOYED - 2026-10-16
   Clean source is mds-opt2/release-repo; target under mds-mac was reused and
   rebuilt clean for this release. Installed signed app/DMG is authoritative.
   No GitHub publication; public0.1.12 and prior release-cleanup notes unchanged.
+
+
+MDS APPLE SILICON NEON + HYBRID / MAC 0.1.16 DEPLOYED - 2026-10-16
+- Original GPU shader and 0.1.15 geometry/duty retained. Grouped submissions
+  were rejected: one early 711N/s sample later collapsed and affected baseline
+  runs. The machine recovered during CPU-only work; hardware cause unproven.
+- ARM NEON uses table-byte rotate8, shift-insert rotate7/12 and explicit seven
+  rounds. Million-round chain, message schedule and independent scalar reference
+  unchanged. CPU-only eight-lane single-thread screen: 49.852
+  -> 60.024N/s (+20.40%). Not a GPU speedup.
+- Optional GPU + CPU search uses one pool connection/job, GPU lower/CPU upper
+  nonce half, shared aligned CPU cursor, bounded delivery and joined workers.
+  GPU candidates retain full CPU verification. GUI separates GPU/CPU/total;
+  Stop, new jobs, Quit/parent cleanup, thermal protection and0.5%fee retained.
+- Signed production ABBA GPU-only0.1.15 vs GPU+4CPU0.1.16,120/180/180/120s:
+  A 541.232, B 731.473, B 715.816, A 537.901N/s. Mean 539.567->723.643
+  (+34.12%); completed throughput 533.066->712.972.
+  Late medians 539.123->720.310N/s. GPU stays90%duty;
+  four CPU workers use additional CPU resources. Local work, not pool rate.
+- Thermal samples progressed from0(nominal) to1(fair); B2 was slower thanB1,
+  and the live GUI showed warm state. Do not claim a constant724N/s long-term.
+-47GUI tests on each host;11protocol;2hybrid unit;1actualGPU/CPU hybrid test;
+  2profile;2consensus each with NEON4/8;2actualGPU tests pass. Hybrid validation
+  checks both nonce domains against scalar hashes, job switch, cancellation and
+  no counter movement after return. Offline verified results are not pool shares.
+- Real GUI 145.908s: {'accepted': 0, 'rejected': 0, 'submitted': 0}; last rate {'total': 717.6478328184942, 'gpu': 532.4998792862277, 'cpu': 185.1479535322665}.
+  Positive mean 701.898, median 722.918; numeric mean
+  653.155 includes 10 zeros; 2 unavailable samples excluded.
+  Bilingual780px, hidden/menu continuation, Stop, reload and activeQuit pass.
+- Desktop app/DMG0.1.16 opened idle. MDS CPU preference set to4 for next Start;
+  all other settings/address values and fee ledger bytes preserved. Exact prior
+  settings and0.1.15app/DMG backed up under session/mds-opt3. GPU-only remains
+  the general GUI default; this one tested M3 is configured for hybrid.
+- DMG 580064212bytes; SHA256 0be6dfe9aa8f48347c7b1ccbecc66710b0c998085122169009f51bb7343b3636.
+  Core SHA256 2ccace397a0611fca6945762d6d1c761836317c0321210f6339a185e2bbb55ad.
+  Signature/hdiutil and 19482readonly mounted files verified;
+  19397other native files unchanged. Ad-hoc signed, not notarized.
+- Evidence:gui/evidence/mac-mds-optimization-0.1.16.json. Raw scripts/logs/images:
+  .local/mds-opt3 and matching authorized Mac session. Only this10-coreM3 tested;
+  no multi-day, all-model or power-efficiency guarantee. No GitHub publication.
+- Research core/research-core/neon-core/grouped-integration are NOT shipping
+  sources/binaries. Clean build source:mds-opt3/release-repo. Shared cargo target
+  was reused then rebuilt clean; installed signed app/DMG are authoritative.

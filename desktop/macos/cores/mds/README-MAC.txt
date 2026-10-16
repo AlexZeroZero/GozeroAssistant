@@ -1,4 +1,4 @@
-Gozero MDS Apple Silicon port / Mac GUI 0.1.15
+Gozero MDS Apple Silicon port / Mac GUI 0.1.16
 
 Midstate full 1,000,000-round BLAKE3 PoW. wgpu WGSL runs through
 Apple Metal; ARM64 NEON verifies every GPU candidate on the CPU.
@@ -58,3 +58,22 @@ Previous 0.1.13 M3 validation, 2026-10-16:
 - Full million-round BLAKE3, CPU verification, 90% GUI duty, thermal
   protection, job cancellation and the service-fee ledger remain unchanged.
 - Performance evidence is recorded separately; only one 10-core M3 measured.
+
+0.1.16 Apple Silicon CPU/GPU cooperation:
+- Optional Metal + NEON search shares one pool connection and one job token.
+  Choose GPU + CPU x2/x4/x8 in the GUI; GPU-only remains the portable default.
+  CPU and GPU nonce domains are disjoint. Every CPU batch executes the full
+  million rounds; GPU candidates retain full CPU verification.
+- GPU, CPU and total rates are reported separately. Stop, new jobs and Quit
+  join all producers and the GPU verifier; pending output stays bounded.
+- Original 0.1.15 GPU dispatch geometry/duty and fee arithmetic are retained.
+  Grouped GPU submissions were rejected after a sustained-throughput collapse.
+- CPU assistance increases CPU load and may compete for the chip power budget.
+  Performance must be measured on the actual Mac; eight threads are not
+  automatically faster than two or four. Only one M3 has been tested.
+Hybrid check: WGPU_BACKEND=metal cargo test --release --test hybrid -- --ignored --test-threads=1
+Hybrid CLI: GozeroMdsCore --backend hybrid --threads 4 --benchmark 120 --duty 0.9
+- ARM NEON rotations use byte-table permutation for rotate-right 8 and
+  shift-insert for rotate-right 7/12. The seven compression rounds are explicit
+  so the compiler can fold fixed message indices and zero words. Both four-
+  and eight-lane paths retain the full chain and scalar consensus comparisons.

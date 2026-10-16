@@ -601,17 +601,19 @@ mod neon {
     /// Rotates each 32-bit lane right by 12 bits.
     #[inline(always)]
     unsafe fn vrot12(x: uint32x4_t) -> uint32x4_t {
-        vorrq_u32(vshrq_n_u32::<12>(x), vshlq_n_u32::<20>(x))
+        vsriq_n_u32::<12>(vshlq_n_u32::<20>(x), x)
     }
     /// Rotates each 32-bit lane right by 8 bits.
     #[inline(always)]
     unsafe fn vrot8(x: uint32x4_t) -> uint32x4_t {
-        vorrq_u32(vshrq_n_u32::<8>(x), vshlq_n_u32::<24>(x))
+        // One byte permutation rotates each independent 32-bit lane.
+        let indices: [u8;16] = [1,2,3,0,5,6,7,4,9,10,11,8,13,14,15,12];
+        vreinterpretq_u32_u8(vqtbl1q_u8(vreinterpretq_u8_u32(x),vld1q_u8(indices.as_ptr())))
     }
     /// Rotates each 32-bit lane right by 7 bits.
     #[inline(always)]
     unsafe fn vrot7(x: uint32x4_t) -> uint32x4_t {
-        vorrq_u32(vshrq_n_u32::<7>(x), vshlq_n_u32::<25>(x))
+        vsriq_n_u32::<7>(vshlq_n_u32::<25>(x), x)
     }
 
     // ─── 4-way primitives ────────────────────────────────────────────────
@@ -658,7 +660,14 @@ mod neon {
         v[10] = vdupq_n_u32(IV[2]); v[11] = vdupq_n_u32(IV[3]);
         v[12] = zero; v[13] = zero;
         v[14] = vdupq_n_u32(block_len); v[15] = vdupq_n_u32(HASH_FLAGS);
-        for r in 0..7 { round(&mut v, msg, &MSG_SCHEDULE[r]); }
+        // Keep message indices constant so fixed zero words fold out.
+        round(&mut v, msg, &MSG_SCHEDULE[0]);
+        round(&mut v, msg, &MSG_SCHEDULE[1]);
+        round(&mut v, msg, &MSG_SCHEDULE[2]);
+        round(&mut v, msg, &MSG_SCHEDULE[3]);
+        round(&mut v, msg, &MSG_SCHEDULE[4]);
+        round(&mut v, msg, &MSG_SCHEDULE[5]);
+        round(&mut v, msg, &MSG_SCHEDULE[6]);
         [
             veorq_u32(v[0], v[8]),  veorq_u32(v[1], v[9]),
             veorq_u32(v[2], v[10]), veorq_u32(v[3], v[11]),
@@ -853,9 +862,14 @@ mod neon {
         va[14] = vdupq_n_u32(block_len); vb[14] = vdupq_n_u32(block_len);
         va[15] = vdupq_n_u32(HASH_FLAGS); vb[15] = vdupq_n_u32(HASH_FLAGS);
 
-        for r in 0..7 {
-            round_x2(&mut va, &mut vb, msg_a, msg_b, &MSG_SCHEDULE[r]);
-        }
+        // Still exactly seven rounds, with the original BLAKE3 schedule.
+        round_x2(&mut va, &mut vb, msg_a, msg_b, &MSG_SCHEDULE[0]);
+        round_x2(&mut va, &mut vb, msg_a, msg_b, &MSG_SCHEDULE[1]);
+        round_x2(&mut va, &mut vb, msg_a, msg_b, &MSG_SCHEDULE[2]);
+        round_x2(&mut va, &mut vb, msg_a, msg_b, &MSG_SCHEDULE[3]);
+        round_x2(&mut va, &mut vb, msg_a, msg_b, &MSG_SCHEDULE[4]);
+        round_x2(&mut va, &mut vb, msg_a, msg_b, &MSG_SCHEDULE[5]);
+        round_x2(&mut va, &mut vb, msg_a, msg_b, &MSG_SCHEDULE[6]);
 
         let out_a = [
             veorq_u32(va[0], va[8]),  veorq_u32(va[1], va[9]),

@@ -1168,7 +1168,22 @@ impl GpuMiner {
     /// All verifier threads are joined before a job can be replaced.
     pub fn mine_gpu_stream<F: FnMut(MiningResult) -> bool + Send>(
         &self, midstate: [u8; 32], target: [u8; 32], pool_target: Option<[u8; 32]>,
-        cancel: Arc<AtomicBool>, hash_counter: Arc<AtomicU64>, mut emit_hit: F,
+        cancel: Arc<AtomicBool>, hash_counter: Arc<AtomicU64>, emit_hit: F,
+    ) {
+        self.mine_gpu_stream_inner(midstate, target, pool_target, cancel, hash_counter, false, emit_hit);
+    }
+
+    /// Hybrid search reserves the upper half of the nonce space for CPU lanes.
+    pub fn mine_gpu_stream_partitioned<F: FnMut(MiningResult) -> bool + Send>(
+        &self, midstate: [u8; 32], target: [u8; 32], pool_target: Option<[u8; 32]>,
+        cancel: Arc<AtomicBool>, hash_counter: Arc<AtomicU64>, emit_hit: F,
+    ) {
+        self.mine_gpu_stream_inner(midstate, target, pool_target, cancel, hash_counter, true, emit_hit);
+    }
+
+    fn mine_gpu_stream_inner<F: FnMut(MiningResult) -> bool + Send>(
+        &self, midstate: [u8; 32], target: [u8; 32], pool_target: Option<[u8; 32]>,
+        cancel: Arc<AtomicBool>, hash_counter: Arc<AtomicU64>, partitioned: bool, mut emit_hit: F,
     ) {
         let mut state = self.state.lock().unwrap_or_else(|p| p.into_inner());
         state.job = Some((midstate, target, pool_target));
@@ -1207,7 +1222,11 @@ impl GpuMiner {
             };
             'compute: while !cancel.load(Ordering::Relaxed) {
                 let start = Instant::now();
-                let Some(winners) = self.run_batch(&mut params, rand::random(), self.batch_nonces,
+                let random: u64 = rand::random();
+                let base = if partitioned {
+                    (random & 0x7fff_ffff_ffff_ffff).min(0x7fff_ffff_ffff_ffff - u64::from(self.batch_nonces) + 1)
+                } else { random };
+                let Some(winners) = self.run_batch(&mut params, base, self.batch_nonces,
                     &cancel, &hash_counter, true) else { break; };
                 self.compute_ns.fetch_add(start.elapsed().as_nanos() as u64, Ordering::Relaxed);
                 let mut candidates = winners.into_iter().map(|(nonce, _)| nonce).collect();
