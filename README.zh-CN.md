@@ -1,24 +1,26 @@
-# Gozero助手 · Beta 1.02（1.0.49）
+# Gozero助手 · 2.0
 
 [English](README.md) | **简体中文**
 
 紧凑型 Windows GPU / CPU 挖矿助手，提供硬件监测、GPU＋CPU 独立双挖、矿池账本、租赁市场与桌面悬浮监控。
 
-[下载 Windows 版](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.49-beta) · [官网](https://gozero.trade/) · [使用指南](desktop/QUICKSTART.txt) · [构建说明](desktop/README.md)
+[下载 Windows 版](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v2.0) · [官网](https://gozero.trade/) · [使用指南](desktop/QUICKSTART.txt) · [构建说明](desktop/README.md)
 
 ## 下载与升级
 
-下载 `GozerAssistant-1.0.49-win-x64.zip`，核对随附 SHA256，完整解压到新目录，运行 `GozerAssistant.exe`。升级前从托盘退出旧版。已有钱包、矿池与设置保留；程序不会自动开始挖矿。显示版本仍为 **Beta 1.02**，内部版本 **1.0.49**。
+下载 `GozerAssistant-2.0.0-win-x64.zip`，核对随附 SHA256，完整解压到新目录，运行 `GozerAssistant.exe`。升级前从托盘退出旧版。已有钱包、矿池与设置保留；程序不会自动开始挖矿。公开版本 **2.0**，内部版本 **2.0.0**；后续按 **2.1、2.2、2.3…** 递增，内部对应 **2.1.0、2.2.0、2.3.0…**。
 
-## 本版更新
+## 2.0 更新内容
 
-- **已验证的 MDS rc2**：优化整数指令调度与 CUDA 分段排队，保留百万轮计算、完整 CPU 候选复核和真实工作量统计。
-- **3090 实测参数**：U2 / B256 / D4000 / N20992；其它显卡保持启动调优，旧 MDS 内核选择迁移至默认推荐。
-- **独立 Linux x86-64 内核**：原生 ELF、每卡独立进程、JSON 配置、温控与重复启动检查、systemd 服务和 Ansible 批量部署示例。默认矿池 `stratum+tcp://mds.gozero.trade:13333`。
-- **验证结果**：203 项 Windows 回归、实际待机界面/安装和325个打包文件校验通过。Linux 24项核心测试、5项守护脚本测试及部署语法通过；WSL2 / RTX5060Laptop 在30%预算下矿池测试收到3个接受、0拒绝。尚未验证裸机 Linux 与真实多机矿场部署。
-- **性能边界**：此前 Windows 3090 同条件对照中 rc2 在90%计算预算下平均16.768K N/s，相比 rc1 高2.91%（不是与已发布0.1.11的直接对比）。两轮100%预算短测平均18.279K N/s，约351W、最高84°C；不能视为长期有效算力或收益保证，未实测4090。后续仅有微小差异的 foldswap 实验没有合入。
+- **接入 JTM / Jetsam CPU 挖矿**：Gozero JTM CPU 0.3.1-gozero.3 基于 TowerMiner 编译，默认使用 Gozero HTTPS JSON-RPC 矿池；单挖、双挖中旧的该节点 HTTP 地址自动修正。
+- **线程调参说明**：解释 TowerWalk 的512 KiB工作区、缓存、SMT争用和对比方法。更多线程或100%档不保证最高算力，建议档位是测试候选值，并非已实测最优值。
+- **整理工作台**：可搜索的CPU/GPU币种目录、独立任务视图、统一内核库按钮，支持中英日俄。
+- **精简Windows安装包**：保留所需语言文件，无损压缩随附MDS源码；挖矿可执行文件沿用此前本地验证版本。
+- **验证**：212项应用测试通过；检查JTM界面及离线测试。同一JTM核心在此前HTTPS修复验证中收到3个接受、0拒绝份额，不代表支付或完整服务费周期验证。
 
-助手最高档仍为90%计算预算，软件服务费仍为0.5%；独立 Linux 核心/脚本不含抽水调度。详见[验证记录](docs/mds-1.0.49-validation.txt)。
+JTM矿池换块时可能返回 `code 20: node preparing work; retry`，内核会等待新任务。本版未修改矿池服务、未消除等待，也未宣称修复瞬时错误状态下的算力显示问题。原生relay测试的已知限制见[验证范围](docs/release-2.0-validation.txt)。
+
+软件服务费仍为0.5%。MDS保留0.1.12-rc.2核心与已验证3090参数；下方独立Linux内核沿用1.0.49发布的文件。
 
 ### Linux 使用
 
@@ -38,6 +40,7 @@ Ctrl+C 停止。默认85°C停止、70°C以下允许重启、90%计算预算；
 
 | 币种 | 设备 / 算法 | 内核与默认矿池 |
 | --- | --- | --- |
+| JTM | CPU / TowerWalk，每条计算链512 KiB | Gozero JTM CPU 0.3.1-gozero.3；`https://jtm.pool.gozero.trade/rpc` |
 | MDS | NVIDIA RTX 30/40/50 / 百万轮 BLAKE3 链 | Gozero MDS CUDA 0.1.12-rc.2；`stratum+tcp://mds.gozero.trade:13333` |
 | BNT | CPU / Argon2id，每线程2 GiB | 自研核心或 Seine；`stratum+tcp://bnt.pool.gozero.trade:14444` |
 | ZCD | CPU / RandomX v2 | Gozero XMRig CPU 或官方 XMRig；`stratum+tcp://zcd.pool.gozero.trade:3333` |
@@ -48,6 +51,12 @@ Ctrl+C 停止。默认85°C停止、70°C以下允许重启、90%计算预算；
 YSR 需要兼容 CUDA 13 的驱动，未开放 AMD/CPU；TSC Windows 未开放。ZCD 至少需要4 GiB可用内存；BNT 约2 GiB＋128 MiB/线程并预留系统内存。线程越多不一定越快。
 
 ## 当前界面
+
+![JTM workspace 2.0](docs/screenshots/jtm-dark-2.0.png)
+
+![JTM tuning guide 2.0](docs/screenshots/jtm-guide-light-2.0.png)
+
+
 
 1.0.49 MDS 工作台与内核库，待机界面验证截图；截图过程中未启动挖矿。
 

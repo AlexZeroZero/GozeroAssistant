@@ -1,0 +1,20 @@
+{
+  "id": "gozero-jtm-0.3.1-gozero.3",
+  "name": "Gozero JTM CPU",
+  "version": "0.3.1-gozero.3",
+  "exe": "GozeroJtmCore.exe",
+  "exeSha256": "f9f59ac4e4251ec0abdf5e75e2b71513dfe2ef6368cf1d7f2eb2584bd93ac06d",
+  "bundled": true,
+  "bundleDirectory": "jtm",
+  "files": {
+    "DEPENDENCIES.txt": "6340f7954f148bc927b9aff659424c43a07a76f44da0ebf288575d5f1e062bef",
+    "GozeroJtmCore.exe": "f9f59ac4e4251ec0abdf5e75e2b71513dfe2ef6368cf1d7f2eb2584bd93ac06d",
+    "LICENSE-TowerMiner.txt": "3ddf9be5c28fe27dad143a5dc76eea25222ad1dd68934a047064e56ed2fa40c5",
+    "README.txt": "8832605a8ed787f52348ecaf09ef27fd9f524a5f86aab54d04261391568b3e2c",
+    "source.zip": "7cae16214820ac1cf93f97a85930911336bdde351eac8c1d9c3c649b297b4f28",
+    "VALIDATION.txt": "7e1cba684ee83628070e88f1e51a358337c963e0fce815dfa619b8c851733461"
+  },
+  "source": "https://github.com/jetsam-chain/towerminer",
+  "kernelFee": 0,
+  "captureOutput": true
+}

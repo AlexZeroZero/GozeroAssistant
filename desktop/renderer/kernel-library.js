@@ -10,7 +10,7 @@
  const stages={connecting:'连接下载源',downloading:'下载内核',verifying:'校验安装包',extracting:'解压内核',checking:'校验可执行文件',ready:'可用内核',error:'安装失败 · 可重试',idle:'尚未安装'};
  let coin='NOID',key='',rows=new Map(),count;
  const busy=()=>state.miner.status!=='idle'||state.serviceFee?.active||state.serviceFee?.switching||Object.values(state.dual?.tasks||{}).some(t=>t.busy);
- window.openKernelLibrary=symbol=>{coin=symbol||state.config.coin;showView('kernels');update(state)};
+ window.openKernelLibrary=symbol=>{coin=symbol||state.config.coin;document.dispatchEvent(new CustomEvent('gozer-library',{detail:coin}));showView('kernels');update(state)};
  $('#kernel-library-open').onclick=()=>openKernelLibrary();
  const extra=node('button','library-mode-link','内核库 ↗');extra.onclick=()=>openKernelLibrary();$('.workbench-modes').append(extra);
  function cardHeader(name,version){
@@ -27,6 +27,7 @@
   identity.append(node('b','',current.symbol+' · '+current.name),node('span','muted',current.algorithm));
   count=node('span','library-count');identity.append(count);
   const select=node('button','primary','配置此币种挖矿');select.onclick=()=>action(async()=>{
+   if(window.selectLayoutCoin){await window.selectLayoutCoin(coin,true);return}
    if(busy())throw Error('已有挖矿任务运行。请先停止当前任务，再切换币种启动；下载内核不会停止当前任务。');
    if(state.config.workbenchMode==='dual'){toast('请返回双挖工作台，在对应 CPU / GPU 任务中选择币种');return}
    await chooseCoin(coin);showView('mining');

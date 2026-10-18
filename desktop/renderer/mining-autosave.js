@@ -19,6 +19,7 @@
   if(q.error)toast('设置未保存：'+q.error.message);else if(!q.dirty&&!edits.size&&saved)toast('设置已保存');
  });
  const watch=(selector,key,read)=>{const n=$(selector);n.addEventListener('input',()=>{edits.add(n);text(status,'修改后自动保存')});n.addEventListener('change',()=>{edits.delete(n);queue.set(key,read())})};
+ watch('#jtm-key','jtmKey',()=>$('#jtm-key').value);
  watch('#mds-mss','mdsMssConfirmed',()=>$('#mds-mss').checked);
  $('#wallet').addEventListener('input',()=>{if(state.config.coin==='MDS'){$('#mds-mss').checked=false;queue.set('mdsMssConfirmed',false)}});
  watch('#performance','performance',()=>+$('#performance').value);

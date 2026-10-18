@@ -2,7 +2,7 @@
 const {resolve,choices}=require('./kernel-catalog.cjs');
 const {poolChoices}=require('./pool-catalog.cjs');
 const GPU_COINS=['PRL','QTC','NOID','YSR','MDS'];
-const PROFILE_KEYS=['mdsMssConfirmed','reportPoolIdentity','coin','performance','worker','selected','hashWindowMinutes','cpuThreads','zcdPassword','wallets','pools','poolBackups','kernels','noidConnection'];
+const PROFILE_KEYS=['jtmKey','mdsMssConfirmed','reportPoolIdentity','coin','performance','worker','selected','hashWindowMinutes','cpuThreads','zcdPassword','wallets','pools','poolBackups','kernels','noidConnection'];
 function taskConfig(base,id){
  if(!['gpu','cpu'].includes(id))throw Error('无效任务');
  const {taskProfiles,workbenchMode,...shared}=base;
@@ -15,7 +15,7 @@ function normalizeProfiles(base,profiles,validate){
  for(const id of ['gpu','cpu']){
   const input=profiles[id];if(input!==undefined&&(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!PROFILE_KEYS.includes(k))))throw Error('任务配置字段无效');
   const cfg=validate({...taskConfig({...base,taskProfiles:undefined},id),...input});
-  if(id==='cpu'?!['ZCD','BNT'].includes(cfg.coin):!GPU_COINS.includes(cfg.coin))throw Error('币种与设备任务不匹配');
+  if(id==='cpu'?!['ZCD','BNT','JTM'].includes(cfg.coin):!GPU_COINS.includes(cfg.coin))throw Error('币种与设备任务不匹配');
   result[id]=Object.fromEntries(PROFILE_KEYS.map(k=>[k,cfg[k]]));
  }
  return result;

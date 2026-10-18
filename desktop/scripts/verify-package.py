@@ -15,12 +15,15 @@ assert not bad, bad
 archive = Path(str(folder)+'.zip')
 expected = archive.with_suffix('.zip.sha256').read_text().split()[0]
 assert digest(archive) == expected
-(root/'artifacts').mkdir(exist_ok=True)
-profile = '--profile-dir='+tempfile.mkdtemp(prefix='package-profile-',dir=root/'artifacts')
+out = Path(os.environ.get('GOZER_PACKAGE_ARTIFACTS', str(root/'artifacts')))
+out.mkdir(parents=True, exist_ok=True)
+profile = '--profile-dir='+tempfile.mkdtemp(prefix='package-profile-',dir=out)
 env = os.environ.copy()
 env.pop('ELECTRON_RUN_AS_NODE', None)
 env.pop('GOZER_UI_TEST', None)
 env.pop('GOZER_TEST_DATA', None)
+locale = os.environ.get('GOZER_PACKAGE_LOCALE', 'en-US')
+assert locale in ('en-US', 'zh-CN', 'ja', 'ru')
 api = ctypes.WinDLL('user32', use_last_error=True)
 callback_type = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
 api.EnumWindows.argtypes = [callback_type, wintypes.LPARAM]
@@ -29,8 +32,8 @@ api.GetWindowTextW.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
 api.PostMessageW.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM]
 api.ShowWindow.argtypes = [wintypes.HWND, ctypes.c_int]
 api.IsWindowVisible.argtypes = [wintypes.HWND]
-with (root/'artifacts/packaged-startup.log').open('wb') as log:
-    process = subprocess.Popen([str(folder/'GozerAssistant.exe'),profile], cwd=folder, env=env,
+with (out/'packaged-startup.log').open('wb') as log:
+    process = subprocess.Popen([str(folder/'GozerAssistant.exe'),profile,'--lang='+locale], cwd=folder, env=env,
                                stdout=log, stderr=log, creationflags=subprocess.CREATE_NO_WINDOW)
     def windows():
         found = []
@@ -68,10 +71,10 @@ with (root/'artifacts/packaged-startup.log').open('wb') as log:
         subprocess.run([str(folder/'GozerAssistant.exe'),profile,'--quit'],env=env,timeout=10,creationflags=subprocess.CREATE_NO_WINDOW)  # Explicit quit, X now opens the monitor.
         code = process.wait(timeout=20)
         assert code == 0, code
-        report = {'version':version,'manifestFiles':len(manifest['files']),
+        report = {'version':version,'runtimeLocale':locale,'manifestFiles':len(manifest['files']),
                   'allHashesValid':True,'archiveSha256':expected,'windowTitle':main[1],
                   'minimizeFloatingWindow':mini[1],'gracefulExitCode':code,'noMiningExecuted':True}
-        (root/'artifacts/packaged-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
+        (out/'packaged-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
         print(json.dumps(report, ensure_ascii=True))
     finally:
         if process.poll() is None:

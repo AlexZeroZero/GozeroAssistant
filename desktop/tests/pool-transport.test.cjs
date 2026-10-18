@@ -14,3 +14,11 @@ test('HTTPS coins and TCP-only Seine do not advertise unsupported protocols',()=
  assert.equal(t.mode('https://ysr.pool.gozero.trade:8443'),'https');assert.equal(t.mode('bad'),'');
  for(const url of ['bad','https://host:1234','stratum+tcp://user:pass@host:1234','stratum+tcp://host:1234/other','stratum+tcp://host'])assert.throws(()=>t.convert(url,'BNT','tcp'));
 });
+test('Gozero JTM cannot be downgraded to HTTP; custom JSON-RPC stays configurable',()=>{
+ const pool='https://jtm.pool.gozero.trade/rpc';
+ assert(t.requiresHttps(pool,'JTM'));assert(t.requiresHttps(pool.replace('https:','http:'),'JTM'));
+ assert.throws(()=>t.convert(pool,'JTM','http'),/HTTPS/);
+ assert.equal(t.convert('http://jtm.pool.gozero.trade/rpc','JTM','https').url,pool);
+ assert.equal(t.convert('https://custom.example/rpc','JTM','http').url,'http://custom.example/rpc');
+ assert(!t.requiresHttps('https://jtm.pool.gozero.trade.evil.example/rpc','JTM'));
+});

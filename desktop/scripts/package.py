@@ -3,6 +3,7 @@ No npm install, remote source execution, admin privileges, or miner execution.
 """
 from pathlib import Path
 import hashlib, json, os, shutil, subprocess, urllib.request, zipfile, struct, ctypes
+from package_size import compact_package
 
 ROOT = Path(__file__).resolve().parents[1]
 WORK = ROOT.parent / '.local' / 'gozer-build'
@@ -107,15 +108,25 @@ def main():
     shutil.copy2(ROOT/'QUICKSTART.txt', target/'使用说明.txt')
     shutil.copy2(ROOT/'THIRD-PARTY.md', target/'THIRD-PARTY.md')
     shutil.copy2(ROOT/'LICENSE', target/'LICENSE-Gozero.txt')
+    size_report = compact_package(target, WORK/'compact-sources')
+    (target/'PACKAGE-CONTENTS.txt').write_text(
+        'Complete miner source and licenses are retained. MDS source uses tar.xz\n'
+        'solid compression; open it with 7-Zip or tar -xf ARCHIVE.tar.xz. Every\n'
+        'source file was verified byte-for-byte against the original ZIP.\n'
+        'Runtime languages: English, Chinese, Japanese and Russian.\n'
+        'Package compaction does not modify miner executables or graphics components.\n', encoding='utf-8')
     manifest = {'version':app_version,'displayVersion':package.get('displayVersion',app_version),'channel':package.get('releaseChannel','development'), 'runtime':{'version':VERSION,'url':RUNTIME_URL,'sha256':RUNTIME_HASH}, 'files':{str(p.relative_to(target)):digest(p) for p in target.rglob('*') if p.is_file() and p.name!='SHA256.json'}}
     (target/'SHA256.json').write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding='utf-8')
     output = ROOT/'dist'/(name+'.zip')
     # Vendored license files may carry reproducible Unix-epoch timestamps.
-    with zipfile.ZipFile(output,'w',zipfile.ZIP_DEFLATED,compresslevel=6,strict_timestamps=False) as z:
+    with zipfile.ZipFile(output,'w',zipfile.ZIP_DEFLATED,compresslevel=9,strict_timestamps=False) as z:
         for file in sorted(target.rglob('*')):
             if file.is_file():
                 z.write(file, str(file.relative_to(target.parent)))
     (ROOT/'dist'/(name+'.zip.sha256')).write_text(digest(output)+'  '+output.name+'\n',encoding='ascii')
+    size_report.update(version=app_version, archiveBytes=output.stat().st_size,
+                       unpackedBytes=sum(p.stat().st_size for p in target.rglob('*') if p.is_file()))
+    (ROOT/'dist'/(name+'-size.json')).write_text(json.dumps(size_report,indent=2)+'\n',encoding='utf-8')
     print(str(exe), flush=True)
     print(str(output), output.stat().st_size, digest(output), flush=True)
 

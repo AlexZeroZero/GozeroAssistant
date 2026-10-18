@@ -86,8 +86,9 @@
   if(!active)return false;
   const list=$('#rental-list'),width=list.clientWidth,height=list.clientHeight;
   if(!width||!height)return false;
-  const columns=Math.max(1,Math.min(8,Math.floor((width+4)/304)));
-  const rows=Math.max(1,Math.min(Math.floor(96/columns),Math.floor((height+4)/78)));
+  const style=getComputedStyle(list),gap=parseFloat(style.rowGap)||4,rowHeight=parseFloat(style.getPropertyValue('--rental-row-height'))||74;
+  const columns=Math.max(1,Math.min(8,Math.floor((width+gap)/(300+gap))));
+  const rows=Math.max(1,Math.min(Math.floor(96/columns),Math.floor((height+gap)/(rowHeight+gap))));
   list.style.setProperty('--rental-columns',columns);list.style.setProperty('--rental-rows',rows);
   const limit=columns*rows;
   if(limit===form.limit)return false;

@@ -13,6 +13,11 @@ test('MDS resolves the tested CUDA core and preserves older coin profiles',()=>{
  assert.equal(upgraded.kernels.MDS,'auto');assert.equal(upgraded.wallets.MDS,wallet);assert.equal(upgraded.performance,100);
  assert.equal(validate({...c,kernels:{MDS:'gozero-mds-cuda-0.1.10'}}).kernels.MDS,'auto');
  assert.equal(validate({...c,kernels:{MDS:'gozero-mds-cuda-0.1.11'}}).kernels.MDS,'auto');
+ const restored=validate({...c,kernels:{MDS:'gozero-mds-cuda-0.1.12-rc.2-round0'}});
+ assert.equal(restored.kernels.MDS,'auto');assert.equal(restored.wallets.MDS,wallet);
+ assert.equal(restored.performance,100);assert.equal(restored.mdsMssConfirmed,true);
+ assert.equal(resolve(restored).id,'gozero-mds-cuda-0.1.12-rc.2');
+ assert.equal(validate({...c,kernels:{MDS:'gozero-mds-cuda-0.1.12-rc.2'}}).kernels.MDS,'gozero-mds-cuda-0.1.12-rc.2');
  const dual=validate({...c,workbenchMode:'dual',taskProfiles:{gpu:{coin:'MDS',mdsMssConfirmed:true},cpu:{coin:'ZCD'}}});
  assert.equal(dual.taskProfiles.gpu.coin,'MDS');assert.equal(dual.taskProfiles.gpu.mdsMssConfirmed,true);
  assert.throws(()=>validate({...c,pools:{MDS:'stratum+ssl://mds.gozero.trade:13333'}}),/TCP|tcp/);

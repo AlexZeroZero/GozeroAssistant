@@ -1,26 +1,28 @@
-# Gozero Assistant · Beta 1.02 (1.0.49)
+# Gozero Assistant · 2.0
 
 **English** | [简体中文](README.zh-CN.md)
 
 A compact Windows GPU / CPU mining assistant with hardware monitoring, independent GPU + CPU tasks, pool account data, a rental marketplace and a floating desktop monitor.
 
-[Download for Windows](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v1.0.49-beta) · [Website](https://gozero.trade/) · [User guide](desktop/QUICKSTART.txt) · [Build guide](desktop/README.md)
+[Download for Windows](https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/v2.0) · [Website](https://gozero.trade/) · [User guide](desktop/QUICKSTART.txt) · [Build guide](desktop/README.md)
 
 ## Download and upgrade
 
-Download `GozerAssistant-1.0.49-win-x64.zip`, verify the accompanying SHA256 checksum, extract the entire archive to a new folder and run `GozerAssistant.exe`. Exit the old app from its tray menu before upgrading. Existing local wallet/pool settings are preserved. Mining never starts automatically on app launch.
+Download `GozerAssistant-2.0.0-win-x64.zip`, verify the accompanying SHA256 checksum, extract the entire archive to a new folder and run `GozerAssistant.exe`. Exit the old app from its tray menu before upgrading. Existing local wallet/pool settings are preserved. Mining never starts automatically on app launch.
 
-The display version remains **Beta 1.02**; the internal update version is **1.0.49**.
+Public version: **2.0**; internal version: **2.0.0**. Future releases use **2.1, 2.2, 2.3…** (internal **2.1.0, 2.2.0, 2.3.0…**).
 
-## What's new
+## What's new in 2.0
 
-- **Validated MDS rc2:** message-first integer scheduling and bounded queued CUDA dispatches. The full million-round chain, CPU candidate verification and honest work counters remain.
-- **RTX 3090 profile:** U2 / B256 / D4000 / N20992 from actual testing. Other GPUs retain startup tuning; old MDS engine selections migrate to the recommended version.
-- **Standalone Linux x86-64:** native ELF, per-GPU supervisor, JSON configuration, temperature/duplicate-start checks, systemd unit and Ansible fleet example. Default pool: `stratum+tcp://mds.gozero.trade:13333`.
-- **Validation:** 203 Windows application tests; real idle UI/install and all 325 packaged-file checks passed. Linux: 24 core tests, 5 supervisor tests and deployment syntax passed; a WSL2 RTX 5060 Laptop pool trial at 30% budget received 3 accepted / 0 rejected shares. Bare-metal and multi-host deployment are not yet validated.
-- **Measured limits:** Windows RTX 3090 rc2 averaged 16.768K N/s at 90% compute budget in an earlier controlled comparison to rc1 (+2.91%, not a controlled comparison to shipping 0.1.11). Two 100% short trials averaged 18.279K N/s at about 351W, maximum 84°C. These are local work rates, not sustained payout guarantees; RTX 4090 was not measured. The later marginal foldswap experiment is excluded.
+- **JTM / Jetsam CPU mining:** Gozero JTM CPU 0.3.1-gozero.3, built from TowerMiner, with the Gozero HTTPS JSON-RPC pool as default. Previously saved HTTP URLs for this endpoint are repaired automatically in single and dual profiles.
+- **Thread tuning guidance:** explains TowerWalk's 512 KiB workspace, caches, SMT contention and how to compare thread counts. More threads and a 100% budget do not guarantee the highest rate. Suggested counts are test candidates, not measured optimal settings.
+- **Refined workspace:** searchable CPU/GPU coin directory, independent task views, consistent kernel-library actions, and Chinese / English / Japanese / Russian interface support.
+- **Smaller Windows package:** retains the required language files and losslessly compresses the bundled MDS source archive. Mining executables are unchanged from the last locally validated build.
+- **Validation:** 212 application tests passed. JTM UI and offline benchmark checked; the preceding HTTPS fix received 3 accepted / 0 rejected live shares with this same JTM core. This is not payment or full service-fee-cycle verification.
 
-The Assistant keeps its 90% maximum GPU compute budget and disclosed 0.5% service fee. The standalone Linux core/supervisor has no fee scheduler. See [validation scope](docs/mds-1.0.49-validation.txt).
+JTM may pause while its pool returns `code 20: node preparing work; retry` during a block transition. This release does not modify the pool server or eliminate that wait. It also does not claim a fix for transient error-state hashrate display. Native relay-test limitations are documented in [validation](docs/release-2.0-validation.txt).
+
+The software service fee remains 0.5%. MDS retains core 0.1.12-rc.2 and the validated RTX 3090 profile. The standalone MDS Linux archive below is unchanged from 1.0.49.
 
 ### Linux quick start
 
@@ -40,6 +42,7 @@ Ctrl+C stops owned miners. The supervisor defaults to an 85°C stop, 70°C resta
 
 | Coin | Hardware / algorithm | Engine / default connection |
 | --- | --- | --- |
+| JTM | CPU / TowerWalk, 512 KiB per chain | Gozero JTM CPU 0.3.1-gozero.3; `https://jtm.pool.gozero.trade/rpc` |
 | MDS | NVIDIA RTX 30/40/50 / million-round BLAKE3 chain | Gozero MDS CUDA 0.1.12-rc.2; `stratum+tcp://mds.gozero.trade:13333` |
 | BNT | CPU / Argon2id, 2 GiB per thread | Gozero Blocknet CPU or optional Seine; `stratum+tcp://bnt.pool.gozero.trade:14444` |
 | ZCD | CPU / RandomX v2 | Gozero XMRig CPU or official XMRig; `stratum+tcp://zcd.pool.gozero.trade:3333` |
@@ -50,6 +53,12 @@ Ctrl+C stops owned miners. The supervisor defaults to an 85°C stop, 70°C resta
 YSR requires a CUDA 13-compatible driver; AMD/CPU YSR and Windows TSC mining are not enabled. ZCD needs at least 4 GiB available RAM. BNT reserves roughly 2 GiB + 128 MiB per thread plus system headroom; more threads do not always mean more hashrate.
 
 ## Current interface
+
+![JTM workspace 2.0](docs/screenshots/jtm-dark-2.0.png)
+
+![JTM tuning guide 2.0](docs/screenshots/jtm-guide-light-2.0.png)
+
+
 
 1.0.49 MDS workbench and kernel library, idle UI validation; no mining started in these screenshots.
 

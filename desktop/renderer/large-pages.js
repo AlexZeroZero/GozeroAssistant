@@ -11,7 +11,7 @@
  const single=document.createElement('div');document.querySelector('.mining-config').before(single);row(single,'single');
  row(document.querySelector('.dual-card.cpu'),'dual');row(document.querySelector('#settings .panel'),'settings');
  function update(s){if(!s?.config)return;latest=s;const p=s.largePages||{phase:'checking'},blocked=!s.ready||p.busy||s.bntTuning?.running||s.miner?.status!=='idle'||s.serviceFee?.active||Object.values(s.dual?.tasks||{}).some(v=>v.busy);const session=s.config.workbenchMode==='dual'?s.dual?.tasks?.cpu?.miner?.session:s.miner?.session;
-  for(const r of rows){r.root.dataset.phase=p.phase;r.root.hidden=r.kind==='single'?(s.config.workbenchMode==='dual'||!['BNT','ZCD'].includes(s.config.coin)):r.kind==='dual'?s.config.workbenchMode!=='dual':false;
+  for(const r of rows){r.root.dataset.phase=p.phase;r.root.hidden=r.kind==='single'?(s.config.workbenchMode==='dual'||!['BNT','ZCD','JTM'].includes(s.config.coin)):r.kind==='dual'?s.config.workbenchMode!=='dual':false;
    r.button.disabled=blocked||p.phase==='pending'||p.preferred&&p.tokenAvailable;r.refresh.disabled=p.busy||!s.ready;
    put(r.button,p.phase==='pending'?'大页待生效':p.preferred&&p.tokenAvailable?'大页已开启':'开启大页内存');
    let text=labels[p.phase]||labels.error;if(session?.coin==='BNT'&&session.bntOptimization&&((s.config.workbenchMode==='dual'?s.dual.tasks.cpu.miner.status:s.miner.status)==='running'))text+=' · '+GozerI18n.t('实际大页线程')+' '+session.bntOptimization.largePageWorkers+'/'+session.cpuThreads;

@@ -1,6 +1,10 @@
 # 桌面助手构建与测试
 
-当前显示版本：Beta 1.02；包修订号：1.0.49（用于保持自动更新版本单调递增）。
+当前显示版本：2.0；内部语义版本：2.0.0。后续公开版本按2.1、2.2、2.3递增，内部对应2.1.0、2.2.0、2.3.0，GitHub标签为v2.1、v2.2、v2.3。
+
+2.0：整合当前工作台布局、JTM TowerWalk CPU核心0.3.1-gozero.3、Gozero HTTPS矿池与旧HTTP配置迁移、单挖/双挖线程调参指南、中英日俄说明及安装包体积优化。JTM线程上限不等于最优线程数；见工作台调参指南。矿池换块时可能返回code20并暂时无任务，本版未修改矿池服务。
+
+JTM精确构建源码、依赖与许可证随 `native/jtm/source.zip` 提供。MDS仍使用0.1.12-rc.2及既有3090参数；修改实验源码不会自动重建发布内核。
 
 1.0.42：为单挖/双挖增加主矿池协议选择及自动保存；补齐双挖NOID连接模式。已核对Kryptex官方PRL/QTC连接表，TCP端口7048/7049与TLS8048/8049对应。NOID Suprnova切换3337/3341。自定义端口不推测，备用地址不改动；YSR显示HTTPS专用协议，Seine只显示TCP。仅设置连接方式，不保证远端监听可用。
 
@@ -17,13 +21,12 @@ BNT 核心 0.2.1 新增 AVX2 stream 路径，缓存固定寻址表并改进内�
 自动调优会将其与原有路径对比；新内核会使旧调优缓存失效，建议更新后重新运行一次自动调优。
 测试方法、结果和适用范围见 `native/bnt/REPORT.zh-CN.md`。
 
-Linux MDS 独立内核与批量部署见 [Linux 指南](experiments/midstate/linux/README.txt)。1.0.49 更新与测试见 [验证记录](../docs/mds-1.0.49-validation.txt)。
-
 ## 构建
 
 在仓库根目录运行：
 
 ```powershell
+python desktop/scripts/restore-mds-bundle.py
 python desktop/scripts/package.py
 ```
 
@@ -124,7 +127,3 @@ YSR、ZCD、BNT 使用已保存的地址自动查询 `https://pool.gozero.trade/
 金额采用最小单位整数字符串和 BigInt，保留8位精度。错误、429和服务端缓存状态保留旧数据并退避；空值不补零。
 YSR 链上余额与本池已索引奖励分开，ZCD/BNT 可用、未成熟、预留、已付分开。BNT PPLNS 预估说明保留。
 双挖工具栏的 GPU/CPU 矿池账本按钮按对应任务的收款地址查询，不停止挖矿。
-
-## MDS release bundle
-
-Before packaging a source checkout, explicitly run `python desktop/scripts/restore-mds-bundle.py` from the repository root (or pass `--archive PATH` for a downloaded core ZIP). It verifies the pinned ZIP and every manifest file, does not run mining, and restores the bundle/source archive omitted from Git. Editable GPLv3 source is in `experiments/midstate`; see `CUDA-BUILD.txt`.

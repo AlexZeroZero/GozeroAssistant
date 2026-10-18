@@ -1,0 +1,39 @@
+JTM Gozero pool integration / Assistant 1.0.57 / core 0.3.1-gozero.3
+2026-10-18, Windows x64
+
+Endpoint: https://jtm.pool.gozero.trade/rpc
+Pool website: https://pool.gozero.trade/JTM
+The assistant derives Bearer ADDRESS.WORKER from the current payout address,
+including service-fee switches, and omits custom coinbase for this pool.
+Custom HTTP(S) endpoints retain their optional token/coinbase behavior.
+Old blank single/dual profiles migrate once; custom endpoints are retained.
+
+Final binary --gate: PASS (256 golden + 1000 random seeds, varied paths).
+TowerWalk walk.rs is byte-identical to the previous .2 bundled source.
+Assistant unit suite: 210 passed.
+New pool native mock: 23 accepted share objects; a share leaves the same job
+active; explicit no-work pauses submission; refresh resumes without duplicates.
+This is mock acceptance, not proof of real pool share validation or payouts.
+Native main unit tests: 61 passed; 4 new share/pause tests passed.
+Known limitation: full Rust suite is NOT green. The previously failing
+rpc_sends_host_header_only_when_set was explicitly filtered. Six --serve relay
+integration tests failed on loopback transport, including a retry with a test-only
+no-proxy client. Other executed suites passed. These relay tests remain retained.
+The Assistant launches direct miners, not --serve relays. Direct native mock passed.
+
+Live endpoint check: final binary ran for 30 seconds with 2 threads and the
+user-authorized test address. The pool repeatedly returned RPC code 20,
+node preparing work; retry. No authentication/custom-coinbase rejection occurred.
+No live work/accepted shares or payment settlement was observed; no success claim.
+
+Assistant installation/UI and final package checks are recorded in the release
+artifacts after staging. Source, licenses and historical performance evidence
+are included. This update changes pool handling, not the hashing algorithm.
+
+Final Assistant checks:
+- Actual staged native EXE + ProcessGuard: 34 mock block submissions, custom
+  endpoint/token behavior and offline benchmark with no network calls passed.
+- Real Electron UI: default Gozero endpoint selected; no Token field required;
+  wallet-empty start guarded; kernel install and offline benchmark passed.
+- Logs, automatic stop, retained result and light/dark views passed.
+- Final package checks recorded separately in release-1.0.57 artifacts.

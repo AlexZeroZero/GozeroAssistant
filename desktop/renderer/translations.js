@@ -2,6 +2,26 @@
  'use strict';
  // Source phrase | English | Japanese | Russian. Technical IDs, input values and miner output are preserved.
  const rows=`
+JTM 调参指南 · 线程更多不一定更快|JTM tuning · More threads can be slower|JTM 調整ガイド · スレッド増加で遅くなる場合も|Настройка JTM · Больше потоков не всегда быстрее
+JTM：线程更多不一定更快；100%是资源预算，不代表最佳算力。建议手动对比线程数，详见下方调参指南。|JTM: More threads can be slower. 100% is a resource budget, not the best hashrate. Compare thread counts using the guide below.|JTM：スレッド数が多いほど速いとは限りません。100%はリソース上限で、最高速度の保証ではありません。下のガイドで比較してください。|JTM: больше потоков не всегда быстрее. 100% — лимит ресурсов, а не гарантия максимальной скорости. Сравните число потоков по инструкции ниже.
+本机建议对比线程数：|Thread counts to compare on this CPU: |この CPU で比較するスレッド数：|Число потоков для сравнения на этом CPU: 
+算法与硬件|Algorithm and hardware|アルゴリズムとハードウェア|Алгоритм и оборудование
+为什么加线程会变慢|Why more threads can be slower|スレッド増加で遅くなる理由|Почему больше потоков может быть медленнее
+怎样搭配|Choosing thread counts|スレッド数の選び方|Выбор числа потоков
+怎样比较|How to compare|比較方法|Как сравнивать
+怎样选最佳|Choosing the best setting|最適設定の選び方|Выбор лучшей настройки
+TowerWalk 每条计算链使用 512 KiB 工作区，并反复进行前后依赖的随机读写与计算。关键是缓存容量与命中率、访问延迟、核心计算能力；不能只看核心数、内存容量或内存频率。|TowerWalk uses a 512 KiB workspace per chain with repeated dependent random reads, writes and computation. Cache capacity and hit rate, access latency and core throughput matter; core count, RAM capacity or RAM frequency alone cannot predict speed.|TowerWalk は各計算チェーンで 512 KiB を使い、依存関係のあるランダム読み書きと計算を繰り返します。キャッシュ容量・ヒット率、アクセス遅延、コア性能が重要で、コア数や RAM 容量・周波数だけでは速度を判断できません。|TowerWalk использует 512 КиБ на цепочку с зависимыми случайными чтениями, записями и вычислениями. Важны объём и попадания кеша, задержки доступа и производительность ядер; числа ядер, объёма или частоты RAM недостаточно для оценки скорости.
+同一物理核心的 SMT 线程共享缓存和执行资源；线程增加还可能带来缓存争用、内存带宽压力、功耗或温度限制下的降频。多 CCD / NUMA 的布局也会影响结果。大页可减少地址转换开销，但不保证开满线程更快。|SMT threads on one physical core share cache and execution resources. More threads may cause cache contention, memory bandwidth pressure or lower clocks under power or thermal limits. CCD / NUMA layout also matters. Large pages reduce address translation overhead but do not guarantee that all threads are faster.|同じ物理コアの SMT スレッドはキャッシュと実行資源を共有します。スレッド増加で競合やメモリ帯域の負荷、電力・温度制限による周波数低下が起きる場合があります。CCD / NUMA 配置も影響します。ラージページはアドレス変換負荷を減らしますが、全スレッド使用が最速とは限りません。|SMT-потоки одного ядра делят кеш и исполнительные ресурсы. Дополнительные потоки могут усилить конкуренцию за кеш и память или снизить частоты из-за лимитов мощности и температуры. Влияет и топология CCD / NUMA. Большие страницы уменьшают затраты трансляции адресов, но не гарантируют ускорение при всех потоках.
+先测试约一半物理核心数、物理核心数，再测试更多逻辑线程。按核心数填线程不等于已绑定每个物理核心；不能用总 L3 容量除以 512 KiB 直接确定最佳线程数。|Start with roughly half the physical core count, then the physical core count, then more logical threads. Setting the thread count equal to core count does not imply one worker pinned to each core. Total L3 divided by 512 KiB is not a reliable optimal thread count.|まず物理コア数の約半分、次に物理コア数、さらに論理スレッド数を増やして比較します。コア数と同数を入力しても各物理コアへの固定配置にはなりません。L3 合計容量を 512 KiB で割るだけでは最適数を決められません。|Сначала сравните примерно половину числа физических ядер, затем число ядер, затем больше логических потоков. Число потоков, равное числу ядер, не означает привязку по одному работнику на ядро. Деление общего L3 на 512 КиБ не определяет оптимум.
+先停止 JTM，将性能预算设为 100%，再手动填写线程数；改动档位会重新分配线程。单挖可用 30 秒离线测试初筛，随后每档预热约 1 分钟、稳定测量 3–5 分钟并重复对比，保持后台负载和散热条件一致。|Stop JTM, set the budget to 100%, then enter the thread count manually; changing the preset reallocates threads. In CPU-only mode use the 30s offline test for screening. Then warm up each setting for about 1 minute and measure steadily for 3–5 minutes, repeating under matching background load and cooling.|JTM を停止し、予算を 100% にしてからスレッド数を手入力します。プリセット変更で再割当されます。CPU 単独モードの 30 秒オフライン測定で候補を絞り、各設定で約 1 分予熱後、3～5 分安定測定して繰り返します。バックグラウンド負荷と冷却条件を揃えてください。|Остановите JTM, задайте 100%, затем введите число потоков вручную; смена режима перераспределяет потоки. В режиме только CPU используйте офлайн-тест 30 с для отбора. Затем прогрейте каждый вариант около минуты, измеряйте 3–5 минут и повторяйте при одинаковой фоновой нагрузке и охлаждении.
+比较稳定平均 H/s、功耗与温度，不看瞬时峰值；算力接近时优先较少线程。连接矿池后再检查接受与拒绝份额；GPU＋CPU 双挖需在 GPU 同时运行时复测。推荐的是测试方法，尚未自动测出本机最佳配置。|Compare steady average H/s, power and temperature, not peaks; prefer fewer threads when rates are close. Verify accepted and rejected shares on the pool. For GPU+CPU mining, retest with the GPU running. This is a test guide; the best configuration has not been automatically measured.|瞬間最大値ではなく安定平均 H/s、電力、温度を比較し、差が小さければ少ないスレッドを選びます。プールで承認・拒否シェアも確認してください。GPU＋CPU では GPU 稼働中に再測定します。これは測定ガイドで、本機の最適設定を自動検出した結果ではありません。|Сравнивайте устойчивую среднюю скорость H/s, мощность и температуру, а не пики; при близких скоростях выбирайте меньше потоков. Проверьте принятые и отклонённые шары в пуле. Для GPU+CPU повторите тест при работающем GPU. Это методика сравнения, а не автоматически найденная оптимальная конфигурация.
+30 秒离线算力测试 · 不连接矿池|30s offline benchmark · no pool connection|30秒オフライン測定 · プール接続なし|Офлайн-тест 30 с · без пула
+校验通过 · JTM|Verified · JTM|検証完了 · JTM|Проверено · JTM
+离线算力测试 · 30秒|Offline benchmark · 30s|オフライン測定 · 30秒|Офлайн-тест · 30 с
+可选 · 由矿池提供|Optional · provided by pool|任意 · プールが提供|Необязательно · от пула
+JTM 使用 JSON-RPC，不支持 Stratum|JTM uses JSON-RPC, not Stratum|JTM は JSON-RPC を使用。Stratum 非対応|JTM использует JSON-RPC, без Stratum
+JTM 矿池账本、价格和收益尚未接入|JTM pool ledger, price and income are not connected yet|JTM のプール台帳・価格・収益は未接続|Учёт пула, цена и доход JTM пока не подключены
+JTM · TowerWalk CPU · SSE4.1 + PCLMULQDQ · 每条计算链 512 KiB；HTTP / HTTPS JSON-RPC，矿池需支持自定义收款地址。|JTM · TowerWalk CPU · SSE4.1 + PCLMULQDQ · 512 KiB per chain; HTTP/HTTPS JSON-RPC with custom payout support required.|JTM · TowerWalk CPU · SSE4.1 + PCLMULQDQ · チェーンあたり512 KiB。HTTP/HTTPS JSON-RPC、指定受取先対応が必要。|JTM · TowerWalk CPU · SSE4.1 + PCLMULQDQ · 512 КиБ на цепочку; HTTP/HTTPS JSON-RPC с поддержкой адреса получателя.
 单位|Unit|単位|Единица
 可用未支付|Available unpaid|利用可能・未払い|Доступно к выплате
 待成熟收益|Immature rewards|未成熟報酬|Незрелые награды
@@ -1026,5 +1046,32 @@ Gozero 全节点|Gozero full node|Gozeroフルノード|Полный узел Go
  catalog["MDS 由内核按调度执行性能预算，最高档90%；停止后切换档位，设置自动保存。"]=["MDS enforces duty inside the core, up to 90%. Stop to change mode; settings save automatically.", "MDS はコア内で最大90%の実行予算を管理。停止後に変更、自動保存。", "MDS регулирует нагрузку внутри ядра до 90%. Для смены остановите майнинг; настройки сохраняются автоматически."];
  catalog["MDS 收益估算尚未接入；以矿池账本为准"]=["MDS earnings estimates are unavailable; use the pool ledger.", "MDS 収益予測は未対応。プールの台帳を確認してください。", "Оценка дохода MDS пока недоступна; смотрите учёт пула."];
  catalog["校验通过 · MDS CUDA 0.1.12-rc.2"]=["Verified · MDS CUDA 0.1.12-rc.2", "検証済み · MDS CUDA 0.1.12-rc.2", "Проверено · MDS CUDA 0.1.12-rc.2"];
+
+ catalog["运行任务"]=["Running tasks", "実行中のタスク", "Активные задачи"];
+ catalog["币种目录"]=["Coins", "通貨一覧", "Монеты"];
+ catalog["按设备分类"]=["By device", "デバイス別", "По устройству"];
+ catalog["浏览与安装不影响运行任务"]=["Browse and install without interrupting tasks", "閲覧・インストール中も実行を継続", "Просмотр и установка не прерывают задачи"];
+ catalog["工作台内容"]=["Workspace panels", "ワークスペース", "Разделы рабочего стола"];
+ catalog["参数设置"]=["Configuration", "設定", "Параметры"];
+ catalog["设备与算力"]=["Devices & hashrate", "デバイスとハッシュレート", "Устройства и хешрейт"];
+ catalog["矿池账本"]=["Pool ledger", "プール台帳", "Учёт пула"];
+ catalog["内核库"]=["Miner library", "マイナー一覧", "Библиотека ядер"];
+ catalog["设备与性能"]=["Devices & performance", "デバイスと性能", "Устройства и нагрузка"];
+ catalog["查看矿池账本"]=["View pool ledger", "プール台帳を表示", "Открыть учёт пула"];
+ catalog["高级设置 · 连接方式与设备上报"]=["Advanced · Connection & device reporting", "詳細設定 · 接続とデバイス報告", "Дополнительно · Подключение и отчёты"];
+ catalog["展开运行日志"]=["Expand activity log", "ログを展開", "Развернуть журнал"];
+ catalog["展开日志"]=["Expand log", "ログを展開", "Развернуть журнал"];
+ catalog["双挖任务设置"]=["Dual mining configuration", "同時マイニング設定", "Настройка двойного майнинга"];
+ catalog["GPU 参数"]=["GPU settings", "GPU 設定", "Параметры GPU"];
+ catalog["CPU 参数"]=["CPU settings", "CPU 設定", "Параметры CPU"];
+ catalog["高级设置 · 矿池与设备"]=["Advanced · Pool & devices", "詳細設定 · プールとデバイス", "Дополнительно · Пул и устройства"];
+ catalog["选择此任务的币种"]=["Select this task’s coin", "タスクの通貨を選択", "Выбрать монету задачи"];
+ catalog["安装中"]=["Installing", "インストール中", "Установка"];
+ catalog["未启用"]=["Inactive", "未使用", "Не используется"];
+ catalog["等待完整采样"]=["Waiting for a complete sample", "完全なサンプルを待機", "Ожидание полной выборки"];
+ catalog["当前任务继续运行，可查看与安装其他内核"]=["Current task continues; other miners can be viewed and installed", "現在のタスクを継続。他のマイナーを閲覧・インストールできます", "Задача продолжается; другие ядра доступны для просмотра и установки"];
+ catalog["任务不可用"]=["Task unavailable", "タスクが利用できません", "Задача недоступна"];
+ catalog["已有任务运行，请先停止当前任务"]=["Stop the current task before switching", "切り替える前に現在のタスクを停止してください", "Остановите текущую задачу перед переключением"];
+ catalog['Beta 1.02 · 新版工作台']=['Beta 1.02 · New workspace','Beta 1.02 · 新ワークスペース','Beta 1.02 · Новая рабочая панель'];
  return Object.freeze(catalog);
 });

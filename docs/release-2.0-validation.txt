@@ -1,0 +1,31 @@
+Gozero Assistant 2.0 (internal 2.0.0), Windows x64, 2026-10-18
+
+This release renames the locally validated 1.0.59 application to 2.0.
+Application tests rerun for 2.0: 212 passed, 0 failed, 0 skipped.
+Public-source checkout: 211 passed, 0 failed, 1 optional KRig archive test
+skipped because that external archive is not included in the checkout.
+Real Electron JTM UI / 30-second offline benchmark: GOZER_SMOKE_PASS.
+UI screenshots use an isolated profile; benchmark samples are local work rates.
+Packaged startup, close-to-floating-window, and clean exit passed.
+All 288 manifest file hashes and the Windows ZIP SHA256 were verified.
+Packaged MDS/JTM/YSR/BNT bundle installation passed without starting mining.
+Windows ZIP SHA256: f26e4126067bf07f3a794c97e6c02e207f8e9691c2ccd30f43d4f7616c6527da
+
+JTM core: 0.3.1-gozero.3, unchanged executable. During the earlier 1.0.58
+HTTPS correction, the real Assistant/ProcessGuard path was tested for live
+mining with two CPU threads and obtained 3 accepted / 0 rejected shares,
+then stopped cleanly. This does not verify payments, a full service-fee
+cycle, the 3995WX thread optimum, or long-term performance.
+
+JTM known limitations:
+- Pool code 20 (node preparing work) pauses work until a new valid template.
+  This release does not change the pool server or remove transition gaps.
+- Transient error states can still mask a nonzero rolling work rate in UI.
+- The preceding native validation had 61 main unit tests passing, but the
+  full Rust suite was not green: one pre-existing Host-header test was
+  filtered and six --serve relay loopback tests failed. See the historical
+  native/jtm/VALIDATION.txt in conjunction with this later live-pool result.
+- Thread candidates are guidance, not automatic optimal-configuration results.
+
+MDS/YSR/BNT computational cores are unchanged. The MDS Linux archive is the
+same 0.1.12-rc.2 asset from 1.0.49; no new Linux performance claim is made.

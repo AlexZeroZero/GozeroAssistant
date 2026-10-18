@@ -17,20 +17,33 @@
    b.append(head,node('small','',c.name));b.title=c.name+' · '+c.algorithm;return b;
   }));}
   const query=$('#coin-search').value.trim().toLowerCase();let count=0;
-  for(const c of s.coins){const b=$('#coin-tabs').querySelector('[data-coin="'+c.symbol+'"]');b.hidden=(kind!=='all'&&(c.hardware||'GPU')!==kind)||!`${c.symbol} ${c.name} ${c.algorithm}`.toLowerCase().includes(query);if(!b.hidden)count++;b.disabled=!s.ready;b.classList.toggle('active',c.symbol===s.config.coin);b.setAttribute('aria-pressed',String(c.symbol===s.config.coin));}
+  const selected=window.getLayoutCoin?.()||s.config.coin;
+  for(const c of s.coins){const b=$('#coin-tabs').querySelector('[data-coin="'+c.symbol+'"]');b.hidden=(kind!=='all'&&(c.hardware||'GPU')!==kind)||!`${c.symbol} ${c.name} ${c.algorithm}`.toLowerCase().includes(query);if(!b.hidden)count++;b.disabled=!s.ready;b.classList.toggle('active',c.symbol===selected);b.setAttribute('aria-pressed',String(c.symbol===selected));}
   text('#coin-count',count+' / '+s.coins.length);$('#coin-empty').hidden=count>0;
   const current=s.coins.find(c=>c.symbol===s.config.coin);text('#coin-current',current?current.symbol+' · '+current.name+' · '+(current.hardware||'GPU')+' / '+current.algorithm:'—');
+  window.refreshCoinGroups?.();
  };
  $('#coin-search').addEventListener('input',()=>window.renderCoinPicker(state));
  document.querySelectorAll('[data-coin-kind]').forEach(b=>b.onclick=()=>{kind=b.dataset.coinKind;document.querySelectorAll('[data-coin-kind]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));window.renderCoinPicker(state)});
  window.renderCpuMining=s=>{
-  const cpu=['ZCD','BNT'].includes(s.config.coin),blocked=busy(s);tuning.hidden=s.config.coin!=='BNT'||s.kernel.adapter==='bnt-seine';tuneButton.disabled=blocked||!s.kernel.installed;cancelTune.hidden=!s.bntTuning?.running;cancelTune.disabled=false;GozerI18n.setText(tuneMessage,s.bntTuning?.message||'离线计算对比 · 约5–15分钟 · 完成后应用');$('#cpu-options').hidden=!cpu;$('#pool-row').hidden=false;$('#zcd-node').hidden=!cpu;
+  const cpu=['ZCD','BNT','JTM'].includes(s.config.coin),blocked=busy(s);tuning.hidden=s.config.coin!=='BNT'||s.kernel.adapter==='bnt-seine';tuneButton.disabled=blocked||!s.kernel.installed;cancelTune.hidden=!s.bntTuning?.running;cancelTune.disabled=false;GozerI18n.setText(tuneMessage,s.bntTuning?.message||'离线计算对比 · 约5–15分钟 · 完成后应用');$('#cpu-options').hidden=!cpu;$('#pool-row').hidden=false;$('#zcd-node').hidden=!cpu;
   $('#performance').disabled=(cpu||s.config.coin==='MDS')&&blocked;$('#performance').title=cpu&&blocked?GozerI18n.t('CPU 挖矿中：停止后可切换线程档位'):'';$('#cpu-threads').disabled=blocked;$('#worker').disabled=blocked;$('#zcd-password').disabled=blocked;
   $('#mining-devices').nextElementSibling.hidden=cpu;
   text('#device-runtime-note',cpu?'CPU 聚合任务 · 不影响 GPU 选择':'按 PCI 地址独立调度 / 同算法汇总');
   text('.performance-note',cpu?'CPU 按逻辑线程分配，100%档可使用全部线程和 CPU 配额；不修改频率或电压。':'最高档预留10%进程调度时间；GPU已排队工作仍可能短时满载，不是显卡功率锁定。');
   text('#pool-link',cpu?'官网 ↗':'矿池 ↗');$('#pool').placeholder=cpu?'stratum+tcp://host:port':'';
   $('#bnt-connection-check').hidden=s.config.coin!=='BNT';$('#bnt-connection-check').disabled=blocked;if(!cpu)return;if(s.config.coin==='BNT'){const b=s.bntMemory||{},g=v=>(Number(v||0)/1073741824).toFixed(1),n=Number($('#cpu-threads').value)||GozerPerformance.bntThreadBudget(s.bntThreadLimit,Number($('#performance').value));text('.performance-note','BNT 每线程 2 GiB + 128 MiB 开销 · 系统预留 '+g(b.reserveBytes)+' GiB · 预计占用 '+g(n*b.perThreadBytes)+' GiB');text('#pool-link','矿池 ↗'); $('#cpu-threads').max=s.bntThreadLimit||1;$('#zcd-node').hidden=true;$('#zcd-password').disabled=true;text('#cpu-summary','RAM '+g(b.totalBytes)+' / 可用 '+g(s.hardware?.metrics?.freeMemory)+' GiB · 上限 '+s.bntThreadLimit+' T');if(!blocked&&(!s.bntThreadLimit||n>s.bntThreadLimit)){$('#start').disabled=true;text('#run-status','内存预算不足或线程超限，请重新应用档位')} text('#fee-note',s.kernel.adapter==='bnt-seine'?'Seine 内核费 2.5%（bntpool 1%）· 软件服务费 0.5%':'内核费 0% · 软件服务费 0.5%');text('#compatibility','BNT · Argon2id · CPU / AVX2 / SSE2；每线程 2 GiB，预留系统内存。');text('#measured-net','BNT 价格和收益源尚未接入');const conn=s.miner.connection;if(s.miner.status==='running'&&conn&&(!s.miner.jobs.some(j=>j.status==='running')||conn.stage!=='work')){text('#session-status',conn.stage==='work'?'计算初始化':'等待矿池');text('#run-status',conn.message)}if(!s.serviceFee?.addresses?.BNT){text('#compatibility','BNT 服务费地址待配置');$('#start').disabled=true}return;}
+  if(s.config.coin==='JTM'){
+   text('.performance-note','JTM：线程更多不一定更快；100%是资源预算，不代表最佳算力。建议手动对比线程数，详见下方调参指南。');
+   $('#zcd-node').hidden=true;$('#zcd-password').disabled=true;$('#cpu-threads').max=s.cpuDevice?.logical||1;
+   const d=s.cpuDevice; text('#cpu-summary',d?d.cores+' C / '+d.logical+' T · TowerWalk':'未识别到可用 CPU');
+   text('#fee-note','内核费 0% · 软件服务费 0.5%');
+   text('#compatibility','JTM · TowerWalk CPU · SSE4.1 + PCLMULQDQ · 每条计算链 512 KiB；HTTP / HTTPS JSON-RPC，矿池需支持自定义收款地址。');
+   text('#measured-net','JTM 矿池账本、价格和收益尚未接入');
+   $('#pool').placeholder='https://host:port';$('#pool-backups-open').disabled=true;
+   if(!s.config.pools.JTM||!s.config.wallets.JTM)$('#start').disabled=true;
+   return;
+  }
   const d=s.cpuDevice,threads=Number($('#cpu-threads').value)||GozerPerformance.cpuThreadBudget(d,Number($('#performance').value)),j=s.miner.jobs?.[0];
   $('#cpu-threads').max=d?.maxThreads||1;
   text('#cpu-summary',d?d.cores+' C / '+d.logical+' T · '+threads+' T':'未识别到可用 CPU');

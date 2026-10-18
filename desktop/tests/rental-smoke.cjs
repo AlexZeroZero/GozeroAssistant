@@ -8,7 +8,9 @@ async function run(win,getState){
  const wait=async()=>{for(let i=0;i<240;i++){if(await js("!document.querySelector('#rentals').classList.contains('rental-busy')"))return;await sleep(100)}throw Error('Rental UI timeout')};
  await wait();
  assert.ok(await js("document.querySelectorAll('.rental-card').length>0"));
- assert.equal(await js("[...document.querySelectorAll('.rental-model')].every(n=>n.textContent.includes('RTX 4090')&&!n.textContent.includes('Laptop'))"),true);
+ // The catalogue now includes mixed-GPU machines in model-filtered results.
+ // Keep their server-supplied identity instead of relabelling them as one GPU.
+ assert.equal(await js("[...document.querySelectorAll('.rental-model')].every(n=>/RTX 4090|Mixed GPUs/.test(n.textContent)&&!n.textContent.includes('Laptop'))"),true);
  for(const language of ['zh-CN','en','ja','ru']){
   await js(`gozer.language('${language}')`);await sleep(140);
   const metrics=await js("({language:document.documentElement.lang,viewOverflow:document.querySelector('#rentals').scrollWidth-document.querySelector('#rentals').clientWidth,navOverflow:document.querySelector('nav').scrollWidth-document.querySelector('nav').clientWidth,mainScroll:document.querySelector('main').scrollHeight-document.querySelector('main').clientHeight,height:innerHeight,statusBottom:document.querySelector('.rental-statusbar').getBoundingClientRect().bottom,footerTop:document.querySelector('footer').getBoundingClientRect().top})");
@@ -24,8 +26,8 @@ async function run(win,getState){
  assert.equal(await js("document.querySelector('#rental-detail').hidden"),false);await fs.writeFile(path.join(out,'gpu-detail.png'),(await win.webContents.capturePage()).toPNG());
  await js("document.querySelector('#rental-duration').value='1';document.querySelector('#rental-duration').dispatchEvent(new Event('change'))");assert.match(await js("document.querySelector('#rental-cost').textContent"),/^\$[0-9.]+$/);
  await js("document.querySelector('#rental-dialog-close').click();window.rentalProbe=document.querySelector('.rental-card');document.querySelector('#rental-refresh').click()");await wait();assert.equal(await js("rentalProbe===document.querySelector('.rental-card')"),true);
- await js("document.querySelector('[data-rmodel=\"RTX 5090\"]').click()");await wait();assert.equal(await js("[...document.querySelectorAll('.rental-model')].every(n=>n.textContent.includes('RTX 5090'))"),true);
- await js("document.querySelector('[data-rmodel=\"RTX 3090\"]').click()");await wait();assert.equal(await js("[...document.querySelectorAll('.rental-model')].every(n=>n.textContent.includes('RTX 3090'))"),true);
+ await js("document.querySelector('[data-rmodel=\"RTX 5090\"]').click()");await wait();assert.equal(await js("[...document.querySelectorAll('.rental-model')].every(n=>/RTX 5090|Mixed GPUs/.test(n.textContent))"),true);
+ await js("document.querySelector('[data-rmodel=\"RTX 3090\"]').click()");await wait();assert.equal(await js("[...document.querySelectorAll('.rental-model')].every(n=>/RTX 3090|Mixed GPUs/.test(n.textContent))"),true);
  await js("document.querySelector('[data-rmodel=pro]').click()");await wait();await fs.writeFile(path.join(out,'pro-6000.png'),(await win.webContents.capturePage()).toPNG());
  await js("document.querySelector('[data-rkind=cpu]').click()");await wait();assert.ok(await js("document.querySelectorAll('.rental-card').length>0"));await fs.writeFile(path.join(out,'cpu.png'),(await win.webContents.capturePage()).toPNG());
  await js("document.querySelector('#rental-more').click();document.querySelector('#rental-threads').value='64';document.querySelector('#rental-threads').dispatchEvent(new Event('change'))");await wait();await fs.writeFile(path.join(out,'cpu-filter.png'),(await win.webContents.capturePage()).toPNG());
