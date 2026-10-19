@@ -1,0 +1,21 @@
+[workspace]
+members = ["towerminer"]
+exclude = []
+resolver = "2"
+
+# The vendored crates (vendor/, git archive of jetsam ea67571) read their
+# version from here. Kept identical to upstream so nothing in them changes.
+[workspace.package]
+version = "1.4.1"
+edition = "2021"
+license = "Apache-2.0"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+# A worker that panics must take the process down with it: a miner that goes
+# on with N-1 threads reports a rate it no longer has.
+panic = "abort"
+# Release binaries carry no symbol table (and no build paths: see
+# scripts/build.sh, --remap-path-prefix).
+strip = true

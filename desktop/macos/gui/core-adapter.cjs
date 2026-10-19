@@ -4,7 +4,8 @@ const {GPU_ID,CPU_ID}=require('./config.cjs');
 const {formatRate}=require('./coins.cjs');
 function launchSpec(root,dir,cfg,report,runtime={}){
  const coin=cfg.coin,wallet=cfg.wallets[coin];
- if(!['QTC','PRL','BNT','MDS'].includes(coin)||!wallet)throw Error('内核配置无效');
+ if(!['QTC','PRL','BNT','MDS','JTM'].includes(coin)||!wallet)throw Error('内核配置无效');
+ if(coin==='JTM')return require('./jtm.cjs').launch(root,cfg);
  if(coin==='MDS'){
   require('./mds.cjs').confirm(cfg);
   return {executable:path.join(root,'mds/GozeroMdsCore'),args:['--backend',cfg.cpuThreads>0?'hybrid':'gpu','--threads',String(cfg.cpuThreads||1),'--pool-url',cfg.pools.MDS,'--payout-address',wallet,'--worker',cfg.worker,'--mss-confirmed','--duty','0.9','--parent-pid',String(process.pid)],cwd:path.join(root,'mds'),env:{...process.env,WGPU_BACKEND:'metal',GPU_OC_SETTINGS:path.join(root,'mds/GPU_OC_SETTINGS.toml')}};

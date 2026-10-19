@@ -1424,3 +1424,153 @@ GITHUB OLD MAC INSTALLER CLEANUP - 2026-10-16
   Windows/main and all other releases verified unchanged; source tags untouched.
 - Public evidence:gui/evidence/mac-release-0.1.18-cleanup.json. Snapshots/scripts
   and metadata backups:.local/release-0.1.18-cleanup. Cleanup complete.
+
+JTM APPLE M3 RESEARCH TEST - 2026-10-18
+- User requested JTM mining/hashrate test on LAN M3; authorized temporarily
+  quitting MDS wallet and restoring afterward. Current host is .149 with the
+  existing dedicated SSH key/known host alias. Wallet restored and miner stopped.
+- Evidence/source: ignored .local/jtm-m3; remote session/jtm-20261018. RESULTS.txt
+  and results/metrics.json contain exact rates, limitations and raw log paths.
+- Ported official towerminer0.3.1 to native arm64 Darwin. Fixed mmap/platform
+  glue, ARM prefetch and x86-only two-lane assumptions using PACKED_LANES.
+  Vendored core/poseidon files match official Jetsam1.5.1; full TowerWalk only.
+  Old extminer --bench omits TowerWalk and is NOT a current JTM hashrate.
+- Complete gate256golden+32random passed across all shapes; nonce check5692
+  verified,0bad/duplicate/outside-region,9unchecked at shutdown.57unit+7integration
+  tests pass. Initial timer/page-label failures and fixes remain in raw evidence.
+- 8threads/2pads/prefetch0:45s ABBA samples6860.7 and6619.9H/s (mean6740.3).
+  Final30s offline7410.2H/s; live180s rolling-sample mean6485.5H/s, final5702.3H/s.
+  Short peaks are not sustained claims; CPU mean779.4% of800%, no power/temp data.
+- DongQN pool returned literal "accepted" for shares. Fixed upstream retiring
+  the job after any successful reply; pool share acknowledgements now continue,
+  actual node block hashes retain retirement. Regression tests cover both.
+  Before fix64s:1accepted then idle; after fix180s:2accepted,0refused/unknown,
+  all36status samples mining, height40590->40591. Mainnet parent independently
+  checked against official RPC; this is no long-term pool-rate/earnings claim.
+- Final binary SHA256258b77fc75b59ad10bf112a9d0291780d65eba3bd66de6cfb446612de2940072.
+  CPU-only research CLI; no Metal backend, GUI integration or GitHub publication
+  performed in this task. Preserve original Mac/Windows release artifacts.
+
+JTM APPLE M3 KERNEL OPTIMIZATION - 2026-10-18
+- CPU-only research on the same M3. Selected quad address-collision checking:
+  preload four independent addresses; preserve sequential read/write semantics
+  when any collide. Complete TowerWalk, scratchpad and nonce accounting unchanged.
+- Hot ABBA4x75s: baseline5975.0/5837.4 vs quad6105.1/6080.7H/s;
+  means5906.2->6092.9H/s (+3.161%). Selected8threads/2pads/prefetch0.
+  Compiler-only target-cpu tuning measured -1.208% and was rejected, as were
+  simple/interleaved/lazy variants and slower thread/pad combinations.
+- All computational candidates passed256golden+64random complete gates.
+  Selected quad58unit+7integration tests passed, including address collisions.
+  DongQN180s:8found/8accepted/0refused/0unknown;36/36statuses mining.
+  Local rolling-sample mean6237.4H/s, final5322.0H/s; not pool-side sustained rate.
+- Mixed QoS4x4pads+4x2pads ABBA4x45s:5925.55->6171.4H/s (+4.149%
+  vs original). Not adopted: incremental benefit beyond quad is uncertain.
+  QoS is scheduler preference, not hard P/E affinity; no mixed live-pool claim.
+- Late slowdown persists; Foundation thermalState=fair observed, without
+  temperature/frequency/power counters. Background processes remained active.
+  Do not infer sole thermal causation, sustained peak or all-M-series gains.
+- Evidence:.local/jtm-m3/optimization-20261018/RESULTS.txt, metrics.json and
+  raw logs. Selected full source:validated-source and
+  towerminer-m3-optimized-source.tar.gz; archive SHA256
+  e347919be7f3e4d9c96b254f694d2399a8b894fab4a240323f9d2c27e5bf2db8.
+  Build:Rust1.93.0 cargo rustc --release --locked -p towerminer --bin towerminer
+  -- -C target-cpu=apple-m3. Build instructions/licenses retained in source.
+- Separate arm64 binary:towerminer-m3-optimized, SHA256
+  f9bb41de9fa2e1c44c21d8dbd8d00aedc27052799e9f927da9f4f35267b0673b.
+  Remote evidence/binary:session/jtm-20261018/optimization-20261018.
+  Original source and target/release binary restored to prior baseline258b...0072.
+  Test miner stopped; MDS wallet restored. No GUI integration or publication.
+
+JTM PORTABLE APPLE SILICON TEST PACKAGE - 2026-10-18
+- User requested a package to test other M chips. Rebuilt baseline and quad
+  with identical RUSTFLAGS=-C target-cpu=apple-m1 and deployment target11.0,
+  Rust1.93.0. No M3-specific instruction target in portable binaries. Actual
+  validation only on M3/macOS26.5.1; do not claim older OS/other chips tested.
+  Historical M3-targeted+3.161% does not establish this build's speedup.
+- Both full256golden+64random gates passed. Optimized58unit+7integration tests
+  passed; nonce check472ok/0bad/0dup/0outside/0unchecked. Native arm64, minos11.0
+  and system dynamic libraries inspected. Final binaries ad-hoc signed/verified.
+- Standalone package includes automatic core-count selection,60s quick test,
+  four60s ABBA comparison, full gate, optional180s pool test with supplied public
+  address shown before Enter confirmation. No bundled runtimes needed.
+  Results:Desktop/Gozero-JTM-Results, original logs and comparison summary.
+  Includes complete source/baseline alternative/build instructions/licenses.
+- Packaging smoke used2s/2threads only (not a performance claim); quick and
+  comparison aggregation pass. SIGTERM cleanup passed; no test miner remains.
+  MDS wallet stayed running (PID56792), not interrupted for packaging checks.
+  Pool launcher is included; no new portable-build pool acceptance measured.
+- ZIP fresh extraction/executable permissions verified; DMG verify and mounted
+  payload hashes passed. Downloaded Windows copies hash/size verified.
+  Artifacts/evidence:.local/jtm-m3/portable-20261018; matching remote session
+  jtm-20261018/portable-20261018. DMG copied to M3 Desktop and hash verified.
+- Gozero-JTM-AppleSilicon-Test-20261018.dmg:8509449bytes; SHA256
+  8d7f9f5a70aedd36865bd4705074fc00e8f72d51bb9e6fc852c5ab3ddac02f58.
+  ZIP:8126898bytes; SHA256
+  845cd7d5220f65c9a1e21bdb755bb17b921c112e94ce763301fe4a35fa0ae73c.
+  No GUI integration or GitHub publication; original releases untouched.
+
+COMPLETE MAC GUI0.1.19 WITH JTM - 2026-10-18
+- User corrected the standalone-package delivery: requested the full Gozero app.
+  JTM is now integrated into the existing bilingual GUI alongside five coins.
+  User explicitly approved their supplied j1 address as the JTM0.5% service
+  recipient; original fee mathematics, scheduling and existing recipients remain.
+- Native source:desktop/macos/cores/jtm. Official towerminer0.3.1 plus prior
+  exact quad/Darwin/accepted fixes; added optional GUI-parent exit watchdog and
+  final status counters. Generic apple-m1 build, core SHA256
+  9106639e78f920533c162f11ffb636a242a092fe23bec465a1c6ecf62111cffd.
+  Full TowerWalk, no Metal backend, no duration limit, no mixed QoS scheduler.
+- JTM core is bundled and hash-checked. Other coins retain0.1.18 pinned downloads;
+  original catalog and telemetry bytes preserved. GUI requires macOS13.5+;
+  QTC/PRL14+. Only M3/macOS26.5.1 validated, not every M chip/older OS.
+- GUI supports JTM JSON-RPC HTTP/HTTPS, checksummed public address, automatic
+  CPU count or manual cap, CPU rate/accepted/refused/unknown tracking, menu bar,
+  persistent profile and full Stop/Quit cleanup. Status snapshots own counters;
+  asynchronous block logs never double-count. Fee-selected wallet is honored.
+-61GUI tests pass on Windows/Mac;58native unit+7integration tests pass;
+  full256golden+64random gate passes. Actual bilingual780px GUI and six tabs
+  checked; fresh profile starts bundled JTM without network core downloads.
+ 65.5s GUI live:2submitted/2accepted/0rejected/0unknown,8CPU threads,
+  last7281.6H/s. Short functional observation, not sustained gain claim.
+  Window hide/menu/Stop/reload/active Quit and orphan-parent cleanup passed.
+- Full app and verified mounted DMG delivered to M3 Desktop, opened idle.
+  Existing profiles/ledger preserved; JTM selected and test address prefilled
+  only on this user's machine. Generic installer contains no user settings.
+  MDS wallet restored. Old Desktop app and earlier standalone JTM test DMG
+  archived under session/jtm-gui-019/desktop-before-019, not left as current app.
+- DMG152225204bytes SHA256
+  d22445e2fa9d02e98eccfdb4189cb98756fa795ecb279708b8514063a401047d.
+  ZIP136508855bytes SHA256
+  e273caed2b72536b1c27be71a1d234e69ad229ffe9945f07a8c5275417af168e.
+  Local downloads verified. Ad-hoc signed; not Apple-notarized.
+- Evidence:gui/evidence/mac-jtm-0.1.19.json; raw logs/screenshots/artifacts
+  .local/jtm-gui-0.1.19. Remote session/jtm-gui-019/build-2 is the validated app.
+  First smoke harness synchronization failure retained; corrected complete
+  success report required (Electron quit code alone was insufficient).
+  No GitHub publication requested/performed for0.1.19; public stays0.1.18.
+
+JTM GOZERO POOL CORRECTION / MAC0.1.20 - 2026-10-18
+- User asked why DongQN instead of their Gozero JTM pool. Checked live site
+  and read-only current Windows adapter/bundled0.3.1-gozero.3 sources.
+  Web:https://pool.gozero.trade/JTM; RPC:https://jtm.pool.gozero.trade/rpc.
+- Added default Gozero HTTPS443 preset with /rpc, correct webpage link,
+  Bearer ADDRESS.WORKER, no custom coinbase. DongQN remains optional.
+- Native accepts Gozero share objects without retiring work; explicit no-work
+  and stale responses pause old work until valid refresh. Pool-compatible
+  header required. Initial endpoint probe got preparing-work; later recovered.
+- First live candidate18accepted/1duplicate. Difficulty changed epoch and
+  reset cursor; fixed by retaining worker counters and rebuilding seed rings.
+  Regression covers plain+pipelined kernels; full hashing/quad code unchanged.
+-63native unit+7integration,61GUI each host,256golden+64random gates pass.
+  Synthetic HTTP regression625accepted, no duplicate nonce; pause/resume and
+  difficulty change verified. This is mock acceptance, separate from live.
+- Final live Gozero GUI:65.352s,{'submitted': 4, 'accepted': 4, 'rejected': 0, 'unknown': 0},
+  last4335.8H/s,8threads; short functionality only.
+- Final build-2 bilingual GUI hide/menu/Stop/reload/activeQuit and native
+  parent-loss cleanup passed; MDS wallet restored. Desktop app/DMG0.1.20
+  installed idle; selected JTM now Gozero, others and ledger preserved.
+  Prior Desktop0.1.19 app/DMG recoverably archived in desktop-before-020.
+- DMG mounted payload/signature and downloaded hashes verified. JTM bundled;
+  pinned other cores unchanged. Ad-hoc signature, no notarization.
+- DMG SHA256:4122f29bce7ae65488c7bb6ed3b99571e567eaf21e16ad0bc5a3abfd029535e5
+- Evidence:gui/evidence/mac-jtm-0.1.20.json; .local/jtm-gui-0.1.20.
+  No GitHub publication requested or performed; public remains0.1.18.

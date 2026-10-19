@@ -1,0 +1,21 @@
+JTM Apple M3 experimental CPU miner - 2026-10-18
+
+Based on official jetsam-chain/towerminer 0.3.1, upstream revision
+81d16ca17a8c349737dee682031523fc14fbf340.
+Preserve LICENSE and vendored source licenses. Includes the prior Darwin/ARM
+port and pool accepted-acknowledgement fix, plus the validated quad walk kernel.
+No mixed QoS scheduler is enabled. No Metal backend or GUI integration.
+
+Build on arm64 macOS with Rust 1.93.0 from this source directory:
+cargo +1.93.0 rustc --release --locked -p towerminer --bin towerminer -- -C target-cpu=apple-m3
+
+Bounded complete TowerWalk benchmark:
+./target/release/towerminer --bench-walk 60 --threads 8 --pads 2 --prefetch 0 --no-huge --no-tune-file --priority normal --idle-secs 0
+
+Validated on one Apple M3 / Mac15,12 / 16GB only. Runtime environment and
+compiler/linker versions can affect binary reproducibility and performance.
+256 golden + 64 random seed gates; 58 unit + 7 integration tests passed.
+Same-session hot ABBA: 5906.2 -> 6092.9 H/s (+3.161%).
+180-second pool run: 8 accepted, 0 refused, 0 unknown.
+Late slowdown remains; no all-M-series, sustained peak or efficiency claim.
+See adjacent RESULTS.txt and raw logs for rejected variants and limitations.

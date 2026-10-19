@@ -1,0 +1,117 @@
+{
+  "version": "0.1.20",
+  "date": "2026-10-18",
+  "change": "Correct default JTM pool to Gozero and implement pool share lifecycle",
+  "webPage": "https://pool.gozero.trade/JTM",
+  "miningRpc": "https://jtm.pool.gozero.trade/rpc",
+  "authentication": "Bearer ADDRESS.WORKER; no custom coinbase",
+  "presets": [
+    "Gozero HTTPS /rpc (default)",
+    "DongQN Singapore (optional)"
+  ],
+  "nativeSha256": "d398f5246379b23c5af203c1aaeac59f40082657228784695ad11e1b9558aa03",
+  "changes": [
+    "Decode accepted-share JSON objects without ending current work",
+    "Pause expired/no-work jobs and resume on valid refresh",
+    "Keep worker nonce cursor across target/epoch changes; rebuild seed ring",
+    "Use protocol-compatible version header; original TowerWalk math/quad kernel preserved",
+    "Update selected JTM profile on this M3; preserve other profiles and fee ledger"
+  ],
+  "checks": {
+    "guiWindows": 61,
+    "guiMac": 61,
+    "nativeUnit": 63,
+    "nativeIntegration": 7,
+    "gate": "256 golden +64 random, all tested profiles pass",
+    "mock": {
+      "scope": "local synthetic protocol regression, not real pool acceptance",
+      "acceptedObjects": 625,
+      "beforePause": 181,
+      "afterResume": 435,
+      "noSubmitsWhilePaused": true,
+      "noDuplicateNonces": true,
+      "finalStatus": {
+        "accepted": 625,
+        "found": 625,
+        "height": null,
+        "hps": 0.0,
+        "message": "stopped",
+        "refused": 0,
+        "state": "waiting",
+        "ts": 1792329526,
+        "type": "status",
+        "unknown": 0,
+        "uptime_s": 16
+      }
+    },
+    "live": {
+      "pool": "https://jtm.pool.gozero.trade/rpc",
+      "seconds": 65.352,
+      "rate": {
+        "total": 4335.8,
+        "cpu": 4335.8,
+        "gpu": 0
+      },
+      "finalTotals": {
+        "submitted": 4,
+        "accepted": 4,
+        "rejected": 0,
+        "unknown": 0
+      },
+      "noWork": true,
+      "threads": 8,
+      "hiddenContinued": true,
+      "stopClean": true,
+      "profileReload": true,
+      "activeQuit": true,
+      "rendererErrors": []
+    }
+  },
+  "supersededCandidate": {
+    "liveSeconds": 65.403,
+    "accepted": 18,
+    "refused": 1,
+    "reason": "duplicate share when pool difficulty changed; fixed cursor reset and rebuilt",
+    "source": "remote build-profile; local qa"
+  },
+  "package": {
+    "version": "0.1.20",
+    "dmg": {
+      "name": "Gozero-Assistant-Mac-0.1.20-arm64.dmg",
+      "bytes": 152266490,
+      "sha256": "4122f29bce7ae65488c7bb6ed3b99571e567eaf21e16ad0bc5a3abfd029535e5"
+    },
+    "zip": {
+      "name": "Gozero-Assistant-Mac-0.1.20-arm64.zip",
+      "bytes": 136517154,
+      "sha256": "dbdd671b4f4b216417eec0dd0ffab84894566a1bf574c68e0dc9236e7f5526d1"
+    },
+    "gui": {
+      "seconds": 65.352,
+      "rate": {
+        "total": 4335.8,
+        "cpu": 4335.8,
+        "gpu": 0
+      },
+      "totals": {
+        "submitted": 4,
+        "accepted": 4,
+        "rejected": 0,
+        "unknown": 0
+      },
+      "threads": 8,
+      "pool": "https://jtm.pool.gozero.trade/rpc",
+      "poolNoWork": true
+    },
+    "desktopInstalled": true,
+    "openedIdle": true,
+    "oldProfilesAndLedgerPreserved": true
+  },
+  "limitations": [
+    "One M3/macOS26.5.1 only",
+    "Short functional live sample, no sustained performance claim",
+    "Ad-hoc signed, not notarized",
+    "No GitHub publication; public remains0.1.18"
+  ],
+  "artifacts": ".local/jtm-gui-0.1.20; remote session/jtm-gui-020/build-2"
+}

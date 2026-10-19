@@ -1,0 +1,42 @@
+[package]
+name = "towerminer"
+version = "0.3.1"
+edition = "2021"
+license = "Apache-2.0"
+description = "TowerWalk CPU miner for Jetsam (JTM)"
+
+[dependencies]
+jetsam_core       = { path = "../vendor/jetsam_core" }
+jetsam_poseidon2b = { path = "../vendor/jetsam_poseidon2b" }
+reqwest    = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls"] }
+serde      = { version = "1", features = ["derive"] }
+serde_json = "1"
+clap       = { version = "4", features = ["derive", "env"] }
+hex        = "0.4"
+anyhow     = "1"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_Console",
+    "Win32_System_Memory",
+    "Win32_System_SystemInformation",
+    "Win32_System_Threading",
+] }
+
+[features]
+# Thermal-guard build (Linux only): the guard is ON by default, a CPU
+# temperature sensor is required (exit 5 without one, --no-thermal-guard to
+# run anyway), hard stop at 81 C, duty-cycle regulator. The default build has
+# no thermal guard at all.
+fleet = []
+# Negative mutants for the gate self-check: each breaks one kernel invariant
+# (xorshift 29 -> 28; lane order 1,0,2,3), so --gate and the start-up
+# self-test MUST fail. Never in a release build (--version shows "+mutant",
+# scripts/build.sh refuses it).
+mutant-xorshift28 = []
+mutant-lane-order = []

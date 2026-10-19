@@ -3,6 +3,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif;font-
 #language{height:24px;width:76px;font-size:11px;-webkit-app-region:no-drag;margin-left:8px}html[lang=en] nav button{padding:0 10px}html[lang=en] .mac-log-row{grid-template-columns:64px 64px 1fr}html[lang=en] .config-row>label{width:70px}html[lang=en] .panel-foot{height:auto;min-height:24px;gap:12px}html[lang=en] .field{height:auto;min-height:31px;gap:6px}html[lang=en] .field>label{overflow-wrap:anywhere}html[lang=en] .panel-head{height:auto;min-height:27px}html[lang=en] .status-panel p{max-width:520px}
 
 /* Five coin choices fit in one row at the supported minimum window width. */
-.coin-tabs{grid-template-columns:repeat(5,minmax(0,1fr))}.coin-tabs button{min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;height:44px}.coin-tabs small{margin-left:0;white-space:nowrap;font-size:9px}
+.coin-tabs{grid-template-columns:repeat(6,minmax(0,1fr))}.coin-tabs button{min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;height:44px}.coin-tabs small{margin-left:0;white-space:nowrap;font-size:9px}
 
 #mds-address-row{padding:8px 10px;font-size:11px;line-height:1.6;border-bottom:1px solid var(--line)}#mds-address-row label{display:flex;align-items:flex-start;gap:8px}#mds-address-row input{flex:0 0 14px;width:14px;height:14px;margin-top:2px}

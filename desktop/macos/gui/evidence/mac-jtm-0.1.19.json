@@ -1,0 +1,69 @@
+{
+  "version": "0.1.19",
+  "date": "2026-10-18",
+  "scope": "Complete macOS GUI with bundled JTM; existing coins retain pinned on-demand cores",
+  "hardware": "Apple M3 / Mac15,12 / 16 GB / macOS 26.5.1",
+  "build": {
+    "core": "towerminer 0.3.1 with Darwin/ARM, accepted-share, quad and parent lifecycle adaptations",
+    "rust": "1.93.0",
+    "cpuTarget": "apple-m1",
+    "coreDeploymentTarget": "11.0",
+    "guiMinimumMacOS": "13.5",
+    "coreSha256": "9106639e78f920533c162f11ffb636a242a092fe23bec465a1c6ecf62111cffd",
+    "originalCatalogSha256": "5ba25291a86d0a79c013fae750c3dbb8184e58fdffba1611bec4b0d570c2162d"
+  },
+  "checks": {
+    "windowsGuiTests": 61,
+    "macGuiTests": 61,
+    "nativeUnitTests": 58,
+    "nativeIntegrationTests": 7,
+    "goldenVectors": 256,
+    "randomGateSeeds": 64,
+    "guiLanguages": ["zh", "en"],
+    "minimumWindowChecked": [780, 620],
+    "allSixCoinTabsChecked": true,
+    "bundledCoreWorksWithoutDownload": true,
+    "hiddenWindowContinues": true,
+    "menuBarCpuRate": true,
+    "stopLeavesNoMiner": true,
+    "activeQuitLeavesNoMiner": true,
+    "nativeParentLossStopsMiner": true,
+    "profileReload": true,
+    "originalFeeLedgerFormulaPreserved": true,
+    "rendererErrors": []
+  },
+  "guiPoolTest": {
+    "pool": "http://sg.jtm.dongqn.com:8888",
+    "seconds": 65.5,
+    "cpuThreads": 8,
+    "lastLocalHps": 7281.6,
+    "submitted": 2,
+    "accepted": 2,
+    "rejected": 0,
+    "unknown": 0,
+    "limits": "Short functional pool validation, not sustained hashrate or an optimization comparison"
+  },
+  "delivery": {
+    "dmgBytes": 152225204,
+    "dmgSha256": "d22445e2fa9d02e98eccfdb4189cb98756fa795ecb279708b8514063a401047d",
+    "zipBytes": 136508855,
+    "zipSha256": "e273caed2b72536b1c27be71a1d234e69ad229ffe9945f07a8c5275417af168e",
+    "adHocSigned": true,
+    "appleNotarized": false,
+    "mountedDmgPayloadVerified": true,
+    "localDownloadsVerified": true,
+    "desktopInstalledIdle": true,
+    "desktopJtmPublicAddressConfigured": true,
+    "otherProfilesAndFeeLedgerPreserved": true,
+    "mdsWalletRestored": true,
+    "standaloneTestDmgArchived": true,
+    "githubPublished": false
+  },
+  "evidenceDirectory": ".local/jtm-gui-0.1.19",
+  "notes": [
+    "The first smoke harness checked the asynchronous install result too early; corrected to wait for ready and require a success report, then all actual GUI checks passed.",
+    "Only this M3 was tested. Other M chips and older OS versions need hardware validation.",
+    "The original M3-specific 3.16% result does not establish the portable GUI build's performance gain.",
+    "Windows workspace and existing GitHub releases were not modified."
+  ]
+}

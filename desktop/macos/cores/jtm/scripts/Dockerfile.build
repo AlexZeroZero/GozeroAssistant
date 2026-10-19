@@ -1,0 +1,7 @@
+# Build image of scripts/build.sh: Ubuntu 22.04 (glibc 2.35, so the Linux
+# binary runs on glibc 2.34+), a C toolchain for the few C/asm objects of the
+# TLS stack, MinGW-w64 for the Windows executable, zip for the Windows archive.
+# The Rust toolchain itself is the host's rustup, mounted read-only.
+FROM ubuntu:22.04
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends gcc libc6-dev gcc-mingw-w64-x86-64 binutils-mingw-w64-x86-64 zip file ca-certificates && rm -rf /var/lib/apt/lists/*

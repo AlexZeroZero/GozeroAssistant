@@ -2,6 +2,14 @@
 (function(root){
 'use strict';
 const entries=`
+JTM 需要有效的 j1 主网公开收款地址|JTM requires a valid j1 mainnet public payout address
+JTM 内核完整性校验失败|JTM core integrity verification failed
+自动 · 全部 CPU 核心|Auto · All CPU cores
+HTTP（非加密）|HTTP (unencrypted)
+HTTPS 加密|HTTPS encrypted
+JTM：TowerWalk · 原生 ARM64 CPU · 持续挖矿|JTM: TowerWalk · Native ARM64 CPU · Continuous mining
+自动使用本机核心数，也可指定线程上限|Uses all CPU cores automatically; an explicit thread limit is optional
+
 下载内核|Download core
 校验内核|Verify core
 已缓存 · 启动校验|Cached · verified before starting
@@ -47,7 +55,7 @@ BNT 当前内存压力过高或不足以分配一个 2 GiB 线程，请稍后重
 
 BNT：ARM64 CPU · 每线程 2 GiB 内存 · 短测已收到实池接受份额|BNT: ARM64 CPU · 2 GiB per thread · live pool shares accepted in short testing
 每线程 2 GiB；按内存压力自动减少线程|2 GiB per thread; threads adjust to memory pressure
-当前提供 NOID、QTC、PRL、BNT、MDS 挖矿|Supports NOID, QTC, PRL, BNT and MDS mining
+当前提供 NOID、QTC、PRL、BNT、MDS、JTM 挖矿|Supports NOID, QTC, PRL, BNT, MDS and JTM mining
 按有效设备运行时间分时|Time sharing based on active device runtime
 BNT 矿池登录成功|BNT pool login succeeded
 连接中断|Disconnected
@@ -69,7 +77,7 @@ PRL v3：本地校验通过；外部矿池接受份额待验证。电池供电�
 离线测速目前仅支持 NOID|Offline benchmark currently supports NOID only
 币种不支持|Unsupported coin
 请输入对应币种的公开收款地址|Enter a valid public payout address for this coin
-当前提供 NOID、QTC、PRL、BNT、MDS 挖矿、设备监控、NOID 离线测速、公开服务费调度、实时日志与结果导出。QTC 已获得实池接受份额；PRL 已通过本地证明验证，外部矿池接受份额仍待验证。|NOID, QTC, PRL, BNT and MDS mining, device monitoring, NOID offline benchmark, disclosed fee scheduling, live logs and export. QTC has a live pool accepted share; PRL passes local proof verification, with live pool acceptance still pending.
+当前提供 NOID、QTC、PRL、BNT、MDS、JTM 挖矿、设备监控、NOID 离线测速、公开服务费调度、实时日志与结果导出。QTC 已获得实池接受份额；PRL 已通过本地证明验证，外部矿池接受份额仍待验证。|NOID, QTC, PRL, BNT, MDS and JTM mining, device monitoring, NOID offline benchmark, disclosed fee scheduling, live logs and export. QTC has a live pool accepted share; PRL passes local proof verification, with live pool acceptance still pending.
 
 Gozero助手 Mac|Gozero Assistant Mac
 Gozero助手|Gozero Assistant

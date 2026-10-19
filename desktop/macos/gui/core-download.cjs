@@ -59,13 +59,13 @@ function proxyFallback(primary,secondary=fetch){
 }
 class CoreDownloads{
  constructor(dir,catalog,update=()=>{},deps={}){
-  this.root=path.join(dir,'kernels');this.catalog=catalog;this.update=update;this.deps=deps;this.value={stage:'idle',coin:null,received:0,total:0,error:null};this.available={};this.pending=null;
+  this.root=path.join(dir,'kernels');this.catalog=catalog;this.update=update;this.deps=deps;this.bundled=deps.bundled||{};this.value={stage:'idle',coin:null,received:0,total:0,error:null};this.available={};this.pending=null;
  }
  snapshot(){return{...this.value,available:{...this.available}};}
  set(value){this.value={...this.value,...value};this.update();}
  ids(coin){const ids=Object.hasOwn(this.catalog.coins,coin)&&this.catalog.coins[coin];if(!Array.isArray(ids))throw Error('内核配置无效');return ids;}
  folder(id){const m=this.catalog.packages[id];if(!/^[a-z]+$/.test(id)||!m||!/^[a-f0-9]{64}$/.test(m.sha256))throw Error('内核配置无效');return path.join(this.root,id+'-'+m.sha256.slice(0,20));}
- async scan(){for(const coin of Object.keys(this.catalog.coins))this.available[coin]=(await Promise.all(this.ids(coin).map(id=>fs.access(path.join(this.folder(id),'PAYLOAD.json')).then(()=>true,()=>false)))).every(Boolean);this.update();}
+ async scan(){for(const coin of Object.keys(this.catalog.coins))this.available[coin]=(await Promise.all(this.ids(coin).map(id=>fs.access(path.join(this.folder(id),'PAYLOAD.json')).then(()=>true,()=>false)))).every(Boolean);for(const [coin,b] of Object.entries(this.bundled))this.available[coin]=await b.verify().then(()=>true,()=>false);this.update();}
  async cancel(){this.controller?.abort(Error('内核下载已取消'));await this.pending?.catch(()=>{});}
  async ensure(coin){
   if(this.pending)throw Error('已有内核下载任务');this.controller=new AbortController();const signal=this.controller.signal;
@@ -74,6 +74,7 @@ class CoreDownloads{
  async install(coin,signal){
   this.set({coin,stage:'checking',received:0,total:0,error:null});
   try{
+   if(Object.hasOwn(this.bundled,coin)){const b=this.bundled[coin];await b.verify(signal);signal.throwIfAborted();this.available[coin]=true;this.set({stage:'ready'});return b.runtime;}
    await fs.mkdir(this.root,{recursive:true,mode:0o700});
    for(const id of this.ids(coin)){
     signal.throwIfAborted();const m=this.catalog.packages[id],dest=this.folder(id);
@@ -102,6 +103,6 @@ class CoreDownloads{
   this.ids(coin);const nativeDir=path.join(this.folder(coin.toLowerCase()),'native');
   return{nativeDir,node:this.ids(coin).includes('node')?path.join(this.folder('node'),'native/node'):undefined,python:this.ids(coin).includes('python')?path.join(this.folder('python'),'native/cores/python/bin/python3'):undefined};
  }
- async resolve(coin){for(const id of this.ids(coin))await verify(this.folder(id),this.catalog.packages[id]);return this.locations(coin);}
+ async resolve(coin){if(Object.hasOwn(this.bundled,coin)){const b=this.bundled[coin];await b.verify();return b.runtime;}for(const id of this.ids(coin))await verify(this.folder(id),this.catalog.packages[id]);return this.locations(coin);}
 }
 module.exports={CoreDownloads,verify,download,inside,proxyFallback};
