@@ -1,0 +1,182 @@
+{
+  "version": "0.1.20",
+  "publishedDate": "2026-10-19",
+  "releaseId": 404660109,
+  "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/mac-v0.1.2",
+  "sourceTag": "mac-v0.1.20",
+  "sourceCommit": "0243d9c821b2d6f0042605c90de3c2fd309f9f66",
+  "assets": {
+    "BUILD-MANIFEST.json": {
+      "sha256": "89430af3ed85303ea37b8f539331da90c284d14615a91aca1f55deda7578b61d",
+      "size": 5632
+    },
+    "CURRENT-VERSION.txt": {
+      "sha256": "dd8f1ca5d8dc0308e7e1833361f99e6fa6219a23e7d77251486628ee34aade7b",
+      "size": 2745
+    },
+    "Gozero-Assistant-Mac-0.1.2-arm64.zip": {
+      "sha256": "dbdd671b4f4b216417eec0dd0ffab84894566a1bf574c68e0dc9236e7f5526d1",
+      "size": 136517154
+    },
+    "Gozero-Assistant-Mac-0.1.6-arm64.dmg": {
+      "sha256": "4122f29bce7ae65488c7bb6ed3b99571e567eaf21e16ad0bc5a3abfd029535e5",
+      "size": 152266490
+    },
+    "Gozero-Mac-Core-bnt-0.1.18-arm64.tar.gz": {
+      "sha256": "cf7274683fbf36a5bfcb21e5d821560c9d8cf1c98a6932d77a7366904b4b2daf",
+      "size": 312982
+    },
+    "Gozero-Mac-Core-mds-0.1.18-arm64.tar.gz": {
+      "sha256": "a07ddb4f606a78b789268e6a99223879d3481763217b906cf1b3f41efd85966f",
+      "size": 4153034
+    },
+    "Gozero-Mac-Core-node-0.1.18-arm64.tar.gz": {
+      "sha256": "333a0eb07da7971d09c9903e6f63f41f87ccf0277a32f3c715b667f287b1b5ea",
+      "size": 39321476
+    },
+    "Gozero-Mac-Core-noid-0.1.18-arm64.tar.gz": {
+      "sha256": "d2f92ec2777f2784c09b5f752295464f4dbd2a13d173d9da22db73a8402e1579",
+      "size": 221176
+    },
+    "Gozero-Mac-Core-prl-0.1.18-arm64.tar.gz": {
+      "sha256": "ab2c4640b54882005a3203d543f16b5752e785b2edfa50f1f3b6d3402e9f26ee",
+      "size": 29762803
+    },
+    "Gozero-Mac-Core-python-0.1.18-arm64.tar.gz": {
+      "sha256": "4d0ba54f20431ea338781e204be2bc09d2d1be0fcf9031eeda1c5c84fb4ba052",
+      "size": 121970533
+    },
+    "Gozero-Mac-Core-qtc-0.1.18-arm64.tar.gz": {
+      "sha256": "e02aae549e3773f17aaf4d43e0eb144348f9cc80e83179005f2b912dcda44a75",
+      "size": 8770522
+    },
+    "Gozero-Mac-Core-Sources-0.1.18.tar.gz": {
+      "sha256": "f13d577e54d60764367f4bc953644d9e6a8aa08955b8b7f93739ca98154f2567",
+      "size": 126851047
+    },
+    "PRL-hashrate.png": {
+      "sha256": "a829c45357701a1eafcd8c16786d366a9f369a0217d30fd7b83d066a2905a8e9",
+      "size": 276425
+    },
+    "QTC-hashrate.png": {
+      "sha256": "d0e8a7811ad37f341c53f9bf5ddbfb49d6af75c215c76b78b22fd7aa01cfd6f9",
+      "size": 270169
+    },
+    "README-MAC.txt": {
+      "sha256": "b32ec664b0d0596241ddd2cb7384e59614f87502665a4af492eec372a9d6f7d4",
+      "size": 2309
+    },
+    "user-logs.jpg": {
+      "sha256": "1442a797b348054c320bbc3f7be4ad8f440060be77ab3b805b3e2001e15459ab",
+      "size": 274265
+    },
+    "user-mining.jpg": {
+      "sha256": "45bb1f95526f9562d1997ddddd7186b3f06041fc1a4ffc8977b0863106490a63",
+      "size": 132442
+    },
+    "VALIDATION.json": {
+      "sha256": "3d519a1e62282537f72b2d8de655604ed9caf8609f12ad8d2f0a135677ff12bc",
+      "size": 3890
+    },
+    "Gozero-Assistant-Mac-0.1.20-arm64.dmg": {
+      "sha256": "4122f29bce7ae65488c7bb6ed3b99571e567eaf21e16ad0bc5a3abfd029535e5",
+      "size": 152266490
+    },
+    "Gozero-Mac-JTM-Sources-0.1.20.tar.gz": {
+      "sha256": "763aec4210460fd478f797726714ff2a120295ae59e02fd75abc285f0cb58323",
+      "size": 4604396
+    },
+    "SHA256SUMS.txt": {
+      "sha256": "5754dbf0ef3295010b7796ee283b86052b903206bd98c54dc07b5b32904b92dc",
+      "size": 1947
+    }
+  },
+  "completePublicDownloads": [
+    {
+      "name": "Gozero-Assistant-Mac-0.1.20-arm64.dmg",
+      "bytes": 152266490,
+      "sha256": "4122f29bce7ae65488c7bb6ed3b99571e567eaf21e16ad0bc5a3abfd029535e5",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 0.09
+    },
+    {
+      "name": "Gozero-Assistant-Mac-0.1.2-arm64.zip",
+      "bytes": 136517154,
+      "sha256": "dbdd671b4f4b216417eec0dd0ffab84894566a1bf574c68e0dc9236e7f5526d1",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 8.42
+    },
+    {
+      "name": "CURRENT-VERSION.txt",
+      "bytes": 2745,
+      "sha256": "dd8f1ca5d8dc0308e7e1833361f99e6fa6219a23e7d77251486628ee34aade7b",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 1.3
+    },
+    {
+      "name": "README-MAC.txt",
+      "bytes": 2309,
+      "sha256": "b32ec664b0d0596241ddd2cb7384e59614f87502665a4af492eec372a9d6f7d4",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 1.2
+    },
+    {
+      "name": "Gozero-Assistant-Mac-0.1.6-arm64.dmg",
+      "bytes": 152266490,
+      "sha256": "4122f29bce7ae65488c7bb6ed3b99571e567eaf21e16ad0bc5a3abfd029535e5",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 7.92
+    },
+    {
+      "name": "Gozero-Mac-JTM-Sources-0.1.20.tar.gz",
+      "bytes": 4604396,
+      "sha256": "763aec4210460fd478f797726714ff2a120295ae59e02fd75abc285f0cb58323",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 1.81
+    },
+    {
+      "name": "BUILD-MANIFEST.json",
+      "bytes": 5632,
+      "sha256": "89430af3ed85303ea37b8f539331da90c284d14615a91aca1f55deda7578b61d",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 1.23
+    },
+    {
+      "name": "VALIDATION.json",
+      "bytes": 3890,
+      "sha256": "3d519a1e62282537f72b2d8de655604ed9caf8609f12ad8d2f0a135677ff12bc",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 1.2
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "bytes": 1947,
+      "sha256": "5754dbf0ef3295010b7796ee283b86052b903206bd98c54dc07b5b32904b92dc",
+      "publicDownloadVerified": true,
+      "method": "Complete public download; ordered HTTP ranges for large assets",
+      "seconds": 1.2
+    }
+  ],
+  "releaseBodyAndReadmeAndScreenshotsPreserved": true,
+  "mainAndOtherReleasesPreserved": true,
+  "compatibilityTagPreserved": true,
+  "supersededInstallersRemoved": true,
+  "otherCoinsPinnedCoreAssetsPreserved": true,
+  "preflight": {
+    "payloadFiles": 53,
+    "guiSourceFilesMatched": 25,
+    "jtmSourceFilesMatched": 88,
+    "noUserSettingsOrKeys": true,
+    "nativeHashVerified": true,
+    "installerHashesVerified": true
+  },
+  "note": "Same 0.1.20 binaries already verified on M3; publication did not rebuild them."
+}

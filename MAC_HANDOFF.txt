@@ -1574,3 +1574,25 @@ JTM GOZERO POOL CORRECTION / MAC0.1.20 - 2026-10-18
 - DMG SHA256:4122f29bce7ae65488c7bb6ed3b99571e567eaf21e16ad0bc5a3abfd029535e5
 - Evidence:gui/evidence/mac-jtm-0.1.20.json; .local/jtm-gui-0.1.20.
   No GitHub publication requested or performed; public remains0.1.18.
+
+MAC0.1.20 GITHUB PUBLICATION COMPLETE - 2026-10-19
+- User explicitly requested GitHub upload of the already tested packaged version.
+  Existing Mac release 404660109 /mac-v0.1.2 now serves0.1.20.
+  Canonical DMG152266490bytes SHA256
+  4122f29bce7ae65488c7bb6ed3b99571e567eaf21e16ad0bc5a3abfd029535e5.
+- Legacy0.1.2ZIP/0.1.6DMG links now contain0.1.20; body, README, links,
+  user images and PRL/QTC screenshots retained exactly. CURRENT-VERSION,
+  BUILD-MANIFEST, VALIDATION and SHA256SUMS updated; JTM source attached.
+- Full public downloads verify canonical DMG, compatibilityZIP/DMG, JTM source,
+  current metadata and unchanged README. All21assets match expected digests.
+  Previous0.1.18 installer and superseded metadata cleaned only after verification.
+  Keep0.1.18 pinned core packages/source: they remain current other-coin dependencies.
+- Source tag mac-v0.1.20 points 0243d9c821b2d6f0042605c90de3c2fd309f9f66.
+  Main, other releases and compatibility tag unchanged. No Windows publication.
+  Only Mac source branch advanced; later evidence commit may follow the source tag.
+- Package preflight:53resource files,25GUI/source matches,88JTM source files;
+  exact signed core hash and installer hashes verified, no user settings or keys.
+  M3 unavailable by SSH today; reused already M3-tested binaries without rebuilding.
+- Evidence:gui/evidence/mac-release-0.1.20.json; .local/release-0.1.20.
+  Do not rerun old publication scripts. Final application remains ad-hoc signed,
+  not notarized; M3 functional short-test results are not all-M or long-term claims.
